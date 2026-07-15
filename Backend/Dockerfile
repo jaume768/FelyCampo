@@ -11,6 +11,9 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# pip actualizado: la versión que trae la imagen base tiene CVEs (pip-audit).
+RUN pip install --upgrade "pip>=26.1.2"
+
 COPY requirements/ requirements/
 
 

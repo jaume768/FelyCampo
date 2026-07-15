@@ -29,8 +29,10 @@ services:
     depends_on:
       db:
         condition: service_healthy   # espera real a que Postgres acepte conexiones
+    # Liveness: solo comprueba que el proceso Django responde, no la BD, para no
+    # marcar "unhealthy" el contenedor web cuando el problema esté en Postgres.
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/v1/health/').status==200 else 1)\""]
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/v1/health/live/').status==200 else 1)\""]
       interval: 10s
       timeout: 5s
       retries: 5

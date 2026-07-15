@@ -17,11 +17,13 @@ docker compose -f docker-compose.dev.yml up --build
 
 Las migraciones se aplican solas al arrancar el contenedor `web`.
 
-- API:      http://localhost:8001/api/v1/
-- Health:   http://localhost:8001/api/v1/health/
-- Swagger:  http://localhost:8001/api/v1/docs/   (solo con DEBUG)
-- ReDoc:    http://localhost:8001/api/v1/redoc/  (solo con DEBUG)
-- Admin:    http://localhost:8001/admin/
+- API:        http://localhost:8001/api/v1/
+- Liveness:   http://localhost:8001/api/v1/health/live/   (no toca la BD)
+- Readiness:  http://localhost:8001/api/v1/health/ready/  (503 si la BD no responde)
+- Health:     http://localhost:8001/api/v1/health/        (alias de readiness, compat. Fase 0)
+- Swagger:    http://localhost:8001/api/v1/docs/   (solo con DEBUG)
+- ReDoc:      http://localhost:8001/api/v1/redoc/  (solo con DEBUG)
+- Admin:      http://localhost:8001/admin/
 
 > Puertos del host **8001** (API) y **5433** (Postgres): en esta máquina el 8000 y el 5432
 > estaban ocupados. Dentro de la red de Docker siguen siendo 8000 y 5432, así que
@@ -48,7 +50,19 @@ $C pytest
 # Lint y formato
 $C ruff check . --fix
 $C ruff format .
+
+# Auditoría de vulnerabilidades de dependencias
+$C pip-audit
+
+# Validar el esquema OpenAPI
+$C python manage.py spectacular --validate --fail-on-warn --file schema.yml
 ```
+
+## Integración continua
+
+`.github/workflows/ci.yml` corre en cada push y pull request con Python 3.12 y Postgres 16:
+`ruff check`, `ruff format --check`, `manage.py check`, `makemigrations --check`, `pytest`,
+validación del esquema OpenAPI, `check --deploy` con settings de producción y `pip-audit`.
 
 ## pre-commit (en el host)
 

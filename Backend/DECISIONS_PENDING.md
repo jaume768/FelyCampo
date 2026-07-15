@@ -43,6 +43,19 @@ condiciona migraciones difíciles de revertir.
   no son migrables).
 
 ## Infraestructura (fuera de Fase 0, no bloquea desarrollo)
-- Almacenamiento de imágenes en producción (S3/R2), hosting, CI/CD, backups, observabilidad.
+- **Almacenamiento de media en producción (R2/S3): pendiente.** `production.py` usa
+  `FileSystemStorage` marcado explícitamente como **PLACEHOLDER no apto para producción**
+  (se pierde en despliegues efímeros). No se ha elegido proveedor.
 - Celery/Redis: **no** añadido; no hay necesidad técnica actual demostrable. Se propondrá
   cuando aparezca (p. ej. reserva de stock con expiración, o email asíncrono).
+
+---
+
+## Estado técnico tras Fase 0.1 (auditoría y endurecimiento)
+Ya resuelto, no bloquea nada:
+- Django 5.2.16 LTS y dependencias actualizadas a versiones estables. `pip-audit` sin
+  vulnerabilidades conocidas.
+- Email con unicidad **case-insensitive** en Postgres (índice funcional sobre `Lower(email)`).
+- Health checks separados: `live` (sin BD) y `ready` (con BD); `health/` queda como alias.
+- `production.py` exige SECRET_KEY, ALLOWED_HOSTS sin comodín y CORS explícito.
+- CI en GitHub Actions con la batería completa de validaciones.

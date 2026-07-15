@@ -6,13 +6,30 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-class HealthView(APIView):
+class LivenessView(APIView):
+    """Liveness: el proceso Django responde. NO toca la base de datos."""
+
     authentication_classes: list = []
     permission_classes = [AllowAny]
 
     @extend_schema(
-        summary="Health check",
-        description="Returns service and database status.",
+        summary="Liveness probe",
+        description="200 si el proceso Django está vivo. No comprueba dependencias.",
+        responses={200: dict},
+    )
+    def get(self, request):
+        return Response({"status": "ok"})
+
+
+class ReadinessView(APIView):
+    """Readiness: la app puede servir tráfico (incluye la base de datos)."""
+
+    authentication_classes: list = []
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        summary="Readiness probe",
+        description="200 si la base de datos responde; 503 en caso contrario.",
         responses={200: dict, 503: dict},
     )
     def get(self, request):
@@ -23,6 +40,9 @@ class HealthView(APIView):
         except Exception:
             database = "error"
 
-        payload = {"status": "ok" if database == "ok" else "degraded", "database": database}
-        code = status.HTTP_200_OK if database == "ok" else status.HTTP_503_SERVICE_UNAVAILABLE
-        return Response(payload, status=code)
+        ready = database == "ok"
+        code = status.HTTP_200_OK if ready else status.HTTP_503_SERVICE_UNAVAILABLE
+        return Response(
+            {"status": "ok" if ready else "unavailable", "database": database},
+            status=code,
+        )

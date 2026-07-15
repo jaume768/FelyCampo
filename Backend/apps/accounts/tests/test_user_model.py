@@ -44,3 +44,19 @@ def test_email_is_unique():
     User.objects.create_user(email="dup@example.com", password="x")
     with pytest.raises(IntegrityError):
         User.objects.create_user(email="dup@example.com", password="y")
+
+
+@pytest.mark.django_db
+def test_email_uniqueness_is_case_insensitive():
+    # Postgres: distinta capitalización = mismo usuario, rechazado por Lower(email).
+    User.objects.create_user(email="Case@Example.com", password="x")
+    with pytest.raises(IntegrityError):
+        User.objects.create_user(email="case@example.COM", password="y")
+
+
+@pytest.mark.django_db
+def test_superuser_requires_staff_and_superuser_flags():
+    with pytest.raises(ValueError):
+        User.objects.create_superuser(email="a@example.com", password="x", is_staff=False)
+    with pytest.raises(ValueError):
+        User.objects.create_superuser(email="b@example.com", password="x", is_superuser=False)

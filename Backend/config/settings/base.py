@@ -95,6 +95,11 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
+# accounts.User no usa unique=True en el email: la unicidad es case-insensitive vía un
+# UniqueConstraint sobre Lower("email"). Django no reconoce ese índice funcional como
+# unicidad del USERNAME_FIELD, así que E003 es un falso positivo aquí y se silencia.
+SILENCED_SYSTEM_CHECKS = ["auth.E003"]
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",

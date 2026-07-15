@@ -1,7 +1,10 @@
 from django.urls import path
 
-from .views import HealthView
+from .views import LivenessView, ReadinessView
 
 urlpatterns = [
-    path("health/", HealthView.as_view(), name="health"),
+    path("health/live/", LivenessView.as_view(), name="health-live"),
+    path("health/ready/", ReadinessView.as_view(), name="health-ready"),
+    # Alias compatible con la Fase 0. Equivale a readiness (comprueba la BD).
+    path("health/", ReadinessView.as_view(), name="health"),
 ]
