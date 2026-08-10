@@ -7,11 +7,20 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from rest_framework.permissions import AllowAny, IsAdminUser
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include("config.api_urls")),
-    path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
+    # El esquema OpenAPI es el mapa completo de la API. En desarrollo es abierto (lo
+    # consumen Swagger y ReDoc); fuera de él solo lo ve el personal autenticado.
+    path(
+        "api/v1/schema/",
+        SpectacularAPIView.as_view(
+            permission_classes=[AllowAny] if settings.DEBUG else [IsAdminUser]
+        ),
+        name="schema",
+    ),
 ]
 
 # Documentación interactiva solo fuera de producción.

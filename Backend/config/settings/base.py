@@ -123,6 +123,27 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "apps.core.exceptions.api_exception_handler",
+    # Límite de ritmo. Sin esto quedan abiertos la fuerza bruta sobre el login, el alta
+    # masiva de cuentas y —lo más caro— el envío masivo de correos a nuestros propios
+    # buzones a través de las consultas y los avisos de stock.
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.ScopedRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": env("THROTTLE_ANON", default="120/min"),
+        "user": env("THROTTLE_USER", default="600/min"),
+        # Endpoints sensibles, con su propio cupo (ver `throttle_scope` en las vistas).
+        "login": env("THROTTLE_LOGIN", default="10/min"),
+        "register": env("THROTTLE_REGISTER", default="5/hour"),
+        "password_reset": env("THROTTLE_PASSWORD_RESET", default="5/hour"),
+        # Estos dos disparan correos: se limitan mucho más.
+        "enquiry": env("THROTTLE_ENQUIRY", default="5/hour"),
+        "stock_notification": env("THROTTLE_STOCK_NOTIFICATION", default="20/hour"),
+        # Consulta de pedido de invitado: contiene datos personales.
+        "order_lookup": env("THROTTLE_ORDER_LOOKUP", default="20/hour"),
+    },
 }
 
 SPECTACULAR_SETTINGS = {
@@ -136,6 +157,13 @@ SPECTACULAR_SETTINGS = {
 # CORS / CSRF: siempre desde entorno, nunca comodín. Producción lo refuerza (ver production.py).
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+
+# Base de las URLs que van dentro de los correos (seguimiento de pedido, restablecer
+# contraseña, verificar correo). Es el dominio del frontend, no el de la API.
+FRONTEND_BASE_URL = env("FRONTEND_BASE_URL", default="http://localhost:3000")
+
+# Validez de los enlaces de restablecimiento y verificación: 24 horas.
+PASSWORD_RESET_TIMEOUT = env.int("PASSWORD_RESET_TIMEOUT", default=60 * 60 * 24)
 
 # --- Reglas de negocio ---
 # Los precios se guardan SIN IVA; el tipo se aplica al calcular (apps/catalog/pricing.py).

@@ -7,6 +7,7 @@ el frontend guarda el UUID del carrito y lo manda en la cabecera `X-Cart-Id`.
 
 import logging
 
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
@@ -18,7 +19,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.core.exceptions import BusinessRuleError
-from apps.integrations.emails import send_invoice_request
+from apps.integrations.emails import send_invoice_request, send_order_confirmation
 from apps.integrations.stripe import get_gateway, to_minor_units
 
 from .models import Cart, CartItem, Order, OrderStatus, Return, ReturnLine
@@ -29,6 +30,7 @@ from .serializers import (
     OrderSerializer,
     ReturnCreateSerializer,
     ReturnSerializer,
+    empty_cart_payload,
 )
 from .services import (
     cancel_unpaid_order,
@@ -42,20 +44,34 @@ logger = logging.getLogger(__name__)
 CART_HEADER = "X-Cart-Id"
 
 
-def _get_or_create_cart(request) -> Cart:
+def _find_cart(request) -> Cart | None:
     """
-    Resuelve el carrito de la petición. Con sesión iniciada manda el del usuario; si no,
-    el UUID que el frontend guarda y envía en `X-Cart-Id`.
+    Localiza el carrito de la petición **sin crearlo**. Con sesión iniciada, el del
+    usuario; si no, el UUID que el frontend guarda y envía en `X-Cart-Id`.
     """
     if request.user.is_authenticated:
-        cart, _created = Cart.objects.get_or_create(user=request.user, checked_out_at=None)
-        return cart
+        return Cart.objects.filter(user=request.user, checked_out_at=None).first()
 
     cart_id = request.headers.get(CART_HEADER)
-    if cart_id:
-        cart = Cart.objects.filter(id=cart_id, user__isnull=True, checked_out_at=None).first()
-        if cart is not None:
-            return cart
+    if not cart_id:
+        return None
+    try:
+        return Cart.objects.filter(id=cart_id, user__isnull=True, checked_out_at=None).first()
+    except (ValueError, ValidationError):
+        # Cabecera con un UUID mal formado: se trata como «no hay carrito», no como error.
+        return None
+
+
+def _get_or_create_cart(request) -> Cart:
+    """
+    Igual que `_find_cart`, pero creando el carrito si no existe. **Solo para escrituras**:
+    crearlo en los GET llenaría la tabla con una fila por cada visita de bot.
+    """
+    cart = _find_cart(request)
+    if cart is not None:
+        return cart
+    if request.user.is_authenticated:
+        return Cart.objects.create(user=request.user)
     return Cart.objects.create()
 
 
@@ -72,23 +88,27 @@ def _serialized_cart(cart: Cart, request) -> dict:
 
 class CartView(APIView):
     """
-    Carrito actual. `GET` lo devuelve (creándolo si no existe) con el desglose de IVA y
-    envío ya calculado.
+    Carrito actual, con el desglose de IVA y envío ya calculado.
+
+    El `GET` **no crea nada**: si aún no hay carrito devuelve uno vacío con `id: null`. El
+    carrito nace en el primer `POST`, y es entonces cuando el frontend recibe el `id` que
+    debe guardar y mandar en `X-Cart-Id`.
     """
 
     permission_classes = [AllowAny]
 
     @extend_schema(responses={200: CartSerializer})
     def get(self, request):
-        # Antes de enseñar disponibilidad, se devuelven al stock las reservas caducadas.
-        release_expired_reservations()
-        cart = _get_or_create_cart(request)
+        cart = _find_cart(request)
+        if cart is None:
+            # No se crea nada en un GET: cualquier crawler llenaría la tabla de carritos
+            # vacíos. El frontend recibe un carrito vacío y obtiene su id al añadir algo.
+            return Response(empty_cart_payload())
         return Response(_serialized_cart(cart, request))
 
     @extend_schema(request=CartItemWriteSerializer, responses={200: CartSerializer})
     def post(self, request):
         """Añade una variante o **suma** a la cantidad que ya hubiera."""
-        release_expired_reservations()
         cart = _get_or_create_cart(request)
         serializer = CartItemWriteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -153,6 +173,10 @@ class CheckoutView(APIView):
 
     @extend_schema(request=CheckoutSerializer, responses={201: OrderSerializer})
     def post(self, request):
+        # Único punto donde la liberación va en línea: aquí se compromete stock de verdad
+        # y hay que contar con las reservas caducadas. En el resto lo hace el comando
+        # `release_reservations` por cron: en la ruta caliente costaba un SELECT y una
+        # transacción por pedido caducado en cada visita al carrito.
         release_expired_reservations()
         cart = _get_or_create_cart(request)
         serializer = CheckoutSerializer(data=request.data)
@@ -219,7 +243,24 @@ class StripeWebhookView(APIView):
             return Response(status=status.HTTP_200_OK)
 
         if event_type == "payment_intent.succeeded":
-            mark_order_paid(order_id=order_id, payment_intent_id=obj.get("id", ""))
+            # Se pasa lo que Stripe dice haber cobrado para contrastarlo con el total del
+            # pedido: confirmar sin comparar importe y moneda deja pasar manipulaciones.
+            order = mark_order_paid(
+                order_id=order_id,
+                payment_intent_id=obj.get("id", ""),
+                amount_received=obj.get("amount_received"),
+                currency=obj.get("currency"),
+            )
+            # Solo si el cobro se dio por bueno. El correo va fuera de la transacción y sin
+            # propagar: Stripe reintentaría el webhook y volveríamos a confirmar el pedido
+            # solo porque falló el servidor de correo.
+            if order.is_paid:
+                try:
+                    send_order_confirmation(order=order)
+                except Exception:
+                    logger.exception(
+                        "order_confirmation_email_failed", extra={"order": order.reference}
+                    )
         elif event_type == "payment_intent.payment_failed":
             # No se cancela: el cliente aún puede reintentar dentro de la hora de reserva.
             logger.info("stripe_payment_failed", extra={"order_id": order_id})
@@ -299,7 +340,11 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
         """Cancela un pedido que aún no se ha pagado y libera su reserva de stock."""
         # No usa get_object(): el queryset del listado excluye los pendientes de pago,
         # que son justo los únicos cancelables.
-        order = Order.objects.filter(id=pk, user=request.user).first()
+        try:
+            order = Order.objects.filter(id=pk, user=request.user).first()
+        except (ValueError, ValidationError):
+            # pk que no es un UUID: Django lanza ValidationError y saldría un 500.
+            order = None
         if order is None:
             raise NotFound("Pedido no encontrado.")
         cancel_unpaid_order(order=order)
@@ -309,27 +354,27 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
 
 class GuestOrderLookupView(APIView):
     """
-    Consulta de un pedido hecho **sin cuenta**. Se pide referencia y email juntos: la
-    referencia sola es adivinable, el email actúa de contraseña débil pero suficiente
-    para datos que el propio comprador ya conoce.
+    Consulta de un pedido hecho **sin cuenta**, mediante el token que se envía al comprador.
+
+    No se busca por referencia + email a propósito: la referencia es correlativa
+    (`FC-001000`, `FC-001001`…), así que con el correo de una persona se podría recorrer el
+    rango entero y extraer direcciones postales, teléfonos e importes. El token es un
+    secreto de 256 bits, no enumerable, y además el endpoint va limitado por ritmo.
     """
 
     permission_classes = [AllowAny]
+    throttle_scope = "order_lookup"
 
     @extend_schema(responses={200: OrderSerializer})
     def get(self, request):
-        reference = (request.query_params.get("reference") or "").strip().upper()
-        email = (request.query_params.get("email") or "").strip()
-        if not reference or not email:
+        token = (request.query_params.get("token") or "").strip()
+        if not token:
             raise BusinessRuleError(
-                "Indica la referencia del pedido y el correo con el que lo hiciste.",
+                "Falta el enlace de seguimiento que te enviamos por correo.",
                 code="lookup_incomplete",
             )
 
-        number = reference.removeprefix("FC-").lstrip("0")
-        order = Order.objects.filter(
-            number=number if number.isdigit() else 0, email__iexact=email
-        ).first()
+        order = Order.objects.filter(access_token=token).first()
         if order is None:
-            raise NotFound("No encontramos ningún pedido con esos datos.")
+            raise NotFound("No encontramos ningún pedido con ese enlace.")
         return Response(OrderSerializer(order).data)

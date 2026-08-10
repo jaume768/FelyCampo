@@ -29,7 +29,17 @@ def test_health_alias_matches_readiness():
 
 
 @pytest.mark.django_db
-def test_schema_is_served():
-    response = APIClient().get("/api/v1/schema/")
+def test_schema_no_se_regala_a_los_anonimos():
+    """Fuera de DEBUG el esquema es el mapa completo de la API: solo para el personal."""
+    assert APIClient().get("/api/v1/schema/").status_code == 403
 
-    assert response.status_code == 200
+
+@pytest.mark.django_db
+def test_schema_lo_ve_el_personal(django_user_model):
+    staff = django_user_model.objects.create_user(
+        email="staff@felycampo.test", password="Cl4ve-larga!", is_staff=True
+    )
+    client = APIClient()
+    client.force_authenticate(staff)
+
+    assert client.get("/api/v1/schema/").status_code == 200

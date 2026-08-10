@@ -49,6 +49,8 @@ importe con IVA (`*_gross`) ya calculado, para no reimplementar el 21% en el fro
 |---|---|
 | `GET  auth/csrf/` | Cookie CSRF. Pedirla una vez antes del primer POST. |
 | `POST auth/register/` · `login/` · `logout/` · `password/` | Sesión + cookie. |
+| `POST auth/password/reset/` · `reset/confirm/` | Recuperación de contraseña por correo. |
+| `POST auth/email/verify/` | Confirma la dirección con el enlace del correo de alta. |
 | `GET/PATCH account/me/` | Datos del cliente. |
 | `account/addresses/` · `account/favorites/` | CRUD del área privada. |
 
@@ -59,7 +61,7 @@ importe con IVA (`*_gross`) ya calculado, para no reimplementar el 21% en el fro
 | `PATCH/DELETE cart/items/{id}/` | Cambiar cantidad o quitar línea. |
 | `POST checkout/` | Crea el pedido, **reserva el stock 1 hora** y devuelve el `client_secret` de Stripe. |
 | `GET  orders/` · `orders/{id}/` | Historial del cliente. **Sin estado de envío** (lo lleva una empresa externa). |
-| `GET  orders/lookup/?reference=&email=` | Consulta de pedido para quien compró sin cuenta. |
+| `GET  orders/lookup/?token=` | Consulta de pedido para quien compró sin cuenta. El token va en el correo de confirmación; **no** se busca por referencia, que es correlativa y por tanto enumerable. |
 | `POST orders/{id}/request-invoice/` | Envía a administración el correo para emitir la factura. |
 | `POST orders/{id}/returns/` | Solicita devolución total o parcial (14 días). |
 | `POST orders/{id}/cancel/` | Cancela un pedido no pagado y libera la reserva. |
@@ -69,16 +71,34 @@ importe con IVA (`*_gross`) ya calculado, para no reimplementar el 21% en el fro
 
 1. `checkout/` **reserva** (`Variant.reserved += n`) durante `STOCK_RESERVATION_MINUTES`.
 2. El webhook de Stripe **confirma**: baja el stock real y suelta la reserva.
-3. Si el pago no llega a tiempo, la reserva se **libera** sola en la siguiente lectura.
+3. Si el pago no llega a tiempo, la reserva se **libera** y se **anula el PaymentIntent**,
+   para que el cliente no pueda pagar después algo cuyo stock ya volvió al almacén.
 
-No hace falta Celery: la liberación es perezosa y va dentro de una transacción con
-`select_for_update`.
+El webhook comprueba, antes de confirmar nada, que el pedido sigue vivo y que el importe y
+la moneda cobrados coinciden con el total. Si algo no cuadra **no se confirma**: el pedido
+queda marcado con `needs_manual_refund` y se registra en CRITICAL, porque devolver el
+dinero a mano es preferible a vender lo que no se tiene.
+
+No hace falta Celery: todo se resuelve con transacciones y `select_for_update`, más los
+comandos de abajo por cron.
 
 ### Tarea programada
 
 ```bash
-python manage.py send_stock_notifications   # avisos de reposición; programar por cron
+python manage.py send_stock_notifications   # avisos de reposición (cada pocos minutos)
+python manage.py release_reservations       # libera reservas caducadas (cada 5-10 min)
+python manage.py purge_carts                # carritos abandonados (una vez al día)
 ```
+
+`release_reservations` no es opcional: el checkout libera reservas en línea, pero el resto
+de la aplicación ya no lo hace en cada petición (costaba un SELECT y una transacción por
+pedido caducado en cada visita al carrito).
+
+### Límites de ritmo
+
+Todos los endpoints van limitados (`THROTTLE_*` en `.env`). Los que envían correo
+(consultas de producto, avisos de stock, restablecer contraseña) y la consulta de pedido de
+invitado llevan cupos propios y mucho más estrictos.
 
 ## Requisitos
 - Docker y Docker Compose.

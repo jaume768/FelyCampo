@@ -123,7 +123,20 @@ def test_un_cliente_no_ve_los_pedidos_de_otro(api, user, django_user_model, vari
     assert api.get("/api/v1/orders/").json()["count"] == 0
 
 
-def test_el_invitado_consulta_su_pedido_con_referencia_y_correo(api, variant, checkout_data):
+def test_el_invitado_consulta_su_pedido_con_el_token(api, variant, checkout_data):
+    cart = Cart.objects.create()
+    CartItem.objects.create(cart=cart, variant=variant, quantity=1)
+    order = create_order_from_cart(cart=cart, checkout_data=checkout_data)
+
+    response = api.get("/api/v1/orders/lookup/", {"token": order.access_token})
+
+    assert response.status_code == 200
+    assert response.json()["reference"] == order.reference
+
+
+def test_la_referencia_y_el_correo_no_bastan_para_ver_un_pedido(api, variant, checkout_data):
+    """La referencia es correlativa: si sirviera para consultar, se podría enumerar el
+    histórico entero y extraer direcciones y teléfonos."""
     cart = Cart.objects.create()
     CartItem.objects.create(cart=cart, variant=variant, quantity=1)
     order = create_order_from_cart(cart=cart, checkout_data=checkout_data)
@@ -133,21 +146,26 @@ def test_el_invitado_consulta_su_pedido_con_referencia_y_correo(api, variant, ch
         {"reference": order.reference, "email": checkout_data["email"]},
     )
 
-    assert response.status_code == 200
-    assert response.json()["reference"] == order.reference
+    assert response.status_code == 409  # falta el token
 
 
-def test_la_referencia_sola_no_basta_para_ver_un_pedido(api, variant, checkout_data):
+def test_un_token_ajeno_no_abre_ningun_pedido(api, variant, checkout_data):
     cart = Cart.objects.create()
     CartItem.objects.create(cart=cart, variant=variant, quantity=1)
-    order = create_order_from_cart(cart=cart, checkout_data=checkout_data)
+    create_order_from_cart(cart=cart, checkout_data=checkout_data)
 
-    response = api.get(
-        "/api/v1/orders/lookup/",
-        {"reference": order.reference, "email": "quien-sea@example.com"},
-    )
+    assert api.get("/api/v1/orders/lookup/", {"token": "inventado"}).status_code == 404
 
-    assert response.status_code == 404
+
+def test_los_tokens_de_pedido_son_distintos_entre_si(api, variant, checkout_data):
+    tokens = set()
+    for _ in range(3):
+        cart = Cart.objects.create()
+        CartItem.objects.create(cart=cart, variant=variant, quantity=1)
+        tokens.add(create_order_from_cart(cart=cart, checkout_data=checkout_data).access_token)
+
+    assert len(tokens) == 3
+    assert all(len(t) > 30 for t in tokens)
 
 
 def test_pedir_factura_envia_el_correo_a_administracion(

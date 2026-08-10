@@ -65,6 +65,11 @@ jobs:
       - name: Django deploy check (production settings)
         env:
           DJANGO_SETTINGS_MODULE: config.settings.production
+          # production.py exige SMTP y remitente: sin ellos los correos saldrían como
+          # webmaster@localhost y /request-invoice/ rompería en producción. Valores de
+          # relleno solo para que la comprobación pueda ejecutarse.
+          EMAIL_HOST: smtp.example.com
+          DEFAULT_FROM_EMAIL: no-reply@example.com
         run: python manage.py check --deploy
 
       - name: pip-audit

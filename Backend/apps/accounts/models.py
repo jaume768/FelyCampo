@@ -20,6 +20,14 @@ class User(UUIDModel, AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(_("apellidos"), max_length=150, blank=True)
     phone = models.CharField(_("teléfono"), max_length=32, blank=True)
     accepts_marketing = models.BooleanField(_("acepta comunicaciones"), default=False)
+    email_verified = models.BooleanField(
+        _("correo verificado"),
+        default=False,
+        help_text=_(
+            "Confirma que la dirección pertenece a quien se registró. No bloquea el "
+            "acceso: es una decisión de producto pendiente (ver DECISIONS_PENDING.md)."
+        ),
+    )
     is_active = models.BooleanField(_("activo"), default=True)
     is_staff = models.BooleanField(_("acceso al admin"), default=False)
     date_joined = models.DateTimeField(_("alta"), auto_now_add=True)

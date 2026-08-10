@@ -15,6 +15,8 @@ from django.conf import settings
 class PaymentGateway(Protocol):
     def create_payment_intent(self, *, amount: int, currency: str, metadata: dict) -> dict: ...
 
+    def cancel_payment_intent(self, *, payment_intent_id: str) -> None: ...
+
     def verify_webhook(self, *, payload: bytes, signature: str) -> dict: ...
 
 
@@ -39,6 +41,14 @@ class StripeGateway:
             automatic_payment_methods={"enabled": True},
         )
         return {"id": intent["id"], "client_secret": intent["client_secret"]}
+
+    def cancel_payment_intent(self, *, payment_intent_id: str) -> None:
+        """
+        Anula el intento de cobro. Se llama al liberar una reserva caducada: si no, el
+        cliente puede pagar minutos después un pedido cuyo stock ya se devolvió al
+        almacén, y acabaríamos cobrando algo que no podemos servir.
+        """
+        _client().PaymentIntent.cancel(payment_intent_id)
 
     def verify_webhook(self, *, payload: bytes, signature: str) -> dict:
         """

@@ -13,6 +13,7 @@ Todo importe del pedido es una **copia congelada** en el momento de la compra: c
 precio o borrar un producto en el catálogo no reescribe el histórico.
 """
 
+import secrets
 from decimal import Decimal
 
 from django.conf import settings
@@ -176,6 +177,26 @@ class Order(UUIDTimeStampedModel):
         _("PaymentIntent de Stripe"), max_length=255, blank=True, db_index=True
     )
     paid_at = models.DateTimeField(_("pagado el"), null=True, blank=True)
+    needs_manual_refund = models.BooleanField(
+        _("requiere reembolso manual"),
+        default=False,
+        help_text=_(
+            "Se cobró un pedido que no puede servirse (caducó, o el importe no cuadra). "
+            "Hay que devolver el dinero a mano en Stripe."
+        ),
+    )
+
+    # --- Acceso para quien compró sin cuenta ---
+    access_token = models.CharField(
+        _("token de consulta"),
+        max_length=43,
+        unique=True,
+        editable=False,
+        help_text=_(
+            "Secreto que se envía al comprador para consultar su pedido sin cuenta. "
+            "La referencia es correlativa y por tanto adivinable; esto no."
+        ),
+    )
 
     # --- Reserva de stock durante el pago ---
     reserved_until = models.DateTimeField(_("stock reservado hasta"), null=True, blank=True)
@@ -227,6 +248,8 @@ class Order(UUIDTimeStampedModel):
     def save(self, *args, **kwargs):
         if self.number is None:
             self.number = _next_order_number()
+        if not self.access_token:
+            self.access_token = secrets.token_urlsafe(32)
         super().save(*args, **kwargs)
 
 

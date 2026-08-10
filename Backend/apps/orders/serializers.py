@@ -7,6 +7,8 @@ al teléfono para saber cómo va. Por eso `OrderSerializer` no incluye `status` 
 `StaffOrderSerializer`, que solo usa el panel.
 """
 
+from decimal import Decimal
+
 from rest_framework import serializers
 
 from apps.catalog.models import Variant
@@ -85,6 +87,20 @@ class CartSerializer(serializers.ModelSerializer):
         return any(not item.has_stock for item in obj.items.all())
 
 
+def empty_cart_payload() -> dict:
+    """
+    Representación de «todavía no hay carrito», con la misma forma que `CartSerializer`
+    para que el frontend no tenga que distinguir dos respuestas. El `id` es nulo porque no
+    existe ninguna fila: se crea al añadir el primer artículo.
+    """
+    return {
+        "id": None,
+        "items": [],
+        "totals": {key: str(value) for key, value in quote_totals(Decimal("0.00")).items()},
+        "has_stock_issues": False,
+    }
+
+
 class CartItemWriteSerializer(serializers.Serializer):
     """Alta o cambio de cantidad de una línea."""
 
@@ -144,6 +160,9 @@ class OrderSerializer(serializers.ModelSerializer):
     reference = serializers.CharField(read_only=True)
     is_paid = serializers.BooleanField(read_only=True)
     can_be_returned = serializers.BooleanField(read_only=True)
+    # Se devuelve al comprador para que pueda construir su enlace de seguimiento; es un
+    # secreto suyo, no un identificador público.
+    access_token = serializers.CharField(read_only=True)
 
     class Meta:
         model = Order
@@ -171,6 +190,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "can_be_returned",
             "invoice_requested",
             "customer_note",
+            "access_token",
             "lines",
         )
 

@@ -14,6 +14,7 @@ disponibilidad que importe, siempre dentro de una transacción con `select_for_u
 
 from __future__ import annotations
 
+import logging
 from decimal import Decimal
 
 from django.conf import settings
@@ -23,8 +24,11 @@ from django.utils import timezone
 from apps.catalog.models import Variant
 from apps.catalog.pricing import round_money, vat_rate
 from apps.core.exceptions import BusinessRuleError
+from apps.integrations.stripe import get_gateway, to_minor_units
 
 from .models import Cart, Order, OrderLine, OrderStatus, Return, ReturnStatus
+
+logger = logging.getLogger(__name__)
 
 ZERO = Decimal("0.00")
 
@@ -81,6 +85,10 @@ def release_expired_reservations() -> int:
             order.cancelled_at = now
             order.reserved_until = None
             order.save(update_fields=["status", "cancelled_at", "reserved_until", "updated_at"])
+            # El stock ya volvió al almacén: hay que impedir que el cliente pueda pagar
+            # este pedido más tarde. Se anula fuera de la parte crítica pero dentro de la
+            # transacción, y sin propagar si Stripe falla.
+            cancel_payment_intent(order)
             released += 1
     return released
 
@@ -184,15 +192,57 @@ def create_order_from_cart(*, cart: Cart, checkout_data: dict, user=None) -> Ord
 
 
 @transaction.atomic
-def mark_order_paid(*, order_id, payment_intent_id: str = "") -> Order:
+def mark_order_paid(
+    *,
+    order_id,
+    payment_intent_id: str = "",
+    amount_received: int | None = None,
+    currency: str | None = None,
+) -> Order:
     """
     Confirma el pago: descuenta el stock de verdad y suelta la reserva.
 
     Idempotente a propósito — Stripe reintenta los webhooks, y cobrar dos veces el stock
     dejaría el almacén en negativo.
+
+    Dos comprobaciones antes de dar nada por bueno, porque a partir de aquí se mueve
+    mercancía real:
+
+    - **El pedido sigue vivo.** Si la reserva caducó y se canceló, el stock ya volvió al
+      almacén; confirmarlo ahora vendería unidades que no existen. Se marca para reembolso
+      manual y se avisa en CRITICAL.
+    - **El importe cuadra.** Se compara con lo que Stripe dice haber cobrado. Un importe o
+      moneda distintos significan manipulación o un descuadre contable.
+
+    En ambos casos **no se confirma nada**: el dinero está en Stripe y hay que devolverlo a
+    mano, que es preferible a un almacén en negativo y a un pedido que no se puede servir.
     """
     order = Order.objects.select_for_update().get(id=order_id)
     if order.stock_committed:
+        return order
+
+    problem = _payment_rejection_reason(order, amount_received, currency)
+    if problem is not None:
+        logger.critical(
+            "order_payment_rejected",
+            extra={
+                "order": order.reference,
+                "reason": problem,
+                "payment_intent": payment_intent_id,
+            },
+        )
+        order.needs_manual_refund = True
+        order.staff_note = f"{order.staff_note}\n[AUTOMÁTICO] Cobro rechazado: {problem}".strip()
+        if payment_intent_id:
+            order.stripe_payment_intent_id = payment_intent_id
+        order.save(
+            update_fields=[
+                "needs_manual_refund",
+                "staff_note",
+                "stripe_payment_intent_id",
+                "updated_at",
+            ]
+        )
         return order
 
     for line in order.lines.all():
@@ -222,6 +272,37 @@ def mark_order_paid(*, order_id, payment_intent_id: str = "") -> Order:
     return order
 
 
+def _payment_rejection_reason(
+    order: Order, amount_received: int | None, currency: str | None
+) -> str | None:
+    """Devuelve por qué no debe aceptarse este cobro, o `None` si todo cuadra."""
+    if order.status == OrderStatus.CANCELLED:
+        return "el pedido ya estaba cancelado y su stock se devolvió al almacén"
+
+    if amount_received is not None:
+        expected = to_minor_units(order.total_gross)
+        if amount_received != expected:
+            return f"importe cobrado {amount_received} ≠ esperado {expected} (céntimos)"
+
+    if currency is not None and currency.upper() != order.currency.upper():
+        return f"moneda cobrada {currency.upper()} ≠ esperada {order.currency}"
+
+    return None
+
+
+def cancel_payment_intent(order: Order) -> None:
+    """
+    Anula el intento de cobro del pedido. Nunca propaga: si Stripe falla, la cancelación
+    del pedido debe completarse igual, y `mark_order_paid` sigue protegiendo el stock.
+    """
+    if not order.stripe_payment_intent_id:
+        return
+    try:
+        get_gateway().cancel_payment_intent(payment_intent_id=order.stripe_payment_intent_id)
+    except Exception:
+        logger.exception("stripe_cancel_failed", extra={"order": order.reference})
+
+
 @transaction.atomic
 def cancel_unpaid_order(*, order: Order) -> Order:
     """Cancela un pedido no pagado y libera su reserva."""
@@ -235,6 +316,7 @@ def cancel_unpaid_order(*, order: Order) -> Order:
     order.cancelled_at = timezone.now()
     order.reserved_until = None
     order.save(update_fields=["status", "cancelled_at", "reserved_until", "updated_at"])
+    cancel_payment_intent(order)
     return order
 
 
@@ -303,12 +385,23 @@ def merge_carts(*, guest_cart: Cart, user) -> Cart:
         return user_cart
 
     for item in guest_cart.items.select_related("variant"):
+        available = item.variant.available
         existing = user_cart.items.filter(variant=item.variant).first()
+
+        if available <= 0:
+            # Se agotó mientras el carrito de invitado esperaba. No se arrastra: meterlo
+            # dejaría en el carrito una línea que el checkout va a rechazar igualmente.
+            if existing is not None:
+                existing.delete()
+            item.delete()
+            continue
+
         if existing is None:
+            item.quantity = min(item.quantity, available)
             item.cart = user_cart
-            item.save(update_fields=["cart", "updated_at"])
+            item.save(update_fields=["cart", "quantity", "updated_at"])
         else:
-            existing.quantity = min(existing.quantity + item.quantity, item.variant.available or 1)
+            existing.quantity = min(existing.quantity + item.quantity, available)
             existing.save(update_fields=["quantity", "updated_at"])
             item.delete()
 

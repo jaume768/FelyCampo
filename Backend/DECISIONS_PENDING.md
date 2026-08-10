@@ -71,6 +71,19 @@ migraciones difíciles de revertir.
   administración con datos del cliente, líneas de pedido y total.
 - La dirección destino es un **placeholder configurable por entorno** (`INVOICE_REQUEST_EMAIL`).
 
+## Seguridad y operación (revisión posterior a Fase 1)
+- **Consulta de pedido sin cuenta**: por **token opaco** enviado en el correo de
+  confirmación, no por referencia + email. La referencia es correlativa y se podría
+  enumerar el histórico entero.
+- **Confirmación de pago**: se rechaza si el pedido está cancelado o si el importe/moneda
+  no coinciden. El pedido queda con `needs_manual_refund` y hay que devolver a mano.
+- **Verificación de correo**: se envía al registrarse y marca `email_verified`. **No
+  bloquea el acceso** — que un correo sin verificar impida comprar o entrar es una decisión
+  de producto **pendiente de confirmar con el cliente**.
+- **Límites de ritmo** activos en toda la API, con cupos estrictos donde se envían correos.
+- **Tareas por cron obligatorias**: `release_reservations`, `send_stock_notifications`,
+  `purge_carts`.
+
 ## i18n
 - La interfaz se traduce en el **frontend**. Idiomas ES/EN.
 - **Salvedad**: nombres y descripciones de producto viven en la BD y el frontend no puede
@@ -110,6 +123,13 @@ migraciones difíciles de revertir.
   (novia / fiesta / outlet…) está modelada de forma jerárquica genérica; falta validar el
   árbol real con el cliente.
 - **Contenido editable** (`content`): páginas, bloques, menús, blog. Sin decidir.
+
+## Seguridad pendiente
+- **`django-axes`** para bloquear por IP/cuenta tras varios intentos fallidos en el login y
+  en `/admin/`. El límite de ritmo actual frena la fuerza bruta, pero no bloquea al
+  atacante ni deja registro de intentos.
+- **Cachear los contadores de ritmo en Redis** cuando haya más de un proceso: con la caché
+  en memoria de cada worker, el límite real se multiplica por el número de procesos.
 
 ## Infraestructura
 - **Almacenamiento de media en producción (R2/S3): pendiente.** `production.py` usa

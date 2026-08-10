@@ -7,6 +7,8 @@ quien haga el frontend prefiere JWT, se cambia solo la clase de autenticación: 
 vista depende del mecanismo. Ver DECISIONS_PENDING.md.
 """
 
+import logging
+
 from django.contrib.auth import login as django_login
 from django.contrib.auth import logout as django_logout
 from django.middleware.csrf import get_token
@@ -17,18 +19,25 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.integrations.emails import send_email_verification, send_password_reset
 from apps.orders.models import Cart
 from apps.orders.services import merge_carts
 
 from .models import Address, Favorite
 from .serializers import (
     AddressSerializer,
+    EmailVerificationConfirmSerializer,
     FavoriteSerializer,
     LoginSerializer,
     PasswordChangeSerializer,
+    PasswordResetConfirmSerializer,
+    PasswordResetRequestSerializer,
     RegisterSerializer,
     UserSerializer,
+    build_signed_link_parts,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class CSRFTokenView(APIView):
@@ -48,18 +57,22 @@ class RegisterView(APIView):
 
     permission_classes = [AllowAny]
 
+    throttle_scope = "register"
+
     @extend_schema(request=RegisterSerializer, responses={201: UserSerializer})
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         django_login(request, user, backend="apps.accounts.backends.CaseInsensitiveEmailBackend")
+        _send_verification(user)
         _adopt_guest_cart(request, user)
         return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
+    throttle_scope = "login"
 
     @extend_schema(request=LoginSerializer, responses={200: UserSerializer})
     def post(self, request):
@@ -143,6 +156,72 @@ class FavoriteViewSet(
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class PasswordResetRequestView(APIView):
+    """
+    Pide el enlace de restablecimiento.
+
+    Responde **204 siempre**, exista o no la cuenta: si distinguiera, cualquiera podría
+    comprobar qué correos están registrados en la tienda.
+    """
+
+    permission_classes = [AllowAny]
+    throttle_scope = "password_reset"
+
+    @extend_schema(request=PasswordResetRequestSerializer, responses={204: None})
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.get_user()
+        if user is not None:
+            uid, token = build_signed_link_parts(user)
+            send_password_reset(user=user, uid=uid, token=token)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PasswordResetConfirmView(APIView):
+    """Fija la nueva contraseña a partir del enlace recibido por correo."""
+
+    permission_classes = [AllowAny]
+    throttle_scope = "password_reset"
+
+    @extend_schema(request=PasswordResetConfirmSerializer, responses={204: None})
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        user.set_password(serializer.validated_data["new_password"])
+        # Quien demuestra controlar el buzón verifica de paso la dirección.
+        user.email_verified = True
+        user.save(update_fields=["password", "email_verified", "updated_at"])
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EmailVerificationConfirmView(APIView):
+    """Marca el correo como verificado. El token de Django caduca solo."""
+
+    permission_classes = [AllowAny]
+    throttle_scope = "password_reset"
+
+    @extend_schema(request=EmailVerificationConfirmSerializer, responses={204: None})
+    def post(self, request):
+        serializer = EmailVerificationConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        if not user.email_verified:
+            user.email_verified = True
+            user.save(update_fields=["email_verified", "updated_at"])
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def _send_verification(user) -> None:
+    """El fallo del correo no debe tumbar el registro: la cuenta ya está creada."""
+    try:
+        uid, token = build_signed_link_parts(user)
+        send_email_verification(user=user, uid=uid, token=token)
+    except Exception:
+        logger.exception("verification_email_failed", extra={"user": str(user.pk)})
 
 
 def _adopt_guest_cart(request, user) -> None:

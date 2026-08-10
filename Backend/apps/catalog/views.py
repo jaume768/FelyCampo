@@ -108,6 +108,7 @@ class StockNotificationView(APIView):
     """
 
     permission_classes = [AllowAny]
+    throttle_scope = "stock_notification"
 
     @extend_schema(
         request=StockNotificationSerializer, responses={201: StockNotificationSerializer}
@@ -126,6 +127,7 @@ class ProductEnquiryView(APIView):
     """
 
     permission_classes = [AllowAny]
+    throttle_scope = "enquiry"
 
     @extend_schema(request=ProductEnquirySerializer, responses={202: None})
     def post(self, request):

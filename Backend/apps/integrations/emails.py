@@ -13,6 +13,84 @@ from django.core.mail import send_mail
 from apps.catalog.pricing import gross
 
 
+def _frontend_url(path: str) -> str:
+    return f"{settings.FRONTEND_BASE_URL.rstrip('/')}{path}"
+
+
+def send_order_confirmation(*, order) -> None:
+    """
+    Confirmación de compra. Es el correo que espera cualquier cliente tras pagar y, además,
+    el único sitio donde viaja el `access_token`: es el enlace con el que quien compró sin
+    cuenta podrá volver a ver su pedido.
+
+    No promete fechas ni estados de envío: de la logística se encarga una empresa externa.
+    """
+    lines = [
+        f"  {line.quantity} × {line.product_name} ({line.color_name} / {line.size_code})"
+        f"  {gross(line.line_net)} €"
+        for line in order.lines.all()
+    ]
+    tracking = _frontend_url(f"/pedido/?token={order.access_token}")
+    body = "\n".join(
+        [
+            f"Hemos recibido tu pedido {order.reference}. ¡Gracias!",
+            "",
+            *lines,
+            "",
+            f"  Envío: {gross(order.shipping_net)} €",
+            f"  TOTAL (IVA incluido): {order.total_gross} {order.currency}",
+            "",
+            "ENVÍO A",
+            f"  {order.shipping_recipient}",
+            f"  {_shipping_line(order)}",
+            "",
+            "Consulta tu pedido cuando quieras en este enlace personal:",
+            f"  {tracking}",
+            "",
+            "Si tienes cualquier duda, responde a este correo.",
+        ]
+    )
+    send_mail(
+        subject=f"Pedido confirmado — {order.reference}",
+        message=body,
+        from_email=None,
+        recipient_list=[order.email],
+        fail_silently=False,
+    )
+
+
+def send_password_reset(*, user, uid: str, token: str) -> None:
+    """Enlace de restablecimiento de contraseña. Caduca según `PASSWORD_RESET_TIMEOUT`."""
+    link = _frontend_url(f"/restablecer-contrasena/?uid={uid}&token={token}")
+    send_mail(
+        subject="Restablece tu contraseña",
+        message=(
+            "Has pedido restablecer tu contraseña. Abre este enlace para elegir una nueva:\n\n"
+            f"  {link}\n\n"
+            "Si no has sido tú, ignora este mensaje: tu contraseña no cambiará."
+        ),
+        from_email=None,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+
+
+def send_email_verification(*, user, uid: str, token: str) -> None:
+    """Confirmación de que el correo pertenece a quien se registra."""
+    link = _frontend_url(f"/verificar-correo/?uid={uid}&token={token}")
+    send_mail(
+        subject="Confirma tu correo",
+        message=(
+            "Confirma tu dirección para terminar de crear tu cuenta:\n\n"
+            f"  {link}\n\n"
+            "Si no te has registrado en Fely Campo, ignora este mensaje."
+        ),
+        from_email=None,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+
+
 def send_product_enquiry(*, product, name: str, email: str, phone: str, message: str) -> None:
     """Consulta sobre un artículo sin precio."""
     body = "\n".join(
