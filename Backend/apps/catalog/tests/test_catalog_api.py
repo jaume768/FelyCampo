@@ -217,3 +217,70 @@ def test_los_avisos_de_reposicion_se_envian_al_reponer(catalog, mailoutbox):
 
     # Reejecutar no reenvía: notified_at ya está marcado.
     assert send_pending_stock_notifications() == 0
+
+
+def test_el_listado_viene_paginado(api, catalog):
+    body = api.get("/api/v1/catalog/products/").json()
+
+    assert set(body) == {"count", "next", "previous", "results"}
+
+
+def test_las_listas_de_filtros_no_se_paginan(api, catalog):
+    """Tallas, familias y categorías alimentan menús: paginarlas obligaría a encadenar
+    peticiones para pintar un desplegable."""
+    for endpoint in ("sizes", "families", "categories"):
+        assert isinstance(api.get(f"/api/v1/catalog/{endpoint}/").json(), list)
+
+
+def test_el_page_size_esta_topado(api, catalog):
+    from apps.core.pagination import DefaultPagination
+
+    body = api.get("/api/v1/catalog/products/?page_size=5000").json()
+
+    assert len(body["results"]) <= DefaultPagination.max_page_size
+
+
+def test_la_paginacion_no_repite_ni_omite_productos_creados_a_la_vez(api, catalog):
+    """Mismo created_at en todos: sin desempate por id, Postgres puede barajarlos."""
+    family = catalog["family"]
+    for i in range(6):
+        Product.objects.create(
+            family=family,
+            design_code=f"90{i}",
+            name=f"Pieza {i}",
+            price=Decimal("100.00"),
+            is_published=True,
+        )
+    Product.objects.update(created_at=Product.objects.first().created_at)
+
+    seen = []
+    for page in (1, 2, 3, 4):
+        seen += [
+            p["id"]
+            for p in api.get(f"/api/v1/catalog/products/?page_size=2&page={page}").json()["results"]
+        ]
+
+    assert len(seen) == len(set(seen)) == 7
+
+
+def test_el_orden_pedido_por_el_frontend_tambien_es_estable(api, catalog):
+    family = catalog["family"]
+    for i in range(4):
+        Product.objects.create(
+            family=family,
+            design_code=f"80{i}",
+            name=f"Igual {i}",
+            price=Decimal("100.00"),  # mismo precio: empate a propósito
+            is_published=True,
+        )
+
+    seen = []
+    for page in (1, 2, 3):
+        seen += [
+            p["id"]
+            for p in api.get(
+                f"/api/v1/catalog/products/?ordering=price&page_size=2&page={page}"
+            ).json()["results"]
+        ]
+
+    assert len(seen) == len(set(seen)) == 5

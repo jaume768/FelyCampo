@@ -6,6 +6,30 @@ API REST en Django + DRF sobre PostgreSQL. Docker para desarrollo y depuración.
 Las reglas de negocio cerradas y lo que sigue pendiente están en
 [`DECISIONS_PENDING.md`](DECISIONS_PENDING.md).
 
+## Probar la API en el navegador
+
+```bash
+docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml exec web python manage.py seed_demo
+```
+
+`seed_demo` crea catálogo de ejemplo (7 diseños, 2 colores y 7 tallas cada uno, con tallas
+agotadas a propósito, rebajas, outlet y un producto de solo consulta) y un superusuario
+`admin@felycampo.test` / `admin12345`. Solo funciona con `DEBUG=True`.
+
+| Dónde | Para qué |
+|---|---|
+| http://localhost:8001/api/v1/docs/ | **Swagger UI** — la lista completa de endpoints, con «Try it out» para lanzar peticiones. |
+| http://localhost:8001/api/v1/redoc/ | ReDoc: la misma documentación en formato de lectura. |
+| http://localhost:8001/api/v1/catalog/products/ | **API navegable de DRF** — se puede navegar y hacer POST desde formularios HTML. |
+| http://localhost:8001/admin/ | Admin de Django: cargar productos, stock, pedidos y devoluciones. |
+
+Consejo para probar escrituras: entra primero en `/admin/` con el superusuario. La sesión
+queda abierta y tanto Swagger como la API navegable te dejarán hacer POST sin pelearte con
+el CSRF.
+
+Swagger y ReDoc **solo se sirven con `DEBUG=True`**: en producción no se exponen.
+
 ## API
 
 Todo cuelga de `/api/v1/`. Los precios se **guardan sin IVA** y la API devuelve además el

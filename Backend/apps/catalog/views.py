@@ -35,7 +35,10 @@ class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     lookup_field = "slug"
     search_fields = ("name", "description", "colorways__sku", "family__name")
     ordering_fields = ("created_at", "price", "name")
-    ordering = ("-created_at",)
+    # El desempate por `id` es obligatorio para paginar: sin él, dos productos con el
+    # mismo `created_at` (habitual tras una importación masiva) pueden repetirse entre
+    # páginas o desaparecer, porque Postgres no garantiza un orden estable.
+    ordering = ("-created_at", "id")
 
     def get_queryset(self):
         # Prefetch explícito: la ficha toca 5 niveles y sin esto el listado son N+1 consultas.
