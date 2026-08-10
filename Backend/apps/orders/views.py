@@ -139,8 +139,11 @@ class CartItemView(APIView):
     permission_classes = [AllowAny]
 
     def _get_item(self, request, item_id) -> CartItem:
-        cart = _get_or_create_cart(request)
-        item = cart.items.filter(id=item_id).first()
+        # `_find_cart` y no `_get_or_create_cart`: modificar o borrar una línea nunca debe
+        # crear un carrito. Sin esto, un DELETE sobre un id inexistente creaba una fila y
+        # después devolvía 404 — el mismo vector de basura que ya se cerró en el GET.
+        cart = _find_cart(request)
+        item = cart.items.filter(id=item_id).first() if cart is not None else None
         if item is None:
             raise NotFound("Esa línea no está en tu carrito.")
         return item
@@ -182,7 +185,12 @@ class CheckoutView(APIView):
         # `release_reservations` por cron: en la ruta caliente costaba un SELECT y una
         # transacción por pedido caducado en cada visita al carrito.
         release_expired_reservations()
-        cart = _get_or_create_cart(request)
+        # Tampoco aquí se crea nada: sin carrito, la compra no puede prosperar y crear uno
+        # vacío solo dejaría basura antes de responder «carrito vacío».
+        cart = _find_cart(request)
+        if cart is None:
+            raise BusinessRuleError("El carrito está vacío.", code="cart_empty")
+
         serializer = CheckoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 

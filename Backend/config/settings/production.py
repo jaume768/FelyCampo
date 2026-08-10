@@ -17,6 +17,11 @@ if not CORS_ALLOWED_ORIGINS:  # noqa: F405
 # Sin caché compartida, los contadores del límite de ritmo son por proceso: con varios
 # workers los cupos se multiplican y se reinician en cada despliegue. Es la diferencia
 # entre tener límites y creer que se tienen.
+#
+# Exigir Redis NO lo convierte en un punto único de fallo: los throttles degradan en
+# abierto (apps/core/throttling.py) y la caché lleva timeouts de 0,5 s. Si Redis cae, la
+# tienda sigue vendiendo sin límites de ritmo y el fallo se registra en ERROR y aparece
+# como `cache: error` en /health/ready/.
 if not REDIS_URL:  # noqa: F405
     raise RuntimeError(
         "REDIS_URL es obligatorio en producción: los límites de ritmo necesitan una "

@@ -112,6 +112,15 @@ Dos ajustes hacen que los límites sean reales y no decorativos:
   `10/min` con 3 workers son 30/min y se reinician en cada despliegue. **Obligatorio en
   producción**: el arranque falla sin él. Redis se usa solo como caché, no hay Celery.
 
+Exigir Redis **no** lo convierte en un punto único de fallo. Los throttles
+(`apps/core/throttling.py`) **degradan en abierto**: si la caché falla, se registra el error
+en ERROR y la petición pasa. Un rato sin límites es peor que tenerlos, pero mucho mejor que
+un rato sin tienda. La caché lleva además `socket_timeout` de 0,5 s, para que un Redis lento
+no agote los workers esperando al timeout de red del sistema.
+
+`/health/ready/` informa del estado en el campo `cache`, pero **solo la base de datos
+decide el 503**: sacar el proceso de rotación porque falta Redis sería peor que el problema.
+
 ## Requisitos
 - Docker y Docker Compose.
 

@@ -132,3 +132,30 @@ def test_purge_carts_en_simulacion_no_borra_nada(db, variant):
     call_command("purge_carts", "--dry-run")
 
     assert Cart.objects.filter(pk=cart.pk).exists()
+
+
+def test_borrar_una_linea_inexistente_no_crea_carrito(api, db):
+    """Mismo vector que en el GET: la ruta de error no debe escribir nada."""
+    response = api.delete("/api/v1/cart/items/00000000-0000-0000-0000-000000000001/")
+
+    assert response.status_code == 404
+    assert Cart.objects.count() == 0
+
+
+def test_modificar_una_linea_inexistente_no_crea_carrito(api, db):
+    response = api.patch(
+        "/api/v1/cart/items/00000000-0000-0000-0000-000000000001/",
+        {"quantity": 2},
+        format="json",
+    )
+
+    assert response.status_code == 404
+    assert Cart.objects.count() == 0
+
+
+def test_el_checkout_sin_carrito_no_crea_carrito(api, db, checkout_data):
+    response = api.post("/api/v1/checkout/", checkout_data, format="json")
+
+    assert response.status_code == 409
+    assert response.json()["error"]["code"] == "cart_empty"
+    assert Cart.objects.count() == 0

@@ -85,7 +85,9 @@ migraciones difíciles de revertir.
   Quedan fuera el webhook de Stripe y las sondas de salud. Dependen de `NUM_PROXIES` y de
   `REDIS_URL`: **al desplegar hay que ajustar `NUM_PROXIES` al número real de proxies**
   (nginx/ALB = 1) o el límite se puede esquivar falseando `X-Forwarded-For`.
-- **Redis** como caché compartida, obligatorio en producción. Sin Celery.
+- **Redis** como caché compartida, obligatorio en producción. Sin Celery. **No es punto
+  único de fallo**: los throttles degradan en abierto y la caché lleva timeouts de 0,5 s.
+  Si Redis cae, la tienda vende sin límites de ritmo y se registra en ERROR.
 - **Tareas por cron obligatorias**: `release_reservations`, `send_stock_notifications`,
   `purge_carts`.
 

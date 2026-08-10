@@ -81,7 +81,14 @@ DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=60)
 REDIS_URL = env("REDIS_URL", default="")
 if REDIS_URL:
     CACHES = {
-        "default": {"BACKEND": "django.core.cache.backends.redis.RedisCache", "LOCATION": REDIS_URL}
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+            # Timeouts cortos y explícitos: sin ellos, un Redis colgado bloquea el worker
+            # hasta el timeout de red del sistema operativo (minutos), y basta con que
+            # Redis se ralentice para agotar los workers de gunicorn.
+            "OPTIONS": {"socket_timeout": 0.5, "socket_connect_timeout": 0.5},
+        }
     }
 else:
     CACHES = {
@@ -140,10 +147,12 @@ REST_FRAMEWORK = {
     # Límite de ritmo. Sin esto quedan abiertos la fuerza bruta sobre el login, el alta
     # masiva de cuentas y —lo más caro— el envío masivo de correos a nuestros propios
     # buzones a través de las consultas y los avisos de stock.
+    # Degradan en abierto: si Redis cae, se registra el error y se deja pasar. Ver
+    # apps/core/throttling.py — la tienda no puede depender de Redis para vender.
     "DEFAULT_THROTTLE_CLASSES": [
-        "rest_framework.throttling.AnonRateThrottle",
-        "rest_framework.throttling.UserRateThrottle",
-        "rest_framework.throttling.ScopedRateThrottle",
+        "apps.core.throttling.FailOpenAnonRateThrottle",
+        "apps.core.throttling.FailOpenUserRateThrottle",
+        "apps.core.throttling.FailOpenScopedRateThrottle",
     ],
     # Número de proxies de confianza delante de Django (nginx / ALB = 1).
     # **Crítico**: si vale None, DRF identifica al cliente por el contenido íntegro de
