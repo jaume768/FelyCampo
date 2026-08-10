@@ -95,10 +95,16 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
+# El login casa el email ignorando mayúsculas, igual que el índice único del modelo.
+AUTHENTICATION_BACKENDS = ["apps.accounts.backends.CaseInsensitiveEmailBackend"]
+
 # accounts.User no usa unique=True en el email: la unicidad es case-insensitive vía un
 # UniqueConstraint sobre Lower("email"). Django no reconoce ese índice funcional como
 # unicidad del USERNAME_FIELD, así que E003 es un falso positivo aquí y se silencia.
-SILENCED_SYSTEM_CHECKS = ["auth.E003"]
+# auth.W004 sustituye a E003 al declarar un backend propio: Django avisa de que el
+# USERNAME_FIELD no es único porque no reconoce el índice funcional. El backend
+# CaseInsensitiveEmailBackend sí lo maneja, que es justo lo que pide el HINT.
+SILENCED_SYSTEM_CHECKS = ["auth.E003", "auth.W004"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -129,6 +135,23 @@ SPECTACULAR_SETTINGS = {
 # CORS / CSRF: siempre desde entorno, nunca comodín. Producción lo refuerza (ver production.py).
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+
+# --- Reglas de negocio ---
+# Los precios se guardan SIN IVA; el tipo se aplica al calcular (apps/catalog/pricing.py).
+VAT_RATE = env("VAT_RATE", default="0.21")
+CURRENCY = "EUR"
+# Envío: tarifa plana única, independiente del número de artículos. Importes PENDIENTES
+# de que los facilite el cliente; estos son placeholders.
+SHIPPING_FLAT_RATE = env("SHIPPING_FLAT_RATE", default="0.00")
+ORDER_MINIMUM_TOTAL = env("ORDER_MINIMUM_TOTAL", default="0.00")
+# Minutos que se retiene el stock mientras el cliente paga.
+STOCK_RESERVATION_MINUTES = env.int("STOCK_RESERVATION_MINUTES", default=60)
+# Días para devolver. El retorno lo paga el cliente; el reembolso se ejecuta a mano.
+RETURN_WINDOW_DAYS = env.int("RETURN_WINDOW_DAYS", default=14)
+# Destino de las solicitudes de factura. PLACEHOLDER: falta la dirección real.
+INVOICE_REQUEST_EMAIL = env("INVOICE_REQUEST_EMAIL", default="facturacion@example.com")
+# Destino de las consultas de productos sin precio. PLACEHOLDER: falta la dirección real.
+PRODUCT_ENQUIRY_EMAIL = env("PRODUCT_ENQUIRY_EMAIL", default="info@example.com")
 
 # --- Integraciones (solo configuración; sin lógica en Fase 0) ---
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")

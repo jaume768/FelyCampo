@@ -2,8 +2,59 @@
 
 API REST en Django + DRF sobre PostgreSQL. Docker para desarrollo y depuración.
 
-**Estado: Fase 0** — base técnica ejecutable, sin modelos de negocio. Las reglas de
-ecommerce están fuera de alcance y documentadas en [`DECISIONS_PENDING.md`](DECISIONS_PENDING.md).
+**Estado: Fase 1** — catálogo, cuentas, carrito, checkout con Stripe y devoluciones.
+Las reglas de negocio cerradas y lo que sigue pendiente están en
+[`DECISIONS_PENDING.md`](DECISIONS_PENDING.md).
+
+## API
+
+Todo cuelga de `/api/v1/`. Los precios se **guardan sin IVA** y la API devuelve además el
+importe con IVA (`*_gross`) ya calculado, para no reimplementar el 21% en el frontend.
+
+### Catálogo (público)
+| Endpoint | Qué hace |
+|---|---|
+| `GET  catalog/products/` | Listado. Filtros: `family`, `category`, `color`, `size`, `sale_mode`, `is_outlet`, `kind`, `in_stock`, `price_min`, `price_max`. Además `search`, `ordering`, `page`, `page_size`. |
+| `GET  catalog/products/{slug}/` | Ficha completa: colores, tallas, disponibilidad, galería y piezas del conjunto. |
+| `GET  catalog/families/` · `categories/` · `sizes/` | Datos de navegación. Categorías en árbol. |
+| `POST catalog/stock-notifications/` | «Avísame cuando haya stock». No requiere cuenta. |
+| `POST catalog/enquiries/` | Consulta de un producto sin precio; se envía por correo. |
+
+### Cuentas
+| Endpoint | Qué hace |
+|---|---|
+| `GET  auth/csrf/` | Cookie CSRF. Pedirla una vez antes del primer POST. |
+| `POST auth/register/` · `login/` · `logout/` · `password/` | Sesión + cookie. |
+| `GET/PATCH account/me/` | Datos del cliente. |
+| `account/addresses/` · `account/favorites/` | CRUD del área privada. |
+
+### Carrito y pedidos
+| Endpoint | Qué hace |
+|---|---|
+| `GET/POST cart/` | Carrito actual con totales. Sin sesión, el frontend manda la cabecera `X-Cart-Id`. |
+| `PATCH/DELETE cart/items/{id}/` | Cambiar cantidad o quitar línea. |
+| `POST checkout/` | Crea el pedido, **reserva el stock 1 hora** y devuelve el `client_secret` de Stripe. |
+| `GET  orders/` · `orders/{id}/` | Historial del cliente. **Sin estado de envío** (lo lleva una empresa externa). |
+| `GET  orders/lookup/?reference=&email=` | Consulta de pedido para quien compró sin cuenta. |
+| `POST orders/{id}/request-invoice/` | Envía a administración el correo para emitir la factura. |
+| `POST orders/{id}/returns/` | Solicita devolución total o parcial (14 días). |
+| `POST orders/{id}/cancel/` | Cancela un pedido no pagado y libera la reserva. |
+| `POST webhooks/stripe/` | Confirma el pago y descuenta el stock. Idempotente. |
+
+### Ciclo del stock
+
+1. `checkout/` **reserva** (`Variant.reserved += n`) durante `STOCK_RESERVATION_MINUTES`.
+2. El webhook de Stripe **confirma**: baja el stock real y suelta la reserva.
+3. Si el pago no llega a tiempo, la reserva se **libera** sola en la siguiente lectura.
+
+No hace falta Celery: la liberación es perezosa y va dentro de una transacción con
+`select_for_update`.
+
+### Tarea programada
+
+```bash
+python manage.py send_stock_notifications   # avisos de reposición; programar por cron
+```
 
 ## Requisitos
 - Docker y Docker Compose.
@@ -104,12 +155,12 @@ config/
   urls.py       raíz; api_urls.py engancha /api/v1/
 apps/
   core/         modelos base (UUID, timestamps), paginación, errores, logging, health
-  accounts/     User personalizado (UUID PK, email login), manager, admin
-  catalog/      vacío (pendiente de decisiones)
-  content/      vacío
-  orders/       vacío
-  appointments/ vacío (Calendly)
-  integrations/ interfaces vacías: Stripe, Brevo, Calendly
+  accounts/     User (email login), direcciones, favoritos, registro/sesión
+  catalog/      Family → Product → Colorway (SKU) → Variant (stock); precios, outlet
+  orders/       carrito, checkout, reserva de stock, pedidos, devoluciones
+  content/      vacío (pendiente de decisiones)
+  appointments/ vacío (Calendly o sistema propio, sin decidir)
+  integrations/ Stripe, correos transaccionales; Brevo y Calendly pendientes
 ```
 
 ## Convenciones fijadas
