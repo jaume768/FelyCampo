@@ -14,6 +14,17 @@ CORS_ALLOW_ALL_ORIGINS = False
 if not CORS_ALLOWED_ORIGINS:  # noqa: F405
     raise RuntimeError("CORS_ALLOWED_ORIGINS es obligatorio en producción.")
 
+# El frontend vive en felycampo.com y la API en api.felycampo.com. `CsrfViewMiddleware`
+# compara la cabecera `Origin` con el host de la petición: no coincidirán, y sin esta lista
+# Django responde **403 a todos los POST** — login, carrito y checkout incluidos. El
+# síntoma es idéntico al de un CORS mal puesto ("el GET va, el POST no"), así que se
+# comprueba al arrancar en vez de descubrirlo en producción.
+if not CSRF_TRUSTED_ORIGINS:  # noqa: F405
+    raise RuntimeError(
+        "CSRF_TRUSTED_ORIGINS es obligatorio en producción: el frontend vive en otro "
+        "subdominio y sin él Django rechaza todos los POST con 403."
+    )
+
 # Sin caché compartida, los contadores del límite de ritmo son por proceso: con varios
 # workers los cupos se multiplican y se reinician en cada despliegue. Es la diferencia
 # entre tener límites y creer que se tienen.

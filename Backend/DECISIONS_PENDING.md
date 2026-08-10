@@ -84,6 +84,10 @@ migraciones difíciles de revertir.
 - **CORS**: `CORS_ALLOW_CREDENTIALS = True`, orígenes **explícitos en todos los entornos**
   (nunca comodín: con credenciales el navegador descarta las respuestas con `*`), y
   `x-cart-id` declarada en `CORS_ALLOW_HEADERS` para que funcione el preflight del carrito.
+- **CSRF entre subdominios**: `CSRF_TRUSTED_ORIGINS` debe listar el origen del frontend, o
+  Django responde 403 a todos los POST. Es obligatorio en producción (guarda de arranque).
+  El token se entrega en el cuerpo de `GET /auth/csrf/`, así que **no hace falta tocar
+  `CSRF_COOKIE_DOMAIN`** aunque el JavaScript no pueda leer la cookie de otro subdominio.
 
 ## Seguridad y operación (revisión posterior a Fase 1)
 - **Consulta de pedido sin cuenta**: por **token opaco** enviado en el correo de

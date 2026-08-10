@@ -62,8 +62,34 @@ fetch(`${API}/api/v1/cart/`, {
 ```
 
 `X-Cart-Id` está declarada en `CORS_ALLOW_HEADERS`; sin eso el preflight del carrito
-fallaría. Para escrituras, pide antes la cookie CSRF en `GET /api/v1/auth/csrf/` y manda su
-valor en `X-CSRFToken`.
+fallaría.
+
+**CSRF.** Para escrituras, pide primero `GET /api/v1/auth/csrf/` y manda el valor en la
+cabecera `X-CSRFToken`:
+
+```js
+const { csrf_token } = await fetch(`${API}/api/v1/auth/csrf/`, {
+  credentials: "include",
+}).then((r) => r.json())
+
+await fetch(`${API}/api/v1/auth/login/`, {
+  method: "POST",
+  credentials: "include",
+  headers: { "Content-Type": "application/json", "X-CSRFToken": csrf_token },
+  body: JSON.stringify({ email, password }),
+})
+```
+
+> La cookie CSRF la fija `api.felycampo.com`, así que el JavaScript de `felycampo.com`
+> **no puede leerla** con `document.cookie` — y no hace falta: el endpoint devuelve el token
+> en el cuerpo JSON y la cookie viaja sola con `credentials: "include"`. **No toques
+> `CSRF_COOKIE_DOMAIN`**; compartir la cookie entre subdominios ampliaría su alcance sin
+> resolver nada.
+
+`CSRF_TRUSTED_ORIGINS` debe listar el origen del frontend. Django compara la cabecera
+`Origin` con el host de la petición, y `felycampo.com` nunca casará con `api.felycampo.com`:
+sin esa lista, **todos los POST responden 403**. En producción el arranque falla si está
+vacía.
 
 ### Cuentas
 | Endpoint | Qué hace |
