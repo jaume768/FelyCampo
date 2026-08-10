@@ -48,6 +48,16 @@ class Cart(UUIDTimeStampedModel):
         verbose_name = _("carrito")
         verbose_name_plural = _("carritos")
         ordering = ["-updated_at"]
+        constraints = [
+            # Un usuario, un carrito abierto. Sin esto, dos peticiones simultáneas de
+            # quien acaba de iniciar sesión pueden crear dos carritos y el resto del
+            # código elegiría uno con `.first()`, perdiendo lo que haya en el otro.
+            models.UniqueConstraint(
+                fields=["user"],
+                condition=models.Q(checked_out_at__isnull=True, user__isnull=False),
+                name="orders_cart_one_open_per_user",
+            ),
+        ]
 
     def __str__(self) -> str:
         return f"Carrito {self.id}"

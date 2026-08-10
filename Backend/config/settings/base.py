@@ -74,6 +74,20 @@ DATABASES = {"default": env.db("DATABASE_URL")}
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=60)
 
+# Caché. Es donde viven los contadores del límite de ritmo, así que **debe ser compartida
+# entre procesos**: con la caché en memoria de cada worker, `10/min` con 3 workers de
+# gunicorn son en realidad 30/min, y los contadores se reinician en cada despliegue.
+# Basta un Redis para caché; no hace falta Celery.
+REDIS_URL = env("REDIS_URL", default="")
+if REDIS_URL:
+    CACHES = {
+        "default": {"BACKEND": "django.core.cache.backends.redis.RedisCache", "LOCATION": REDIS_URL}
+    }
+else:
+    CACHES = {
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    }
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -131,6 +145,11 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
         "rest_framework.throttling.ScopedRateThrottle",
     ],
+    # Número de proxies de confianza delante de Django (nginx / ALB = 1).
+    # **Crítico**: si vale None, DRF identifica al cliente por el contenido íntegro de
+    # X-Forwarded-For, que el propio cliente controla. Bastaría mandar un valor distinto
+    # en cada petición para obtener un cupo nuevo y anular todos los límites de abajo.
+    "NUM_PROXIES": env.int("NUM_PROXIES", default=1),
     "DEFAULT_THROTTLE_RATES": {
         "anon": env("THROTTLE_ANON", default="120/min"),
         "user": env("THROTTLE_USER", default="600/min"),
@@ -184,6 +203,9 @@ PRODUCT_ENQUIRY_EMAIL = env("PRODUCT_ENQUIRY_EMAIL", default="info@example.com")
 
 # --- Integraciones (solo configuración; sin lógica en Fase 0) ---
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
+# El timeout por defecto de la librería ronda los 80 s: demasiado para una petición web.
+STRIPE_TIMEOUT_SECONDS = env.int("STRIPE_TIMEOUT_SECONDS", default=10)
+STRIPE_MAX_RETRIES = env.int("STRIPE_MAX_RETRIES", default=2)
 STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 BREVO_API_KEY = env("BREVO_API_KEY", default="")
 CALENDLY_WEBHOOK_SIGNING_KEY = env("CALENDLY_WEBHOOK_SIGNING_KEY", default="")

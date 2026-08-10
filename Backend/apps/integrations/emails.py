@@ -91,6 +91,35 @@ def send_email_verification(*, user, uid: str, token: str) -> None:
     )
 
 
+def send_manual_refund_alert(*, order, reason: str) -> None:
+    """
+    Aviso a administración de que se ha cobrado un pedido que no puede servirse.
+
+    Es dinero de un cliente esperando a que alguien lo devuelva a mano en Stripe: si esto
+    solo quedara en el log y en un flag del admin, nadie se enteraría.
+    """
+    send_mail(
+        subject=f"[ACCIÓN REQUERIDA] Reembolso manual — pedido {order.reference}",
+        message="\n".join(
+            [
+                f"Se ha recibido un pago para el pedido {order.reference} que NO se ha",
+                "podido confirmar. El dinero está en Stripe y hay que devolverlo a mano.",
+                "",
+                f"Motivo: {reason}",
+                "",
+                f"  Cliente: {order.email}",
+                f"  Importe del pedido: {order.total_gross} {order.currency}",
+                f"  PaymentIntent: {order.stripe_payment_intent_id or '—'}",
+                "",
+                "El stock NO se ha descontado: el pedido no se puede servir tal cual.",
+            ]
+        ),
+        from_email=None,
+        recipient_list=[settings.INVOICE_REQUEST_EMAIL],
+        fail_silently=False,
+    )
+
+
 def send_product_enquiry(*, product, name: str, email: str, phone: str, message: str) -> None:
     """Consulta sobre un artículo sin precio."""
     body = "\n".join(

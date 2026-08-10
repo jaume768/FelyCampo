@@ -29,6 +29,12 @@ def _client():
     import stripe
 
     stripe.api_key = settings.STRIPE_SECRET_KEY
+    # Timeout corto y reintentos: una llamada colgada bloquearía la petición del cliente
+    # (y, si alguna vez vuelve a caer dentro de una transacción, también las filas).
+    stripe.max_network_retries = settings.STRIPE_MAX_RETRIES
+    stripe.default_http_client = stripe.http_client.new_default_http_client(
+        timeout=settings.STRIPE_TIMEOUT_SECONDS
+    )
     return stripe
 
 

@@ -133,3 +133,27 @@ def test_el_correo_de_confirmacion_no_promete_estados_de_envio(pending_order, ma
     body = mailoutbox[0].body.lower()
     assert "en preparación" not in body
     assert "enviado" not in body
+
+
+def test_el_reembolso_manual_se_avisa_por_correo(
+    pending_order, mailoutbox, django_capture_on_commit_callbacks
+):
+    """El log en CRITICAL no lo lee nadie en la tienda: es dinero de un cliente esperando."""
+    _expire(pending_order)
+    release_expired_reservations()
+
+    with django_capture_on_commit_callbacks(execute=True):
+        mark_order_paid(order_id=pending_order.id, payment_intent_id="pi_tarde")
+
+    avisos = [m for m in mailoutbox if "ACCIÓN REQUERIDA" in m.subject]
+    assert len(avisos) == 1
+    assert pending_order.reference in avisos[0].subject
+    assert "pi_tarde" in avisos[0].body
+
+
+def test_el_reembolso_manual_es_visible_en_el_panel():
+    """Un flag que no se ve en el listado ni en el filtro no sirve de salvaguarda."""
+    from apps.orders.admin import OrderAdmin
+
+    assert "needs_manual_refund" in OrderAdmin.list_display
+    assert "needs_manual_refund" in OrderAdmin.list_filter

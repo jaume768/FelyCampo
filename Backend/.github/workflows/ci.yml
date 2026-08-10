@@ -70,6 +70,9 @@ jobs:
           # relleno solo para que la comprobación pueda ejecutarse.
           EMAIL_HOST: smtp.example.com
           DEFAULT_FROM_EMAIL: no-reply@example.com
+          # Los contadores del límite de ritmo necesitan caché compartida entre procesos:
+          # production.py lo exige. Valor de relleno, no se conecta durante el check.
+          REDIS_URL: redis://localhost:6379/0
         run: python manage.py check --deploy
 
       - name: pip-audit

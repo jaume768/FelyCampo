@@ -24,6 +24,7 @@ from django.utils import timezone
 from apps.catalog.models import Variant
 from apps.catalog.pricing import round_money, vat_rate
 from apps.core.exceptions import BusinessRuleError
+from apps.integrations.emails import send_manual_refund_alert
 from apps.integrations.stripe import get_gateway, to_minor_units
 
 from .models import Cart, Order, OrderLine, OrderStatus, Return, ReturnStatus
@@ -86,8 +87,7 @@ def release_expired_reservations() -> int:
             order.reserved_until = None
             order.save(update_fields=["status", "cancelled_at", "reserved_until", "updated_at"])
             # El stock ya volvió al almacén: hay que impedir que el cliente pueda pagar
-            # este pedido más tarde. Se anula fuera de la parte crítica pero dentro de la
-            # transacción, y sin propagar si Stripe falla.
+            # este pedido más tarde. La llamada a Stripe se difiere al commit.
             cancel_payment_intent(order)
             released += 1
     return released
@@ -243,6 +243,10 @@ def mark_order_paid(
                 "updated_at",
             ]
         )
+        # El log en CRITICAL no lo lee nadie de la tienda. Se avisa por correo, tras el
+        # commit para no retener el bloqueo del pedido mientras se envía, y sin propagar:
+        # que falle el correo no puede revertir el registro del problema.
+        transaction.on_commit(lambda: _alert_manual_refund(order, problem))
         return order
 
     for line in order.lines.all():
@@ -272,6 +276,13 @@ def mark_order_paid(
     return order
 
 
+def _alert_manual_refund(order: Order, reason: str) -> None:
+    try:
+        send_manual_refund_alert(order=order, reason=reason)
+    except Exception:
+        logger.exception("manual_refund_alert_failed", extra={"order": order.reference})
+
+
 def _payment_rejection_reason(
     order: Order, amount_received: int | None, currency: str | None
 ) -> str | None:
@@ -292,15 +303,24 @@ def _payment_rejection_reason(
 
 def cancel_payment_intent(order: Order) -> None:
     """
-    Anula el intento de cobro del pedido. Nunca propaga: si Stripe falla, la cancelación
-    del pedido debe completarse igual, y `mark_order_paid` sigue protegiendo el stock.
+    Anula el intento de cobro del pedido.
+
+    Se programa con `on_commit`: es una llamada HTTP a Stripe y ejecutarla dentro de la
+    transacción mantendría abierto el `select_for_update` del pedido durante todo lo que
+    tarde la red. Nunca propaga: si Stripe falla, la cancelación del pedido debe
+    completarse igual y `mark_order_paid` sigue protegiendo el stock.
     """
-    if not order.stripe_payment_intent_id:
+    payment_intent_id = order.stripe_payment_intent_id
+    if not payment_intent_id:
         return
-    try:
-        get_gateway().cancel_payment_intent(payment_intent_id=order.stripe_payment_intent_id)
-    except Exception:
-        logger.exception("stripe_cancel_failed", extra={"order": order.reference})
+
+    def _cancel():
+        try:
+            get_gateway().cancel_payment_intent(payment_intent_id=payment_intent_id)
+        except Exception:
+            logger.exception("stripe_cancel_failed", extra={"order": order.reference})
+
+    transaction.on_commit(_cancel)
 
 
 @transaction.atomic
@@ -347,28 +367,54 @@ def accept_return(*, return_request: Return, refund_amount_gross: Decimal | None
     return_request.refund_amount_gross = refund_amount_gross
     return_request.save(update_fields=["status", "refund_amount_gross", "updated_at"])
 
-    returned_units = sum(line.quantity for line in return_request.lines.all())
-    ordered_units = sum(line.quantity for line in order.lines.all())
+    # Se cuenta sobre **todas** las devoluciones aceptadas del pedido, no solo esta: dos
+    # parciales que sumen el pedido entero dejaban el estado en «parcial» para siempre.
     order.status = (
-        OrderStatus.REFUNDED if returned_units >= ordered_units else OrderStatus.PARTIALLY_REFUNDED
+        OrderStatus.REFUNDED if _is_fully_returned(order) else OrderStatus.PARTIALLY_REFUNDED
     )
     order.save(update_fields=["status", "updated_at"])
     return return_request
 
 
+def _ordered_units(order: Order) -> int:
+    return sum(line.quantity for line in order.lines.all())
+
+
+def _accepted_returned_units(order: Order, including: Return | None = None) -> int:
+    """
+    Unidades devueltas y aceptadas del pedido. `including` permite contar una devolución
+    que todavía no está marcada como aceptada (la que se está procesando ahora mismo).
+    """
+    accepted = order.returns.filter(status=ReturnStatus.ACCEPTED)
+    if including is not None:
+        accepted = accepted.exclude(pk=including.pk)
+
+    units = sum(line.quantity for r in accepted for line in r.lines.all())
+    if including is not None:
+        units += sum(line.quantity for line in including.lines.all())
+    return units
+
+
+def _is_fully_returned(order: Order, including: Return | None = None) -> bool:
+    return _accepted_returned_units(order, including) >= _ordered_units(order)
+
+
 def calculate_refund_gross(return_request: Return) -> Decimal:
     """
-    Importe a devolver, con IVA: el 100% de los artículos devueltos. El envío no se
-    reembolsa salvo que se devuelva el pedido entero.
+    Importe a devolver, con IVA: el 100% de los artículos de **esta** devolución.
+
+    El envío se reembolsa una sola vez, y solo cuando el pedido queda devuelto por
+    completo. Se mira el acumulado de todas las devoluciones aceptadas: si el cliente
+    devuelve en dos veces, el envío entra en la segunda —antes no entraba nunca—, y si
+    ya se pagó en una anterior no se vuelve a pagar.
     """
     order = return_request.order
     net = ZERO
     for line in return_request.lines.select_related("order_line"):
         net += round_money(line.order_line.unit_price_net * line.quantity)
 
-    returned_units = sum(line.quantity for line in return_request.lines.all())
-    ordered_units = sum(line.quantity for line in order.lines.all())
-    if returned_units >= ordered_units:
+    already_complete = _is_fully_returned(order)
+    if not already_complete and _is_fully_returned(order, including=return_request):
         net += order.shipping_net
 
     return round_money(net * (Decimal("1") + order.vat_rate))

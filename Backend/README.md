@@ -98,7 +98,19 @@ pedido caducado en cada visita al carrito).
 
 Todos los endpoints van limitados (`THROTTLE_*` en `.env`). Los que envían correo
 (consultas de producto, avisos de stock, restablecer contraseña) y la consulta de pedido de
-invitado llevan cupos propios y mucho más estrictos.
+invitado llevan cupos propios y mucho más estrictos. **Sin límite**: el webhook de Stripe
+(lo autentica la firma; un 429 retrasaría pedidos ya pagados) y las sondas de salud (un 429
+lo leería el orquestador como caída).
+
+Dos ajustes hacen que los límites sean reales y no decorativos:
+
+- **`NUM_PROXIES`** (por defecto `1`). Debe coincidir con el número de proxies delante de
+  Django. Si vale `None`, DRF identifica al cliente por el contenido íntegro de
+  `X-Forwarded-For` —que el propio cliente controla— y basta con variarlo en cada petición
+  para tener cupo infinito.
+- **`REDIS_URL`**. Los contadores viven en la caché: si es la de memoria de cada proceso,
+  `10/min` con 3 workers son 30/min y se reinician en cada despliegue. **Obligatorio en
+  producción**: el arranque falla sin él. Redis se usa solo como caché, no hay Celery.
 
 ## Requisitos
 - Docker y Docker Compose.

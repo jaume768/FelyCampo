@@ -138,3 +138,75 @@ def test_el_plazo_de_14_dias_se_cierra(paid_order, settings):
     paid_order.save()
 
     assert paid_order.can_be_returned is False
+
+
+def test_dos_parciales_que_suman_el_pedido_lo_dejan_como_reembolsado(paid_order, variant):
+    """
+    Contando solo la devolución en curso, un pedido devuelto en dos veces se quedaba en
+    «parcialmente reembolsado» para siempre.
+    """
+    line = paid_order.lines.get()
+
+    primera = Return.objects.create(order=paid_order)
+    ReturnLine.objects.create(return_request=primera, order_line=line, quantity=1)
+    accept_return(return_request=primera)
+    paid_order.refresh_from_db()
+    assert paid_order.status == OrderStatus.PARTIALLY_REFUNDED
+
+    segunda = Return.objects.create(order=paid_order)
+    ReturnLine.objects.create(return_request=segunda, order_line=line, quantity=1)
+    accept_return(return_request=segunda)
+
+    paid_order.refresh_from_db()
+    assert paid_order.status == OrderStatus.REFUNDED
+
+
+def test_el_envio_se_reembolsa_en_la_devolucion_que_completa_el_pedido(paid_order):
+    """Antes no se reembolsaba nunca si el cliente devolvía en dos veces."""
+    paid_order.shipping_net = Decimal("5.00")
+    paid_order.save()
+    line = paid_order.lines.get()
+
+    primera = Return.objects.create(order=paid_order)
+    ReturnLine.objects.create(return_request=primera, order_line=line, quantity=1)
+    accept_return(return_request=primera)
+    primera.refresh_from_db()
+    assert primera.refund_amount_gross == Decimal("242.00")  # sin envío
+
+    segunda = Return.objects.create(order=paid_order)
+    ReturnLine.objects.create(return_request=segunda, order_line=line, quantity=1)
+    accept_return(return_request=segunda)
+
+    segunda.refresh_from_db()
+    # 200 + 5 de envío, con IVA
+    assert segunda.refund_amount_gross == Decimal("248.05")
+
+
+def test_el_envio_no_se_reembolsa_dos_veces(paid_order):
+    """Una tercera devolución sobre un pedido ya completo no vuelve a pagar el envío."""
+    paid_order.shipping_net = Decimal("5.00")
+    paid_order.save()
+    line = paid_order.lines.get()
+
+    total = Return.objects.create(order=paid_order)
+    ReturnLine.objects.create(return_request=total, order_line=line, quantity=2)
+    accept_return(return_request=total)
+
+    extra = Return.objects.create(order=paid_order)
+    ReturnLine.objects.create(return_request=extra, order_line=line, quantity=1)
+
+    # El pedido ya estaba completo: solo el artículo, sin envío.
+    assert calculate_refund_gross(extra) == Decimal("242.00")
+
+
+def test_una_devolucion_rechazada_no_cuenta_para_completar_el_pedido(paid_order):
+    line = paid_order.lines.get()
+    rechazada = Return.objects.create(order=paid_order, status=ReturnStatus.REJECTED)
+    ReturnLine.objects.create(return_request=rechazada, order_line=line, quantity=1)
+
+    aceptada = Return.objects.create(order=paid_order)
+    ReturnLine.objects.create(return_request=aceptada, order_line=line, quantity=1)
+    accept_return(return_request=aceptada)
+
+    paid_order.refresh_from_db()
+    assert paid_order.status == OrderStatus.PARTIALLY_REFUNDED

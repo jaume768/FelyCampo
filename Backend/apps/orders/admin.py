@@ -32,9 +32,12 @@ class OrderAdmin(admin.ModelAdmin):
         "email",
         "status",
         "total_gross",
+        "needs_manual_refund",
         "invoice_requested",
     )
-    list_filter = ("status", "invoice_requested", "created_at")
+    # `needs_manual_refund` va el primero a propósito: es dinero de un cliente esperando
+    # a que alguien lo devuelva a mano en Stripe.
+    list_filter = ("needs_manual_refund", "status", "invoice_requested", "created_at")
     search_fields = ("number", "email", "shipping_recipient", "lines__sku")
     date_hierarchy = "created_at"
     inlines = (OrderLineInline,)
@@ -97,6 +100,7 @@ class OrderAdmin(admin.ModelAdmin):
             _("Pago y stock"),
             {
                 "fields": (
+                    "needs_manual_refund",
                     "stripe_payment_intent_id",
                     "paid_at",
                     "reserved_until",

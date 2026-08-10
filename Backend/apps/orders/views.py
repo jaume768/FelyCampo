@@ -71,7 +71,11 @@ def _get_or_create_cart(request) -> Cart:
     if cart is not None:
         return cart
     if request.user.is_authenticated:
-        return Cart.objects.create(user=request.user)
+        # `get_or_create` y no `create`: dos peticiones simultáneas del mismo usuario
+        # chocarían contra la constraint de «un carrito abierto por usuario», y aquí el
+        # IntegrityError se reintenta como lectura en vez de reventar la petición.
+        cart, _created = Cart.objects.get_or_create(user=request.user, checked_out_at=None)
+        return cart
     return Cart.objects.create()
 
 
@@ -226,6 +230,10 @@ class StripeWebhookView(APIView):
 
     permission_classes = [AllowAny]
     authentication_classes: list = []
+    # Sin límite de ritmo: todos los webhooks llegan del mismo rango de IPs de Stripe.
+    # Un 429 durante un pico de ventas o una reposición de eventos retrasaría la
+    # confirmación de pedidos **ya pagados**. La firma es lo que autentica aquí.
+    throttle_classes: list = []
 
     @extend_schema(request=None, responses={200: None})
     def post(self, request):

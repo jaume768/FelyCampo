@@ -15,6 +15,18 @@ services:
       timeout: 3s
       retries: 10
 
+  # Redis solo como caché: es donde viven los contadores del límite de ritmo, que deben
+  # ser compartidos entre procesos. No hay Celery ni cola de tareas.
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"   # 6380 en el host por si ya hay un Redis local
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   web:
     build:
       context: .
@@ -29,6 +41,8 @@ services:
     depends_on:
       db:
         condition: service_healthy   # espera real a que Postgres acepte conexiones
+      redis:
+        condition: service_healthy
     # Liveness: solo comprueba que el proceso Django responde, no la BD, para no
     # marcar "unhealthy" el contenedor web cuando el problema esté en Postgres.
     healthcheck:

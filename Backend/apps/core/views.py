@@ -11,6 +11,9 @@ class LivenessView(APIView):
 
     authentication_classes: list = []
     permission_classes = [AllowAny]
+    # Sin límite de ritmo: las sondas llegan siempre desde la misma IP y un 429 lo
+    # interpretaría el orquestador como que el servicio está caído.
+    throttle_classes: list = []
 
     @extend_schema(
         summary="Liveness probe",
@@ -26,6 +29,7 @@ class ReadinessView(APIView):
 
     authentication_classes: list = []
     permission_classes = [AllowAny]
+    throttle_classes: list = []
 
     @extend_schema(
         summary="Readiness probe",

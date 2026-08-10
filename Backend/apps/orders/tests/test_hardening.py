@@ -97,3 +97,38 @@ def test_la_consulta_de_pedido_esta_limitada_por_ritmo(api, db, monkeypatch):
 
     assert codes[:2] == [404, 404]
     assert codes[2:] == [429, 429]
+
+
+def test_purge_carts_borra_tambien_los_anonimos_con_articulos(db, variant):
+    """
+    Los anónimos **con** artículos son los que de verdad crecen: sin cuenta no hay a quién
+    devolvérselos, y son justo los que deja un bot que hace POST.
+    """
+    from django.core.management import call_command
+    from django.utils import timezone
+
+    viejo = Cart.objects.create()
+    CartItem.objects.create(cart=viejo, variant=variant, quantity=1)
+    reciente = Cart.objects.create()
+    CartItem.objects.create(cart=reciente, variant=variant, quantity=1)
+    Cart.objects.filter(pk=viejo.pk).update(
+        updated_at=timezone.now() - timezone.timedelta(days=120)
+    )
+
+    call_command("purge_carts")
+
+    assert not Cart.objects.filter(pk=viejo.pk).exists()
+    assert Cart.objects.filter(pk=reciente.pk).exists()
+
+
+def test_purge_carts_en_simulacion_no_borra_nada(db, variant):
+    from django.core.management import call_command
+    from django.utils import timezone
+
+    cart = Cart.objects.create()
+    CartItem.objects.create(cart=cart, variant=variant, quantity=1)
+    Cart.objects.filter(pk=cart.pk).update(updated_at=timezone.now() - timezone.timedelta(days=120))
+
+    call_command("purge_carts", "--dry-run")
+
+    assert Cart.objects.filter(pk=cart.pk).exists()

@@ -30,8 +30,9 @@ migraciones difíciles de revertir.
 ## Stock
 - Unidades **exactas y fiables** por talla/color.
 - **Se bloquea el checkout a cero.** Nunca se acepta pedido sin stock.
-- **Reserva de 1 hora** mientras el cliente paga. Se implementa con marca de caducidad y
-  liberación perezosa en transacción — **no requiere Celery/Redis**.
+- **Reserva de 1 hora** mientras el cliente paga. Marca de caducidad y liberación en
+  transacción; la liberación periódica la hace el comando `release_reservations` por cron.
+  **No requiere Celery.** Redis sí se usa, pero solo como caché.
 
 ## Precios e impuestos
 - Los precios se introducen **sin IVA** (PVP que facilita el cliente). El **21%** se añade
@@ -81,6 +82,10 @@ migraciones difíciles de revertir.
   bloquea el acceso** — que un correo sin verificar impida comprar o entrar es una decisión
   de producto **pendiente de confirmar con el cliente**.
 - **Límites de ritmo** activos en toda la API, con cupos estrictos donde se envían correos.
+  Quedan fuera el webhook de Stripe y las sondas de salud. Dependen de `NUM_PROXIES` y de
+  `REDIS_URL`: **al desplegar hay que ajustar `NUM_PROXIES` al número real de proxies**
+  (nginx/ALB = 1) o el límite se puede esquivar falseando `X-Forwarded-For`.
+- **Redis** como caché compartida, obligatorio en producción. Sin Celery.
 - **Tareas por cron obligatorias**: `release_reservations`, `send_stock_notifications`,
   `purge_carts`.
 
@@ -115,24 +120,17 @@ migraciones difíciles de revertir.
   cambiar la clase de autenticación. Falta confirmarlo con quien haga el frontend.
 - **Categorías**: se modeló una jerarquía genérica a petición del cliente; el árbol real
   (novia / fiesta / …) se ajustará más adelante.
-- **Cron para los avisos de reposición**: el comando `send_stock_notifications` hay que
-  programarlo (cron del servidor cada pocos minutos). La reposición se hace a mano desde el
-  admin y no emite ninguna señal.
 - **Reseñas**: se migran desde WooCommerce, pero falta modelo y moderación.
-- **Categorías**: existe `Family` como eje principal. La navegación por categorías
-  (novia / fiesta / outlet…) está modelada de forma jerárquica genérica; falta validar el
-  árbol real con el cliente.
 - **Contenido editable** (`content`): páginas, bloques, menús, blog. Sin decidir.
 
 ## Seguridad pendiente
 - **`django-axes`** para bloquear por IP/cuenta tras varios intentos fallidos en el login y
   en `/admin/`. El límite de ritmo actual frena la fuerza bruta, pero no bloquea al
   atacante ni deja registro de intentos.
-- **Cachear los contadores de ritmo en Redis** cuando haya más de un proceso: con la caché
-  en memoria de cada worker, el límite real se multiplica por el número de procesos.
 
 ## Infraestructura
 - **Almacenamiento de media en producción (R2/S3): pendiente.** `production.py` usa
   `FileSystemStorage` marcado como **PLACEHOLDER no apto para producción**.
-- Celery/Redis: **no** necesarios con las decisiones actuales (la reserva de stock se
-  resuelve sin cola). Se propondrá si aparece una necesidad real.
+- **Celery: no** necesario (la reserva de stock se resuelve con transacciones y cron).
+- **Redis: sí**, solo como caché de los contadores del límite de ritmo. Obligatorio en
+  producción.

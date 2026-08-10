@@ -14,6 +14,15 @@ CORS_ALLOW_ALL_ORIGINS = False
 if not CORS_ALLOWED_ORIGINS:  # noqa: F405
     raise RuntimeError("CORS_ALLOWED_ORIGINS es obligatorio en producción.")
 
+# Sin caché compartida, los contadores del límite de ritmo son por proceso: con varios
+# workers los cupos se multiplican y se reinician en cada despliegue. Es la diferencia
+# entre tener límites y creer que se tienen.
+if not REDIS_URL:  # noqa: F405
+    raise RuntimeError(
+        "REDIS_URL es obligatorio en producción: los límites de ritmo necesitan una "
+        "caché compartida entre procesos."
+    )
+
 # --- Correo ---
 # Los envíos usan fail_silently=False a propósito (una factura que no sale debe romper,
 # no perderse en silencio). Sin SMTP configurado, Django usaría webmaster@localhost y
