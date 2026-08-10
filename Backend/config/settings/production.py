@@ -59,6 +59,14 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+# `SameSite=None` solo es legal con cookies Secure, y sin él un frontend en otro dominio
+# registrable no recibiría la cookie de sesión. Ambas son True arriba, así que la
+# combinación es válida; la comprobación queda por si alguien las relaja.
+if SESSION_COOKIE_SAMESITE == "None" and not (  # noqa: F405
+    SESSION_COOKIE_SECURE and CSRF_COOKIE_SECURE
+):
+    raise RuntimeError("COOKIE_SAMESITE=None exige cookies Secure.")
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 

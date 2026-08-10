@@ -44,6 +44,27 @@ importe con IVA (`*_gross`) ya calculado, para no reimplementar el 21% en el fro
 | `POST catalog/stock-notifications/` | «Avísame cuando haya stock». No requiere cuenta. |
 | `POST catalog/enquiries/` | Consulta de un producto sin precio; se envía por correo. |
 
+### Cómo conecta el frontend
+
+La sesión va por **cookie**, así que el navegador solo la envía si el backend declara
+`Access-Control-Allow-Credentials: true` y devuelve el origen **explícito** — con el comodín
+`*`, la especificación de fetch hace que el navegador descarte la respuesta. Por eso ningún
+entorno usa `CORS_ALLOW_ALL_ORIGINS`, **tampoco desarrollo**: hay que listar los orígenes en
+`CORS_ALLOWED_ORIGINS`.
+
+Desde el frontend:
+
+```js
+fetch(`${API}/api/v1/cart/`, {
+  credentials: "include",              // sin esto no viaja la cookie de sesión
+  headers: { "X-Cart-Id": cartId },    // carrito de invitado
+})
+```
+
+`X-Cart-Id` está declarada en `CORS_ALLOW_HEADERS`; sin eso el preflight del carrito
+fallaría. Para escrituras, pide antes la cookie CSRF en `GET /api/v1/auth/csrf/` y manda su
+valor en `X-CSRFToken`.
+
 ### Cuentas
 | Endpoint | Qué hace |
 |---|---|

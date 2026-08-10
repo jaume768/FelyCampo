@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import environ
+from corsheaders.defaults import default_headers
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
@@ -185,6 +186,25 @@ SPECTACULAR_SETTINGS = {
 # CORS / CSRF: siempre desde entorno, nunca comodín. Producción lo refuerza (ver production.py).
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+
+# La autenticación es por **sesión + cookie**, así que el navegador tiene que poder mandar
+# la cookie en peticiones entre orígenes. Sin esto, el frontend no mantiene sesión.
+#
+# Ojo: con credenciales, el comodín `Access-Control-Allow-Origin: *` **no vale** — la
+# especificación de fetch prohíbe expresamente enviar credenciales a una respuesta con
+# comodín. Por eso ningún entorno usa `CORS_ALLOW_ALL_ORIGINS`, ni siquiera desarrollo.
+CORS_ALLOW_CREDENTIALS = True
+
+# `x-cart-id` es cabecera propia: sin declararla, el preflight de **todo el carrito** de
+# invitado falla y el navegador ni llega a enviar la petición real.
+CORS_ALLOW_HEADERS = (*default_headers, "x-cart-id")
+
+# SameSite de las cookies de sesión y CSRF. **Decidido**: frontend y API comparten dominio
+# registrable (felycampo.com + api.felycampo.com), así que "Lax" es suficiente y evita las
+# restricciones de cookies de terceros de Safari/ITP. Queda por entorno por si algún día
+# el frontend se mueve a otro dominio, donde haría falta "None" (que exige HTTPS).
+SESSION_COOKIE_SAMESITE = env("COOKIE_SAMESITE", default="Lax")
+CSRF_COOKIE_SAMESITE = SESSION_COOKIE_SAMESITE
 
 # Base de las URLs que van dentro de los correos (seguimiento de pedido, restablecer
 # contraseña, verificar correo). Es el dominio del frontend, no el de la API.

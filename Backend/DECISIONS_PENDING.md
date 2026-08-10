@@ -72,6 +72,19 @@ migraciones difíciles de revertir.
   administración con datos del cliente, líneas de pedido y total.
 - La dirección destino es un **placeholder configurable por entorno** (`INVOICE_REQUEST_EMAIL`).
 
+## Frontend, sesión y cookies
+- **Autenticación: sesión + cookie** (`SessionAuthentication`). **Decidido**, no pendiente.
+  La cookie es `HttpOnly`, así que no queda expuesta a XSS como un JWT en almacenamiento
+  del navegador. Cambiar a JWT sería tocar solo la clase de autenticación de DRF: ninguna
+  vista depende del mecanismo.
+- **Frontend y API en el mismo dominio registrable**: `felycampo.com` para el frontend y
+  `api.felycampo.com` para la API. En consecuencia **`COOKIE_SAMESITE=Lax`**, que es el
+  valor por defecto y evita las restricciones de cookies de terceros de Safari/ITP.
+  Requiere control del DNS del dominio al desplegar.
+- **CORS**: `CORS_ALLOW_CREDENTIALS = True`, orígenes **explícitos en todos los entornos**
+  (nunca comodín: con credenciales el navegador descarta las respuestas con `*`), y
+  `x-cart-id` declarada en `CORS_ALLOW_HEADERS` para que funcione el preflight del carrito.
+
 ## Seguridad y operación (revisión posterior a Fase 1)
 - **Consulta de pedido sin cuenta**: por **token opaco** enviado en el correo de
   confirmación, no por referencia + email. La referencia es correlativa y se podría
@@ -117,9 +130,6 @@ migraciones difíciles de revertir.
   contraseñas no son migrables en ningún caso.
 
 ## Sin cerrar
-- **Auth con el frontend**: implementado con **sesión + cookie** (`SessionAuthentication`),
-  que era lo ya configurado. Ninguna vista depende del mecanismo, así que pasar a JWT es
-  cambiar la clase de autenticación. Falta confirmarlo con quien haga el frontend.
 - **Categorías**: se modeló una jerarquía genérica a petición del cliente; el árbol real
   (novia / fiesta / …) se ajustará más adelante.
 - **Reseñas**: se migran desde WooCommerce, pero falta modelo y moderación.
