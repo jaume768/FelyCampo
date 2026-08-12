@@ -44,6 +44,36 @@ importe con IVA (`*_gross`) ya calculado, para no reimplementar el 21% en el fro
 | `POST catalog/stock-notifications/` | «Avísame cuando haya stock». No requiere cuenta. |
 | `POST catalog/enquiries/` | Consulta de un producto sin precio; se envía por correo. |
 
+### Panel de administración (`/api/v1/admin/`)
+
+Namespace aparte que consume el panel en Next.js. **Todo exige `is_staff`**; quien no lo sea
+recibe **403**, tenga cuenta o no. La API pública de arriba no se ve afectada.
+
+Plan completo y decisiones de diseño en [`ADMIN_API_PLAN.md`](ADMIN_API_PLAN.md).
+
+| Endpoint | Qué hace |
+|---|---|
+| `GET  admin/me/` | Usuario del panel. El frontend lo llama al arrancar: un 403 significa «al login». |
+| `GET  admin/feature-flags/` · `PATCH admin/feature-flags/{key}/` | Flags de funcionalidad. Se activan, **no se crean ni se borran**: se declaran en migraciones porque un flag sin código que lo lea es un interruptor desconectado. Hoy solo se almacena el estado; el comportamiento asociado no está implementado. |
+| `GET/POST admin/media/` | Biblioteca de medios. La subida va en `multipart/form-data`. Filtros: `kind`, `tag`, `search`, `ordering`. |
+| `PATCH/DELETE admin/media/{id}/` | Metadatos y borrado. El borrado **se rechaza con 409** si el archivo está en uso, indicando dónde. |
+
+**Las imágenes se normalizan al subirlas** (`apps/content/services.py`): se reescalan a
+`MEDIA_IMAGE_MAX_DIMENSION` (2560 px), se convierten a **WebP**, se les genera miniatura y se
+les aplica la orientación EXIF **descartando el resto de metadatos** — un EXIF de móvil lleva
+GPS y publicarlo tal cual es una fuga de datos. El original se conserva aparte para poder
+regenerar los derivados si cambian los tamaños. Los GIF animados se guardan sin convertir (se
+aplanarían a un fotograma) y **los vídeos no se recomprimen**: haría falta ffmpeg.
+
+> **El almacenamiento de media sigue siendo un PLACEHOLDER en producción**
+> (`FileSystemStorage`). Sobre disco local, lo subido se pierde en cada despliegue y no se
+> comparte entre réplicas. La biblioteca funciona en desarrollo y migrar a R2/S3 es cambiar
+> `STORAGES`, pero **no está lista para producción real** hasta entonces.
+
+El límite de ritmo del panel usa su propio cupo (`THROTTLE_ADMIN`, 2000/min) y **sustituye** a
+los de `anon`/`user`: guardar un producto con doce variantes son doce peticiones seguidas, y
+el cupo pensado para clientes de la tienda dejaría el panel inservible.
+
 ### Cómo conecta el frontend
 
 La sesión va por **cookie**, así que el navegador solo la envía si el backend declara
@@ -270,7 +300,7 @@ apps/
   accounts/     User (email login), direcciones, favoritos, registro/sesión
   catalog/      Family → Product → Colorway (SKU) → Variant (stock); precios, outlet
   orders/       carrito, checkout, reserva de stock, pedidos, devoluciones
-  content/      vacío (pendiente de decisiones)
+  content/      biblioteca de medios; blog, páginas y home en fases siguientes
   appointments/ vacío (Calendly o sistema propio, sin decidir)
   integrations/ Stripe, correos transaccionales; Brevo y Calendly pendientes
 ```

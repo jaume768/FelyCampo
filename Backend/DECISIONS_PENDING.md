@@ -115,6 +115,92 @@ migraciones difíciles de revertir.
 
 ---
 
+# ✅ Decidido (panel de administración, 2026-08-12)
+
+Contexto y diseño completo en [`ADMIN_API_PLAN.md`](ADMIN_API_PLAN.md).
+
+## Alcance
+- API de administración bajo `/api/v1/admin/`, autenticada con **sesión + `is_staff`**.
+- **Un solo rol** por ahora: quien es staff lo ve todo. El sistema de roles y permisos
+  por sección se implementará después; se concentra en `IsStaff` para no tener que
+  rehacer las vistas.
+- La API pública de Fase 1 **no cambia de forma**. Todos los cambios sobre modelos
+  existentes son aditivos.
+
+## Catálogo
+- **Línea comercial**: campo nuevo `Product.line` (`pret_a_porter | atelier | archive`).
+  No se reutilizan `kind` (prenda vs conjunto), `family` (segmento del SKU) ni `sale_mode`
+  (cómo se compra), porque significan otras cosas.
+- **Estados**: `Product.status` (`draft | active | archived`) es la fuente de verdad;
+  `is_published` se deriva en `save()` para que el catálogo público siga funcionando sin
+  tocarse. Migración de datos: `True → active`, `False → draft`.
+- **Eliminar un producto = archivarlo.** Nunca se borra: hay pedidos históricos apuntando.
+- **Colecciones**: modelo `Collection` (`fw27`, `ss26`), un producto pertenece a una.
+- **Telas**: modelo `Fabric` reutilizable, M2M con `Product`. `Product.composition` (texto
+  libre de la ficha) **se conserva** y convive con él; unificarlos rompería la ficha pública
+  y se valorará aparte.
+- «Sección web» del panel → `Category`, que ya existe.
+
+## Stock por ubicación
+- **La venta online sale únicamente del almacén.** Lo que hay en tienda son **muestras** y
+  **no se vende nunca**.
+- `Location.is_sellable` distingue ambos casos. **`Variant.stock` = suma de las ubicaciones
+  vendibles**, no de todas: si sumara las muestras, la web ofrecería prendas que no se
+  pueden servir.
+- El ciclo de reserva del checkout **no se toca**. No se reserva por ubicación: con una sola
+  ubicación vendible no aporta nada y añadiría interbloqueos al camino de pago.
+- Se registra cada ajuste en `StockMovement` (quién, cuándo, cuánto, por qué).
+- **Guarda**: marcar una segunda ubicación como vendible deja indefinido de dónde se
+  descuenta. Se valida y se bloquea hasta decidirlo.
+
+## Pedidos
+- **Tracking**: se guardan transportista, código y enlace como **campos internos**. No es una
+  integración —sigue sin haberla— y **no se exponen en la API pública**, coherente con que el
+  estado del pedido no se muestra al cliente.
+- **Notas internas**: modelo `OrderNote` (hilo con autor y fecha). `Order.staff_note` se
+  mantiene intacto porque lo usa el flujo de devoluciones.
+- Todo cambio de estado queda registrado en `OrderStatusChange`.
+
+## Consultas y citas
+- Se **persisten** (modelo `appointments.Enquiry`), además de seguir enviándose por email.
+  `ProductEnquiryView` mantiene su contrato: misma petición, misma respuesta 202.
+- Guarda *solicitudes*, no calendario: **no prejuzga** la decisión Calendly vs sistema nativo,
+  que sigue pendiente.
+
+## Reseñas
+- Son **reseñas de producto**: `product` es obligatorio en el panel. Queda nulable en base de
+  datos solo para que la importación de WooCommerce no falle con reseñas huérfanas.
+- **No se traducen**: es texto escrito por el cliente.
+- Estado `published | hidden` y flag `is_featured` para la home.
+
+## Contenido y home
+- El editor de la home usa **un modelo `HomeBlock` con `JSONField` validado por tipo**, no
+  modelos polimórficos: ocho formas dispares sobre una maqueta que seguirá moviéndose, y
+  ninguna consulta filtra por el contenido de los bloques.
+- Los **CTA** salen de un **enum cerrado** de rutas internas. Nunca texto libre.
+- Las referencias dentro del JSON (medias, productos, reseñas) se validan contra la base de
+  datos en el serializer. Como no hay FK real, **borrar un `MediaAsset` en uso se rechaza**
+  con 409 indicando dónde se usa.
+
+## Biblioteca de medios
+- Modelo `MediaAsset` reutilizable desde Diseño, Blog y Contenido.
+- **Las imágenes se normalizan al subirlas**: reescalado a 2560 px de lado mayor, conversión a
+  **WebP** (calidad 82), miniatura de 400 px para el panel, orientación EXIF aplicada y resto
+  de metadatos **descartados** (un EXIF lleva GPS). El **original se conserva** para poder
+  regenerar si cambian los tamaños.
+- Síncrono, con Pillow. Sin Celery, coherente con el resto del proyecto.
+- **Los vídeos no se comprimen** (haría falta ffmpeg): solo límite de tamaño.
+- Límites configurables: 25 MB imagen, 100 MB vídeo.
+- **Sigue haciendo falta S3/R2 antes de producción** (ver Infraestructura): con
+  `FileSystemStorage` los archivos subidos se pierden en cada despliegue. El procesado es
+  independiente del storage; migrar es cambiar `STORAGES`.
+
+## Extras
+- `core.FeatureFlag`: solo almacenamiento y lectura del flag. **El comportamiento que activan
+  no se implementa** en estas fases.
+
+---
+
 # ⏳ Pendiente (bloquea o retrasa)
 
 ## Datos concretos que faltan
@@ -136,8 +222,10 @@ migraciones difíciles de revertir.
 ## Sin cerrar
 - **Categorías**: se modeló una jerarquía genérica a petición del cliente; el árbol real
   (novia / fiesta / …) se ajustará más adelante.
-- **Reseñas**: se migran desde WooCommerce, pero falta modelo y moderación.
-- **Contenido editable** (`content`): páginas, bloques, menús, blog. Sin decidir.
+- ~~**Reseñas**: falta modelo y moderación.~~ Modelo y moderación decididos (ver panel de
+  administración). Sigue pendiente **qué se migra de WooCommerce** y con qué criterio.
+- ~~**Contenido editable** (`content`): páginas, bloques, menús, blog.~~ Páginas, bloques,
+  blog y home decididos. Los **menús** siguen sin decidir: hoy son fijos en el frontend.
 
 ## Seguridad pendiente
 - **`django-axes`** para bloquear por IP/cuenta tras varios intentos fallidos en el login y

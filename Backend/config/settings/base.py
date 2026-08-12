@@ -19,6 +19,10 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Necesario para ArrayField (etiquetas de la biblioteca de medios). El proyecto ya es
+    # Postgres-only: secuencias nativas para el número de pedido, índices funcionales en
+    # accounts.
+    "django.contrib.postgres",
 ]
 
 THIRD_PARTY_APPS = [
@@ -172,6 +176,11 @@ REST_FRAMEWORK = {
         "stock_notification": env("THROTTLE_STOCK_NOTIFICATION", default="20/hour"),
         # Consulta de pedido de invitado: contiene datos personales.
         "order_lookup": env("THROTTLE_ORDER_LOOKUP", default="20/hour"),
+        # Panel de administración. Mucho más holgado que `user`: guardar un producto con
+        # doce variantes son doce peticiones seguidas, y el panel encadena pantallas así.
+        # Son usuarios autenticados y de confianza; el límite existe para contener un bucle
+        # accidental del frontend, no para defenderse de ellos.
+        "admin": env("THROTTLE_ADMIN", default="2000/min"),
     },
 }
 
@@ -181,6 +190,13 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": "/api/v1",
+    # Dos modelos distintos tienen un campo `kind` con opciones distintas (prenda/conjunto
+    # y imagen/vídeo). Sin nombrarlos, drf-spectacular inventa nombres del tipo
+    # `Kind6d2Enum`, que cambian al añadir modelos y ensucian el cliente generado.
+    "ENUM_NAME_OVERRIDES": {
+        "ProductKindEnum": "apps.catalog.models.ProductKind.choices",
+        "MediaKindEnum": "apps.content.models.MediaKind.choices",
+    },
 }
 
 # CORS / CSRF: siempre desde entorno, nunca comodín. Producción lo refuerza (ver production.py).
@@ -229,6 +245,21 @@ RETURN_WINDOW_DAYS = env.int("RETURN_WINDOW_DAYS", default=14)
 INVOICE_REQUEST_EMAIL = env("INVOICE_REQUEST_EMAIL", default="facturacion@example.com")
 # Destino de las consultas de productos sin precio. PLACEHOLDER: falta la dirección real.
 PRODUCT_ENQUIRY_EMAIL = env("PRODUCT_ENQUIRY_EMAIL", default="info@example.com")
+
+# --- Biblioteca de medios ---
+# Las imágenes se normalizan al subirlas (apps/content/services.py): el personal del panel
+# sube lo que tenga a mano y el servidor lo deja en tamaño y formato de web.
+# 2560 px cubre pantallas 2K a ancho completo; por encima solo se transfieren bytes que el
+# navegador va a descartar al escalar.
+MEDIA_IMAGE_MAX_DIMENSION = env.int("MEDIA_IMAGE_MAX_DIMENSION", default=2560)
+# 82 es el punto donde WebP deja de mostrar artefactos visibles en fotografía.
+MEDIA_IMAGE_WEBP_QUALITY = env.int("MEDIA_IMAGE_WEBP_QUALITY", default=82)
+MEDIA_THUMBNAIL_SIZE = env.int("MEDIA_THUMBNAIL_SIZE", default=400)
+# Límite de subida generoso: lo que se almacena y sirve ya va comprimido, así que el tope
+# solo protege la memoria del proceso mientras decodifica.
+MEDIA_IMAGE_MAX_UPLOAD_BYTES = env.int("MEDIA_IMAGE_MAX_UPLOAD_BYTES", default=25 * 1024 * 1024)
+# El vídeo no se recomprime (haría falta ffmpeg): aquí el límite sí es el tamaño final.
+MEDIA_VIDEO_MAX_UPLOAD_BYTES = env.int("MEDIA_VIDEO_MAX_UPLOAD_BYTES", default=100 * 1024 * 1024)
 
 # --- Integraciones (solo configuración; sin lógica en Fase 0) ---
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
