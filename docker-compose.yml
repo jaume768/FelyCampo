@@ -1,0 +1,79 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-felycampo}
+      POSTGRES_USER: ${POSTGRES_USER:-felycampo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-felycampo}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-felycampo}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      target: dev
+    command: /app/scripts/entrypoint-dev.sh
+    env_file: ./backend/.env
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8001:8000"
+      - "5678:5678" # debugpy
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/v1/health/live/').status==200 else 1)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # Imagen propia, separada del backend: Next.js en modo dev con recarga en caliente.
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    command: npm run dev
+    environment:
+      # NEXT_PUBLIC_*: se inyecta en el bundle del navegador. La API vive en :8001 del
+      # host (ver backend), no dentro de la red de Docker — el navegador corre en el host.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8001}
+      # Solo servidor (sin prefijo NEXT_PUBLIC_, nunca llega al navegador): usada por
+      # Server Components/Route Handlers dentro del propio contenedor del frontend, donde
+      # "localhost" apuntaría al contenedor del frontend, no al del backend — hace falta
+      # el nombre del servicio en la red interna de Docker. Ver src/lib/api/client.js.
+      API_INTERNAL_URL: http://backend:8000
+      # Sin esto, el hot-reload de Next puede no detectar cambios en el bind mount
+      # dentro de contenedores en Windows/OneDrive (inotify no ve todos los eventos).
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

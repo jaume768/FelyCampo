@@ -1,0 +1,2402 @@
+openapi: 3.0.3
+info:
+  title: Fely Campo API
+  version: 1.0.0
+  description: API REST de Fely Campo
+paths:
+  /api/v1/account/addresses/:
+    get:
+      operationId: account_addresses_list
+      description: Direcciones del cliente. Cada uno solo ve las suyas.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - account
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Address'
+          description: ''
+    post:
+      operationId: account_addresses_create
+      description: Direcciones del cliente. Cada uno solo ve las suyas.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Address'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Address'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+  /api/v1/account/addresses/{id}/:
+    get:
+      operationId: account_addresses_retrieve
+      description: Direcciones del cliente. Cada uno solo ve las suyas.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este dirección.
+        required: true
+      tags:
+      - account
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+    put:
+      operationId: account_addresses_update
+      description: Direcciones del cliente. Cada uno solo ve las suyas.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este dirección.
+        required: true
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Address'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Address'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+    patch:
+      operationId: account_addresses_partial_update
+      description: Direcciones del cliente. Cada uno solo ve las suyas.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este dirección.
+        required: true
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAddress'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAddress'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAddress'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+    delete:
+      operationId: account_addresses_destroy
+      description: Direcciones del cliente. Cada uno solo ve las suyas.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este dirección.
+        required: true
+      tags:
+      - account
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/account/favorites/:
+    get:
+      operationId: account_favorites_list
+      description: Favoritos del área privada.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - account
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Favorite'
+          description: ''
+    post:
+      operationId: account_favorites_create
+      description: Favoritos del área privada.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Favorite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Favorite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Favorite'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Favorite'
+          description: ''
+  /api/v1/account/favorites/{id}/:
+    delete:
+      operationId: account_favorites_destroy
+      description: Favoritos del área privada.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este favorito.
+        required: true
+      tags:
+      - account
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/account/me/:
+    get:
+      operationId: account_me_retrieve
+      description: Datos del cliente. GET para leerlos, PATCH para editarlos.
+      tags:
+      - account
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: account_me_update
+      description: Datos del cliente. GET para leerlos, PATCH para editarlos.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: account_me_partial_update
+      description: Datos del cliente. GET para leerlos, PATCH para editarlos.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/auth/csrf/:
+    get:
+      operationId: auth_csrf_retrieve
+      description: Entrega la cookie CSRF. El frontend la pide una vez antes del primer
+        POST.
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/auth/email/verify/:
+    post:
+      operationId: auth_email_verify_create
+      description: Marca el correo como verificado. El token de Django caduca solo.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailVerificationConfirm'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailVerificationConfirm'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailVerificationConfirm'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/login/:
+    post:
+      operationId: auth_login_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/password/:
+    post:
+      operationId: auth_password_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/password/reset/:
+    post:
+      operationId: auth_password_reset_create
+      description: |-
+        Pide el enlace de restablecimiento.
+
+        Responde **204 siempre**, exista o no la cuenta: si distinguiera, cualquiera podría
+        comprobar qué correos están registrados en la tienda.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/password/reset/confirm/:
+    post:
+      operationId: auth_password_reset_confirm_create
+      description: Fija la nueva contraseña a partir del enlace recibido por correo.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: Alta de cliente. Deja la sesión iniciada para no pedir login justo
+        después.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/cart/:
+    get:
+      operationId: cart_retrieve
+      description: |-
+        Carrito actual, con el desglose de IVA y envío ya calculado.
+
+        El `GET` **no crea nada**: si aún no hay carrito devuelve uno vacío con `id: null`. El
+        carrito nace en el primer `POST`, y es entonces cuando el frontend recibe el `id` que
+        debe guardar y mandar en `X-Cart-Id`.
+      tags:
+      - cart
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+    post:
+      operationId: cart_create
+      description: Añade una variante o **suma** a la cantidad que ya hubiera.
+      tags:
+      - cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItemWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CartItemWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CartItemWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+  /api/v1/cart/items/{item_id}/:
+    patch:
+      operationId: cart_items_partial_update
+      description: Cambia la cantidad de una línea o la elimina.
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCartItemWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCartItemWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCartItemWrite'
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+    delete:
+      operationId: cart_items_destroy
+      description: Cambia la cantidad de una línea o la elimina.
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - cart
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+  /api/v1/catalog/categories/:
+    get:
+      operationId: catalog_categories_list
+      description: Árbol de categorías. Devuelve solo las raíces; las hijas van anidadas.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
+  /api/v1/catalog/enquiries/:
+    post:
+      operationId: catalog_enquiries_create
+      description: |-
+        Consulta sobre un producto sin precio. Envía el mensaje a la dirección configurada;
+        no se guarda nada en base de datos.
+      tags:
+      - catalog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductEnquiry'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductEnquiry'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductEnquiry'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '202':
+          description: No response body
+  /api/v1/catalog/families/:
+    get:
+      operationId: catalog_families_list
+      description: Familias activas, para los menús de navegación.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Family'
+          description: ''
+  /api/v1/catalog/products/:
+    get:
+      operationId: catalog_products_list
+      description: |-
+        Catálogo público. Solo productos publicados: los borradores no se filtran, no existen
+        para esta API.
+
+        Se busca y se recupera por `slug`, que es lo que va en la URL del frontend.
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+      - in: query
+        name: color
+        schema:
+          type: string
+      - in: query
+        name: family
+        schema:
+          type: string
+      - in: query
+        name: in_stock
+        schema:
+          type: boolean
+      - in: query
+        name: is_outlet
+        schema:
+          type: boolean
+      - in: query
+        name: kind
+        schema:
+          type: string
+          title: Tipo
+          enum:
+          - bundle
+          - simple
+        description: |-
+          * `simple` - Prenda
+          * `bundle` - Conjunto
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - in: query
+        name: price_max
+        schema:
+          type: number
+      - in: query
+        name: price_min
+        schema:
+          type: number
+      - in: query
+        name: sale_mode
+        schema:
+          type: string
+          title: Modo de venta
+          enum:
+          - in_stock
+          - made_to_order
+          - on_request
+        description: |-
+          * `in_stock` - Disponible en stock
+          * `on_request` - Solo consulta (sin precio)
+          * `made_to_order` - Bajo encargo
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      - in: query
+        name: size
+        schema:
+          type: string
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductListList'
+          description: ''
+  /api/v1/catalog/products/{slug}/:
+    get:
+      operationId: catalog_products_retrieve
+      description: |-
+        Catálogo público. Solo productos publicados: los borradores no se filtran, no existen
+        para esta API.
+
+        Se busca y se recupera por `slug`, que es lo que va en la URL del frontend.
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+          description: ''
+  /api/v1/catalog/sizes/:
+    get:
+      operationId: catalog_sizes_list
+      description: Tallas activas. Lista cerrada y común a todo el catálogo.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Size'
+          description: ''
+  /api/v1/catalog/stock-notifications/:
+    post:
+      operationId: catalog_stock_notifications_create
+      description: |-
+        «Avísame cuando haya stock». No requiere cuenta: basta el email y la variante.
+        Repetir la petición no duplica el aviso.
+      tags:
+      - catalog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockNotification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StockNotification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StockNotification'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockNotification'
+          description: ''
+  /api/v1/checkout/:
+    post:
+      operationId: checkout_create
+      description: |-
+        Cierra el carrito: crea el pedido, **reserva el stock 1 hora** y devuelve el
+        `client_secret` de Stripe para que el frontend cobre el 100%.
+
+        El pedido no se da por pagado aquí: eso lo confirma el webhook de Stripe.
+      tags:
+      - checkout
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Checkout'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Checkout'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Checkout'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/v1/health/:
+    get:
+      operationId: health_retrieve
+      description: 200 si la base de datos responde; 503 en caso contrario. El campo
+        `cache` informa del estado de Redis, pero no afecta al código de respuesta.
+      summary: Readiness probe
+      tags:
+      - health
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/health/live/:
+    get:
+      operationId: health_live_retrieve
+      description: 200 si el proceso Django está vivo. No comprueba dependencias.
+      summary: Liveness probe
+      tags:
+      - health
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/health/ready/:
+    get:
+      operationId: health_ready_retrieve
+      description: 200 si la base de datos responde; 503 en caso contrario. El campo
+        `cache` informa del estado de Redis, pero no afecta al código de respuesta.
+      summary: Readiness probe
+      tags:
+      - health
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/orders/:
+    get:
+      operationId: orders_list
+      description: |-
+        Pedidos del cliente. Solo lectura.
+
+        No expone el estado del envío: de la logística se encarga una empresa externa y al
+        cliente se le remite a su correo o al teléfono de la tienda.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrderList'
+          description: ''
+  /api/v1/orders/{id}/:
+    get:
+      operationId: orders_retrieve
+      description: |-
+        Pedidos del cliente. Solo lectura.
+
+        No expone el estado del envío: de la logística se encarga una empresa externa y al
+        cliente se le remite a su correo o al teléfono de la tienda.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este pedido.
+        required: true
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/v1/orders/{id}/cancel/:
+    post:
+      operationId: orders_cancel_create
+      description: Cancela un pedido que aún no se ha pagado y libera su reserva de
+        stock.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este pedido.
+        required: true
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/v1/orders/{id}/request-invoice/:
+    post:
+      operationId: orders_request_invoice_create
+      description: |-
+        Pide la factura. No se genera PDF: se manda un correo a administración con los
+        datos del cliente, las líneas y el total, para emitirla a mano.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este pedido.
+        required: true
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      responses:
+        '202':
+          description: No response body
+  /api/v1/orders/{id}/returns/:
+    post:
+      operationId: orders_returns_create
+      description: |-
+        Solicita una devolución, total o parcial. Plazo de 14 días y retorno a cargo del
+        cliente. Queda en «solicitada» hasta que el panel la acepte.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este pedido.
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Return'
+          description: ''
+  /api/v1/orders/lookup/:
+    get:
+      operationId: orders_lookup_retrieve
+      description: |-
+        Consulta de un pedido hecho **sin cuenta**, mediante el token que se envía al comprador.
+
+        No se busca por referencia + email a propósito: la referencia es correlativa
+        (`FC-001000`, `FC-001001`…), así que con el correo de una persona se podría recorrer el
+        rango entero y extraer direcciones postales, teléfonos e importes. El token es un
+        secreto de 256 bits, no enumerable, y además el endpoint va limitado por ritmo.
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/v1/webhooks/stripe/:
+    post:
+      operationId: webhooks_stripe_create
+      description: |-
+        Webhook de Stripe. Confirma el pago y descuenta el stock.
+
+        Es idempotente: Stripe reintenta, y aplicar dos veces el mismo evento dejaría el
+        almacén descuadrado.
+      tags:
+      - webhooks
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          title: Etiqueta
+          maxLength: 60
+        recipient:
+          type: string
+          title: Destinatario
+          maxLength: 150
+        phone:
+          type: string
+          title: Teléfono
+          maxLength: 32
+        line1:
+          type: string
+          title: Dirección
+          maxLength: 255
+        line2:
+          type: string
+          title: Dirección (línea 2)
+          maxLength: 255
+        postal_code:
+          type: string
+          title: Código postal
+          maxLength: 10
+        city:
+          type: string
+          title: Localidad
+          maxLength: 120
+        province:
+          type: string
+          title: Provincia
+          maxLength: 120
+        country:
+          type: string
+          title: País
+          maxLength: 2
+        tax_id:
+          type: string
+          title: NIF/CIF
+          description: Necesario si el cliente pide factura.
+          maxLength: 20
+        is_default_shipping:
+          type: boolean
+          title: Envío por defecto
+        is_default_billing:
+          type: boolean
+          title: Facturación por defecto
+      required:
+      - city
+      - id
+      - line1
+      - postal_code
+      - province
+      - recipient
+    Cart:
+      type: object
+      description: 'Carrito con el desglose ya calculado: envío, IVA y total.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+          readOnly: true
+        totals:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+        has_stock_issues:
+          type: boolean
+          description: Avisa al frontend de que alguna línea ya no puede servirse.
+          readOnly: true
+      required:
+      - has_stock_issues
+      - id
+      - items
+      - totals
+    CartItem:
+      type: object
+      description: Línea de carrito con el precio vivo del catálogo, en neto y con
+        IVA.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        variant:
+          type: string
+          format: uuid
+          title: Variante
+        quantity:
+          type: integer
+          maximum: 32767
+          minimum: 1
+          title: Cantidad
+        sku:
+          type: string
+          readOnly: true
+        product_name:
+          type: string
+          readOnly: true
+        product_slug:
+          type: string
+          readOnly: true
+        color_name:
+          type: string
+          readOnly: true
+        size_code:
+          type: string
+          readOnly: true
+        image:
+          type: string
+          nullable: true
+          readOnly: true
+        unit_price_net:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        unit_price_gross:
+          type: string
+          readOnly: true
+        line_gross:
+          type: string
+          readOnly: true
+        has_stock:
+          type: boolean
+          readOnly: true
+        available:
+          type: integer
+          readOnly: true
+      required:
+      - available
+      - color_name
+      - has_stock
+      - id
+      - image
+      - line_gross
+      - product_name
+      - product_slug
+      - size_code
+      - sku
+      - unit_price_gross
+      - unit_price_net
+      - variant
+    CartItemWrite:
+      type: object
+      description: Alta o cambio de cantidad de una línea.
+      properties:
+        variant:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          maximum: 99
+          minimum: 1
+      required:
+      - quantity
+      - variant
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 120
+        slug:
+          type: string
+          maxLength: 140
+          pattern: ^[-a-zA-Z0-9_]+$
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+        children:
+          type: array
+          items: {}
+          readOnly: true
+      required:
+      - children
+      - id
+      - name
+      - slug
+    Checkout:
+      type: object
+      description: |-
+        Datos que faltan para cerrar la compra. Se acepta **sin cuenta**: basta el email.
+
+        Solo Península por ahora, de ahí que el país no sea configurable desde aquí.
+      properties:
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          default: ''
+          maxLength: 32
+        shipping_recipient:
+          type: string
+          maxLength: 150
+        shipping_line1:
+          type: string
+          maxLength: 255
+        shipping_line2:
+          type: string
+          default: ''
+          maxLength: 255
+        shipping_postal_code:
+          type: string
+          maxLength: 10
+        shipping_city:
+          type: string
+          maxLength: 120
+        shipping_province:
+          type: string
+          maxLength: 120
+        customer_note:
+          type: string
+          default: ''
+          maxLength: 1000
+        invoice_requested:
+          type: boolean
+          default: false
+        billing_name:
+          type: string
+          default: ''
+          maxLength: 150
+        billing_tax_id:
+          type: string
+          default: ''
+          maxLength: 20
+        billing_address:
+          type: string
+          default: ''
+          maxLength: 400
+      required:
+      - email
+      - shipping_city
+      - shipping_line1
+      - shipping_postal_code
+      - shipping_province
+      - shipping_recipient
+    EmailVerificationConfirm:
+      type: object
+      description: Base de los enlaces firmados que viajan por correo (uid + token).
+      properties:
+        uid:
+          type: string
+        token:
+          type: string
+      required:
+      - token
+      - uid
+    Family:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Código
+          maxLength: 8
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 120
+        slug:
+          type: string
+          maxLength: 140
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - code
+      - id
+      - name
+      - slug
+    Favorite:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        product:
+          type: string
+          format: uuid
+          title: Producto
+        product_detail:
+          allOf:
+          - $ref: '#/components/schemas/ProductList'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - product
+      - product_detail
+    KindEnum:
+      enum:
+      - simple
+      - bundle
+      type: string
+      description: |-
+        * `simple` - Prenda
+        * `bundle` - Conjunto
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+    Order:
+      type: object
+      description: |-
+        Pedido tal como lo ve el cliente. **Sin estado de envío**: la logística la lleva una
+        empresa externa y al cliente se le remite al correo o al teléfono.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        email:
+          type: string
+          format: email
+          title: Correo de contacto
+          maxLength: 254
+        phone:
+          type: string
+          title: Teléfono
+          maxLength: 32
+        shipping_recipient:
+          type: string
+          title: Destinatario
+          maxLength: 150
+        shipping_line1:
+          type: string
+          title: Dirección
+          maxLength: 255
+        shipping_line2:
+          type: string
+          title: Dirección (línea 2)
+          maxLength: 255
+        shipping_postal_code:
+          type: string
+          title: Código postal
+          maxLength: 10
+        shipping_city:
+          type: string
+          title: Localidad
+          maxLength: 120
+        shipping_province:
+          type: string
+          title: Provincia
+          maxLength: 120
+        shipping_country:
+          type: string
+          title: País
+          maxLength: 2
+        subtotal_net:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Subtotal sin IVA
+        shipping_net:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Envío sin IVA
+        vat_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,3})?$
+          title: Tipo de IVA
+        vat_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: IVA
+        total_gross:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Total con IVA
+        currency:
+          type: string
+          title: Moneda
+          maxLength: 3
+        is_paid:
+          type: boolean
+          readOnly: true
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Pagado el
+        can_be_returned:
+          type: boolean
+          readOnly: true
+        invoice_requested:
+          type: boolean
+          title: Factura solicitada
+        customer_note:
+          type: string
+          title: Nota del cliente
+        access_token:
+          type: string
+          readOnly: true
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLine'
+          readOnly: true
+      required:
+      - access_token
+      - can_be_returned
+      - created_at
+      - email
+      - id
+      - is_paid
+      - lines
+      - reference
+      - shipping_city
+      - shipping_line1
+      - shipping_net
+      - shipping_postal_code
+      - shipping_province
+      - shipping_recipient
+      - subtotal_net
+      - total_gross
+      - vat_rate
+      - vat_total
+    OrderLine:
+      type: object
+      description: Copia congelada de lo comprado. Los importes son los del momento
+        de la compra.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        sku:
+          type: string
+          maxLength: 64
+        product_name:
+          type: string
+          title: Producto
+          maxLength: 200
+        color_name:
+          type: string
+          title: Color
+          maxLength: 80
+        size_code:
+          type: string
+          title: Talla
+          maxLength: 8
+        quantity:
+          type: integer
+          maximum: 32767
+          minimum: 1
+          title: Cantidad
+        unit_price_net:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Precio unitario sin IVA
+        unit_price_gross:
+          type: string
+          readOnly: true
+        line_net:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Total línea sin IVA
+        line_gross:
+          type: string
+          readOnly: true
+        returnable_quantity:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - line_gross
+      - line_net
+      - product_name
+      - quantity
+      - returnable_quantity
+      - sku
+      - unit_price_gross
+      - unit_price_net
+    PaginatedOrderList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    PaginatedProductListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductList'
+    PasswordChange:
+      type: object
+      properties:
+        current_password:
+          type: string
+          writeOnly: true
+        new_password:
+          type: string
+          writeOnly: true
+      required:
+      - current_password
+      - new_password
+    PasswordResetConfirm:
+      type: object
+      description: Base de los enlaces firmados que viajan por correo (uid + token).
+      properties:
+        uid:
+          type: string
+        token:
+          type: string
+        new_password:
+          type: string
+          writeOnly: true
+      required:
+      - new_password
+      - token
+      - uid
+    PasswordResetRequest:
+      type: object
+      description: |-
+        Solicitud de restablecimiento. **Nunca revela si el correo existe**: responde igual en
+        los dos casos, o el endpoint se convertiría en un comprobador de clientes registrados.
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    PatchedAddress:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          title: Etiqueta
+          maxLength: 60
+        recipient:
+          type: string
+          title: Destinatario
+          maxLength: 150
+        phone:
+          type: string
+          title: Teléfono
+          maxLength: 32
+        line1:
+          type: string
+          title: Dirección
+          maxLength: 255
+        line2:
+          type: string
+          title: Dirección (línea 2)
+          maxLength: 255
+        postal_code:
+          type: string
+          title: Código postal
+          maxLength: 10
+        city:
+          type: string
+          title: Localidad
+          maxLength: 120
+        province:
+          type: string
+          title: Provincia
+          maxLength: 120
+        country:
+          type: string
+          title: País
+          maxLength: 2
+        tax_id:
+          type: string
+          title: NIF/CIF
+          description: Necesario si el cliente pide factura.
+          maxLength: 20
+        is_default_shipping:
+          type: boolean
+          title: Envío por defecto
+        is_default_billing:
+          type: boolean
+          title: Facturación por defecto
+    PatchedCartItemWrite:
+      type: object
+      description: Alta o cambio de cantidad de una línea.
+      properties:
+        variant:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          maximum: 99
+          minimum: 1
+    PatchedUser:
+      type: object
+      description: Datos del cliente en su área privada.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Correo electrónico
+        first_name:
+          type: string
+          title: Nombre
+          maxLength: 100
+        last_name:
+          type: string
+          title: Apellidos
+          maxLength: 150
+        full_name:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          title: Teléfono
+          maxLength: 32
+        accepts_marketing:
+          type: boolean
+          title: Acepta comunicaciones
+        email_verified:
+          type: boolean
+          readOnly: true
+          title: Correo verificado
+          description: 'Confirma que la dirección pertenece a quien se registró. No
+            bloquea el acceso: es una decisión de producto pendiente (ver DECISIONS_PENDING.md).'
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Alta
+    ProductDetail:
+      type: object
+      description: 'Ficha completa: colores, tallas, disponibilidad, galería y piezas
+        del conjunto.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          title: Nombre
+          maxLength: 200
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 200
+        family:
+          allOf:
+          - $ref: '#/components/schemas/Family'
+          readOnly: true
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/KindEnum'
+          title: Tipo
+        sale_mode:
+          allOf:
+          - $ref: '#/components/schemas/SaleModeEnum'
+          title: Modo de venta
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Precio sin IVA
+          description: PVP **sin IVA**. Vacío solo en productos de tipo «solo consulta».
+        sale_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Precio rebajado sin IVA
+          description: Si está relleno, es el precio que se cobra.
+        price_gross:
+          type: string
+          nullable: true
+          readOnly: true
+        sale_price_gross:
+          type: string
+          nullable: true
+          readOnly: true
+        effective_price_gross:
+          type: string
+          nullable: true
+          readOnly: true
+        is_on_sale:
+          type: boolean
+          readOnly: true
+        is_outlet:
+          type: boolean
+          title: En outlet
+        primary_image:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          readOnly: true
+        colors:
+          type: array
+          items: {}
+          readOnly: true
+        in_stock:
+          type: boolean
+          readOnly: true
+        description:
+          type: string
+          title: Descripción
+        description_en:
+          type: string
+          title: Descripción (EN)
+        composition:
+          type: string
+          title: Composición
+          maxLength: 255
+        care:
+          type: string
+          title: Cuidados
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+          readOnly: true
+        colorways:
+          type: array
+          items: {}
+          readOnly: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductImage'
+          readOnly: true
+        components:
+          type: array
+          items: {}
+          description: Piezas de un conjunto. Vacío en prendas sueltas.
+          readOnly: true
+        enquiry_only:
+          type: boolean
+          description: True cuando el producto no tiene precio y hay que consultar
+            por email.
+          readOnly: true
+      required:
+      - categories
+      - colors
+      - colorways
+      - components
+      - effective_price_gross
+      - enquiry_only
+      - family
+      - id
+      - images
+      - in_stock
+      - is_on_sale
+      - name
+      - price_gross
+      - primary_image
+      - sale_price_gross
+    ProductEnquiry:
+      type: object
+      description: |-
+        Consulta sobre un producto sin precio. Los artículos `ON_REQUEST` no se compran: se
+        pregunta por email. No se persiste nada, solo se envía el aviso.
+      properties:
+        product:
+          type: string
+        name:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          default: ''
+          maxLength: 32
+        message:
+          type: string
+          maxLength: 2000
+      required:
+      - email
+      - message
+      - name
+      - product
+    ProductImage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          title: Imagen
+        alt_text:
+          type: string
+          title: Texto alternativo
+          maxLength: 200
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+        colorway:
+          type: string
+          format: uuid
+          nullable: true
+          title: Color de producto
+      required:
+      - id
+      - image
+    ProductList:
+      type: object
+      description: Versión ligera para listados y rejillas.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          title: Nombre
+          maxLength: 200
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 200
+        family:
+          allOf:
+          - $ref: '#/components/schemas/Family'
+          readOnly: true
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/KindEnum'
+          title: Tipo
+        sale_mode:
+          allOf:
+          - $ref: '#/components/schemas/SaleModeEnum'
+          title: Modo de venta
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Precio sin IVA
+          description: PVP **sin IVA**. Vacío solo en productos de tipo «solo consulta».
+        sale_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Precio rebajado sin IVA
+          description: Si está relleno, es el precio que se cobra.
+        price_gross:
+          type: string
+          nullable: true
+          readOnly: true
+        sale_price_gross:
+          type: string
+          nullable: true
+          readOnly: true
+        effective_price_gross:
+          type: string
+          nullable: true
+          readOnly: true
+        is_on_sale:
+          type: boolean
+          readOnly: true
+        is_outlet:
+          type: boolean
+          title: En outlet
+        primary_image:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          readOnly: true
+        colors:
+          type: array
+          items: {}
+          readOnly: true
+        in_stock:
+          type: boolean
+          readOnly: true
+      required:
+      - colors
+      - effective_price_gross
+      - family
+      - id
+      - in_stock
+      - is_on_sale
+      - name
+      - price_gross
+      - primary_image
+      - sale_price_gross
+    Register:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          title: Correo electrónico
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+        first_name:
+          type: string
+          title: Nombre
+          maxLength: 100
+        last_name:
+          type: string
+          title: Apellidos
+          maxLength: 150
+        phone:
+          type: string
+          title: Teléfono
+          maxLength: 32
+        accepts_marketing:
+          type: boolean
+          title: Acepta comunicaciones
+      required:
+      - email
+      - password
+    Return:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        order:
+          type: string
+          format: uuid
+          title: Pedido
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+          title: Estado
+        reason:
+          type: string
+          title: Motivo
+        refund_amount_gross:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+          title: Importe reembolsado con IVA
+        refunded_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Reembolsado el
+          description: Se rellena a mano tras ejecutar el reembolso en Stripe.
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReturnLine'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - lines
+      - order
+      - refund_amount_gross
+      - refunded_at
+      - status
+    ReturnCreate:
+      type: object
+      description: |-
+        Solicitud de devolución, total o parcial. Plazo de 14 días; el retorno lo paga el
+        cliente. Aquí solo se registra: la aceptación y el reembolso los hace el panel.
+      properties:
+        reason:
+          type: string
+          maxLength: 2000
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReturnLineWrite'
+      required:
+      - lines
+      - reason
+    ReturnLine:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        order_line:
+          type: string
+          format: uuid
+          title: Línea de pedido
+        sku:
+          type: string
+          readOnly: true
+        product_name:
+          type: string
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 32767
+          minimum: 1
+          title: Cantidad
+      required:
+      - id
+      - order_line
+      - product_name
+      - quantity
+      - sku
+    ReturnLineWrite:
+      type: object
+      properties:
+        order_line:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+      required:
+      - order_line
+      - quantity
+    SaleModeEnum:
+      enum:
+      - in_stock
+      - on_request
+      - made_to_order
+      type: string
+      description: |-
+        * `in_stock` - Disponible en stock
+        * `on_request` - Solo consulta (sin precio)
+        * `made_to_order` - Bajo encargo
+    Size:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Talla
+          maxLength: 8
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+      required:
+      - code
+      - id
+    StatusEnum:
+      enum:
+      - requested
+      - accepted
+      - rejected
+      type: string
+      description: |-
+        * `requested` - Solicitada
+        * `accepted` - Aceptada
+        * `rejected` - Rechazada
+    StockNotification:
+      type: object
+      description: '«Avísame cuando haya stock». No exige cuenta: basta un email.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        variant:
+          type: string
+          format: uuid
+          title: Variante
+        email:
+          type: string
+          format: email
+          title: Correo electrónico
+          maxLength: 254
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - id
+      - variant
+    User:
+      type: object
+      description: Datos del cliente en su área privada.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Correo electrónico
+        first_name:
+          type: string
+          title: Nombre
+          maxLength: 100
+        last_name:
+          type: string
+          title: Apellidos
+          maxLength: 150
+        full_name:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          title: Teléfono
+          maxLength: 32
+        accepts_marketing:
+          type: boolean
+          title: Acepta comunicaciones
+        email_verified:
+          type: boolean
+          readOnly: true
+          title: Correo verificado
+          description: 'Confirma que la dirección pertenece a quien se registró. No
+            bloquea el acceso: es una decisión de producto pendiente (ver DECISIONS_PENDING.md).'
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Alta
+      required:
+      - date_joined
+      - email
+      - email_verified
+      - full_name
+      - id
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

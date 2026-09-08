@@ -1,0 +1,4 @@
+# Orquestación local (esta carpeta no es un monorepo: backend/ y frontend/ son dos
+# repos independientes con su propio remoto y su propio .gitignore).
+.env
+frontend/
