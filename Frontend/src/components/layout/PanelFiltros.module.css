@@ -1,0 +1,247 @@
+/* ============================================================
+   PANEL DE FILTROS — Fely Campo
+   Contenido del PanelLateral (ver ui/PanelLateral.module.css, que
+   pone el deslizamiento/overlay/ancho) — aquí solo el layout interno.
+   Esquinas siempre rectas (radio 0), igual que el resto del sistema.
+   ============================================================ */
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-6);
+}
+
+.titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  text-transform: uppercase;
+}
+
+.cerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: var(--spacing-1);
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.cerrar:hover {
+  opacity: 0.6;
+}
+
+/* .contenido extra (ver claseContenido en PanelLateral.jsx) + .listaScroll:
+   mismo patrón que .contenido/.lista de CarritoPanel.module.css —
+   cabecera fija arriba, el acordeón de filtros scrollea en su propio
+   hueco (flex:1) y .acciones queda siempre pegado abajo del todo, sea
+   cual sea su alto (menos filas en Atelier, ver ocultarPrecio). */
+.contenido {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-fondo);
+}
+
+.listaScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.listaScroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Ordenar por / Colección: listas de texto ---------- */
+.listaOrden {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+}
+
+/* Mismo patrón que .tab/.activa de CollectionTitle — subrayado
+   transparente por defecto, tinta en la opción activa. */
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  padding: 0 0 var(--spacing-1) 0;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+  cursor: pointer;
+  transition: color 0.25s var(--ease-marca), border-color 0.25s var(--ease-marca);
+}
+
+.tab:hover {
+  color: var(--color-tinta);
+}
+
+.tabActivo {
+  color: var(--color-tinta);
+  border-bottom-color: var(--color-tinta);
+}
+
+/* ---------- Estilo y silueta: sub-bloques con subtítulo ---------- */
+/* Un único FilaAcordeon con varios sub-bloques dentro (ver
+   GRUPOS_ESTILO_SILUETA en estiloSiluetaGrupos.js) — cada uno con su propio
+   subtítulo (mismo tratamiento tipográfico que .titulo de
+   Acordeon.module.css, un peldaño por debajo del título de fila) y
+   fila de chips (.chips/.chip, reutilizados de Talla). */
+.subgrupos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.subgrupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.subgrupoTitulo {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gris-500);
+  text-transform: uppercase;
+}
+
+/* ---------- Talla / Color: chips ---------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+/* Mismo patrón que SelectorTalla (.talla/.activa): caja rellena en
+   tinta cuando está seleccionada, en vez de un simple check. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 32px;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  text-align: center;
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  border: 1px solid var(--color-gris-300);
+  border-radius: 0;
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease-marca), background-color 0.25s var(--ease-marca), color 0.25s var(--ease-marca);
+}
+
+.chip:hover {
+  border-color: var(--color-tinta);
+}
+
+.chipActivo {
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  border-color: var(--color-tinta);
+}
+
+/* ---------- Color: familias ---------- */
+/* Mismo elemento que .familiaChip/.familiasGrid de
+   FormularioProducto.module.css (panel admin) — recreado aquí porque
+   vive en components/admin/ (solo el panel), no en components/layout/
+   (sitio público). "Padres" en flex-wrap, cada uno con 1-2 cuadraditos
+   de muestra para reconocer la familia sin leer la etiqueta — no se
+   enseña el color suelto, ver familiaDeHex en CuadriculaProductos.jsx. */
+.familiasGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.familiaChip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--color-gris-300);
+  border-radius: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  transition: border-color 0.25s var(--ease-marca), background-color 0.25s var(--ease-marca), color 0.25s var(--ease-marca);
+}
+
+.familiaChip:hover {
+  border-color: var(--color-tinta);
+}
+
+.familiaChipActiva {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.familiaMuestras {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.familiaMuestra {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--color-gris-300);
+}
+
+.familiaMuestra + .familiaMuestra {
+  margin-left: -5px;
+}
+
+/* ---------- Precio ---------- */
+.precio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.rango {
+  width: 100%;
+  accent-color: var(--color-tinta);
+}
+
+.precioValor {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+/* ---------- Acciones ---------- */
+/* Ya no necesita margin-top para "empujarse" abajo: vive fuera del
+   hueco que scrollea (.listaScroll, arriba) así que el propio flex
+   column de .contenido lo deja pegado al fondo del panel sin más
+   truco, mismo criterio que .acciones de CarritoPanel.module.css. */
+.acciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-5);
+  border-top: 0.75px solid var(--color-gris-300);
+}
+
+/* Boton variante="contorno" ya usa --color-tinta para el borde, pero el
+   texto sale en --color-gris-700 (ver .contorno en Boton.module.css) —
+   aquí lo pisamos a tinta también. */
+.acciones .limpiarBoton {
+  color: var(--color-tinta);
+}

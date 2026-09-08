@@ -34,7 +34,7 @@ class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     filterset_class = ProductFilter
     lookup_field = "slug"
     search_fields = ("name", "description", "colorways__sku", "family__name")
-    ordering_fields = ("created_at", "price", "name")
+    ordering_fields = ("created_at", "price", "name", "featured_position")
     # El desempate por `id` es obligatorio para paginar: sin él, dos productos con el
     # mismo `created_at` (habitual tras una importación masiva) pueden repetirse entre
     # páginas o desaparecer, porque Postgres no garantiza un orden estable.

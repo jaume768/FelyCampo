@@ -1,0 +1,76 @@
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.lista.horizontal {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
+.lista.horizontal .item {
+  flex-shrink: 0;
+  position: relative;
+  height: 100%;
+  align-items: stretch;
+}
+
+.lista.horizontal .contenidoItem {
+  height: 100%;
+}
+
+.lista.horizontal .asa {
+  position: absolute;
+  top: var(--spacing-1);
+  left: var(--spacing-1);
+  width: 20px;
+  height: 20px;
+  padding: 3px;
+  background: var(--color-fondo);
+  color: var(--color-gris-600, var(--color-gris-500));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.lista.horizontal .item:hover .asa {
+  opacity: 1;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  cursor: grab;
+  transition: opacity 0.2s var(--ease-marca), transform 0.2s var(--ease-marca), box-shadow 0.2s var(--ease-marca);
+}
+
+.item.arrastrando {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.lista.horizontal .item.arrastrando {
+  transform: scale(0.94) rotate(-2deg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.item.sobre {
+  outline: var(--border-regular) dashed var(--color-tinta);
+  outline-offset: 2px;
+}
+
+.asa {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--color-gris-400);
+}
+
+.contenidoItem {
+  flex: 1;
+  min-width: 0;
+}

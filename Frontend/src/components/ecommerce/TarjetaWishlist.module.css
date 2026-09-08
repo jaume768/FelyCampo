@@ -1,0 +1,88 @@
+/* ============================================================
+   TARJETA DE WISHLIST — Fely Campo
+   Mismo esqueleto que TarjetaCarrito.module.css (radio 0, marco +
+   quitar superpuesto, cabecera) — sin .controles/.selectTalla (aquí no
+   hay talla/cantidad que elegir), el CTA "Añadir a la cesta" ocupa su
+   sitio en su lugar.
+   ============================================================ */
+
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.marco {
+  position: relative;
+  aspect-ratio: 3 / 4.5;
+  background: var(--color-crema);
+  overflow: hidden;
+  border-radius: var(--radius-imagenes);
+}
+
+/* Enlace a la ficha de producto — solo la imagen, no todo .marco:
+   .quitar vive encima como hermano absoluto, y un <button> anidado
+   dentro de un <a> es HTML inválido. */
+.marcoEnlace {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.quitar {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-fondo);
+  border: none;
+  border-radius: 0;
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.quitar:hover {
+  opacity: 0.7;
+}
+
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.nombre {
+  font-size: var(--text-body);
+  color: var(--color-tinta);
+}
+
+.precio {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+}
+
+/* Sin nombre visible (ver TarjetaWishlist.jsx) — "title" en el <span>
+   sigue dando el nombre del color al pasar el ratón. */
+.color {
+  display: flex;
+  align-items: center;
+}
+
+.colorPunto {
+  width: 20px;
+  height: 20px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  flex-shrink: 0;
+}

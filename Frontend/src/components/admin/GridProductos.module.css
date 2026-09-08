@@ -1,0 +1,140 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+/* .tarjeta es un <div>, no un <button> — la miniatura del look vinculado
+   (ver GridProductos.jsx) necesita su propio <button>, y un <button> no
+   puede anidarse dentro de otro sin romper la hidratación y el click
+   (mismo bug ya corregido en ListaProductos.jsx `LookTarjeta`). El botón
+   grande de imagen+info es ".tarjetaBoton", hijo de ésta. */
+.tarjeta {
+  position: relative;
+  border: var(--border-thin) solid var(--color-gris-200);
+  background: var(--color-light-details);
+  transition: border-color 0.2s var(--ease-marca);
+}
+
+.tarjeta:hover {
+  border-color: var(--color-gris-400);
+}
+
+.tarjetaBoton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tarjetaBoton:focus-visible {
+  outline: var(--border-regular) solid var(--color-tinta);
+  outline-offset: -2px;
+}
+
+.imagenWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background: var(--color-gris-100);
+  overflow: hidden;
+}
+
+.imagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imagenVacia {
+  width: 100%;
+  height: 100%;
+  background: var(--color-gris-100);
+}
+
+.estadoEsquina {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+}
+
+/* Superpuesta a .imagenWrap pero FUERA de .tarjetaBoton (ver comentario en
+   GridProductos.jsx) — mismo box exacto (top:0/left:0, ancho 100%,
+   aspect-ratio 3:4) porque .imagenWrap es el primer hijo de ese botón, que
+   a su vez es el primer hijo de .tarjeta: ambas parten del mismo origen.
+   pointer-events:none deja pasar los clicks al resto de la imagen; el
+   botón de dentro reactiva pointer-events. Mismo patrón que
+   ListaProductos.module.css .lookImagenOverlay/.lookVinculadoTile. */
+.imagenOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.lookVinculadoTile {
+  position: absolute;
+  bottom: var(--spacing-2);
+  right: var(--spacing-2);
+  display: block;
+  width: 26px;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border: var(--border-thin) solid var(--color-fondo);
+  cursor: pointer;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.lookVinculadoImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--color-gris-100);
+}
+
+.info {
+  padding: var(--spacing-3);
+}
+
+.tarjetaAcciones {
+  padding: 0 var(--spacing-3) var(--spacing-3);
+}
+
+.tarjetaAcciones > * {
+  width: 100%;
+}
+
+.nombre {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  margin-bottom: 2px;
+}
+
+.sku {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.precio {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  font-weight: var(--font-weight-medium);
+}
+
+.vacio {
+  padding: var(--spacing-7) var(--spacing-4);
+  text-align: center;
+  color: var(--color-gris-400);
+  border: var(--border-regular) solid var(--color-gris-200);
+}

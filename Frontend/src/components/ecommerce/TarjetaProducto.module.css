@@ -1,0 +1,178 @@
+/* ============================================================
+   TARJETA DE PRODUCTO — Fely Campo (e-commerce)
+   Sin contenedor/marco: la imagen ocupa toda la columna,
+   radio 0 (fiel al referente), badge como texto plano.
+   Referente: styleguide.html #producto (.sg-prod).
+   ============================================================ */
+
+/* .marco sin flex-grow (flex: 0 1 auto): el aspect-ratio 3/4 manda
+   siempre, aunque la fila del grid se estire por una tarjeta vecina
+   con más contenido debajo (badge, precio rebajado en dos líneas...).
+   Así todas las fotos miden igual entre sí — el hueco sobrante, si lo
+   hay, lo absorbe .tarjeta, no la imagen. */
+.tarjeta {
+  position: relative;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Envuelve .marco + .encabezado (enlace a la ficha de producto, ver
+   TarjetaProducto.jsx) sin generar su propia caja — display:contents
+   deja que sus hijos sigan siendo flex items directos de .tarjeta,
+   como si el <a> no estuviera. */
+.enlace {
+  display: contents;
+  color: inherit;
+  text-decoration: none;
+}
+
+.marco {
+  position: relative;
+  aspect-ratio: 3 / 4.5;
+  flex: 0 1 auto;
+  min-height: 0;
+  border-radius: var(--radius-imagenes);
+}
+
+/* El recorte va aquí, no en .marco: así el tooltip de .wishlist (que
+   también vive dentro de .marco) puede salirse del encuadre en vez de
+   cortarse contra el borde de la tarjeta. */
+.recorte {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-imagenes);
+  overflow: hidden;
+}
+
+.imagen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.6s ease;
+}
+.imagenHover { opacity: 0; }
+.tarjeta:hover:has(.imagenHover) .imagenBase { opacity: 0; }
+.tarjeta:hover .imagenHover { opacity: 1; }
+
+.badge {
+  position: absolute;
+  top: var(--spacing-2);
+  left: var(--spacing-2);
+  z-index: 2;
+}
+
+.wishlist {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  z-index: 3;
+  padding: 2px;
+  background: var(--color-fondo);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.tarjeta:hover .wishlist,
+.tarjeta:focus-within .wishlist { opacity: 1; pointer-events: auto; }
+
+/* Nombre y precio en la misma línea, repartidos a los extremos del
+   ancho de la tarjeta (antes iban apilados, el precio debajo). */
+.encabezado {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-1);
+  margin-top: var(--spacing-3);
+  margin-bottom: var(--spacing-3);
+  padding: 0px var(--spacing-2);
+}
+
+.nombre {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.precios {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-2);
+  font-size: var(--text-small);
+  flex-shrink: 0;
+}
+
+.precio { color: var(--color-tinta); letter-spacing: var(--tracking-label); }
+.antes { color: var(--color-gris-400); text-decoration: line-through; }
+.ahora { color: var(--color-rosa); }
+
+/* Colores: reservan siempre el alto (18px, más que los 14px del punto
+   — deja aire alrededor del círculo) para que la tarjeta no salte de
+   tamaño, y solo se revelan en hover — igual que .sg-colores-prod. */
+.colores {
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  padding: 0px var(--spacing-2);
+}
+
+.tarjeta:hover .colores { opacity: 1; }
+
+/* En mobile no se muestran los colores: sin hover real, no aportan nada
+   y solo ocupan espacio — se quitan del flujo. */
+@media (max-width: 767px) {
+  .colores { display: none; }
+}
+
+/* Variante "siempre visibles" (páginas de categoría, no la home): vive
+   dentro de .encabezado en vez de debajo de la tarjeta, y no depende
+   del hover — por eso no hereda opacity/pointer-events de .colores, y
+   tampoco se oculta en mobile. */
+.coloresEncabezado {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Botón del color: mismo patrón que .tab/.activa de CollectionTitle —
+   subrayado transparente por defecto, tinta cuando ese color es el
+   activo, transición idéntica. El punto de color vive dentro, así el
+   subrayado queda separado de él (padding-bottom), no pegado. */
+.colorBoton {
+  display: block;
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding: 0 0 3px 0;
+  cursor: pointer;
+  transition: color 0.25s var(--ease-marca), border-color 0.25s var(--ease-marca);
+}
+
+.colorActivo {
+  border-bottom-color: var(--color-tinta);
+}
+
+.punto {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 0px;
+}
+
+.mas { font-size: var(--text-caption); color: var(--color-gris-700); }
+
+/* Agotado: sustituye a la fila de colores, siempre visible (sin hover) */
+.accion { margin-top: var(--spacing-1); }
+
+/* Variante "carrusel" (ver TarjetaProducto.jsx) — solo la usa
+   CuadriculaProductos en modo banda horizontal. */
+.marcoCarrusel { aspect-ratio: 2 / 3; }

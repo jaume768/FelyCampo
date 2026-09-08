@@ -1,0 +1,1083 @@
+.campoAncho {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+/* Cabecera del modal + pestañas de variante, pegadas (sticky) arriba del
+   todo mientras se hace scroll por el resto del formulario — para poder
+   cambiar de variante de color sin tener que volver a subir. Anula el
+   padding de ModalOverlay.module.css .contenido (que es donde vive ahora
+   ese padding, no en .panel — ver comentario allí) con márgenes
+   negativos y lo vuelve a poner aquí dentro, así este bloque llega hasta
+   el borde real de .panel y no dentro de un hueco.
+   `top` tiene que cancelar el padding-top de ModalOverlay.module.css
+   .contenedor (el que de verdad hace scroll, var(--spacing-8)) — sticky
+   respeta ese padding como hueco fijo por defecto (con top:0 el bloque
+   queda pegado al borde INTERIOR del padding, no al borde real de
+   pantalla, dejando siempre un hueco del alto de ese padding con el
+   fondo claro de .panel asomando). Con top en negativo exactamente igual
+   a ese padding, el bloque llega hasta el borde real, sin hueco.
+   z-index por debajo de ModalOverlay.module.css .cerrar (z-index:2) para
+   que la (X) de cerrar quede siempre encima. */
+.cabeceraFija {
+  position: sticky;
+  top: calc(-1 * var(--spacing-8));
+  z-index: 1;
+  margin: calc(-1 * var(--spacing-6)) calc(-1 * var(--spacing-6)) 0;
+  padding: var(--spacing-6) var(--spacing-6) 0;
+  background: var(--color-details);
+}
+
+/* Fila "Nueva reseña" (Reseñas de Clientas) — mismo grid-column que
+   .campoAncho, nombre propio para poder ajustarla sin tocar el resto de
+   usos genéricos de .campoAncho. */
+.resenaNuevaForm {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+/* Mismo look que Input.module.css .input (borde, radio, padding, tipo) —
+   se duplica en vez de reutilizar el componente para que "Nombre de la
+   clienta" comparta estructura div+etiquetaCampo con "Texto de la
+   reseña"/"Fotos" en vez del <label> propio de <Input>. */
+.inputTexto {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: 12px var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  outline: none;
+  transition: border-color 0.25s var(--ease-marca);
+}
+
+.inputTexto::placeholder {
+  color: var(--color-gris-400);
+}
+
+.inputTexto:focus {
+  border-color: var(--color-tinta);
+}
+
+.accionAnadirColeccion {
+  margin-top: var(--spacing-3);
+}
+
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  resize: vertical;
+  min-height: 80px;
+}
+
+.etiquetaCampo {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.selectInput {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: 12px var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+}
+
+.galeria {
+  grid-column: 1 / -1;
+}
+
+/* Pestañas de variante de color — solo al dar de alta un producto nuevo
+   de cero (permiteVariasVariantes en FormularioProducto.jsx), pegadas
+   (sticky) dentro de .cabeceraFija junto a la cabecera del modal, no
+   repetidas por sección. Mismo lenguaje visual que .familiaChip. */
+.variantesTabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-5);
+  padding-bottom: var(--spacing-2);
+  border-bottom: var(--border-thin) solid var(--color-gris-200);
+}
+
+.varianteTabWrap {
+  display: flex;
+  align-items: stretch;
+}
+
+.varianteTab {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.varianteTab:hover {
+  border-color: var(--color-gris-300);
+}
+
+.varianteTabActiva {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.varianteTabMuestra {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border: var(--border-thin) solid var(--color-gris-300);
+}
+
+.varianteTabQuitar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  border: var(--border-regular) solid var(--color-gris-200);
+  border-left: none;
+  background: none;
+  color: var(--color-gris-500);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.varianteTabQuitar:hover {
+  border-color: var(--color-rosa-oscuro);
+  color: var(--color-rosa-oscuro);
+}
+
+/* Mismos colores que .varianteTabActiva — cuando la pestaña de al lado
+   está activa, su botón de quitar (×) lo refleja también, no se queda
+   con el borde/gris por defecto. */
+.varianteTabQuitarActiva {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+/* "Variante de color" es un Boton variante="contorno" (mismo layout:
+   flex, gap, mayúsculas, radio) pero sin el relleno coloreado de
+   .contorno — border y texto en el mismo tono, fondo siempre
+   transparente (ni en reposo ni en hover). Selector compuesto (no
+   ".varianteAnadirBoton" suelto) para ganarle a Boton.module.css
+   ".contorno"/".contorno:hover" pase lo que pase el orden de los chunks
+   CSS entre módulos distintos. */
+.variantesTabs .varianteAnadirBoton {
+  border-color: var(--color-tinta);
+  color: var(--color-tinta);
+  background: none;
+}
+
+.variantesTabs .varianteAnadirBoton:hover {
+  border-color: var(--color-tinta);
+  color: var(--color-tinta);
+  background: none;
+}
+
+.subirCaja {
+  width: 100%;
+}
+
+.subirVacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  width: 100%;
+  min-height: 175px;
+  border: var(--border-regular) dashed var(--color-gris-300);
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  text-align: center;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.subirVacio:hover {
+  border-color: var(--color-tinta);
+  color: var(--color-tinta);
+}
+
+.subirIcono {
+  color: inherit;
+}
+
+.inputArchivo {
+  display: none;
+}
+
+.subirHint {
+  grid-column: 1 / -1;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-top: var(--spacing-2);
+}
+
+.imagenesScroll {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-3);
+  width: 100%;
+  height: 250px;
+  box-sizing: border-box;
+  padding: var(--spacing-3);
+  border: var(--border-regular) dashed var(--color-gris-300);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s ease;
+}
+
+.imagenesScroll:hover {
+  scrollbar-color: var(--color-gris-300) transparent;
+}
+
+.imagenesScroll::-webkit-scrollbar {
+  height: 3px;
+}
+
+.imagenesScroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.imagenesScroll::-webkit-scrollbar-track,
+.imagenesScroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.imagenesScroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.imagenesScroll:hover::-webkit-scrollbar-thumb {
+  background: var(--color-gris-300);
+}
+
+.imagenesScroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gris-400);
+}
+
+.imagenItem {
+  position: relative;
+  width: 150px;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.imagenMiniatura {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imagenQuitar {
+  position: absolute;
+  top: var(--spacing-1);
+  right: var(--spacing-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-fondo);
+  border: none;
+  padding: 0;
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: color 0.25s var(--ease-marca);
+}
+
+.imagenQuitar:hover {
+  color: var(--color-rosa-oscuro);
+}
+
+.imagenEtiqueta {
+  position: absolute;
+  bottom: var(--spacing-2);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tallasGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.tallaBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.tallaBoton {
+  width: 48px;
+  height: 48px;
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.tallaBoton:hover {
+  border-color: var(--color-gris-300);
+}
+
+.tallaBoxActiva .tallaBoton {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  font-weight: var(--font-weight-medium);
+}
+
+.tallaStock {
+  width: 48px;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  text-align: center;
+  color: var(--color-tinta);
+  background: var(--color-fondo);
+}
+
+.colorPunto {
+  width: 20px;
+  height: 20px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  flex-shrink: 0;
+}
+
+/* Bloque "etiqueta + rejilla" — usado tanto para COLORES (etiquetaCampo +
+   familiasGrid) como para ESTAMPADOS (etiquetaCampo + estampadosGrid),
+   mismo criterio que .coloresPanel más abajo: la etiqueta y su rejilla
+   viven en un único contenedor, con el gap entre ambas dando el espacio
+   (por eso se anula el margin-bottom propio de .etiquetaCampo aquí
+   dentro). */
+.familiasBloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-3);
+  margin-top: var(--spacing-6);
+}
+
+/* Campos sueltos uno debajo de otro (Composición y Origen) — sin picker,
+   sin chips, cada uno un <Input> normal. */
+.camposApilados {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.familiasBloque > .etiquetaCampo {
+  margin-bottom: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Grupos de color (Neutros, Rojos y vinos...) — "padres" en una rejilla
+   flex-wrap (no una columna), cada uno con 1-2 cuadraditos de muestra
+   para reconocer la familia sin leer la etiqueta. Al tocar uno se abre
+   SU rejilla de colores debajo de toda la fila de padres (un único grupo
+   desplegado a la vez) — así 55 colores no se enseñan de golpe. */
+.familiasGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+/* Estampados subidos en esta sesión — mismo lenguaje visual que
+   .telasGrid/.telaChip (imagen + nombre), pero con nombre bilingüe como
+   .colorChip (reutiliza .colorChipTexto/.colorChipNombre/
+   .colorChipTraduccion, no se duplican). */
+.estampadosGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.estampadoChip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.estampadoChip:hover {
+  border-color: var(--color-gris-300);
+}
+
+.estampadoChipActivo {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.estampadoChipActivo .colorChipTraduccion {
+  color: var(--color-fondo);
+}
+
+.estampadoChipImagen {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: var(--border-thin) solid var(--color-gris-300);
+}
+
+/* Toggle "Añadir color" / "Añadir estampado" — decide cuál de las dos
+   filas de alta (mismo .anadirFila, contenido distinto) se enseña
+   debajo. Mismo lenguaje visual que .familiaChip/.familiaChipActiva. */
+.modoAnadirGrupo {
+  display: flex;
+  gap: var(--spacing-2);
+  margin: var(--spacing-6) 0;
+}
+
+/* .modoAnadirGrupo son Boton variante="contorno" tamano="s" (mismo
+   componente que "Añadir color"/"Añadir tela" dentro de cada fila) — esta
+   clase solo añade el estado "seleccionado" encima de esas clases.
+   Selector compuesto (no ".modoAnadirBotonActivo" suelto) para ganarle a
+   Boton.module.css ".contorno" pase lo que pase el orden de los chunks
+   CSS entre módulos distintos. */
+.modoAnadirGrupo .modoAnadirBotonActivo {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.modoAnadirGrupo .modoAnadirBotonActivo:hover {
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.familiaChip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.familiaChip:hover {
+  border-color: var(--color-gris-300);
+}
+
+.familiaChipActiva {
+  border-width: 2px;
+  border-color: var(--color-tinta);
+  color: var(--color-fondo);
+  background: var(--color-tinta);
+}
+
+.familiaMuestras {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.familiaMuestra {
+  width: 14px;
+  height: 14px;
+  border: var(--border-thin) solid var(--color-gris-300);
+}
+
+.familiaMuestra + .familiaMuestra {
+  margin-left: -5px;
+}
+
+/* Mismo lenguaje visual que AdminSidebar.module.css .contador (píldora
+   rosa numérica) — aquí avisa cuántos colores de la familia están
+   elegidos aunque el grupo esté cerrado. */
+.familiaBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 50%;
+  background: var(--color-rosa);
+  color: var(--color-fondo);
+  font-size: var(--text-nano);
+  font-weight: var(--font-weight-semibold);
+  flex-shrink: 0;
+}
+
+.coloresPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-left: 2px solid var(--color-tinta);
+}
+
+/* .etiquetaCampo trae su propio margin-bottom (ver arriba) — aquí el
+   espacio entre la etiqueta y la rejilla ya lo da el gap del panel, así
+   que se anula para no duplicarlo. */
+.coloresPanel > .etiquetaCampo {
+  margin-bottom: 0;
+}
+
+.coloresGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.colorChip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.colorChip:hover {
+  border-color: var(--color-gris-300);
+}
+
+.colorChipActivo {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+/* Nombre ES/EN apilados, mismo criterio que .telaChipNombre/
+   .telaChipComposicion — un chip de color ahora lleva dos idiomas, no
+   cabe ya en una sola línea junto al swatch. */
+.colorChipTexto {
+  display: flex;
+  flex-direction: column;
+}
+
+.colorChipNombre {
+  font-weight: var(--font-weight-medium);
+}
+
+.colorChipTraduccion {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.colorChipActivo .colorChipTraduccion {
+  color: var(--color-fondo);
+}
+
+.telasGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.telaChip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.telaChipTexto {
+  display: flex;
+  flex-direction: column;
+}
+
+.telaChip:hover {
+  border-color: var(--color-gris-300);
+}
+
+.telaChipActivo {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+/* Bloque "Cuidados" — varias categorías (Lavado, Blanqueo...) apiladas,
+   cada una con su propia etiqueta pequeña y rejilla de instrucciones
+   (mismo .telaChip/.telasGrid, selección múltiple). */
+.cuidadosLista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.cuidadoCategoria {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.cuidadoCategoriaTitulo {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.telaChipNombre {
+  display: block;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  font-weight: var(--font-weight-medium);
+}
+
+.telaChipComposicion {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-top: var(--spacing-1);
+}
+
+.telaChipActivo .telaChipNombre,
+.telaChipActivo .telaChipComposicion {
+  color: var(--color-fondo);
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-6);
+}
+
+.acciones .accionBorrador {
+  background: var(--color-azul);
+  border-color: var(--color-azul);
+  color: var(--color-fondo);
+}
+.acciones .accionBorrador:hover {
+  background: var(--color-azul-oscuro);
+  border-color: var(--color-azul-oscuro);
+}
+
+.acciones .accionProgramado {
+  background: var(--color-amarillo);
+  border-color: var(--color-amarillo);
+  color: var(--color-fondo);
+}
+.acciones .accionProgramado:hover {
+  background: var(--color-amarillo-oscuro);
+  border-color: var(--color-amarillo-oscuro);
+}
+
+/* accionPublicar sin override: es Boton variante="solido" (FormularioProducto.jsx),
+   que ya trae tinta de fondo / rosa al hover por defecto (Boton.module.css). */
+
+.tipoGrid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-3);
+}
+
+.tipoOpcion {
+  padding: var(--spacing-5);
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.tipoOpcion:hover {
+  border-color: var(--color-gris-300);
+}
+
+.tipoOpcionActiva {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.prendasLista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-3);
+}
+
+.prendaFila {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: end;
+  gap: var(--spacing-3);
+}
+
+.prendaQuitar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  color: var(--color-gris-500);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.prendaQuitar:hover {
+  border-color: var(--color-rosa-oscuro);
+  color: var(--color-rosa-oscuro);
+}
+
+/* Alta rápida de color/tela sin salir del modal — mismo patrón que
+   FormularioLook.module.css/GestorColores.module.css/
+   GestorTejidos.module.css (no se puede importar una clase de otro CSS
+   Module). */
+.anadirFila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  align-items: flex-end;
+  margin-top: var(--spacing-4);
+}
+
+/* Los campos de texto crecen; el swatch/imagen (tamaño fijo, ver
+   .inputColor) y el botón de acción no. */
+.anadirFila > * {
+  flex: 1;
+  min-width: 120px;
+}
+
+.anadirFila > .campoColor,
+.anadirFila > button {
+  flex: none;
+}
+
+/* "Añadir color"/"Añadir tela" (Boton contorno/s) quedaban más bajos que
+   Input.module.css .input al lado (41px de alto real) — se iguala aquí
+   para que la fila se vea nivelada. */
+.anadirFila > button {
+  height: 41px;
+}
+
+.campoColor {
+  display: block;
+}
+
+.inputColor {
+  width: 48px;
+  height: 41px;
+  padding: 2px;
+  border: 1px solid var(--color-gris-300);
+  background: var(--color-fondo);
+  cursor: pointer;
+}
+
+/* Botón de subir imagen de tela — mismo tamaño que .inputColor (swatch de
+   color y miniatura de tela pesan igual visualmente en la fila), pero es
+   un <button> con icono/preview en vez de un <input type="color">. */
+.inputImagenTela {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+}
+
+.inputImagenTelaPreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Vínculo con un look de Runway/Novia/Fiesta — buscador + lista de
+   resultados, con el vínculo activo destacado arriba en su propia
+   tarjeta. Mismo criterio de altura/padding que .anadirFila para que se
+   sienta parte del mismo lenguaje visual del formulario. */
+.vinculoActual {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  border: var(--border-regular) solid var(--color-tinta);
+  margin-bottom: var(--spacing-4);
+}
+
+.vinculoActualImagen {
+  width: 44px;
+  height: 60px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-gris-100);
+}
+
+.vinculoActualTexto {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.vinculoActualNombre {
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.vinculoActualSub {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.vinculoVacio {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-3);
+}
+
+/* Aviso fijo de la sección "Precio de compra" cuando el tipo no lleva
+   precio de venta (Atelier) — mismo tono que .vinculoVacio, más fondo
+   gris y padding para que se lea como una nota destacada, no como texto
+   suelto flotando en la sección. */
+.precioConsulta {
+  grid-column: 1 / -1;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  background: var(--color-gris-100);
+  padding: var(--spacing-3);
+}
+
+.vinculoBuscador {
+  position: relative;
+  margin-bottom: var(--spacing-3);
+}
+
+.vinculoBuscadorIcono {
+  position: absolute;
+  top: 50%;
+  left: var(--spacing-3);
+  transform: translateY(-50%);
+  color: var(--color-gris-400);
+  pointer-events: none;
+}
+
+.vinculoBuscadorInput {
+  width: 100%;
+  height: 41px;
+  margin-top: var(--spacing-3);
+  padding: 0 var(--spacing-3) 0 40px;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  background: var(--color-fondo);
+}
+
+.vinculoBuscadorInput::placeholder {
+  color: var(--color-gris-400);
+}
+
+.vinculoBuscadorInput:focus {
+  outline: none;
+  border-color: var(--color-tinta);
+}
+
+.vinculoLista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  max-height: 280px;
+  overflow-y: auto;
+  border: var(--border-thin) solid var(--color-gris-200);
+  padding: var(--spacing-2);
+}
+
+.vinculoFila {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2);
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.vinculoFila:hover {
+  background: var(--color-gris-100);
+}
+
+.vinculoFilaActiva {
+  background: var(--color-gris-100);
+}
+
+.vinculoFilaImagen {
+  width: 36px;
+  height: 48px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-gris-100);
+}
+
+.vinculoFilaTexto {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.vinculoFilaNombre {
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.vinculoFilaSub {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.vinculoFilaCheck {
+  color: var(--color-tinta);
+  flex-shrink: 0;
+}
+
+/* Reseñas de Clientas — tarjetas de reseñas ya vinculadas (buscada en
+   /admin/resenas o subida aquí mismo), mismo criterio de tarjeta simple
+   que el resto del panel (borde fino, sin sombra). */
+.resenasLista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+}
+
+.resenaTarjeta {
+  border: var(--border-regular) solid var(--color-gris-200);
+  padding: var(--spacing-3);
+}
+
+.resenaTarjetaCabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-2);
+}
+
+.resenaTarjetaNombre {
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.resenaTarjetaTexto {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin: 0 0 var(--spacing-2);
+}
+
+.resenaTarjetaFotos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.resenaTarjetaFoto {
+  width: 60px;
+  height: 75px;
+  object-fit: cover;
+  border: var(--border-thin) solid var(--color-gris-300);
+}
+
+/* Fotos de la reseña nueva — reutiliza el mismo carrusel arrastrable que
+   Imágenes (.imagenesScroll/.imagenItem más arriba, ver DragList en la
+   sección "Reseñas de Clientas"), así que solo hace falta su propia
+   casilla de "añadir", a las mismas medidas que .imagenItem para encajar
+   en la misma fila. */
+.resenaFotoAnadir {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1);
+  width: 150px;
+  height: 100%;
+  flex-shrink: 0;
+  border: var(--border-regular) dashed var(--color-gris-300);
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-nano);
+  color: var(--color-gris-500);
+  text-align: center;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.resenaFotoAnadir:hover {
+  border-color: var(--color-tinta);
+  color: var(--color-tinta);
+}
+

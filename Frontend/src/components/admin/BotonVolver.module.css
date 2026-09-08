@@ -1,0 +1,17 @@
+.boton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  border: var(--border-regular) solid var(--color-tinta);
+  color: var(--color-tinta);
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  margin-bottom: var(--spacing-8);
+  transition: background-color 0.2s var(--ease-marca), color 0.2s var(--ease-marca);
+}
+
+.boton:hover {
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}

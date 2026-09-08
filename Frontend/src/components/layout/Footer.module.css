@@ -1,0 +1,231 @@
+/* ============================================================
+   FOOTER — Fely Campo
+   Rediseño minimalista: firma (logo pequeño) → newsletter, sola y
+   destacada → columnas de enlaces, discretas → barra legal. Cada
+   tramo separado por un hairline, sin cajas ni fondos de por medio.
+   ============================================================ */
+
+.footer {
+  width: 100%;
+  background: var(--color-fondo);
+}
+
+/* Escritorio: el footer ocupa exactamente una pantalla — los 4 tramos
+   (logo, newsletter, columnas, legal) se reparten con space-between
+   en vez de apilarse con su alto natural, que se quedaba corto y
+   dejaba hueco vacío debajo. En mobile se deja en su alto natural: a
+   este ancho el contenido ya no cabe cómodo en 100vh. */
+@media (min-width: 768px) {
+  .footer {
+    height: 100vh;
+    max-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+}
+
+/* La mitad de ancho que antes (era 100% del footer, a sangre) — una
+   firma discreta, no una pieza a pantalla completa. */
+.footerLogo {
+  display: block;
+  width: 50%;
+  max-width: 400px;
+  height: auto;
+  margin: var(--spacing-7) auto var(--spacing-6);
+}
+
+.newsletter {
+  order: -1;
+  padding: 0 var(--spacing-7) var(--spacing-8);
+  text-align: center;
+}
+@media (min-width: 768px) {
+  .newsletter {
+    order: 0;
+    width: 35%;
+    padding: 0;
+    text-align: left;
+  }
+}
+
+.parrafo {
+  font-size: var(--text-small);
+  color: var(--color-gris-600);
+  font-weight: 400;
+  line-height: var(--leading-base);
+  margin-bottom: var(--spacing-2);
+}
+
+/* Fila que aloja el form (input) y el Boton por fuera de él, uno al
+   lado del otro — el Boton no es hijo de .formNewsletter. */
+.filaNewsletter {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-2);
+}
+
+.formNewsletter {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--color-hairline);
+  padding: var(--spacing-2);
+  transition: border-color 0.25s var(--ease-marca);
+}
+.formNewsletter:focus-within {
+  border-bottom-color: var(--color-tinta);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  padding: 8px 4px;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: none;
+  color: var(--color-tinta);
+  outline: none;
+}
+.input::placeholder {
+  color: var(--color-gris-500);
+}
+
+/* Aparece solo cuando hay texto en el input — ver email.trim() en
+   Footer.jsx — así el input se queda solo hasta que hay algo que
+   enviar. */
+.botonEnviar {
+  flex-shrink: 0;
+}
+
+.estado {
+  font-size: var(--text-caption);
+  margin-top: var(--spacing-3);
+}
+.estadoExito { color: var(--color-verde); }
+.estadoError { color: var(--color-rojo); }
+
+.consentimiento {
+  font-size: var(--text-caption);
+  color: var(--color-gris-600);
+  line-height: var(--leading-base);
+  margin-top: var(--spacing-2);
+}
+
+.consentimientoEnlace {
+  color: var(--color-gris-500);
+  text-decoration: underline;
+  transition: color 0.25s var(--ease-marca);
+}
+.consentimientoEnlace:hover {
+  color: var(--color-tinta);
+}
+
+/* Envuelve grid + legal: en escritorio se reparte el resto del alto
+   de .footer entre los dos (space-between) como antes. */
+@media (min-width: 768px) {
+  .contenido {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+}
+
+.grid {
+  width: 100%;
+  max-width: var(--max-sitio);
+  margin-inline: auto;
+  padding: var(--spacing-6) var(--spacing-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+@media (min-width: 768px) {
+  .grid { flex-direction: row; }
+}
+
+.columnas {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-6);
+}
+@media (min-width: 768px) {
+  .columnas {
+    grid-template-columns: repeat(3, 1fr);
+    width: 65%;
+  }
+}
+
+/* Mismo tratamiento de "etiqueta" pequeña en mayúsculas que el resto
+   del sistema (ej. CollectionTitle) en vez del cuerpo de texto medio
+   que tenía antes — menos peso visual, más discreto. */
+.titulo {
+  color: var(--color-gris-600);
+  margin-bottom: var(--spacing-3);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.lista { list-style: none; display: flex; flex-direction: column; gap: var(--spacing-2); }
+
+.enlace {
+  font-size: var(--text-small);
+  color: var(--color-gris-600);
+  font-weight: 400;
+  transition: color 0.25s var(--ease-marca);
+}
+.enlace:hover { color: var(--color-tinta); }
+
+.legal {
+  width: 100%;
+  max-width: var(--max-sitio);
+  margin-inline: auto;
+  padding: var(--spacing-4) var(--spacing-7);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spacing-1);
+}
+
+.copy { font-size: var(--text-caption); color: var(--color-gris-500); }
+
+.legalLista { display: flex; gap: var(--spacing-5); }
+.legalEnlace {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  transition: color 0.25s var(--ease-marca);
+}
+.legalEnlace:hover { color: var(--color-tinta); }
+
+/* ES | EN — botón por idioma; el activo va marcado y sin acción,
+   el otro navega al hacer clic (ver switchLocale en Footer.jsx). */
+.languageSelector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.languageOption {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  cursor: pointer;
+  transition: color 0.25s var(--ease-marca);
+}
+.languageOption:hover:not(:disabled) { color: var(--color-tinta); }
+.languageOption:disabled { cursor: default; }
+
+.languageOptionActivo {
+  color: var(--color-tinta);
+  font-weight: var(--font-weight-medium);
+}
+
+.languageDivider {
+  font-size: var(--text-caption);
+  color: var(--color-gris-300);
+}

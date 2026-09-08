@@ -1,0 +1,14 @@
+/* ============================================================
+   ETIQUETA — Fely Campo
+   ============================================================ */
+
+.etiqueta {
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+}
+
+.tinta    { color: var(--color-tinta); }
+.rosa     { color: var(--color-rosa); }
+.velo     { color: var(--color-gris-700); }
+.agotado  { color: var(--color-gris-400); text-decoration: line-through; }

@@ -1,0 +1,29 @@
+/* ============================================================
+   ATENCIÓN AL CLIENTE — Fely Campo
+   ============================================================ */
+
+.titulo {
+  font-size: var(--text-h2);
+  margin-block: var(--spacing-10) var(--spacing-6);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+  max-width: var(--max-texto);
+  padding-bottom: var(--spacing-10);
+}
+
+.fila {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.etiqueta {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  color: var(--color-gris-700);
+}

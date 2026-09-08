@@ -1,0 +1,129 @@
+/* ============================================================
+   FICHA DE PRODUCTO — ATELIER — Fely Campo
+   Mismo esquema de dos columnas que tienda/[producto]/page.module.css
+   (galería a la izquierda, info sticky a la derecha), sin precio.
+   ============================================================ */
+
+.ficha {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: var(--spacing-8);
+}
+
+@media (max-width: 767px) {
+  .ficha {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+.info {
+  position: sticky;
+  top: var(--spacing-8);
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  padding: var(--spacing-10) var(--spacing-8) var(--spacing-8) 0;
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .info {
+    /* relative (no static): GaleriaProducto .pista se queda fija en
+       mobile (ver GaleriaProducto.module.css) — .info necesita ganarle
+       en el eje z para taparla al hacer scroll, no solo asomar por
+       encima. */
+    position: relative;
+    margin-top: -60px;
+    margin-inline: var(--spacing-3);
+    padding: var(--spacing-6);
+    background: var(--color-fondo);
+    z-index: 10;
+  }
+
+  /* Todo lo que va después de .ficha (recomendados, "sigue explorando")
+     necesita el mismo tapado que .info arriba — .pista de
+     GaleriaProducto sigue fija (ver GaleriaProducto.module.css) durante
+     todo el alto que ocupe esta sección, no solo mientras dura .info. */
+  .debajoFicha {
+    position: relative;
+    z-index: 1;
+    background: var(--color-fondo);
+  }
+}
+
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.nombre {
+  font-size: var(--text-h3);
+}
+
+.descripcion {
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--color-tinta);
+  margin-top: var(--spacing-4);
+}
+
+/* "Categorías: Corte A, Clásico..." debajo del Acordeon (ver
+   FichaProductoAtelier.jsx) — mismo tamaño que .descripcion de arriba,
+   no el .titulo en mayúsculas del Acordeon, pero más apagado
+   (--color-gris-600): es metadato secundario, cada tag ya se distingue
+   solo por el subrayado de .categoriaTag. Cada tag enlaza de verdad a
+   su página de categoría (ver .categoriaTag más abajo). */
+.categorias {
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--color-gris-600);
+}
+
+.categoriaTag {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* SelectorColor, último elemento de .cabecera (ver InfoAtelier.jsx) —
+   mismo margin-top que .descripcion arriba, para que respire igual de
+   la línea de encima. No cambia la foto de la galería al elegir uno
+   (sin variantes de imagen por color todavía): es solo para que el
+   cliente indique su color al contactar. */
+.coloresFicha {
+  margin-top: var(--spacing-4);
+}
+
+.bloqueContactar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+/* Mismo patrón que .fila de FichaProductoAcciones.module.css (Tienda):
+   el CTA reparte el ancho con BotonGuardar en vez de ir solo. */
+.fila {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-3);
+  min-width: 0;
+}
+
+.fila > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.avisoColor {
+  color: var(--color-rosa-oscuro);
+  font-size: var(--text-caption);
+}
+
+.seguirExplorando {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-6);
+  margin-bottom: var(--spacing-10);
+}

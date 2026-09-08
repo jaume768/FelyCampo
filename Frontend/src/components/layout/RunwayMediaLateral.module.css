@@ -1,0 +1,25 @@
+/* ============================================================
+   MEDIA LATERAL DE RUNWAY — Fely Campo
+   ============================================================ */
+
+.medio {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 767px) {
+  .medio {
+    flex: none;
+    width: 100%;
+    height: 60vh;
+  }
+}

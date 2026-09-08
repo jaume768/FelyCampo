@@ -1,0 +1,102 @@
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-6);
+}
+
+.kpiTarjeta {
+  display: block;
+  width: 100%;
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  padding: var(--spacing-5);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease-marca);
+}
+
+.kpiTarjeta:hover {
+  border-color: var(--color-gris-400);
+}
+
+.kpiValor {
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-1);
+}
+
+.kpiEtiqueta {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.kpiBajo .kpiValor { color: var(--color-rosa); }
+.kpiAgotado .kpiValor { color: var(--color-gris-400); }
+
+.miniatura {
+  display: block;
+  width: 44px;
+  height: 60px;
+  object-fit: cover;
+  background: var(--color-gris-100);
+}
+
+.nivel {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+}
+
+.nivelOk { color: var(--color-tinta); }
+.nivelBajo { color: var(--color-rosa); }
+.nivelAgotado { color: var(--color-gris-400); }
+
+/* Estados y paginación del stock real. */
+.aviso {
+  padding: 16px;
+  margin-bottom: 16px;
+  background: var(--color-rosa-velo, #fce4ee);
+  color: var(--color-rosa-oscuro, #c2185f);
+  font-size: 0.875rem;
+}
+
+.avisoUbicaciones {
+  padding: 12px 16px;
+  margin: 0 0 16px;
+  background: var(--color-gris-100, #f2f2f2);
+  color: var(--color-gris-700, #404040);
+  font-size: 0.8125rem;
+}
+
+.estado {
+  padding: 32px 0;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-gris-500, #757575);
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 0;
+}
+
+.paginaBoton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-gris-200, #d9d9d9);
+  background: transparent;
+  cursor: pointer;
+}
+
+.paginaBoton:disabled { opacity: 0.4; cursor: default; }
+
+.paginaTexto {
+  font-size: 0.8125rem;
+  color: var(--color-gris-500, #757575);
+}

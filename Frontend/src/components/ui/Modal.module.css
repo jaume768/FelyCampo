@@ -1,0 +1,78 @@
+/* ============================================================
+   MODAL — Fely Campo
+   Esquinas siempre rectas (radio 0), igual que el resto del sistema.
+   ============================================================ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-tinta);
+  opacity: 0.6;
+  z-index: 99;
+  cursor: pointer;
+}
+
+.contenedor {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--spacing-8) var(--spacing-4);
+  overflow-y: auto;
+  pointer-events: none;
+}
+
+.panel {
+  position: relative;
+  background: var(--color-fondo);
+  width: 100%;
+  margin: auto;
+  pointer-events: auto;
+}
+
+/* Ancho por defecto — se aplica solo si quien invoca Modal no pasa su
+   propio "className" (ver Modal.jsx), así un ancho a medida (ej.
+   NewsletterModal.module.css) no compite en especificidad con este. */
+.tamanoDefault {
+  max-width: 520px;
+}
+
+.contenido {
+  /* Sin padding aquí a propósito — ver .contenidoDefault. */
+}
+
+/* Padding por defecto — mismo mecanismo que .tamanoDefault: se aplica
+   solo si quien invoca Modal no pasa su propio "classNameContenido"
+   (ver Modal.jsx), así un layout a medida (ej. NewsletterModal, que
+   necesita la foto a sangre sin padding) no compite en especificidad
+   con este. */
+.contenidoDefault {
+  padding: var(--spacing-6);
+}
+
+.cerrar {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-tinta);
+  z-index: 2;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.cerrar:hover {
+  opacity: 0.6;
+}
+
+@media (max-width: 767px) {
+  .contenedor {
+    padding: var(--spacing-6) var(--spacing-3);
+  }
+}

@@ -1,0 +1,57 @@
+/* NavbarPanelLateralContent.module.css */
+
+/* Submenú de escritorio: lista de sub-enlaces (dentro de .contenido,
+   con su padding) + dos MediaLink (fuera de .contenido — ver
+   PanelLateral "debajo" en Navbar.jsx, .submenuCards más abajo). */
+.submenuList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  list-style: none;
+}
+
+.submenuLink {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: var(--spacing-1);
+  transition: text-decoration-color 0.25s var(--ease-marca);
+}
+.submenuLink:hover {
+  text-decoration-color: var(--color-tinta);
+}
+
+/* "Ver todos" — primer item de la lista (ver Navbar.jsx), destacado
+   frente a las categorías para que se lea como acción, no como una más.
+   Mismo criterio de subrayado que .submenuLink (solo al hover). */
+.submenuLinkTodos {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: var(--spacing-1);
+  transition: text-decoration-color 0.25s var(--ease-marca);
+}
+.submenuLinkTodos:hover {
+  text-decoration-color: var(--color-tinta);
+}
+
+/* Página actual — mismo trazo que :hover pero fijo (ver "esActivo" en
+   NavbarPanelLateralContent.jsx), igual criterio que .navLinkActivo de
+   Navbar.module.css. Se aplica a cualquier enlace de la lista, no solo
+   a "Ver todos". */
+.submenuLinkActivo {
+  text-decoration-color: var(--color-tinta);
+}
+
+/* Fila con los dos MediaLink (cada uno se reparte el ancho a partes
+   iguales, ver .card en MediaLink.module.css) — fuera de .contenido,
+   a todo el ancho del panel, con su propio padding en vez del lateral
+   heredado del resto del contenido. */
+.submenuCards {
+  display: flex;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
+}

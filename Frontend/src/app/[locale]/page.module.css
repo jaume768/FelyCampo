@@ -1,0 +1,20 @@
+/* ============================================================
+   HOME — Fely Campo
+   Ritmo vertical único de toda la landing: cada sección (Hero,
+   CollectionTitle, MediaBanner, CuadriculaProductos, SplitMedia,
+   BloqueSeccion...) vive a padding-block 0 y deja que este
+   contenedor reparta el mismo hueco entre todas — así no hay dos
+   secciones con un padding-top/bottom distinto entre sí.
+   ============================================================ */
+
+.landing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+@media (max-width: 1023px) {
+  .landing {
+    gap: var(--spacing-5);
+  }
+}

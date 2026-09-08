@@ -1,0 +1,245 @@
+/* ============================================================
+   PANEL DE CLIENTE (/mi-cuenta/panel) — Fely Campo
+   Dos columnas: sidebar de pestañas (subrayado) + contenido, mismo
+   patrón general que .layout de carrito/page.module.css (sidebar
+   sticky, un min-width:0 en el contenido para que no fuerce el
+   ancho). Esquinas siempre rectas (radio 0 salvo donde el resto del
+   sistema ya usa var(--radius-imagenes)/var(--radius-botones)), igual
+   criterio que el resto del sitio.
+   ============================================================ */
+
+:global(.panelCliente) {
+  padding-inline: var(--spacing-6);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: var(--spacing-8);
+  padding-block: var(--spacing-8) var(--spacing-12);
+}
+
+@media (max-width: 767px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-6);
+  }
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  position: sticky;
+  top: var(--spacing-8);
+  align-self: start;
+}
+
+@media (max-width: 767px) {
+  .sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--spacing-5);
+    position: static;
+  }
+}
+
+/* Mismo subrayado que .tab/.tabActivo de MiCuentaModal.module.css
+   (a su vez, el mismo lenguaje que .navLink/.navLinkActivo del propio
+   Navbar) — aquí en columna, alineado a la izquierda en vez de
+   centrado. */
+.tab {
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  background: none;
+  border: none;
+  padding: 0 0 var(--spacing-1) 0;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: var(--spacing-1);
+  transition: text-decoration-color 0.25s var(--ease-marca);
+  width: fit-content;
+}
+
+.tab:hover {
+  text-decoration-color: var(--color-tinta);
+}
+
+.tabActivo {
+  text-decoration-color: var(--color-tinta);
+}
+
+.contenido {
+  min-width: 0;
+}
+
+.bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+/* Agrupa título + subtítulo con su propio gap (spacing-2), más
+   ajustado que el gap-6 de .bloque que los separa del contenido de
+   debajo — mismo criterio que .panelResena en
+   GaleriaVosotras.module.css. */
+.cabeceraBloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.titulo {
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.subtitulo {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+}
+
+.vacio {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+}
+
+/* ---------- Mis pedidos ---------- */
+.pedido {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding-top: var(--spacing-5);
+  border-top: var(--border-thin) solid var(--color-gris-300);
+}
+
+.pedido:first-of-type {
+  padding-top: 0;
+  border-top: none;
+}
+
+.pedidoCabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.pedidoNumero {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.pedidoMeta {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.pedidoProductos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+/* Mismo fondo --color-details que .resumen de
+   ModalSolicitudAtelier.module.css — la tarjeta de contexto (foto +
+   nombre) de "esto es lo que compraste", igual criterio. */
+.pedidoProducto {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  background: var(--color-details);
+}
+
+.pedidoImagen {
+  width: 56px;
+  height: auto;
+  aspect-ratio: 3 / 4.5;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-crema);
+}
+
+.pedidoProductoInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.pedidoProductoNombre {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.pedidoProductoPrecio {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+/* Bajo 480px la fila no cabe (imagen + nombre + botón) — en vez de
+   aplastar el nombre a varias líneas junto al botón, el botón pasa a
+   su propia línea a ancho completo (min-width evita que .pedidoProductoInfo
+   se encoja hasta el punto de forzar ese salto solo con el nombre). */
+@media (max-width: 480px) {
+  .pedidoProducto {
+    flex-wrap: wrap;
+  }
+
+  .pedidoProductoInfo {
+    min-width: 140px;
+  }
+
+  .pedidoAccion {
+    flex: 1 0 100%;
+  }
+}
+
+/* ---------- Mis reseñas ---------- */
+.resena {
+  display: flex;
+  gap: var(--spacing-3);
+  padding-bottom: var(--spacing-5);
+  border-bottom: var(--border-thin) solid var(--color-gris-300);
+}
+
+.resena:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.resenaInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.estrellasLectura {
+  display: flex;
+  gap: 2px;
+  color: var(--color-tinta);
+}
+
+.resenaTexto {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  margin-top: var(--spacing-1);
+}
+
+/* ---------- Mis datos ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  max-width: 400px;
+}

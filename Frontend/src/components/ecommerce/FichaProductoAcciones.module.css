@@ -1,0 +1,43 @@
+/* ============================================================
+   ACCIONES DE FICHA DE PRODUCTO — Fely Campo
+   ============================================================ */
+
+.acciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+.bloqueTalla {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.filaTalla {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.bloqueAnadir {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.fila {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-3);
+  min-width: 0;
+}
+
+.fila > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.avisoTalla {
+  color: var(--color-rosa-oscuro);
+  font-size: var(--text-caption);
+}

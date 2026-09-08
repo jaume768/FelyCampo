@@ -1,0 +1,207 @@
+/* ============================================================
+   MODAL DE MI CUENTA — Fely Campo
+   Mismo mecanismo que .lightbox/.abierta de
+   GaleriaProductoLightbox.module.css (siempre montado, "abierta" solo
+   cambia opacidad/visibilidad) — a pantalla completa, tapa Navbar y
+   Footer por completo (fondo sólido, no un overlay translúcido como
+   PanelLateral). Alto fijo 100vh (no min-height): el modal en sí no
+   scrollea nunca — si el formulario no cabe entero (mobile, teclado
+   abierto...), scrollea .formPanel por su cuenta, no la página.
+   ============================================================ */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  z-index: 100;
+  background: var(--color-fondo);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity 0.35s var(--ease-marca), visibility 0s linear 0.35s;
+}
+
+.modal.abierta {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.35s var(--ease-marca);
+}
+
+/* "fixed", no "absolute": sigue pegado a la esquina aunque .modal
+   scrolle internamente en mobile. Mismo tamaño/diseño que .cerrar de
+   GaleriaProductoLightbox.module.css. */
+.cerrar {
+  position: fixed;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.cerrar:hover {
+  opacity: 0.6;
+}
+
+/* 50%/50% en escritorio (foto a sangre a la izquierda, formulario
+   centrado a la derecha) — en mobile la foto pasa a ser una franja
+   fija arriba, mismo criterio que .pieza de SplitMedia.module.css al
+   apilarse. */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100vh;
+}
+
+.imagenPanel {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* "grid"/"place-items", no flex/align-items: centrar con flex cuando
+   el contenido no cabe recorta el principio por arriba y no deja
+   llegar a él con scroll (bug conocido de flexbox) — grid no tiene
+   ese problema, el scroll llega hasta el principio del todo. */
+.formPanel {
+  height: 100%;
+  overflow-y: auto;
+  display: grid;
+  place-items: center;
+  padding: var(--spacing-8) var(--spacing-6);
+}
+
+.formContenedor {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.titulo {
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.subtitulo {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  width: 100%;
+  padding: 12px var(--spacing-4);
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-botones);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease-marca);
+}
+
+.googleBtn:hover {
+  border-color: var(--color-tinta);
+}
+
+.cambiarModo {
+  text-align: center;
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+}
+
+/* Mismo lenguaje de subrayado que .navLink/.navLinkActivo de
+   Navbar.module.css — trazo transparente que se vuelve --color-tinta
+   al hover, sin desplazar el layout. */
+.cambiarModoBtn {
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: var(--spacing-1);
+  transition: text-decoration-color 0.25s var(--ease-marca);
+}
+
+.cambiarModoBtn:hover {
+  text-decoration-color: var(--color-tinta);
+}
+
+@media (max-width: 767px) {
+  /* Fila de la foto a 240px fijos, la del formulario se queda con el
+     resto exacto de los 100vh de .layout — así .formPanel siempre
+     sabe cuánta altura tiene de verdad para decidir si necesita
+     scroll propio. */
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 240px 1fr;
+  }
+
+  .imagenPanel {
+    height: 240px;
+  }
+
+  .formPanel {
+    padding: var(--spacing-6) var(--spacing-4);
+  }
+}
+
+.error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-rosa-oscuro, #c2185f);
+}
+
+.nota {
+  margin: 8px 0 0;
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-gris-500, #757575);
+}
+
+.googleBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

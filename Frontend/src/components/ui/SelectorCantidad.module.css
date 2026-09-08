@@ -1,0 +1,29 @@
+/* ============================================================
+   SELECTOR DE CANTIDAD — Fely Campo
+   ============================================================ */
+
+.control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--color-gris-300);
+}
+
+.boton {
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  font-size: var(--text-h4);
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: background-color 0.25s var(--ease-marca);
+}
+.boton:hover { background: var(--color-gris-100); }
+
+.valor {
+  width: 40px;
+  text-align: center;
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}

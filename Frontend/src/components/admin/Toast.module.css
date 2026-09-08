@@ -1,0 +1,19 @@
+.toast {
+  position: fixed;
+  bottom: var(--spacing-6);
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  padding: var(--spacing-3) var(--spacing-6);
+  font-size: var(--text-small);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-marca), transform 0.25s var(--ease-marca);
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

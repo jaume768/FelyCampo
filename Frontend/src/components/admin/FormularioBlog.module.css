@@ -1,0 +1,68 @@
+.campos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-4);
+  max-width: 700px;
+}
+
+.campoAncho {
+  grid-column: 1 / -1;
+}
+
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  resize: vertical;
+  min-height: 220px;
+}
+
+.etiquetaCampo {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.selectInput {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: 12px var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+}
+
+.imagen {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.imagenMiniatura {
+  width: 80px;
+  height: 56px;
+  object-fit: cover;
+  background: var(--color-gris-100);
+}
+
+.pickerImagen {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-6);
+  max-width: 700px;
+}

@@ -1,0 +1,106 @@
+/* ============================================================
+   RESEÑAS DE CLIENTES (placeholder) — Fely Campo
+   Copia de diseño 1:1 de ProductosRecomendados.module.css (.pista/
+   .item) + TarjetaProducto.module.css en su variante "carrusel" (la
+   que usa ProductosRecomendados) — mismo gap, mismo tamaño de imagen,
+   mismo tamaño/peso/color de texto debajo, aunque el contenido sea
+   otro (foto de cliente + cita en vez de foto de producto + precio).
+   Única diferencia, obligada por el propio contenido: .marco lleva
+   "background" (var(--color-crema)) — TarjetaProducto no lo necesita
+   (siempre tiene imagen), aquí sí por si falta la foto de una reseña
+   (.fotoVacia). El carrusel de fotos en sí (cross-fade + barra de
+   progreso al hover) vive en CarruselFotos.jsx/.module.css (ui/),
+   compartido con GaleriaVosotras.jsx — aquí solo el marco que lo aloja.
+   ============================================================ */
+
+.seccion {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* .pista de ProductosRecomendados: mismo gap casi a cero (0.04rem,
+   tarjetas casi pegadas). A diferencia de .pista (carrusel de 260px
+   fijos por debajo de tablet, flex:1 1 0 en fila estática), aquí es
+   siempre una fila de 4 columnas fijas (25% cada una, ver .tarjeta) —
+   "justify-content: center" las centra en conjunto cuando hay menos de
+   4 reseñas, en vez de que las que hay se repartan el ancho sobrante
+   entre sí. */
+.fila {
+  display: flex;
+  justify-content: center;
+  gap: 0.04rem;
+  margin-top: var(--spacing-8);
+  margin-bottom: var(--spacing-8);
+}
+
+/* Cuatro columnas fijas (25% de ancho cada una, no flex:1 1 0 —
+   con menos de 4 reseñas no se reparten el resto del ancho entre sí,
+   ".fila" las centra en su lugar) — tope de 4 reseñas visibles
+   (nth-child), no las hasta 10 de recomendados: la quinta en adelante
+   se oculta, no se añade como columna de más. */
+.tarjeta {
+  flex: 0 0 25%;
+  max-width: 25%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.tarjeta:nth-child(n + 5) {
+  display: none;
+}
+
+/* Mismo aspect-ratio que .marco+.marcoCarrusel de
+   TarjetaProducto.module.css (2/3 — variante "carrusel", la que usa
+   ProductosRecomendados, no la base 3/4 de la cuadrícula normal) y
+   mismo radio (var(--radius-imagenes) = 0px, ver global.css: aquí 0
+   a mano da el mismo resultado). "position:relative" es para anclar
+   CarruselFotos (ver "Uso" en CarruselFotos.jsx). */
+.marco {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  background: var(--color-crema);
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0;
+}
+
+.fotoVacia {
+  width: 100%;
+  height: 100%;
+}
+
+/* Igual que .encabezado de TarjetaProducto.module.css: mismo gap,
+   mismo padding lateral y mismo margen (arriba Y abajo) — aquí es lo
+   que separa .marco de .pie, en vez de un gap en .tarjeta. */
+.pie {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-1);
+  margin-top: var(--spacing-3);
+  margin-bottom: var(--spacing-3);
+  padding: 0 var(--spacing-2);
+}
+
+/* Misma tipografía que .nombre de TarjetaProducto (tamaño, peso,
+   color) — copia exacta, sin cursiva. */
+.texto {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  text-align: center;
+}
+
+/* Misma tipografía que .precio de TarjetaProducto (tamaño, color,
+   letter-spacing) — antes iba en gris y en mayúsculas, sin relación
+   con el resto del sitio. */
+.nombre {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  letter-spacing: var(--tracking-label);
+  text-align: center;
+}

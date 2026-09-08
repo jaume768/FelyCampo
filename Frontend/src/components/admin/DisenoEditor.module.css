@@ -1,0 +1,368 @@
+/* Mismo azul de "acción disponible" que .publicarBoton de
+   ListaProductos.module.css (botón "Publicar colección") — incluso en
+   un componente distinto, es el mismo lenguaje visual de "publicar" en
+   todo el admin. */
+.publicarBoton {
+  background: var(--color-azul);
+  border-color: var(--color-azul);
+}
+
+.publicarBoton:hover {
+  background: var(--color-azul-oscuro);
+  border-color: var(--color-azul-velo);
+}
+
+/* ---------- Vista previa en espejo ---------- */
+
+/* Marco de la vista previa: separa el espejo del resto de la página
+   (PageHeader) con un margen uniforme por los 4 lados. Ancho parcial del
+   contenedor (antes ocupaba el 100%) — centrado dentro de .contenido
+   (layout.module.css) en vez de pegado al borde izquierdo. */
+.previaMarco {
+  width: 95%;
+  margin-inline: auto;
+  padding: var(--spacing-8);
+}
+
+/* Rompe el padding de .previaMarco para que los bloques a sangre (Hero,
+   MediaBanner...) lleguen a los bordes del marco, igual que en la home
+   real — los 8 bloques se apilan aquí sin separación propia, igual que
+   en page.js. */
+.previaSangre {
+  margin: calc(var(--spacing-8) * -1) calc(var(--spacing-8) * -1) 0;
+  padding-bottom: var(--spacing-8);
+  border: 3px solid var(--color-tinta);
+  border-radius: var(--radius-none);
+  display: flex;
+  flex-direction: column;
+}
+
+.previaBloque {
+  position: relative;
+  margin: 0px 0px var(--spacing-2);
+}
+
+/* El bloque real trae sus propios <a>/<button> (CTA, tabs del carrusel
+   de reseñas...) — sin esto, clicar dentro navegaría o interactuaría en
+   vez de abrir el modal de edición. El overlay de abajo es el único
+   elemento clicable. */
+.previaContenido {
+  pointer-events: none;
+}
+
+.previaOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgb(0 0 0 / 0%);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.previaOverlay:hover,
+.previaOverlay:focus-visible {
+  background: rgb(0 0 0 / 25%);
+}
+
+.previaEtiqueta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  font-size: var(--text-small);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.previaOverlay:hover .previaEtiqueta,
+.previaOverlay:focus-visible .previaEtiqueta {
+  opacity: 1;
+}
+
+/* ---------- Modal de edición (ModalOverlay + FormSeccion) ---------- */
+/* El propio ModalOverlay/FormSeccion ya traen su cabecera, numeración y
+   separadores — aquí solo hace falta la barra de acciones final, mismos
+   valores que FormularioProducto.module.css .acciones. */
+.accionesModal {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--spacing-6);
+}
+
+/* Crea un stacking context propio por encima del ModalOverlay
+   (z-index: 100 en ModalOverlay.module.css) para el PickerDrawer (banco
+   de imágenes/productos/reseñas), sin tocar PanelLateral.module.css
+   —compartido con el submenú del Navbar público, z-index 40 ahí no
+   alcanza para pintar por encima de un ModalOverlay ya abierto. */
+.pickerCapa {
+  position: relative;
+  z-index: 200;
+}
+
+.campoAncho {
+  grid-column: 1 / -1;
+}
+
+/* Paso 1 de "Destino del CTA" (sección) — mismo lenguaje de pastilla
+   segmentada que SelectorIdioma.module.css .grupo/.opcion (borde
+   --color-tinta, activa = fondo tinta), pero con tantas opciones como
+   secciones haya en vez de fijo a 2 (ES/EN). */
+.destinoTipos {
+  display: inline-flex;
+  border: var(--border-regular) solid var(--color-tinta);
+  margin-bottom: var(--spacing-3);
+}
+
+.destinoTipoBoton {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-1) var(--spacing-4);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-tinta);
+}
+
+.destinoTipoBoton + .destinoTipoBoton {
+  border-left: var(--border-regular) solid var(--color-tinta);
+}
+
+.destinoTipoBotonActivo {
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  resize: vertical;
+  min-height: 70px;
+}
+
+.etiquetaCampo {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.selectInput {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: 12px var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+}
+
+/* Input nativo real, oculto tras SelectorMedia — solo el Hero deja
+   elegir un archivo del ordenador (el resto de bloques siguen usando el
+   banco de imágenes ya subidas vía PickerDrawer). Mismo criterio que
+   FormularioProducto.module.css .inputArchivo. */
+.inputArchivo {
+  display: none;
+}
+
+/* Selector de imagen/vídeo del modal — mismo lenguaje visual que
+   FormularioProducto.module.css .subirVacio (caja de borde discontinuo,
+   contenido centrado): aquí siempre hay ya una imagen elegida, se ve de
+   fondo con el aviso "Cambiar imagen/vídeo" en overlay al hover, en vez
+   del estado vacío puro de .subirVacio. */
+.imagenSelector {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 175px;
+  padding: 0;
+  border: var(--border-regular) dashed var(--color-gris-300);
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.imagenSelector:hover,
+.imagenSelector:focus-visible {
+  border-color: var(--color-tinta);
+}
+
+.imagenSelectorMedia {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 175px;
+  object-fit: cover;
+}
+
+.imagenSelectorOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  background: rgb(0 0 0 / 0%);
+  color: rgb(255 255 255 / 0%);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.imagenSelector:hover .imagenSelectorOverlay,
+.imagenSelector:focus-visible .imagenSelectorOverlay {
+  background: rgb(0 0 0 / 45%);
+  color: var(--color-fondo);
+}
+
+.contadorSeleccion {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-3);
+}
+
+/* Cuadrícula de productos de la colección elegida — mismo lenguaje que
+   PickerDrawer.module.css .tarjeta/.seleccionada/.marca (borde tinta +
+   check en la esquina cuando está elegida), pero con nombre y precio
+   debajo de la imagen en vez de solo la imagen sola. */
+.productosGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-3);
+}
+
+.productoTarjeta {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s var(--ease-marca);
+}
+
+.productoTarjeta:hover {
+  border-color: var(--color-gris-300);
+}
+
+.productoTarjeta:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.productoTarjetaSeleccionada {
+  border-color: var(--color-tinta);
+}
+
+.productoTarjetaMarca {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  z-index: 1;
+}
+
+.productoTarjetaNombre {
+  display: block;
+  padding: var(--spacing-2) var(--spacing-2) 0;
+  font-size: var(--text-caption);
+  color: var(--color-tinta);
+}
+
+.productoTarjetaPrecio {
+  display: block;
+  padding: 0 var(--spacing-2) var(--spacing-2);
+  font-size: var(--text-micro);
+  color: var(--color-gris-500);
+}
+
+/* Cuadrícula de reseñas elegibles — mismo lenguaje que .productosGrid/
+   .productoTarjeta (borde tinta + check en la esquina al elegir vía
+   .productoTarjetaMarca, reutilizada tal cual), con foto redonda y
+   extracto de 2 líneas en vez de nombre+precio. */
+.reseñasGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+}
+
+.reseñaTarjeta {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s var(--ease-marca);
+}
+
+.reseñaTarjeta:hover {
+  border-color: var(--color-gris-300);
+}
+
+.reseñaTarjeta:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.reseñaTarjetaSeleccionada {
+  border-color: var(--color-tinta);
+}
+
+.reseñaTarjetaFoto {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--color-gris-100);
+  margin-bottom: var(--spacing-2);
+}
+
+.reseñaTarjetaNombre {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-tinta);
+  margin-bottom: var(--spacing-1);
+}
+
+.reseñaTarjetaExtracto {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: var(--text-micro);
+  color: var(--color-gris-500);
+}
+
+.pickerImagen {
+  width: 100%;
+  display: block;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}

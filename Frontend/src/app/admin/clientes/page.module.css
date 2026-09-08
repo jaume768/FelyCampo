@@ -1,0 +1,93 @@
+
+/* Clientes reales: pestañas registrados / sin cuenta. */
+.explicacion {
+  max-width: 72ch;
+  margin: 0 0 20px;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-gris-500, #757575);
+}
+
+.pestanas {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+}
+
+.pestana {
+  padding: 10px 18px;
+  border: 1px solid var(--color-gris-200, #d9d9d9);
+  background: transparent;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--color-gris-700, #404040);
+  cursor: pointer;
+}
+
+.pestana + .pestana { border-left: 0; }
+
+.pestanaActiva {
+  background: var(--color-tinta, #202020);
+  border-color: var(--color-tinta, #202020);
+  color: #fff;
+}
+
+.marcas { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+
+.bloqueada,
+.sinVerificar {
+  padding: 2px 8px;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+}
+
+.bloqueada {
+  background: var(--color-rosa-velo, #fce4ee);
+  color: var(--color-rosa-oscuro, #c2185f);
+}
+
+.sinVerificar {
+  background: var(--color-gris-100, #f2f2f2);
+  color: var(--color-gris-500, #757575);
+}
+
+.aviso {
+  padding: 16px;
+  margin-bottom: 16px;
+  background: var(--color-rosa-velo, #fce4ee);
+  color: var(--color-rosa-oscuro, #c2185f);
+  font-size: 0.875rem;
+}
+
+.estado {
+  padding: 16px 0;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-gris-500, #757575);
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 0;
+}
+
+.paginaBoton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-gris-200, #d9d9d9);
+  background: transparent;
+  cursor: pointer;
+}
+
+.paginaBoton:disabled { opacity: 0.4; cursor: default; }
+
+.paginaTexto {
+  font-size: 0.8125rem;
+  color: var(--color-gris-500, #757575);
+}

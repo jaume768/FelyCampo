@@ -1,0 +1,330 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  flex-shrink: 0;
+  height: 100%;
+  padding: var(--spacing-5);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s ease;
+  font-weight: var(--font-weight-medium);
+  background: var(--color-details);
+}
+
+.sidebar:hover {
+  scrollbar-color: var(--color-gris-300) transparent;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sidebar::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.sidebar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.sidebar:hover::-webkit-scrollbar-thumb {
+  background: var(--color-gris-300);
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gris-400);
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  width: 260px;
+  flex-shrink: 0;
+  padding: var(--spacing-4) var(--spacing-6);
+}
+
+.marcaLogo {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+}
+
+.marcaTexto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.marcaNombre {
+  font-family: var(--font-base);
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fondo);
+  letter-spacing: -0.04rem;
+}
+
+.marcaSubtitulo {
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-rosa-velo);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+  flex: 1;
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.tituloGrupo {
+  padding: 0 var(--spacing-3);
+  font-size: var(--text-nano);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gris-400);
+  text-transform: uppercase;
+  margin-bottom: var(--spacing-1);
+}
+
+.grupoLista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  width: 100%;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  color: var(--color-gris-700);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.itemEnlace {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+}
+
+.item:hover {
+  color: var(--color-tinta);
+  background: var(--color-rosa-velo);
+}
+
+.item:hover .icono,
+.item:hover .label,
+.item:hover .chevron {
+  color: var(--color-rosa-oscuro);
+}
+
+.item.activo {
+  color: var(--color-tinta);
+  background: var(--color-rosa-oscuro);
+}
+
+.item.activo .icono,
+.item.activo .label,
+.item.activo .chevron {
+  color: var(--color-rosa-velo);
+}
+
+.contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 50%;
+  background: var(--color-rosa);
+  color: var(--color-fondo);
+  font-size: var(--text-nano);
+  font-weight: var(--font-weight-semibold);
+  flex-shrink: 0;
+}
+
+.item.activo .contador {
+  background: var(--color-fondo);
+  color: var(--color-rosa-oscuro);
+}
+
+/* Mismo lenguaje visual que .contador (píldora rosa) pero para texto en
+   vez de un número — marca temporalmente una sección aún sin construir,
+   se quita en cuanto la página tenga su lógica real. */
+.porHacer {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 var(--spacing-2);
+  border-radius: var(--radius-full);
+  background: var(--color-rosa);
+  color: var(--color-fondo);
+  font-size: var(--text-nano);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.item.activo .porHacer {
+  background: var(--color-fondo);
+  color: var(--color-rosa-oscuro);
+}
+
+.icono {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.label {
+  flex: 1;
+}
+
+.chevron {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  transition: transform 0.25s var(--ease-marca);
+}
+
+.chevronAbierto {
+  transform: rotate(180deg);
+}
+
+.sublista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  padding-left: var(--spacing-7);
+  margin-top: var(--spacing-1);
+  position: relative;
+}
+
+.sublista::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 15px;
+  left: calc(var(--spacing-7) / 2);
+  width: var(--border-thin);
+  background: var(--color-gris-200);
+}
+
+.sublista li {
+  position: relative;
+}
+
+.sublista li::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: calc(-1 * var(--spacing-7) / 2);
+  width: calc(var(--spacing-6) / 2);
+  height: var(--border-thin);
+  background: var(--color-gris-200);
+}
+
+.subitem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  width: 100%;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* Solo los subitem de un item.children (ver "Tus Materiales" en
+   AdminSidebar.jsx) llevan icono propio — los de item.tipo (categorías)
+   nunca lo necesitaron, por eso no está en .subitem base. */
+.iconoSubitem {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+.subitemEnlace {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+}
+
+.chevronBoton {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.subitem:hover {
+  color: var(--color-rosa-oscuro);
+  background: var(--color-rosa-velo);
+}
+
+.subitem:hover .chevron {
+  color: var(--color-rosa-oscuro);
+}
+
+.subitem.activo {
+  color: var(--color-rosa-velo);
+  background: var(--color-rosa-oscuro);
+}
+
+.subitem.activo .chevron {
+  color: var(--color-rosa-velo);
+}
+
+.verWeb {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  padding: var(--spacing-3);
+  border-top: var(--border-thin) solid var(--color-gris-200);
+  margin-top: var(--spacing-4);
+}
+
+.verWeb:hover {
+  color: var(--color-tinta);
+}

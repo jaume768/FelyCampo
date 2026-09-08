@@ -1,0 +1,40 @@
+/* ============================================================
+   LOOK DE PASARELA (placeholder) — Fely Campo
+   ============================================================ */
+
+.lookPasarela {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-10);
+}
+
+/* Mismo tratamiento que .texto de Boton.module.css (mayúsculas,
+   letter-spacing, tinta) pero sin el subrayado — esto no es un enlace,
+   es solo la etiqueta del bloque. */
+.titulo {
+  display: inline-block;
+  color: var(--color-tinta);
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+}
+
+/* Tamaño fijo: nunca más ancho que 200px ni con otra proporción que
+   3/4, sea cual sea la imagen real que acabe llegando aquí. */
+.marco {
+  width: 160px;
+  max-width: 160px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--color-crema);
+  border-radius: var(--radius-imagenes);
+}
+
+.imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

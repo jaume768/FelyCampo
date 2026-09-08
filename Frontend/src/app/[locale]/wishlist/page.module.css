@@ -1,0 +1,48 @@
+/* ============================================================
+   WISHLIST (/wishlist) — Fely Campo
+   Misma referencia visual que carrito/page.module.css (vacío, cuadrícula
+   auto-fill) pero de una sola columna — sin ".layout"/".resumen": aquí
+   no hay nada que calcular al lado de la cuadrícula. Sin clase propia
+   de título — la cabecera es CabeceraSeccion (ver page.js), con su
+   propio CSS en CabeceraSeccion.module.css.
+   ============================================================ */
+
+/* "wishlist": hook estable sin hash (ver <section className="seccion
+   contenedor wishlist">), mismo patrón que ":global(.cart)" en
+   carrito/page.module.css. */
+:global(.wishlist) {
+  padding-inline: var(--spacing-6);
+}
+
+.vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  height: 90vh;
+  padding-block: var(--spacing-8);
+  text-align: center;
+}
+
+.vacioIcono {
+  width: 64px;
+  height: 64px;
+  color: var(--color-gris-300);
+}
+
+.vacioTexto {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+}
+
+/* Mismo auto-fill que .cuadricula de carrito/page.module.css — ver el
+   comentario ahí sobre por qué auto-fill (no auto-fit ni un número
+   fijo de columnas). */
+.cuadricula {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-6) var(--spacing-4);
+  align-content: start;
+  padding-bottom: var(--spacing-12);
+}

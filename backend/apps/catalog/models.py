@@ -55,9 +55,18 @@ class ProductStatus(models.TextChoices):
     Fuente de verdad del estado de publicación — `Product.is_published` (bool, ya
     consumido por la API pública) se deriva de este campo en `Product.save()`, nunca se
     asigna a mano.
+
+    `SCHEDULED` es «publicar a partir de `published_at`»: el producto NO es público hasta
+    esa fecha. Lo pasa a `ACTIVE` el comando `publish_scheduled` (cron), igual que
+    `release_reservations` con las reservas — no se recalcula en cada lectura, porque
+    `is_published` es un campo almacenado que la API pública ya filtra por índice.
+
+    Aun así `save()` deriva `is_published` teniendo en cuenta la fecha, para que un
+    programado cuya hora ya pasó no se quede invisible si el cron aún no ha corrido.
     """
 
     DRAFT = "draft", _("Borrador")
+    SCHEDULED = "scheduled", _("Esperando a publicar")
     ACTIVE = "active", _("Activo")
     ARCHIVED = "archived", _("Archivado")
 
@@ -298,6 +307,20 @@ class Product(UUIDTimeStampedModel):
         help_text=_("Si está relleno, es el precio que se cobra."),
     )
     is_outlet = models.BooleanField(_("en outlet"), default=False)
+    # Escaparate de la home. No es una `Collection` (temporada) ni una `Category`
+    # (ocasión): es una selección editorial que se cambia a menudo y no describe la pieza.
+    # Se añade porque la home necesitaba «destacados» y no había de dónde sacarlos.
+    is_featured = models.BooleanField(
+        _("destacado"),
+        default=False,
+        db_index=True,
+        help_text=_("Aparece en el escaparate de la home."),
+    )
+    featured_position = models.PositiveSmallIntegerField(
+        _("orden en el escaparate"),
+        default=0,
+        help_text=_("Menor primero. Solo se usa si el producto está destacado."),
+    )
     is_published = models.BooleanField(
         _("publicado"),
         default=False,
@@ -329,10 +352,31 @@ class Product(UUIDTimeStampedModel):
         # `status` es la fuente de verdad; `is_published` es el campo que ya consume la
         # API pública (`ProductViewSet.get_queryset`, sin tocar) — se deriva aquí para no
         # tener que sincronizar los dos a mano en cada sitio que cambie el estado.
-        self.is_published = self.status == ProductStatus.ACTIVE
-        if self.is_published and self.published_at is None:
-            self.published_at = timezone.now()
+        ahora = timezone.now()
+
+        if self.status == ProductStatus.ACTIVE:
+            self.is_published = True
+            if self.published_at is None:
+                self.published_at = ahora
+        elif self.status == ProductStatus.SCHEDULED:
+            # Público solo cuando llega la hora. Sin fecha no puede estar programado: se
+            # trata como no publicado (el serializer del panel ya lo exige antes).
+            self.is_published = bool(self.published_at and self.published_at <= ahora)
+        else:
+            # Borrador y archivado nunca son públicos. `published_at` se conserva: es el
+            # histórico de cuándo se publicó por primera vez, no un flag.
+            self.is_published = False
+
         super().save(*args, **kwargs)
+
+    @property
+    def is_scheduled_pending(self) -> bool:
+        """Programado y aún no le ha llegado la hora."""
+        return (
+            self.status == ProductStatus.SCHEDULED
+            and self.published_at is not None
+            and self.published_at > timezone.now()
+        )
 
     def archive(self) -> None:
         """«Borrar» un producto desde el panel archiva, no elimina la fila (ver

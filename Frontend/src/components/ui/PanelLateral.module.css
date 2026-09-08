@@ -1,0 +1,127 @@
+/* ============================================================
+   PANEL LATERAL — Fely Campo
+   Anclado a la izquierda, ancho fijo, se desliza con transform
+   (nunca display:none/block a secas).
+   ============================================================ */
+
+/* z-index por encima del header sticky (z-index: 50 en Navbar.module.css)
+   por defecto: cualquier panel disparado por clic (Filtros, GuiaTallas,
+   drawers de admin...) debe taparlo, no quedar oculto detrás. La única
+   excepción es el propio submenú de escritorio del Navbar — ver prop
+   "debajoHeader" más abajo, pensada solo para ese caso. */
+.panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 420px;
+  max-width: 90vw;
+  background: var(--color-fondo);
+  z-index: 60;
+  transform: translateX(-100%);
+  transition: transform 0.3s var(--ease-marca);
+  overflow-y: auto;
+  /* .contenido arriba, "debajo" (ver PanelLateral.jsx) pegado al
+     fondo del panel — space-between deja el hueco sobrante entre los
+     dos en vez de estirar cualquiera de ellos. Si el contenido real
+     llegara a superar el alto del panel, overflow-y: auto de arriba
+     sigue siendo la red de seguridad, pero con el contenido actual no
+     se llega a necesitar (comprobado sin scroll en viewports típicos). */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.panel.abierto {
+  transform: translateX(0);
+}
+
+/* "lado='derecha'" (ver PanelLateral.jsx) — mismo mecanismo, anclado
+   al borde opuesto: entra desde la derecha en vez de la izquierda. */
+.panel.derecha {
+  left: auto;
+  right: 0;
+  transform: translateX(100%);
+}
+
+.panel.derecha.abierto {
+  transform: translateX(0);
+}
+
+/* Menú móvil: arranca debajo de .navRow (min-height: 76px en
+   Navbar.module.css) — no debe tapar el header, así que en vez del
+   truco de z-index (ocultarse detrás del header, ver "debajoHeader" más
+   abajo) se le baja el top directamente; el z-index por encima del
+   header ya lo trae de serie la base .panel. */
+.panel.sobreNavbar {
+  top: 76px;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Único caso que SÍ debe quedar oculto tras el header (z-index: 50 en
+   Navbar.module.css): el submenú de escritorio del propio Navbar — sigue
+   empezando en top:0, así que sin este descenso de z-index taparía el
+   header entero mientras está abierto. Ningún otro uso de PanelLateral
+   (Filtros, GuiaTallas, drawers de admin...) debe pasar esta prop. */
+.panel.debajoHeader {
+  z-index: 40;
+}
+
+/* Sin height:100% a propósito: con "debajo" (ver PanelLateral.jsx)
+   añadiendo contenido justo después como hermano, forzar a .contenido
+   a ocupar el panel entero por sí solo garantizaría scroll (100% +
+   lo que mida "debajo"). Se deja en su alto natural: el contenido
+   real (lista + cards) casi siempre cabe sin scroll. */
+.contenido {
+  padding: var(--spacing-7);
+}
+
+/* Ya arranca debajo del header, no necesita el mismo colchón superior
+   que el submenú de escritorio (que sí sigue tapado por él). */
+.sobreNavbar .contenido {
+  padding-top: var(--spacing-7);
+}
+
+/* Submenú de escritorio del Navbar: el panel arranca en top:0 pero por
+   DEBAJO del header en z-index (ver "debajoHeader" en PanelLateral.jsx)
+   — sin este colchón, el header (76px, Navbar.module.css) tapa el
+   principio de la lista de enlaces (los primeros ítems quedan ocultos
+   detrás, solo asoma el último). */
+.debajoHeader .contenido {
+  padding-top: var(--spacing-9);
+}
+
+/* ---------- Overlay ---------- */
+/* Un peldaño de z-index por debajo del panel siempre, sea cual sea la
+   variante — mismo criterio de arriba/abajo del header que .panel. */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-tinta);
+  opacity: 0;
+  z-index: 59;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease-marca);
+}
+
+.overlay.abierto {
+  opacity: 0.6;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Mismo colchón superior que .panel.sobreNavbar: no tapa el header
+   (el botón hamburguesa debe seguir siendo clicable con el menú abierto). */
+.overlay.sobreNavbar {
+  top: 76px;
+}
+
+/* Pareja de .panel.debajoHeader — mismo único caso (submenú de
+   escritorio del Navbar). */
+.overlay.debajoHeader {
+  z-index: 39;
+}

@@ -1,0 +1,111 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+.tarjeta {
+  display: block;
+  width: 100%;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  border: var(--border-thin) solid var(--color-gris-200);
+  background: var(--color-light-details);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease-marca);
+}
+
+.tarjeta:hover {
+  border-color: var(--color-gris-400);
+}
+
+.tarjeta:focus-visible {
+  outline: var(--border-regular) solid var(--color-tinta);
+  outline-offset: -2px;
+}
+
+.imagenWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background: var(--color-gris-100);
+  overflow: hidden;
+}
+
+.imagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imagenVacia {
+  width: 100%;
+  height: 100%;
+  background: var(--color-gris-100);
+}
+
+/* EstadoBadge envuelve <Etiqueta> (texto plano, sin fondo propio — ver
+   EstadoBadge.jsx) porque "Publicada"/"Oculta" no tiene un badge propio
+   con fondo como EstadoPublicacionBadge. Sobre una tarjeta con foto
+   detrás hace falta un respaldo propio o el texto se pierde. */
+.estadoEsquina {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--color-fondo);
+}
+
+/* Mismo color/tamaño que TablaAdmin.module.css .puntoNuevo — la vista de
+   rejilla necesita su propio indicador de "nuevo" porque no tiene la
+   columna dedicada que sí tiene la tabla. */
+.puntoNuevo {
+  position: absolute;
+  top: var(--spacing-2);
+  left: var(--spacing-2);
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-rosa);
+}
+
+.info {
+  padding: var(--spacing-3);
+}
+
+.nombreCliente {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  margin-bottom: var(--spacing-1);
+}
+
+.texto {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-top: var(--spacing-1);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.producto {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-top: var(--spacing-2);
+  padding-top: var(--spacing-2);
+  border-top: var(--border-thin) solid var(--color-gris-200);
+}
+
+.vacio {
+  padding: var(--spacing-7) var(--spacing-4);
+  text-align: center;
+  color: var(--color-gris-400);
+  border: var(--border-regular) solid var(--color-gris-200);
+}

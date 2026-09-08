@@ -1,0 +1,41 @@
+.contenido {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 320px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.icono {
+  color: var(--color-rojo);
+  margin-bottom: var(--spacing-4);
+}
+
+.titulo {
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  margin-bottom: var(--spacing-2);
+}
+
+.mensaje {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-6);
+}
+
+.acciones {
+  display: flex;
+  gap: var(--spacing-3);
+}
+
+.borrar {
+  background: var(--color-rojo);
+  border-color: var(--color-rojo);
+}
+
+.borrar:hover {
+  background: var(--color-rojo-oscuro);
+  border-color: var(--color-rojo-oscuro);
+}

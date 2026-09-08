@@ -1,4 +1,7 @@
-# Orquestación local (esta carpeta no es un monorepo: backend/ y frontend/ son dos
-# repos independientes con su propio remoto y su propio .gitignore).
+# Orquestación local. `backend/` y `Frontend/` viven AQUÍ, en este mismo repositorio:
+# el frontend se fusionó el 2026-09-09 (antes era un repo aparte con remoto propio en
+# mreinab/felycampo, que sigue existiendo por su lado y ya NO se sincroniza con este).
+#
+# `Frontend/.gitignore` sigue aplicándose: git respeta los .gitignore anidados, así que
+# node_modules/ y .next/ del frontend se ignoran solos, sin repetirlos aquí.
 .env
-frontend/

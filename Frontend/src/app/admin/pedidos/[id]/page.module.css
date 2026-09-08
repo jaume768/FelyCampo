@@ -1,0 +1,280 @@
+.cabeceraSuperior {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+}
+
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--spacing-6);
+  margin-bottom: var(--spacing-7);
+  padding-bottom: var(--spacing-4);
+  border-bottom: var(--border-thin) solid var(--color-gris-200);
+}
+
+.resumenLabel {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.resumenValor {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.resumenInput {
+  display: block;
+  width: 100%;
+  border: none;
+  border-bottom: var(--border-thin) solid var(--color-gris-300);
+  padding: 0;
+  background: none;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  outline: none;
+  transition: border-color 0.2s var(--ease-marca);
+}
+
+.resumenInput::placeholder {
+  color: var(--color-gris-400);
+}
+
+.resumenInput:hover {
+  border-bottom-color: var(--color-tinta);
+}
+
+.resumenInput:focus {
+  border-bottom-color: var(--color-tinta);
+}
+
+.bloque {
+  margin-bottom: var(--spacing-7);
+}
+
+.bloqueTitulo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-4);
+}
+
+.notaIcono {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-rosa-oscuro);
+  cursor: help;
+}
+
+.notaTooltip {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + var(--spacing-3));
+  transform: translateY(-50%);
+  z-index: 10;
+  width: max-content;
+  max-width: 240px;
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-base);
+  text-align: left;
+  white-space: normal;
+  text-transform: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s var(--ease-marca);
+}
+
+.notaIcono:hover .notaTooltip,
+.notaIcono:focus-visible .notaTooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.itemFila {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+}
+
+.itemImagen {
+  width: 80px;
+  height: 120px;
+  object-fit: cover;
+  background: var(--color-gris-100);
+}
+
+.colorFila {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.colorPunto {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  flex-shrink: 0;
+}
+
+.notas {
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  min-height: 90px;
+  margin-bottom: var(--spacing-3);
+}
+
+.estadoSelector {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.estadoBoton {
+  padding: var(--spacing-2) var(--spacing-4);
+  background: none;
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease-marca), color 0.2s var(--ease-marca);
+}
+
+/* Inactivo: sin relleno, borde del mismo color (más oscuro/saturado) que el
+   texto — mismos hex que EstadoPedidoBadge.module.css. Activo: relleno
+   sólido de ese mismo color, texto en --color-fondo. */
+.estadoBoton.enProceso { border: var(--border-regular) solid var(--color-azul); color: var(--color-azul); }
+.estadoBoton.enviado { border: var(--border-regular) solid var(--color-amarillo); color: var(--color-amarillo); }
+.estadoBoton.completado { border: var(--border-regular) solid var(--color-verde); color: var(--color-verde); }
+
+.estadoBotonActivo.enProceso { background: var(--color-azul); color: var(--color-fondo); }
+.estadoBotonActivo.enviado { background: var(--color-amarillo); color: var(--color-fondo); }
+.estadoBotonActivo.completado { background: var(--color-verde); color: var(--color-fondo); }
+
+.etiquetaCampo {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-2);
+}
+
+/* Estados de carga/error y bloques de la ficha real. */
+.estado {
+  padding: 24px 0;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-gris-500, #757575);
+}
+
+.avisoRetraso {
+  padding: 12px 16px;
+  margin: 0 0 16px;
+  background: var(--color-rosa-velo, #fce4ee);
+  color: var(--color-rosa-oscuro, #c2185f);
+  font-size: 0.875rem;
+}
+
+.neutro { background: var(--color-gris-100, #f2f2f2); color: var(--color-gris-700, #404040); }
+.avance { background: var(--color-azul-velo); color: var(--color-azul-oscuro); }
+.exito { background: var(--color-verde-velo); color: var(--color-verde-oscuro); }
+.alerta { background: var(--color-rosa-velo, #fce4ee); color: var(--color-rosa-oscuro, #c2185f); }
+
+.totales {
+  margin: 24px 0;
+  max-width: 320px;
+}
+
+.totales p {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 6px;
+  font-size: 0.875rem;
+  color: var(--color-gris-700, #404040);
+}
+
+.totalFinal {
+  padding-top: 8px;
+  border-top: 1px solid var(--color-gris-200, #d9d9d9);
+  color: var(--color-tinta, #202020);
+}
+
+.bloque {
+  margin: 32px 0;
+}
+
+.bloqueTitulo {
+  margin: 0 0 12px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--color-gris-500, #757575);
+}
+
+.direccion,
+.seguimiento {
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-gris-700, #404040);
+}
+
+.notas,
+.historial {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  font-size: 0.875rem;
+  color: var(--color-gris-700, #404040);
+}
+
+.notas li,
+.historial li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-hairline, #efefef);
+}
+
+.notas li p {
+  margin: 4px 0 0;
+}
+
+.notaMeta {
+  font-size: 0.75rem;
+  color: var(--color-gris-500, #757575);
+}
+
+.notasInput {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--color-gris-300, #aeaeae);
+  background: transparent;
+  font: inherit;
+  font-size: 0.875rem;
+  resize: vertical;
+}
+
+/* Cuando el estado no se puede tocar a mano: se explica por qué, no se dejan botones
+   muertos. */
+.estadoBloqueado {
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--color-gris-100, #f2f2f2);
+  font-size: 0.8125rem;
+  color: var(--color-gris-500, #757575);
+}

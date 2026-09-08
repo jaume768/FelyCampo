@@ -1,0 +1,45 @@
+.grupo {
+  width: fit-content;
+  display: inline-flex;
+  border: var(--border-regular) solid var(--color-tinta);
+  margin-bottom: var(--spacing-3);
+}
+
+.opcion {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-4);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-tinta);
+}
+
+.bandera {
+  width: 16px;
+  height: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.tick {
+  flex-shrink: 0;
+  color: var(--color-tinta);
+}
+
+.opcionActiva .tick {
+  color: currentColor;
+}
+
+.opcion + .opcion {
+  border-left: var(--border-regular) solid var(--color-tinta);
+}
+
+.opcionActiva {
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}

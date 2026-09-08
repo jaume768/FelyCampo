@@ -1,0 +1,90 @@
+/* ============================================================
+   POPUP NEWSLETTER — Fely Campo
+   Esquinas siempre rectas (radio 0), igual que el resto del sistema
+   (ver ui/Modal.module.css) — nada aquí lleva border-radius.
+   ============================================================ */
+
+/* Sustituye a .tamanoDefault de Modal.module.css (520px): esta es la
+   única variante de Modal que necesita ir más ancha, para que quepan
+   las dos columnas (foto + texto) sin apretarlas. */
+.panel {
+  max-width: 720px;
+}
+
+/* Pasada a Modal como "classNameContenido" — sin padding, para que la
+   foto llegue a sangre a los bordes del panel (ver .contenido). */
+.contenidoModal {
+  padding: 0;
+}
+
+.contenido {
+  display: flex;
+  min-height: 380px;
+}
+
+.columnaImagen {
+  flex: 0 0 60%;
+  align-self: stretch;
+  background: var(--color-crema);
+}
+
+.imagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Columna de texto: título arriba, subtexto+botón abajo — el hueco
+   grande del medio es simplemente "justify-content: space-between"
+   sobre la altura que marca .contenido (min-height), no un spacer fijo.
+   Único sitio con padding de las dos columnas — la imagen va a sangre. */
+.columnaTexto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-5);
+  padding: var(--spacing-4);
+}
+
+.titulo {
+  max-width: 22ch;
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+}
+
+.filaInferior {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.boton {
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .contenido {
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .columnaImagen {
+    flex: none;
+    height: 220px;
+  }
+
+  .titulo {
+    max-width: none;
+  }
+
+  .boton {
+    width: 100%;
+  }
+}

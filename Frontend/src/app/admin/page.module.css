@@ -1,0 +1,62 @@
+.widgets {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-7);
+}
+
+.widget {
+  border: var(--border-regular) solid var(--color-gris-200);
+  padding: var(--spacing-5);
+}
+
+.widgetValor {
+  font-size: var(--text-h1);
+  font-weight: var(--font-weight-medium);
+}
+
+.widgetLabel {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  color: var(--color-gris-500);
+  margin-top: var(--spacing-2);
+}
+
+.bloque {
+  margin-bottom: var(--spacing-7);
+}
+
+.bloqueTitulo {
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-4);
+}
+
+.accesos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-4);
+}
+
+.acceso {
+  display: block;
+  border: var(--border-regular) solid var(--color-gris-200);
+  padding: var(--spacing-5);
+  transition: border-color 0.2s var(--ease-marca);
+}
+
+.acceso:hover {
+  border-color: var(--color-tinta);
+}
+
+.accesoValor {
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-rosa);
+}
+
+.accesoLabel {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  margin-top: var(--spacing-2);
+}

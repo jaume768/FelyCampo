@@ -159,6 +159,7 @@ class ProductListSerializer(PriceMixin, serializers.ModelSerializer):
             "effective_price_gross",
             "is_on_sale",
             "is_outlet",
+            "is_featured",
             "primary_image",
             "colors",
             "in_stock",

@@ -1,0 +1,231 @@
+/* ============================================================
+   CUADRÍCULA DE PRODUCTOS — Fely Campo
+   Fila única en flex — cada tarjeta reparte el ancho disponible a
+   partes iguales (.item, flex:1) y se adapta sola, sin columnas
+   fijas ni scroll. En mobile pasa a grid 2x2 (ver media query abajo).
+   Esquinas siempre rectas (radio 0), igual que el resto del sistema
+   — ver Boton.module.css.
+   ============================================================ */
+
+.seccion {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding-block: 0px;
+}
+
+/* Solo "grid" (catálogo completo de Tienda/Atelier, ver esGrid en
+   CuadriculaProductos.jsx): estas páginas no tienen más secciones
+   debajo, la cuadrícula es lo último antes del Footer — sin este
+   margen quedaban pegados. La variante "fila" (home) no lo lleva: su
+   espaciado entre secciones ya lo reparte .landing en page.module.css. */
+.seccionGrid {
+  margin-bottom: var(--spacing-10);
+}
+
+/* Mobile: por delante del ProductHero fijo que va justo antes (ver
+   ProductHero.module.css) — fondo opaco + posicionada + z-index por
+   encima, así lo va tapando a medida que se hace scroll, en vez de
+   dejarlo asomar por los lados. */
+@media (max-width: 767px) {
+  .seccion.seccionGrid {
+    position: relative;
+    z-index: 1;
+    background: var(--color-fondo);
+  }
+}
+
+/* La cabecera opcional (grupo título + acción) vive ahora en
+   CabeceraSeccion (ver ui/CabeceraSeccion.module.css) — reutilizada
+   tal cual por CollectionTitle variante "tabs", así que ya no se
+   duplica el layout aquí. */
+
+
+/* ---------- Cuadrícula ---------- */
+.cuadricula {
+  display: flex;
+  gap: 0.04rem;
+  padding-inline: 0px;
+}
+
+/* min-width:0: sin esto, un flex item no encoge por debajo del ancho
+   de su contenido (el texto del nombre/precio), y las tarjetas no
+   repartirían el ancho a partes iguales de verdad. */
+.item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Mobile: en vez de fila única, 2x2 — 4 tarjetas en 2 filas y 2 columnas. */
+@media (max-width: 767px) {
+  .cuadricula {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---------- Cuadrícula "grid" — catálogo completo ---------- */
+/* 4 columnas en escritorio, tantas filas como productos hagan falta
+   (hasta 12) — a diferencia de .cuadricula, aquí no hay fila única. */
+.cuadriculaGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 0.04rem;
+}
+
+.itemGrid {
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .cuadriculaGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Vista "compacta" del toggle de densidad (ver .toggleVista): 2
+   columnas más anchas, centradas en la sección en vez de a lo ancho
+   completo — para hojear el catálogo con tarjetas más grandes. */
+.cuadriculaGridCompacta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 0.04rem;
+  width: 60%;
+  margin-inline: auto;
+}
+
+@media (max-width: 767px) {
+  .cuadriculaGridCompacta {
+    width: 100%;
+  }
+}
+
+/* ---------- Toggle de densidad — accion de la cabecera (solo "grid") ----------
+   Tercer elemento de la fila de .cabeceraProductos.cabeceraInicio (ver
+   CabeceraSeccion.module.css) — sin width:100%, si no competiría por
+   ancho con el 70% del título en vez de quedarse a su propio tamaño. */
+.toggleVista {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+/* Sin toggle en mobile: la fila de 3 de .cabeceraProductos.cabeceraInicio
+   (ver CabeceraSeccion.module.css) pasa a columna ahí, y elegir densidad
+   de columnas no aporta nada en una cuadrícula ya forzada a 2. */
+@media (max-width: 767px) {
+  .toggleVista {
+    display: none;
+  }
+}
+
+/* Esquinas siempre rectas (radio 0), igual que el resto del sistema —
+   ver Boton.module.css. Inactivo = opacidad baja; el activo (además de
+   opacidad completa) lleva el mismo subrayado que .colorBoton/.colorActivo. */
+.toggleBoton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid transparent;
+  padding: var(--spacing-1) 2px;
+  color: var(--color-tinta);
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca), border-color 0.25s var(--ease-marca);
+}
+
+.toggleBoton:hover {
+  opacity: 0.8;
+}
+
+/* Los <rect> de los iconos "layout-grid"/"square" de lucide traen
+   rx/ry redondeados de fábrica (rx="1"/"2") — se anulan aquí, no hay
+   forma de pasarlo por prop al icono (solo llega al <svg> raíz). */
+.toggleBoton rect {
+  rx: 0;
+  ry: 0;
+}
+
+.toggleBotonActivo {
+  opacity: 1;
+}
+
+.toggleBotonActivo:hover {
+  opacity: 1;
+}
+
+.toggleBoton:hover,
+.toggleBotonActivo {
+  border-bottom: solid 1px var(--color-tinta);
+}
+
+/* ---------- Botón "Filtros" — solo "grid", primer elemento de la fila
+   de CabeceraSeccion (ver "before" en CabeceraSeccion.jsx) ---------- */
+.filtrosBoton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.filtrosBoton:hover {
+  opacity: 0.7;
+}
+
+/* Punto que marca "hay filtros activos" — no repite el número exacto
+   (ya lo dice el panel), solo llama la atención sobre el botón. */
+.filtrosPunto {
+  width: 6px;
+  height: 6px;
+  background: var(--color-rosa);
+}
+
+/* ---------- Paginación por scroll — solo "grid" ---------- */
+/* Elemento invisible que dispara la carga del siguiente lote al
+   entrar en el viewport (ver el IntersectionObserver en
+   CuadriculaProductos.jsx) — no ocupa alto real para no dejar un
+   hueco en blanco al final de la cuadrícula. */
+.centinela {
+  height: 1px;
+}
+
+.cargandoTexto {
+  text-align: center;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  padding-block: var(--spacing-4);
+}
+
+/* Tarjeta-esqueleto mientras "carga" el siguiente lote — mismas
+   proporciones que .marco de TarjetaProducto (aspect-ratio 3/4) para
+   no saltar de tamaño cuando llegan las tarjetas reales. */
+.skeleton {
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(100deg, var(--color-crema) 30%, var(--color-gris-200) 50%, var(--color-crema) 70%);
+  background-size: 200% 100%;
+  animation: brillo-skeleton 1.4s ease-in-out infinite;
+}
+
+@keyframes brillo-skeleton {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

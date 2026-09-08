@@ -1,0 +1,249 @@
+/* ============================================================
+   GUÍA DE TALLAS ("Medidas") — Fely Campo
+   Esquinas siempre rectas (radio 0), igual que el resto del sistema.
+   ============================================================ */
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-6);
+}
+
+.titulo {
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  text-transform: uppercase;
+}
+
+.cerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: var(--spacing-1);
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.cerrar:hover {
+  opacity: 0.6;
+}
+
+.seccionTabla {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  padding-bottom: var(--spacing-6);
+  border-bottom: 0.75px solid var(--color-gris-300);
+}
+
+/* Grupo 1: etiqueta "Europa" + chips de talla. */
+.grupoTallas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* Grupo 2: etiqueta "Patrón" (ya no es un toggle, ver GuiaTallas.jsx)
+   + toggle cm-in + tabla + disclaimer. */
+.grupoTabla {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.filaControles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.etiquetaSeccion {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  color: var(--color-gris-700);
+}
+
+/* Ya no es un toggle cm/in (una sola unidad, ver GuiaTallas.jsx) —
+   texto plano, sin subrayado ni estado interactivo. */
+.unidad {
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+}
+
+/* Chips de talla — mismo patrón que .chip de PanelFiltros (caja
+   rellena en tinta cuando está seleccionada). */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  border: 1px solid var(--color-gris-300);
+  border-radius: 0;
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease-marca), background-color 0.25s var(--ease-marca), color 0.25s var(--ease-marca);
+}
+
+.chip:hover {
+  border-color: var(--color-tinta);
+}
+
+.chipActivo {
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  border-color: var(--color-tinta);
+}
+
+/* ---------- Tabla ---------- */
+/* overflow-x:auto sigue permitiendo desplazar la tabla a la talla
+   seleccionada (ver scrollIntoView en GuiaTallas.jsx) si no cabe
+   entera, pero sin la barra visible — mismo criterio que .pista de
+   GaleriaProducto/GaleriaProductoLightbox. */
+.tablaScroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tablaScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.tabla {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.thMedida {
+  position: sticky;
+  left: 0;
+  background: var(--color-fondo);
+  text-align: left;
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
+  white-space: nowrap;
+}
+
+.th {
+  text-align: center;
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gris-400);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-bottom: 0.75px solid var(--color-gris-300);
+  transition: color 0.25s var(--ease-marca);
+}
+
+.td {
+  text-align: center;
+  font-size: var(--text-body);
+  color: var(--color-gris-400);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-bottom: 0.75px solid var(--color-gris-200);
+  transition: color 0.25s var(--ease-marca);
+}
+
+/* La talla elegida en los chips, oscura — el resto se queda en gris
+   claro (mismo criterio que Mango: la columna activa destaca, las
+   demás quedan de referencia). */
+.columnaActiva {
+  color: var(--color-tinta);
+  font-weight: var(--font-weight-medium);
+}
+
+.disclaimer {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  line-height: var(--leading-base);
+}
+
+/* ---------- Cómo medir ---------- */
+.seccionMedir {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding-top: var(--spacing-6);
+}
+
+.subtitulo {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  color: var(--color-gris-700);
+}
+
+.ilustracion {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: var(--color-crema);
+}
+
+/* Sin numeración de <ol> nativa (list-style:none) — el número lo pinta
+   .numeroMedir a mano, para poder ponerlo en su propia caja en vez del
+   marcador por defecto del navegador. */
+.listaMedir {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  list-style: none;
+  padding-left: 0;
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  line-height: var(--leading-base);
+}
+
+/* Cada medida apilada: número, etiqueta, texto — sin el "—" de antes
+   (ver GuiaTallas.jsx). */
+.itemMedir {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.filaNumero {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.numeroMedir {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: var(--border-regular) solid var(--color-tinta);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.etiquetaMedir {
+  color: var(--color-tinta);
+}
+
+.textoMedir {
+  color: var(--color-tinta);
+}

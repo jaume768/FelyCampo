@@ -1,0 +1,26 @@
+.cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-6);
+  margin-bottom: var(--spacing-2);
+  padding-bottom: var(--spacing-2);
+}
+
+.titulo {
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+}
+
+.subtitulo {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+  margin-top: var(--spacing-1);
+}
+
+.acciones {
+  display: flex;
+  gap: var(--spacing-3);
+  flex-shrink: 0;
+}

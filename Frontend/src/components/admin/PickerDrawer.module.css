@@ -1,0 +1,76 @@
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--spacing-5);
+  border-bottom: var(--border-thin) solid var(--color-gris-200);
+  margin-bottom: var(--spacing-5);
+}
+
+.titulo {
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+}
+
+.cerrar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-tinta);
+  display: flex;
+}
+
+.contador {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-4);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-6);
+}
+
+.tarjeta {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s var(--ease-marca);
+}
+
+.tarjeta:hover {
+  border-color: var(--color-gris-300);
+}
+
+.tarjeta.seleccionada {
+  border-color: var(--color-tinta);
+}
+
+.marca {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  z-index: 1;
+}
+
+.pie {
+  position: sticky;
+  bottom: 0;
+  background: var(--color-fondo);
+  padding-top: var(--spacing-4);
+  border-top: var(--border-thin) solid var(--color-gris-200);
+}

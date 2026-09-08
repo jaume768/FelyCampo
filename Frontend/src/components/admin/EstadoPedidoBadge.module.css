@@ -1,0 +1,45 @@
+.badge {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.enProceso {
+  background: var(--color-azul-velo);
+  color: var(--color-azul-oscuro);
+}
+
+.enviado {
+  background: var(--color-amarillo-velo);
+  color: var(--color-amarillo-oscuro);
+}
+
+.completado {
+  background: var(--color-verde-velo);
+  color: var(--color-verde-oscuro);
+}
+
+/* Tonos de los ocho estados reales. `neutro` = esperando algo; `avance` = el pedido
+   progresa; `exito` = terminado bien; `alerta` = terminado mal o dinero devuelto. */
+.neutro {
+  background: var(--color-gris-100, #f2f2f2);
+  color: var(--color-gris-700, #404040);
+}
+
+.avance {
+  background: var(--color-azul-velo);
+  color: var(--color-azul-oscuro);
+}
+
+.exito {
+  background: var(--color-verde-velo);
+  color: var(--color-verde-oscuro);
+}
+
+.alerta {
+  background: var(--color-rosa-velo, #fce4ee);
+  color: var(--color-rosa-oscuro, #c2185f);
+}

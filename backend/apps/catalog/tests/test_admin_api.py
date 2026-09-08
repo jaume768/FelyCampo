@@ -319,3 +319,142 @@ def test_product_image_sin_asset_400(staff_client, product):
     response = staff_client.post("/api/v1/admin/product-images/", {"product": str(product.id)})
     assert response.status_code == 400
     assert "asset" in response.json()["error"]["details"]
+
+
+# --- Publicación programada desde el panel ----------------------------------
+
+
+def test_admin_programar_publicacion_exige_fecha(staff_client, family):
+    """SCHEDULED sin fecha dejaría el producto invisible para siempre."""
+    respuesta = staff_client.post(
+        "/api/v1/admin/products/",
+        {
+            "family": str(family.id),
+            "design_code": "970",
+            "name": "Sin fecha",
+            "price": "100.00",
+            "status": "scheduled",
+        },
+        format="json",
+    )
+
+    assert respuesta.status_code == 400
+    assert "published_at" in respuesta.json()["error"]["details"]
+
+
+def test_admin_programar_publicacion_rechaza_fecha_pasada(staff_client, family):
+    """Programar para el pasado es publicar ya: para eso está «Activo»."""
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    respuesta = staff_client.post(
+        "/api/v1/admin/products/",
+        {
+            "family": str(family.id),
+            "design_code": "971",
+            "name": "Fecha pasada",
+            "price": "100.00",
+            "status": "scheduled",
+            "published_at": (timezone.now() - timedelta(days=1)).isoformat(),
+        },
+        format="json",
+    )
+
+    assert respuesta.status_code == 400
+    assert "published_at" in respuesta.json()["error"]["details"]
+
+
+def test_admin_programar_publicacion_con_fecha_futura(staff_client, family):
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    respuesta = staff_client.post(
+        "/api/v1/admin/products/",
+        {
+            "family": str(family.id),
+            "design_code": "972",
+            "name": "Programado ok",
+            "price": "100.00",
+            "status": "scheduled",
+            "published_at": (timezone.now() + timedelta(days=5)).isoformat(),
+        },
+        format="json",
+    )
+
+    assert respuesta.status_code == 201
+    # No es público todavía, aunque el estado ya esté puesto.
+    assert respuesta.json()["is_published"] is False
+
+
+def test_admin_editar_otro_campo_de_un_programado_vencido_no_falla(staff_client, family):
+    """
+    La validación de «fecha futura» solo aplica cuando la fecha viene en la petición: si
+    no, editar el nombre de un programado ya vencido daría un error inútil.
+    """
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    producto = Product.objects.create(
+        family=family,
+        design_code="973",
+        name="Vencido",
+        price=Decimal("100.00"),
+        status=ProductStatus.SCHEDULED,
+        published_at=timezone.now() - timedelta(days=1),
+    )
+
+    respuesta = staff_client.patch(
+        f"/api/v1/admin/products/{producto.id}/", {"name": "Nuevo nombre"}, format="json"
+    )
+
+    assert respuesta.status_code == 200
+
+
+def test_admin_crear_sin_precio_da_400_no_500(staff_client, family):
+    """
+    La BD tiene un CheckConstraint que exige precio salvo en «solo consulta». Sin
+    reflejarlo en el serializer, guardar un borrador sin precio —lo más normal del mundo
+    en el panel— reventaba con IntegrityError y un 500 opaco.
+    """
+    respuesta = staff_client.post(
+        "/api/v1/admin/products/",
+        {
+            "family": str(family.id),
+            "design_code": "980",
+            "name": "Sin precio",
+            "status": "draft",
+        },
+        format="json",
+    )
+
+    assert respuesta.status_code == 400
+    assert "price" in respuesta.json()["error"]["details"]
+
+
+def test_admin_crear_solo_consulta_sin_precio_es_valido(staff_client, family):
+    """Los productos de «solo consulta» sí pueden quedarse sin precio."""
+    respuesta = staff_client.post(
+        "/api/v1/admin/products/",
+        {
+            "family": str(family.id),
+            "design_code": "981",
+            "name": "A consultar",
+            "sale_mode": "on_request",
+            "status": "draft",
+        },
+        format="json",
+    )
+
+    assert respuesta.status_code == 201
+
+
+def test_admin_editar_un_campo_suelto_no_exige_reenviar_el_precio(staff_client, product):
+    """Un PATCH parcial no puede fallar por un campo que ya está guardado."""
+    respuesta = staff_client.patch(
+        f"/api/v1/admin/products/{product.id}/", {"name": "Otro nombre"}, format="json"
+    )
+
+    assert respuesta.status_code == 200

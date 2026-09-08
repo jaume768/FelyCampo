@@ -1,0 +1,50 @@
+.seccion {
+  padding: var(--spacing-6);
+  margin: var(--spacing-6) 0;
+  background: var(--color-fondo);
+}
+
+.cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+}
+
+/* Pegada al final de la cabecera aunque ya no haya un space-between que
+   la empuje — mismo resultado visual que antes para "Subir otra imagen"
+   (FormularioProducto.jsx)/quitar slide (DisenoEditor.jsx). */
+.accion {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.titulo {
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+}
+
+.numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  font-size: var(--text-body-lg);
+  flex-shrink: 0;
+}
+
+.descripcion {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-top: var(--spacing-1);
+}
+
+.campos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-4);
+}

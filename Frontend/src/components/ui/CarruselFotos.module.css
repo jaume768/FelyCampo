@@ -1,0 +1,94 @@
+/* ============================================================
+   CARRUSEL DE FOTOS (hover) — Fely Campo
+   Llena el 100% del contenedor del consumidor (position:relative,
+   overflow:hidden, aspect-ratio — todo eso vive en su CSS, no aquí).
+   ============================================================ */
+
+.raiz {
+  position: absolute;
+  inset: 0;
+}
+
+/* Todas las fotos apiladas en la misma celda de grid — cross-fade
+   (solo opacity) al cambiar de una a otra, no un corte seco. */
+.pistaFotos {
+  display: grid;
+  width: 100%;
+  height: 100%;
+}
+
+.foto {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-marca);
+}
+
+.fotoActiva {
+  opacity: 1;
+}
+
+/* Barra de progreso segmentada (arriba) — un segmento por foto, mismo
+   mecanismo que .barras/.segmento de SectionClientsReview.module.css
+   (@keyframes avanzando el ancho del relleno). Blanco en vez del
+   --color-gris-200/--color-tinta de esa: aquí va superpuesta sobre la
+   propia foto (brillo impredecible), no sobre fondo claro fijo — mismo
+   blanco para pista y relleno, solo cambia la opacidad (0.4/1), igual
+   que el indicador de "stories" habitual. Solo se pinta durante el
+   hover en desktop — en móvil, sin hover, siempre que hay más de una
+   foto (ver "enHover" en CarruselFotos.jsx) — en reposo no se ve nada,
+   ni siquiera la pista vacía. */
+.barras {
+  position: absolute;
+  top: var(--spacing-2);
+  left: var(--spacing-2);
+  right: var(--spacing-2);
+  z-index: 1;
+  display: flex;
+  gap: var(--spacing-1);
+}
+
+.segmento {
+  position: relative;
+  flex: 1;
+  height: 1px;
+}
+
+.segmentoPista {
+  position: absolute;
+  inset: 0;
+  background: var(--color-fondo);
+  opacity: 0.4;
+}
+
+.segmentoRelleno {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  background: var(--color-fondo);
+}
+
+.animando {
+  animation: avanceProgresoFoto 2s linear forwards;
+}
+
+.completo {
+  width: 100%;
+}
+
+@keyframes avanceProgresoFoto {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .foto {
+    transition: none;
+  }
+  .animando {
+    animation: none;
+  }
+}

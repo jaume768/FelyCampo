@@ -1,0 +1,53 @@
+/* Puerta de acceso al panel. CERO radio; rosa solo como acento (docs/design.md). */
+
+.pantalla {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 70vh;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 360px;
+  text-align: left;
+}
+
+.titulo {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--color-tinta, #202020);
+}
+
+.texto {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 0.875rem;
+  color: var(--color-gris-500, #757575);
+}
+
+.error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-rosa-oscuro, #c2185f);
+}
+
+.enlace {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--color-rosa-oscuro, #c2185f);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}

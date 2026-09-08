@@ -1,0 +1,579 @@
+.etiqueta {
+  display: block;
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.nombreFijo {
+  margin: 0;
+  padding: var(--spacing-3) 0;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.subirVacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  width: 100%;
+  min-height: 160px;
+  border: var(--border-regular) dashed var(--color-gris-300);
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  text-align: center;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.subirVacio:hover {
+  border-color: var(--color-tinta);
+  color: var(--color-tinta);
+}
+
+.inputArchivo {
+  display: none;
+}
+
+.galeria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.imagenItem {
+  position: relative;
+  width: 100px;
+  aspect-ratio: 3 / 4;
+  flex-shrink: 0;
+}
+
+.imagenMiniatura {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--color-gris-100);
+}
+
+.imagenQuitar {
+  position: absolute;
+  top: var(--spacing-1);
+  right: var(--spacing-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  cursor: pointer;
+}
+
+.imagenQuitar:hover {
+  color: var(--color-rosa-oscuro);
+}
+
+.imagenAnadir {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1);
+  width: 100px;
+  aspect-ratio: 3 / 4;
+  flex-shrink: 0;
+  border: var(--border-regular) dashed var(--color-gris-300);
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-nano);
+  color: var(--color-gris-500);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.imagenAnadir:hover {
+  border-color: var(--color-tinta);
+  color: var(--color-tinta);
+}
+
+/* FormSeccion.module.css .campos es una grid de 2 columnas por defecto
+   (mismo criterio que FormularioProducto.jsx .galeria) — para contenido
+   que debe ocupar el ancho completo de la sección, no una de las 2
+   columnas. */
+.seccionAncha {
+  grid-column: 1 / -1;
+}
+
+.textarea {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-300);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  resize: vertical;
+}
+
+/* Duplicado de FormularioProducto.module.css .coloresGrid/.colorChip/…
+   (no se puede importar una clase de otro CSS Module) — mismo selector de
+   colores/telas que un producto, para los "Campos específicos" del look. */
+.colorPunto {
+  width: 20px;
+  height: 20px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  flex-shrink: 0;
+}
+
+/* Grupos de color (Neutros, Rojos y vinos...) — "padres" en una rejilla
+   flex-wrap, cada uno con 1-2 cuadraditos de muestra para reconocer la
+   familia sin leer la etiqueta. Al tocar uno se abre SU rejilla de
+   colores debajo de toda la fila de padres (un único grupo desplegado a
+   la vez) — así 55 colores no se enseñan de golpe. */
+.familiasGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-3);
+}
+
+.familiaChip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.familiaChip:hover {
+  border-color: var(--color-gris-300);
+}
+
+.familiaChipActiva {
+  border-color: var(--color-tinta);
+  color: var(--color-fondo);
+  background: var(--color-tinta);
+}
+
+.familiaMuestras {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.familiaMuestra {
+  width: 14px;
+  height: 14px;
+  border: var(--border-thin) solid var(--color-gris-300);
+}
+
+.familiaMuestra + .familiaMuestra {
+  margin-left: -5px;
+}
+
+/* Mismo lenguaje visual que AdminSidebar.module.css .contador (píldora
+   rosa numérica) — avisa cuántos colores de la familia están elegidos
+   aunque el grupo esté cerrado. */
+.familiaBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 50%;
+  background: var(--color-rosa);
+  color: var(--color-fondo);
+  font-size: var(--text-nano);
+  font-weight: var(--font-weight-semibold);
+  flex-shrink: 0;
+}
+
+.coloresGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  margin-bottom: var(--spacing-2);
+  background: var(--color-gris-100);
+}
+
+.colorChip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.colorChip:hover {
+  border-color: var(--color-gris-300);
+}
+
+.colorChipActivo {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.colorChipTexto {
+  display: flex;
+  flex-direction: column;
+}
+
+.colorChipNombre {
+  font-weight: var(--font-weight-medium);
+}
+
+.colorChipTraduccion {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.colorChipActivo .colorChipTraduccion {
+  color: var(--color-fondo);
+}
+
+.telasGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-6);
+}
+
+.telaChip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.telaChipImagen {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: var(--border-thin) solid var(--color-gris-300);
+}
+
+.telaChipTexto {
+  display: flex;
+  flex-direction: column;
+}
+
+.telaChip:hover {
+  border-color: var(--color-gris-300);
+}
+
+.telaChipActivo {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+}
+
+.telaChipNombre {
+  display: block;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  font-weight: var(--font-weight-medium);
+}
+
+.telaChipComposicion {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-top: var(--spacing-1);
+}
+
+.telaChipActivo .telaChipNombre,
+.telaChipActivo .telaChipComposicion {
+  color: var(--color-fondo);
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-6);
+}
+
+.prendasLista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-3);
+}
+
+.prendaFila {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: end;
+  gap: var(--spacing-3);
+}
+
+.prendaQuitar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  color: var(--color-gris-500);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.prendaQuitar:hover {
+  border-color: var(--color-rosa-oscuro);
+  color: var(--color-rosa-oscuro);
+}
+
+/* Alta rápida de color/tela sin salir del modal — mismo patrón que
+   GestorColores.module.css/GestorTejidos.module.css .anadirFila/
+   .campoColor/.inputColor (no se puede importar una clase de otro CSS
+   Module). Separada de la rejilla de chips por margen, no border, para
+   no competir visualmente con ella. */
+.anadirFila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  align-items: flex-end;
+  margin-top: var(--spacing-4);
+}
+
+/* Los campos de texto crecen; el swatch/imagen (tamaño fijo, ver
+   .inputColor) y el botón de acción no — antes se apoyaba en
+   ":first-child" pero el swatch pasó a ir primero (ver Colores más
+   abajo), así que ahora se excluye por clase en vez de por posición. */
+.anadirFila > * {
+  flex: 1;
+  min-width: 120px;
+}
+
+.anadirFila > .campoColor,
+.anadirFila > button {
+  flex: none;
+}
+
+.selectInput {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: 12px var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+}
+
+/* "Añadir color"/"Añadir tela" (Boton contorno/s) quedaban más bajos que
+   Input.module.css .input al lado (41px de alto real, con el padding
+   12px + borde 1px de ese componente) — se iguala aquí para que la fila
+   se vea nivelada. */
+.anadirFila > button {
+  height: 41px;
+}
+
+.campoColor {
+  display: block;
+}
+
+.inputColor {
+  width: 48px;
+  height: 41px;
+  padding: 2px;
+  border: 1px solid var(--color-gris-300);
+  background: var(--color-fondo);
+  cursor: pointer;
+}
+
+/* Botón de subir imagen de tela — mismo tamaño que .inputColor (spec:
+   swatch de color y miniatura de tela pesan igual visualmente en la
+   fila), pero es un <button> con icono/preview en vez de un <input
+   type="color">. */
+.inputImagenTela {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+}
+
+.inputImagenTelaPreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Vínculo con el producto vendible (Prêt-à-porter/Atelier) — buscador +
+   lista de resultados, con el vínculo activo destacado arriba. Duplicado
+   de FormularioProducto.module.css (no se puede importar una clase de
+   otro CSS Module) — mismo lenguaje visual que "Vincular a Runway /
+   Novia / Fiesta" en el otro sentido. */
+/* Un look admite varios productos vinculados (varias piezas puestas a la
+   vez) — cada uno es su propia tarjeta .vinculoActual, apiladas aquí. */
+.vinculoActualLista {
+  display: flex;
+  flex-direction: column;
+}
+
+.vinculoActual {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  border: var(--border-regular) solid var(--color-tinta);
+  margin-bottom: var(--spacing-4);
+}
+
+.vinculoActualImagen {
+  width: 44px;
+  height: 60px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-gris-100);
+}
+
+.vinculoActualTexto {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.vinculoActualNombre {
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.vinculoActualSub {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.vinculoVacio {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-3);
+}
+
+.vinculoBuscador {
+  position: relative;
+  margin-bottom: var(--spacing-3);
+}
+
+.vinculoBuscadorIcono {
+  position: absolute;
+  top: 50%;
+  left: var(--spacing-3);
+  transform: translateY(-50%);
+  color: var(--color-gris-400);
+  pointer-events: none;
+}
+
+.vinculoBuscadorInput {
+  width: 100%;
+  height: 41px;
+  padding: 0 var(--spacing-3) 0 40px;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  background: var(--color-fondo);
+}
+
+.vinculoBuscadorInput::placeholder {
+  color: var(--color-gris-400);
+}
+
+.vinculoBuscadorInput:focus {
+  outline: none;
+  border-color: var(--color-tinta);
+}
+
+.vinculoLista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  max-height: 280px;
+  overflow-y: auto;
+  border: var(--border-thin) solid var(--color-gris-200);
+  padding: var(--spacing-2);
+}
+
+.vinculoFila {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2);
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.vinculoFila:hover {
+  background: var(--color-gris-100);
+}
+
+.vinculoFilaActiva {
+  background: var(--color-gris-100);
+}
+
+.vinculoFilaImagen {
+  width: 36px;
+  height: 48px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-gris-100);
+}
+
+.vinculoFilaTexto {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.vinculoFilaNombre {
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.vinculoFilaSub {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.vinculoFilaCheck {
+  color: var(--color-tinta);
+  flex-shrink: 0;
+}

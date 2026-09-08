@@ -17,7 +17,17 @@ class ProductFilter(filters.FilterSet):
 
     class Meta:
         model = Product
-        fields = ("family", "line", "category", "color", "size", "sale_mode", "is_outlet", "kind")
+        fields = (
+            "family",
+            "line",
+            "category",
+            "color",
+            "size",
+            "sale_mode",
+            "is_outlet",
+            "is_featured",
+            "kind",
+        )
 
     def filter_category(self, queryset, name, value):
         """Incluye las subcategorías: pedir «fiesta» trae también lo que cuelga de ella."""

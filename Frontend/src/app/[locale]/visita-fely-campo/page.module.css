@@ -1,0 +1,137 @@
+/* ============================================================
+   VISÍTENOS — Fely Campo
+   Esquinas rectas en todo, radio 0 en todas partes (--radius-botones).
+   ============================================================ */
+
+/* "page-padding" del enunciado = mismo gutter horizontal que usa el
+   resto del sitio para separar bloques de sección (ver --spacing-7 en
+   Footer.module.css .grid), aquí en vertical entre ubicaciones.
+   Mayúsculas en todo el listado, con el mismo tracking que el resto
+   del sistema usa para bloques en mayúsculas (ver Boton .solido). */
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-7);
+  padding-bottom: var(--spacing-10);
+  list-style: none;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+}
+
+.imagen {
+  display: block;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  object-fit: cover;
+  background: var(--color-crema);
+}
+
+.fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-6);
+  padding: var(--spacing-4);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-width: 0;
+  text-transform: none;
+}
+
+/* <address> es itálica por defecto en el navegador — se anula a
+   propósito (ver enunciado). white-space:pre-line respeta los "\n" del
+   propio dato (nombre/dirección/teléfonos) sin recurrir a <br/> sueltos. */
+.direccion {
+  font-style: normal;
+  white-space: pre-line;
+  font-size: var(--text-small);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+}
+
+/* Única línea en mayúsculas del bloque — el resto de .direccion (y
+   .horario/.descripcion) ya no lo son, ver .info arriba. */
+.nombre {
+  text-transform: uppercase;
+}
+
+.horario,
+.descripcion {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+}
+
+.acciones {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+/* Mismo aspecto que Boton variante="solido" tamano="m" (ver
+   Boton.module.css) — replicado a mano porque este es un <a> con
+   target/rel propios, que Boton.jsx no reenvía todavía. */
+.accionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3) var(--spacing-6);
+  background: var(--color-tinta);
+  border: none;
+  border-radius: var(--radius-botones);
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  color: var(--color-fondo);
+  text-transform: uppercase;
+  letter-spacing: 0.02rem;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.25s var(--ease-marca);
+}
+
+/* "Ver mapa"/"WhatsApp" — mismo tamaño/tipografía que .accionBtn,
+   contorno gris en vez de relleno negro (acción secundaria). */
+.accionBtnContorno {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3) var(--spacing-6);
+  background: transparent;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-botones);
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  color: var(--color-tinta);
+  text-transform: uppercase;
+  letter-spacing: 0.02rem;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease-marca);
+}
+
+.accionBtnContorno:hover {
+  border-color: var(--color-tinta);
+}
+
+@media (max-width: 767px) {
+  .fila {
+    flex-direction: column;
+  }
+
+  .acciones {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .accionBtn,
+  .accionBtnContorno {
+    width: 100%;
+  }
+}

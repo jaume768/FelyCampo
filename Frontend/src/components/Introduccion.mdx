@@ -1,0 +1,25 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Introducción" />
+
+# Fely Campo — Sistema de diseño
+
+Minimalismo de moda de autor (ref. Cecilie Bahnsen). Lienzo blanco, mucho aire,
+la fotografía manda — la interfaz nunca compite con ella.
+
+## Reglas de oro
+- El rosa (#E92174) es ACENTO, nunca superficie grande: etiquetas, hover, y
+  como máximo un botón de CTA de compra por pantalla.
+- Radio siempre 0 en todo el sistema, sin excepción — ni siquiera en imágenes.
+- Helvetica → Inter → Arial. Sin letter-spacing, salvo en botones (0.02rem,
+  decisión explícita documentada en design.md).
+- Espaciado en escala por paso (--spacing-1 a --spacing-11), nunca un valor
+  suelto en px.
+- Elevación por tono (crema, hairline), nunca por sombra.
+- Fuente única de tokens: src/styles/global.css. Ver docs/design.md para el
+  detalle completo y el mapa de equivalencias con styleguide.html.
+
+## Cómo usar este catálogo
+Cada componente tiene sus variantes documentadas con controles interactivos
+— prueba a cambiar los valores en el panel "Controls" de cada historia antes
+de usarlo en una página nueva.

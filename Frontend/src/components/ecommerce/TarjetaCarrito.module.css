@@ -1,0 +1,150 @@
+/* ============================================================
+   TARJETA DE CARRITO — Fely Campo
+   Esquinas siempre rectas (radio 0), igual que el resto del sistema.
+   ============================================================ */
+
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  transition: opacity 0.3s var(--ease-marca), transform 0.3s var(--ease-marca);
+}
+
+/* Al bajar la cantidad a 0 (ver manejarCantidad en TarjetaCarrito.jsx)
+   — la duración tiene que coincidir con DURACION_SALIDA_MS ahí, que es
+   quien de verdad quita la línea del carrito cuando termina. */
+.saliendo {
+  opacity: 0;
+  transform: scale(0.92);
+  pointer-events: none;
+}
+
+.marco {
+  position: relative;
+  aspect-ratio: 3 / 4.5;
+  background: var(--color-crema);
+  overflow: hidden;
+  border-radius: var(--radius-imagenes);
+}
+
+/* Enlace a la ficha de producto — solo la imagen, no toda .marco:
+   .quitar vive encima como hermano absoluto, y un <button> anidado
+   dentro de un <a> es HTML inválido. */
+.marcoEnlace {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.quitar {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-fondo);
+  border: none;
+  border-radius: 0;
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.quitar:hover {
+  opacity: 0.7;
+}
+
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.nombre {
+  font-size: var(--text-body);
+  color: var(--color-tinta);
+}
+
+.precio {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+}
+
+.controles {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-1);
+}
+
+/* SelectorCantidad (ver className en TarjetaCarrito.jsx) crece para
+   llenar el hueco que deja .selectTalla en la fila — min-width: su
+   ancho natural (2 botones de 40px + el número, ver
+   SelectorCantidad.module.css), para que no se aplaste por debajo de
+   eso si algún día hay más de un control al lado. */
+.controlFlexible {
+  flex: 1;
+  min-width: 120px;
+}
+
+.selectTalla {
+  height: 40px;
+  min-width: 80px;
+  padding: 0 var(--spacing-3);
+  border: 1px solid var(--color-gris-300);
+  border-radius: 0;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  background: var(--color-fondo);
+  cursor: pointer;
+}
+
+/* Sin nombre visible (ver TarjetaCarrito.jsx) — "title" en el <span>
+   sigue dando el nombre del color al pasar el ratón. */
+.color {
+  display: flex;
+  align-items: center;
+}
+
+.colorPunto {
+  width: 20px;
+  height: 20px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  flex-shrink: 0;
+}
+
+/* Talla: ahora se muestra, no se edita (cambiarla es otra variante). */
+.talla {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid var(--color-gris-200, #d9d9d9);
+  font-size: 0.8125rem;
+  color: var(--color-gris-700, #404040);
+}
+
+/* Error de esta línea concreta, no un aviso global. */
+.errorLinea {
+  margin: 8px 0 0;
+  font-size: 0.75rem;
+  color: var(--color-rosa-oscuro, #c2185f);
+}
+
+.avisoPocas {
+  margin: 8px 0 0;
+  font-size: 0.75rem;
+  color: var(--color-gris-500, #757575);
+}

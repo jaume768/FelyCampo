@@ -1,0 +1,21 @@
+.fila {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.boton {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-gris-300);
+  display: flex;
+}
+
+.boton.activa {
+  color: var(--color-rosa);
+}
+
+.boton:disabled {
+  cursor: default;
+}

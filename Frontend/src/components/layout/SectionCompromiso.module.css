@@ -1,0 +1,112 @@
+/* ============================================================
+   SECTION COMPROMISO — Fely Campo
+   Imagen a sangre de 70vh con una única frase de marca centrada
+   encima, en los dos ejes — sin label, CTA ni link (a diferencia de
+   MediaBanner/HeroCarousel, esto no navega a ningún sitio).
+   ============================================================ */
+
+.seccion {
+  position: relative;
+  width: 100%;
+  height: 75vh;
+  overflow: hidden;
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Velo oscuro entre la imagen y el texto — mismo tratamiento que
+   MediaLink (ui/): sube el contraste del texto blanco sin depender de
+   que la imagen ya sea oscura de por sí. z-index explícito en los
+   tres (imagen, velo, contenido) porque los tres ocupan el mismo
+   inset:0 y el orden de pintado tiene que ser fijo. */
+.seccion::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.contenido {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-5);
+}
+
+.texto {
+  /* Más ancho que --max-texto (pensado para cuerpo de texto): a
+     este tamaño necesita más columna antes de partir línea. */
+  margin: 0;
+  max-width: 60%;
+  text-align: center;
+  font-size: 4rem;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--color-fondo);
+  opacity: 0;
+}
+
+/* Línea de apoyo debajo de la frase principal — misma pareja
+   título/subtítulo pequeño en mayúsculas que CollectionTitle/
+   MediaBanner, solo que aquí ambas van centradas y una encima de
+   otra en vez de etiqueta+cuerpo. Entra un poco después de .texto,
+   mismo stagger que título+CTA en el resto del sistema. */
+.subtitulo {
+  margin: 0;
+  font-size: var(--text-small);
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--color-fondo);
+  opacity: 0;
+}
+
+.contenido.enVista .texto {
+  animation: entradaContenido 0.9s var(--ease-marca) forwards;
+}
+
+.contenido.enVista .subtitulo {
+  animation: entradaContenido 0.9s var(--ease-marca) forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes entradaContenido {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .texto,
+  .subtitulo {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .seccion {
+    height: auto;
+    min-height: 60vh;
+  }
+  .texto {
+    font-size: var(--text-h3);
+  }
+}

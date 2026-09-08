@@ -296,3 +296,143 @@ def test_el_orden_pedido_por_el_frontend_tambien_es_estable(api, catalog):
         ]
 
     assert len(seen) == len(set(seen)) == 5
+
+
+def test_is_featured_filtra_el_escaparate_de_la_home(api, catalog):
+    """La home pide `?is_featured=true`: sin el filtro traería el catálogo entero."""
+    family = catalog["family"]
+    destacado = Product.objects.create(
+        family=family,
+        design_code="900",
+        name="Destacado",
+        price=Decimal("100.00"),
+        status=ProductStatus.ACTIVE,
+        is_featured=True,
+        featured_position=1,
+    )
+    Product.objects.create(
+        family=family,
+        design_code="901",
+        name="Normal",
+        price=Decimal("100.00"),
+        status=ProductStatus.ACTIVE,
+    )
+
+    resultados = api.get("/api/v1/catalog/products/?is_featured=true").json()["results"]
+
+    assert [p["id"] for p in resultados] == [str(destacado.id)]
+    assert resultados[0]["is_featured"] is True
+
+
+def test_featured_position_ordena_el_escaparate(api, catalog):
+    """`featured_position` decide el orden del escaparate; menor primero."""
+    family = catalog["family"]
+    for design, nombre, posicion in (("910", "Tercero", 3), ("911", "Primero", 1), ("912", "Segundo", 2)):
+        Product.objects.create(
+            family=family,
+            design_code=design,
+            name=nombre,
+            price=Decimal("100.00"),
+            status=ProductStatus.ACTIVE,
+            is_featured=True,
+            featured_position=posicion,
+        )
+
+    resultados = api.get(
+        "/api/v1/catalog/products/?is_featured=true&ordering=featured_position"
+    ).json()["results"]
+
+    assert [p["name"] for p in resultados] == ["Primero", "Segundo", "Tercero"]
+
+
+# --- Publicación programada -------------------------------------------------
+
+
+def _producto_programado(family, cuando, design_code="950"):
+    from django.utils import timezone as tz  # noqa: F401 (claridad en el test)
+
+    return Product.objects.create(
+        family=family,
+        design_code=design_code,
+        name="Programado",
+        price=Decimal("100.00"),
+        status=ProductStatus.SCHEDULED,
+        published_at=cuando,
+    )
+
+
+def test_programado_a_futuro_no_es_publico(api, catalog):
+    """Un producto programado NO sale en la API pública hasta que llega su fecha."""
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    _producto_programado(catalog["family"], timezone.now() + timedelta(days=7))
+
+    nombres = [p["name"] for p in api.get("/api/v1/catalog/products/").json()["results"]]
+
+    assert "Programado" not in nombres
+
+
+def test_programado_a_futuro_no_queda_publicado(catalog):
+    """`is_published` se deriva de la fecha, no solo del estado."""
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    producto = _producto_programado(catalog["family"], timezone.now() + timedelta(days=7))
+
+    assert producto.is_published is False
+    assert producto.is_scheduled_pending is True
+
+
+def test_programado_vencido_se_publica_aunque_el_cron_no_haya_corrido(catalog):
+    """
+    Si la hora ya pasó, `save()` lo da por publicado sin esperar al cron: si no, un
+    producto se quedaría invisible hasta la siguiente pasada del comando.
+    """
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    producto = _producto_programado(catalog["family"], timezone.now() - timedelta(minutes=5))
+
+    assert producto.is_published is True
+    assert producto.is_scheduled_pending is False
+
+
+def test_comando_publish_scheduled_activa_los_vencidos(catalog):
+    """El cron pasa a ACTIVE los vencidos y conserva la fecha elegida."""
+    from datetime import timedelta
+
+    from django.core.management import call_command
+    from django.utils import timezone
+
+    cuando = timezone.now() - timedelta(minutes=5)
+    vencido = _producto_programado(catalog["family"], cuando, design_code="951")
+    futuro = _producto_programado(
+        catalog["family"], timezone.now() + timedelta(days=3), design_code="952"
+    )
+
+    call_command("publish_scheduled")
+
+    vencido.refresh_from_db()
+    futuro.refresh_from_db()
+
+    assert vencido.status == ProductStatus.ACTIVE
+    # La fecha es la que eligió quien programó, no la de ejecución del cron.
+    assert vencido.published_at == cuando
+    # El que aún no toca se queda como estaba.
+    assert futuro.status == ProductStatus.SCHEDULED
+
+
+def test_borrador_y_archivado_nunca_son_publicos(catalog):
+    for estado in (ProductStatus.DRAFT, ProductStatus.ARCHIVED):
+        producto = Product.objects.create(
+            family=catalog["family"],
+            design_code=f"96{estado[0]}",
+            name=f"Producto {estado}",
+            price=Decimal("100.00"),
+            status=estado,
+        )
+        assert producto.is_published is False

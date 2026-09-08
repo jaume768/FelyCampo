@@ -1,0 +1,43 @@
+/* ============================================================
+   COLLECTION TITLE — Fely Campo
+   Cabecera de colección: etiqueta + título + descripción, todo
+   centrado. La descripción es la única con ancho máximo propio
+   (--max-texto) — etiqueta y título ocupan el ancho del bloque.
+   ============================================================ */
+
+/* Sin padding-block: el espaciado vertical entre secciones de la
+   landing se controla desde fuera (ver .landing en page.module.css),
+   no aquí — así todas las secciones comparten el mismo ritmo. */
+.bloque {
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .bloque {
+    padding-inline: var(--spacing-4);
+  }
+}
+
+.etiqueta {
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  color: var(--color-tinta);
+  letter-spacing: var(--tracking-label);
+}
+
+.titulo {
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  text-transform: uppercase;
+}
+
+.descripcion {
+  margin-top: var(--spacing-4);
+  max-width: var(--max-texto);
+  margin-inline: auto;
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+  line-height: var(--leading-base);
+}
+

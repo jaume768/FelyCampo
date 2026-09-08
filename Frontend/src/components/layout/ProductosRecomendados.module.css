@@ -1,0 +1,63 @@
+/* ============================================================
+   PRODUCTOS RECOMENDADOS — Fely Campo
+   ============================================================ */
+
+.seccion {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-6);
+}
+
+.contenedor {
+  width: 100%;
+}
+
+.pista {
+  display: flex;
+  gap: 0.04rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pista::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  flex: 0 0 260px;
+  width: 260px;
+}
+
+/* A partir de tablet, deja de ser un carrusel: número estático de
+   tarjetas repartiendo el ancho a partes iguales (igual que .item de
+   CuadriculaProductos "fila"), sin overflow — las que sobran (hasta
+   10, ver ProductosRecomendados.jsx) se ocultan en vez de scrollear.
+   Por debajo de 768px se queda como carrusel de scroll libre (item de
+   260px de siempre) — a ese ancho no cabe ninguna cifra fija cómoda. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .pista {
+    overflow-x: hidden;
+  }
+  .item {
+    flex: 1 1 0;
+    width: auto;
+  }
+  .item:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pista {
+    overflow-x: hidden;
+  }
+  .item {
+    flex: 1 1 0;
+    width: auto;
+  }
+  .item:nth-child(n + 5) {
+    display: none;
+  }
+}

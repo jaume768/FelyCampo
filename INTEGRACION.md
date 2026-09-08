@@ -1,3 +1,27 @@
+> # ⚠️ DOCUMENTO OBSOLETO — no usar como descripción del presente
+>
+> **Sustituido por [`docs/CONTRATO.md`](docs/CONTRATO.md) (2026-09-08).**
+>
+> **Contra qué se escribió:** una versión del frontend que ya no existe en
+> `frontend/`. Daba por existentes `src/lib/api/` (capa de llamadas a la API),
+> `docs/integracion.md`, `CarritoPageContent.jsx`, `FichaProductoInteractiva.jsx`,
+> `NavbarMiniCarrito.jsx` y las rutas `/pret-a-porter/*`, `/visitenos/*` y `/about`.
+>
+> **Por qué ya no aplica:** verificado con `find` y `grep` sobre el árbol real, **nada
+> de eso está**. `src/lib/` contiene solo `atelierCategoriaSeo.js`, `precio.js` y
+> `slugify.js`; la tienda vive en `/tienda/*`, las visitas en `/visita-fely-campo/*` y
+> el "sobre nosotros" en `/sobre-fely`. Y sobre todo: **`grep -rE '\bfetch\(' src/`
+> devuelve cero resultados** — el frontend actual no hace ni una llamada de red, todos
+> sus datos son estáticos (`productosEjemplo.js`, `mockData.js`, `colecciones.js`,
+> `ubicaciones.js`, `resenasEjemplo.js`). Este documento describe una integración que
+> nunca llegó a existir en el código que hay.
+>
+> Su aviso previo también quedó desfasado en sentido contrario: dice que
+> `ADMIN_API_PLAN.md` no existe. **Sí existe** hoy (`backend/ADMIN_API_PLAN.md`).
+>
+> **Sirve como:** pista histórica de qué integración se llegó a diseñar. Nunca como
+> descripción del estado actual. No se borra por eso.
+
 # Mapa de integración frontend ↔ backend
 
 Estado real de cada ruta del frontend frente a lo que el backend implementa **hoy**

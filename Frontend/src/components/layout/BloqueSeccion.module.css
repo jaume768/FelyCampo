@@ -1,0 +1,72 @@
+/* ============================================================
+   BLOQUE DE SECCIÓN (imagen + texto) — Fely Campo
+   ============================================================ */
+
+.seccion {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .seccion { 
+    height: 105dvh;
+    grid-template-columns: 1fr 1fr; 
+  }
+}
+
+/* align-self:stretch invalida el align-items:center de .seccion solo
+   para .marco: sin esto, al no tener una altura definida, img
+   height:100% se resuelve a auto (tamaño natural de la imagen) y
+   object-fit:cover no tiene nada que recortar. */
+.marco {
+  height: 100%;
+  align-self: stretch;
+  background: var(--color-crema);
+  border-radius: var(--radius-imagenes);
+  overflow: hidden;
+}
+
+.imagen { 
+  object-fit: cover; 
+}
+
+/* En mobile la imagen mide 70dvh: altura explícita en .marco (en vez
+   del 100%/stretch de arriba) para que .imagen (height:100%) la herede.
+   .seccion pasa a height:auto: apilada (imagen + texto) suma más de
+   95vh, y con height fijo el texto desbordaba la caja y el Footer
+   (siguiente en el DOM) se pintaba encima. */
+@media (max-width: 767px) {
+  .seccion { height: auto; }
+  .marco { height: 70dvh; }
+}
+
+.invertido { order: 2; }
+@media (min-width: 768px) {
+  .invertido { order: 2; }
+  .textoInvertido { order: 1; }
+}
+
+.contenidoTexto {
+  padding: var(--spacing-6) var(--spacing-4) var(--spacing-8);
+}
+
+.titulo {
+  font-size: var(--text-body-lg);
+  margin-bottom: var(--spacing-1);
+}
+
+.texto {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+  line-height: var(--leading-base);
+  max-width: var(--max-texto);
+  margin-bottom: var(--spacing-5);
+}
+
+/* Referencia: styleguide.html .sg-boutique-texto .sg-btn-texto —
+   el enlace de este bloque es más pequeño que el resto de Boton
+   variante="texto" (--text-small por defecto). */
+.contenidoTexto .enlace {
+  font-size: var(--text-label);
+}

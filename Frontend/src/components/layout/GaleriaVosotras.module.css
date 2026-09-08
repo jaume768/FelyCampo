@@ -1,0 +1,347 @@
+/* ============================================================
+   GALERÍA DE VOSOTRAS — Fely Campo
+   Cuadrícula: 4 columnas escritorio, 2 en mobile, a sangre entre sí
+   (gap mínimo, mismo criterio que .pista de
+   ProductosRecomendados.module.css). Cada .item aloja CarruselFotos
+   (ui/) + el botón "+" (.abrirBtn) que abre el lightbox de abajo —
+   mismo mecanismo que RunwayGaleria.module.css (.lightbox/.abierta,
+   cabecera, pista, miniaturas), panel inferior con la tipografía de
+   .pie/.texto/.nombre de ResenasClientes.module.css en vez del
+   "Look X" + productos de RunwayGaleria.
+   ============================================================ */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.04rem;
+  margin-bottom: var(--spacing-8);
+}
+
+.item {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--color-crema);
+  cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Botón "+" — esquina inferior derecha de cada foto, solo visible al
+   hover (mismo criterio que .wishlist de TarjetaProducto.module.css:
+   oculto en reposo, opacity+pointer-events en vez de display, y
+   también visible con :focus-within para que llegue por teclado).
+   Mismo tamaño (40px) que .cerrar de RunwayGaleria.module.css, pero
+   con fondo propio (en vez de flotar suelto sobre la cabecera) porque
+   aquí va sobre una foto variable, no sobre el hueco fijo de la
+   cabecera del lightbox. */
+.abrirBtn {
+  position: absolute;
+  bottom: var(--spacing-2);
+  right: var(--spacing-2);
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.item:hover .abrirBtn,
+.item:focus-within .abrirBtn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---------- Lightbox ---------- */
+/* Mismo mecanismo que .lightbox/.abierta de RunwayGaleria.module.css:
+   siempre montado, "abierta" solo cambia opacidad/visibilidad. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--color-fondo);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease-marca), visibility 0s linear 0.35s;
+}
+
+.lightbox.abierta {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.35s var(--ease-marca);
+}
+
+.cabecera {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 76px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoLink {
+  display: block;
+}
+
+.logo {
+  height: 50px;
+  width: auto;
+}
+
+.cerrar {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.cerrar:hover {
+  opacity: 0.6;
+}
+
+.pista {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.pista::-webkit-scrollbar {
+  display: none;
+}
+
+.pistaItem {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+}
+
+.pistaImagen {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Fotos DE ESTE MISMO look (no otros looks de la cuadrícula, a
+   diferencia de RunwayGaleria) — saltar entre ellas sin cerrar. */
+.miniaturas {
+  position: absolute;
+  top: 50%;
+  left: var(--spacing-3);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  max-height: 80vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.miniaturas::-webkit-scrollbar {
+  display: none;
+}
+
+.miniatura {
+  flex-shrink: 0;
+  width: 44px;
+  height: 56px;
+  padding: 0;
+  border: none;
+  background: none;
+  opacity: 0.4;
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.miniatura:hover {
+  opacity: 0.7;
+}
+
+.miniaturaActiva,
+.miniaturaActiva:hover {
+  opacity: 1;
+}
+
+.miniaturaImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 767px) {
+  .miniaturas {
+    display: none;
+  }
+
+  .pistaImagen {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    object-fit: cover;
+  }
+}
+
+/* Panel inferior: nombre + comentario de la clienta (no "Look X") y,
+   debajo, "Consigue el look" — contenido siempre del mismo tamaño (a
+   diferencia de RunwayGaleria, donde descripción/productos son
+   opcionales según el look y hacen falta un alto animado con
+   ResizeObserver): aquí un alto fijo basta. Nombre/comentario con la
+   misma tipografía que .pie/.texto/.nombre de
+   ResenasClientes.module.css; "Consigue el look" es una copia 1:1 de
+   .panelProductosBloque y siguientes en RunwayGaleria.module.css. */
+.panelInfo {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2;
+  width: min(320px, calc(100% - 48px));
+  background: var(--color-fondo);
+}
+
+.panelInfoInterior {
+  padding: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* Agrupa .panelTexto + .panelNombre con su propio gap, más ajustado
+   (spacing-2) que el gap-4 de .panelInfoInterior que las separa del
+   bloque "Consigue el look". */
+.panelResena {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.panelTexto {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.panelNombre {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  letter-spacing: var(--tracking-label);
+}
+
+.panelProductosBloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+/* Mismo font-size que .subtitle de CabeceraSeccion.module.css. */
+.panelProductosTitulo {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+}
+
+.panelProductos {
+  flex-wrap: wrap;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.panelProducto {
+  width: fit-content;
+  max-width: 110px;
+  color: inherit;
+  flex-direction: column;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-2);
+}
+
+.panelProductoImagenWrap {
+  position: relative;
+}
+
+.panelProductoImagen {
+  width: 90px;
+  height: auto;
+  aspect-ratio: 3 / 4.5;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-crema);
+}
+
+/* Botón "añadir" flotante, esquina inferior derecha de la foto — mismo
+   criterio que .wishlist de TarjetaProducto.module.css. Sin backend
+   real todavía (ver FichaProductoAcciones). */
+.panelProductoAnadir {
+  position: absolute;
+  bottom: var(--spacing-1);
+  right: var(--spacing-1);
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  border: none;
+  border-radius: var(--radius-botones);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.panelProductoAnadir:hover {
+  opacity: 0.7;
+}
+
+.panelProductoNombre {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+@media (max-width: 767px) {
+  .panelInfo {
+    width: calc(100% - 48px);
+  }
+}

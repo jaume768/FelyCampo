@@ -1,0 +1,65 @@
+# Dependencias
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+
+# Producción
+/build
+
+# Storybook
+/storybook-static
+debug-storybook.log
+
+# Testing / coverage
+/coverage
+/test-results
+/playwright-report
+/blob-report
+/.nyc_output
+
+# Vite / Vitest
+/.vite
+*.local
+
+# Variables de entorno — nunca subir secretos
+.env
+.env*.local
+.env.development
+.env.production
+.env.test
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Claude Code — configuración y estado local de la máquina
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# Editor / SO
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# Vídeos que superan el límite de 100MB de GitHub (sin Git LFS
+# configurado) — pendientes de comprimir/alojar aparte.
+public/img/talleres/47b6fec2c28b443da5029a46864b8d25.mp4
+public/img/talleres/bd148c1010b54dcdbe924f9ab3f947af.mp4

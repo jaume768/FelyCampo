@@ -1,0 +1,55 @@
+/* ============================================================
+   VER MÁS OVERLAY — Fely Campo
+   Botón de flecha (sin texto) sobre la imagen del último elemento de
+   una cuadrícula — como el arrow que cambia de foto en un carrusel:
+   compacto, no un panel entero, centrado en altura respecto al alto
+   real de la imagen (no de toda la tarjeta). Solo desktop.
+   ============================================================ */
+
+/* .overlay es el <a> real (hit-area) pero solo de referencia: mismo
+   aspect-ratio 3/4 que TarjetaProducto-module__marco (a todo el ancho
+   del item) para poder centrar el botón en la misma altura exacta que
+   ocupa la imagen — pointer-events:none aquí, así el resto de esa
+   franja no roba clicks a la tarjeta; solo .boton (dentro) los
+   recupera. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: 3 / 4;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: var(--spacing-4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+/* Mismo lenguaje que <Boton variante="solido">: fondo tinta, icono
+   crema, hover a rosa — pero como botón compacto, no como pill de
+   texto. */
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3);
+  background: var(--color-tinta);
+  pointer-events: auto;
+  transition: background-color 0.25s var(--ease-marca);
+}
+.boton:hover {
+  background: var(--color-rosa);
+}
+
+.flecha {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--color-fondo);
+}
+
+@media (max-width: 767px) {
+  .overlay {
+    display: none;
+  }
+}

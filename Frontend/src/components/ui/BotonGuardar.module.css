@@ -1,0 +1,110 @@
+/* ============================================================
+   BOTÓN GUARDAR (wishlist) — Fely Campo
+   ============================================================ */
+
+.tooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+.boton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.icono {
+  width: 18px;
+  height: 18px;
+  stroke: var(--color-tinta);
+  color: var(--color-tinta);
+  transition: fill 0.2s var(--ease-marca);
+}
+
+/* variante="solido" (ver BotonGuardar.jsx): cuadrado en tinta, tan
+   alto como su hermano en la fila (ej. <Boton variante="solido"> de
+   FichaProductoAcciones) — align-self:stretch estira .tooltipSolido a
+   la altura de esa fila, align-items:stretch hace lo mismo con
+   .botonSolido dentro de él (los dos, por flex, sin depender de un
+   height:100% en cascada), y aspect-ratio 1/1 saca el ancho de esa
+   altura ya resuelta — nunca más ancho que alto, sea cual sea la
+   altura del hermano. */
+.tooltipSolido {
+  align-self: stretch;
+  align-items: stretch;
+}
+
+.botonSolido {
+  width: 47px;
+  height: 47px;
+  aspect-ratio: 1 / 1;
+  background: var(--color-tinta);
+  flex-shrink: 0;
+}
+
+/* El icono se ve normal, en contorno color fondo, todo el tiempo —
+   al pasar el ratón se rellena (fill) también en fondo. Guardado
+   (bookmark ya activo) se rellena por su cuenta vía fill="currentColor"
+   en el propio SVG (ver BotonGuardar.jsx), sin depender del hover. */
+.botonSolido .icono {
+  stroke: var(--color-fondo);
+  color: var(--color-fondo);
+  transition: fill 0.25s var(--ease-marca);
+}
+
+.botonSolido:hover .icono {
+  fill: var(--color-fondo);
+}
+
+/* variante="compacto": sin caja de tamaño fijo — el hueco de clic lo
+   da el padding alrededor del propio icono (18px), no un ancho/alto
+   impuesto. Pensada para ir suelta en la esquina de un panel (ej.
+   GaleriaProductoLightbox), no sobre una foto de producto — por eso
+   .tooltipCompacto es "position: absolute" (no "relative" como el
+   resto de variantes): se ancla directo al panel contenedor, sin un
+   wrapper posicionado de más alrededor. */
+.botonCompacto {
+  width: auto;
+  height: auto;
+  padding: var(--spacing-2);
+}
+
+.tooltipCompacto {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+}
+
+/* Anclado por la derecha (no centrado): el icono vive pegado al borde
+   derecho de la tarjeta (.wishlist), así que un tooltip centrado se
+   sale por la derecha del viewport en la última columna de una fila
+   — creciendo hacia la izquierda se queda siempre dentro de la tarjeta. */
+.tooltipTexto {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  font-size: var(--text-caption);
+  padding: var(--spacing-1) var(--spacing-2);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s var(--ease-marca);
+  z-index: 3;
+}
+.tooltip:hover .tooltipTexto { opacity: 1; }
+
+/* variante="solido": mismo anclaje abajo a la derecha, pero en tinta/
+   blanco (invertido) — para que el tooltip se lea sobre cualquier
+   fondo, igual que el propio botón. */
+.tooltipSolido .tooltipTexto {
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}

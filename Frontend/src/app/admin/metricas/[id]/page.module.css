@@ -1,0 +1,46 @@
+.bloque {
+  margin-bottom: var(--spacing-7);
+}
+
+.bloqueTitulo {
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-4);
+}
+
+.coloresFila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.colorChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.colorFila {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.colorPunto {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  flex-shrink: 0;
+}
+
+.vacio {
+  padding: var(--spacing-7) var(--spacing-4);
+  text-align: center;
+  color: var(--color-gris-400);
+  border: var(--border-regular) solid var(--color-gris-200);
+}

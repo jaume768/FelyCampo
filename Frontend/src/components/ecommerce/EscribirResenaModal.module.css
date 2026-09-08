@@ -1,0 +1,129 @@
+/* ============================================================
+   ESCRIBIR RESEÑA — Fely Campo
+   Mismo esqueleto que ModalSolicitudAtelier.module.css (form/titulo/
+   subtitulo/resumen/campo/etiqueta/textarea/aviso/confirmacion) — solo
+   ".estrellas"/".estrellaBtn"/".estrellaIcono" son propios de aquí.
+   ============================================================ */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.titulo {
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  text-transform: uppercase;
+}
+
+.subtitulo {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+  margin-top: calc(var(--spacing-1) * -1);
+}
+
+/* Mismo diseño que .resumen de ModalSolicitudAtelier.module.css — foto
+   + nombre, sin color (una reseña no depende de qué color se eligió). */
+.resumen {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  background: var(--color-details);
+}
+
+.resumenImagen {
+  width: 56px;
+  height: auto;
+  aspect-ratio: 3 / 4.5;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-crema);
+}
+
+.resumenNombre {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.etiqueta {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+/* Fila de 5 estrellas — clicar una marca esa valoración fija; el hover
+   (individual, no acumulado por CSS) previsualiza hasta dónde llegaría
+   el clic, ver "valoracionHover" en EscribirResenaModal.jsx. */
+.estrellas {
+  display: flex;
+  gap: var(--spacing-1);
+}
+
+.estrellaBtn {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--color-gris-300);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.estrellaIcono {
+  color: inherit;
+  transition: color 0.15s var(--ease-marca);
+}
+
+.estrellaBtn:hover .estrellaIcono,
+.estrellaBtn[aria-pressed='true'] .estrellaIcono {
+  color: var(--color-tinta);
+}
+
+/* Mismo aspecto que .input de Input.module.css — sin componente
+   Textarea propio todavía en ui/, así que se replica aquí a mano. */
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: 12px var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.25s var(--ease-marca);
+}
+
+.textarea::placeholder {
+  color: var(--color-gris-400);
+}
+
+.textarea:focus {
+  border-color: var(--color-tinta);
+}
+
+.aviso {
+  color: var(--color-rosa-oscuro);
+  font-size: var(--text-caption);
+}
+
+.confirmacion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  text-align: center;
+}
+
+.confirmacion p {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}

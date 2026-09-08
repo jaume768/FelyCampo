@@ -308,6 +308,3268 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: ''
+  /api/v1/admin/categories/:
+    get:
+      operationId: admin_categories_list
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - in: query
+        name: parent
+        schema:
+          type: string
+          format: uuid
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminCategoryList'
+          description: ''
+    post:
+      operationId: admin_categories_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminCategory'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCategory'
+          description: ''
+  /api/v1/admin/categories/{id}/:
+    get:
+      operationId: admin_categories_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este categoría.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCategory'
+          description: ''
+    put:
+      operationId: admin_categories_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este categoría.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminCategory'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCategory'
+          description: ''
+    patch:
+      operationId: admin_categories_partial_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este categoría.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminCategory'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCategory'
+          description: ''
+    delete:
+      operationId: admin_categories_destroy
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este categoría.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admin/collections/:
+    get:
+      operationId: admin_collections_list
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminCollectionList'
+          description: ''
+    post:
+      operationId: admin_collections_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCollection'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminCollection'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminCollection'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCollection'
+          description: ''
+  /api/v1/admin/collections/{id}/:
+    get:
+      operationId: admin_collections_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este colección.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCollection'
+          description: ''
+    put:
+      operationId: admin_collections_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este colección.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCollection'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminCollection'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminCollection'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCollection'
+          description: ''
+    patch:
+      operationId: admin_collections_partial_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este colección.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminCollection'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminCollection'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminCollection'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCollection'
+          description: ''
+    delete:
+      operationId: admin_collections_destroy
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este colección.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admin/colors/:
+    get:
+      operationId: admin_colors_list
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminColorList'
+          description: ''
+    post:
+      operationId: admin_colors_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminColor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminColor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminColor'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminColor'
+          description: ''
+  /api/v1/admin/colors/{id}/:
+    get:
+      operationId: admin_colors_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este color.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminColor'
+          description: ''
+    put:
+      operationId: admin_colors_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este color.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminColor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminColor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminColor'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminColor'
+          description: ''
+    patch:
+      operationId: admin_colors_partial_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este color.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminColor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminColor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminColor'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminColor'
+          description: ''
+    delete:
+      operationId: admin_colors_destroy
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este color.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admin/colorways/:
+    get:
+      operationId: admin_colorways_list
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: query
+        name: color
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - in: query
+        name: product
+        schema:
+          type: string
+          format: uuid
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminColorwayList'
+          description: ''
+    post:
+      operationId: admin_colorways_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminColorway'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminColorway'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminColorway'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminColorway'
+          description: ''
+  /api/v1/admin/colorways/{id}/:
+    get:
+      operationId: admin_colorways_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este color de producto.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminColorway'
+          description: ''
+    put:
+      operationId: admin_colorways_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este color de producto.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminColorway'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminColorway'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminColorway'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminColorway'
+          description: ''
+    patch:
+      operationId: admin_colorways_partial_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este color de producto.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminColorway'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminColorway'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminColorway'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminColorway'
+          description: ''
+    delete:
+      operationId: admin_colorways_destroy
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este color de producto.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admin/fabrics/:
+    get:
+      operationId: admin_fabrics_list
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminFabricList'
+          description: ''
+    post:
+      operationId: admin_fabrics_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminFabric'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminFabric'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminFabric'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminFabric'
+          description: ''
+  /api/v1/admin/fabrics/{id}/:
+    get:
+      operationId: admin_fabrics_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este tejido.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminFabric'
+          description: ''
+    put:
+      operationId: admin_fabrics_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este tejido.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminFabric'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminFabric'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminFabric'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminFabric'
+          description: ''
+    patch:
+      operationId: admin_fabrics_partial_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este tejido.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminFabric'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminFabric'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminFabric'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminFabric'
+          description: ''
+    delete:
+      operationId: admin_fabrics_destroy
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este tejido.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admin/families/:
+    get:
+      operationId: admin_families_list
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminFamilyList'
+          description: ''
+    post:
+      operationId: admin_families_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminFamily'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminFamily'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminFamily'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminFamily'
+          description: ''
+  /api/v1/admin/families/{id}/:
+    get:
+      operationId: admin_families_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este familia.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminFamily'
+          description: ''
+    put:
+      operationId: admin_families_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este familia.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminFamily'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminFamily'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminFamily'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminFamily'
+          description: ''
+    patch:
+      operationId: admin_families_partial_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este familia.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminFamily'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminFamily'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminFamily'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminFamily'
+          description: ''
+    delete:
+      operationId: admin_families_destroy
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este familia.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admin/me/:
+    get:
+      operationId: admin_me_retrieve
+      description: |-
+        Comprueba la sesión de staff. El frontend del panel llama aquí al arrancar (o al
+        volver de una pestaña dormida) para decidir si muestra el panel o redirige a
+        /admin/login — 401 sin sesión, 403 con sesión pero sin `is_staff`.
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+          description: ''
+  /api/v1/admin/media/:
+    get:
+      operationId: admin_media_list
+      description: |-
+        Biblioteca de medios del panel. `POST` es multipart (`file` + `alt_text` opcional) y
+        devuelve el `MediaAsset` ya procesado; el resto de acciones trabajan sobre archivos
+        ya subidos. Sin `PUT`: sustituir el archivo es un alta nueva, no una edición.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMediaAssetList'
+          description: ''
+    post:
+      operationId: admin_media_create
+      description: |-
+        Biblioteca de medios del panel. `POST` es multipart (`file` + `alt_text` opcional) y
+        devuelve el `MediaAsset` ya procesado; el resto de acciones trabajan sobre archivos
+        ya subidos. Sin `PUT`: sustituir el archivo es un alta nueva, no una edición.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaUpload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MediaUpload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MediaUpload'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaAsset'
+          description: ''
+  /api/v1/admin/media/{id}/:
+    get:
+      operationId: admin_media_retrieve
+      description: |-
+        Biblioteca de medios del panel. `POST` es multipart (`file` + `alt_text` opcional) y
+        devuelve el `MediaAsset` ya procesado; el resto de acciones trabajan sobre archivos
+        ya subidos. Sin `PUT`: sustituir el archivo es un alta nueva, no una edición.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este archivo de medios.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaAsset'
+          description: ''
+    patch:
+      operationId: admin_media_partial_update
+      description: |-
+        Biblioteca de medios del panel. `POST` es multipart (`file` + `alt_text` opcional) y
+        devuelve el `MediaAsset` ya procesado; el resto de acciones trabajan sobre archivos
+        ya subidos. Sin `PUT`: sustituir el archivo es un alta nueva, no una edición.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este archivo de medios.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMediaAsset'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMediaAsset'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMediaAsset'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaAsset'
+          description: ''
+    delete:
+      operationId: admin_media_destroy
+      description: |-
+        Biblioteca de medios del panel. `POST` es multipart (`file` + `alt_text` opcional) y
+        devuelve el `MediaAsset` ya procesado; el resto de acciones trabajan sobre archivos
+        ya subidos. Sin `PUT`: sustituir el archivo es un alta nueva, no una edición.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este archivo de medios.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admin/orders/:
+    get:
+      operationId: admin_orders_list
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: email
+        schema:
+          type: string
+      - in: query
+        name: is_delayed
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - in: query
+        name: paid
+        schema:
+          type: boolean
+      - in: query
+        name: reference
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          title: Estado
+          enum:
+          - cancelled
+          - delivered
+          - paid
+          - partially_refunded
+          - pending_payment
+          - processing
+          - refunded
+          - shipped
+        description: |-
+          * `pending_payment` - Pendiente de pago
+          * `paid` - Pagado
+          * `processing` - En preparación
+          * `shipped` - Enviado
+          * `delivered` - Entregado
+          * `cancelled` - Cancelado
+          * `refunded` - Reembolsado
+          * `partially_refunded` - Reembolsado parcialmente
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminOrderList'
+          description: ''
+    post:
+      operationId: admin_orders_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManualOrderCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ManualOrderCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ManualOrderCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManualOrderCreate'
+          description: ''
+  /api/v1/admin/orders/{id}/:
+    get:
+      operationId: admin_orders_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este pedido.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOrder'
+          description: ''
+    patch:
+      operationId: admin_orders_partial_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este pedido.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminOrderUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminOrderUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminOrderUpdate'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOrderUpdate'
+          description: ''
+  /api/v1/admin/orders/{id}/history/:
+    get:
+      operationId: admin_orders_history_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este pedido.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOrder'
+          description: ''
+  /api/v1/admin/orders/{id}/notes/:
+    get:
+      operationId: admin_orders_notes_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este pedido.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOrder'
+          description: ''
+    post:
+      operationId: admin_orders_notes_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este pedido.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminOrder'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminOrder'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminOrder'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOrder'
+          description: ''
+  /api/v1/admin/orders/{id}/status/:
+    post:
+      operationId: admin_orders_status_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este pedido.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminOrder'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminOrder'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminOrder'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOrder'
+          description: ''
+  /api/v1/admin/product-images/:
+    get:
+      operationId: admin_product_images_list
+      description: |-
+        `position` es un campo normal del serializer: reordenar la galería de un producto es
+        un `PATCH` de `position` por cada imagen (el frontend ya sabe el orden tras arrastrar,
+        solo tiene que mandarlo) — no hace falta un endpoint de "reordenar" aparte.
+      parameters:
+      - in: query
+        name: colorway
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - in: query
+        name: product
+        schema:
+          type: string
+          format: uuid
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminProductImageList'
+          description: ''
+    post:
+      operationId: admin_product_images_create
+      description: |-
+        `position` es un campo normal del serializer: reordenar la galería de un producto es
+        un `PATCH` de `position` por cada imagen (el frontend ya sabe el orden tras arrastrar,
+        solo tiene que mandarlo) — no hace falta un endpoint de "reordenar" aparte.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductImage'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductImage'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductImage'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductImage'
+          description: ''
+  /api/v1/admin/product-images/{id}/:
+    get:
+      operationId: admin_product_images_retrieve
+      description: |-
+        `position` es un campo normal del serializer: reordenar la galería de un producto es
+        un `PATCH` de `position` por cada imagen (el frontend ya sabe el orden tras arrastrar,
+        solo tiene que mandarlo) — no hace falta un endpoint de "reordenar" aparte.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este imagen de producto.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductImage'
+          description: ''
+    put:
+      operationId: admin_product_images_update
+      description: |-
+        `position` es un campo normal del serializer: reordenar la galería de un producto es
+        un `PATCH` de `position` por cada imagen (el frontend ya sabe el orden tras arrastrar,
+        solo tiene que mandarlo) — no hace falta un endpoint de "reordenar" aparte.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este imagen de producto.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductImage'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductImage'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductImage'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductImage'
+          description: ''
+    patch:
+      operationId: admin_product_images_partial_update
+      description: |-
+        `position` es un campo normal del serializer: reordenar la galería de un producto es
+        un `PATCH` de `position` por cada imagen (el frontend ya sabe el orden tras arrastrar,
+        solo tiene que mandarlo) — no hace falta un endpoint de "reordenar" aparte.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este imagen de producto.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductImage'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductImage'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductImage'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductImage'
+          description: ''
+    delete:
+      operationId: admin_product_images_destroy
+      description: |-
+        `position` es un campo normal del serializer: reordenar la galería de un producto es
+        un `PATCH` de `position` por cada imagen (el frontend ya sabe el orden tras arrastrar,
+        solo tiene que mandarlo) — no hace falta un endpoint de "reordenar" aparte.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este imagen de producto.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admin/products/:
+    get:
+      operationId: admin_products_list
+      description: |-
+        Sin filtro de `status`/`is_published` en el queryset (a diferencia de la pública,
+        `ProductViewSet`): el panel necesita ver y editar borradores y archivados.
+        "Borrar" archiva en vez de eliminar la fila (D8, ver ADMIN_API_PLAN.md) — conserva el
+        histórico de pedidos/reseñas que lo referencien.
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+      - in: query
+        name: collection
+        schema:
+          type: string
+      - in: query
+        name: family
+        schema:
+          type: string
+      - in: query
+        name: is_outlet
+        schema:
+          type: boolean
+      - in: query
+        name: kind
+        schema:
+          type: string
+          title: Tipo
+          enum:
+          - bundle
+          - simple
+        description: |-
+          * `simple` - Prenda
+          * `bundle` - Conjunto
+      - in: query
+        name: line
+        schema:
+          type: string
+          title: Línea
+          enum:
+          - archive
+          - atelier
+          - pret_a_porter
+        description: |-
+          * `pret_a_porter` - Prêt-à-porter
+          * `atelier` - Atelier
+          * `archive` - Archivo
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - in: query
+        name: sale_mode
+        schema:
+          type: string
+          title: Modo de venta
+          enum:
+          - in_stock
+          - made_to_order
+          - on_request
+        description: |-
+          * `in_stock` - Disponible en stock
+          * `on_request` - Solo consulta (sin precio)
+          * `made_to_order` - Bajo encargo
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          title: Estado
+          enum:
+          - active
+          - archived
+          - draft
+        description: |-
+          Fuente de verdad de la publicación. `is_published` se deriva de este campo.
+
+          * `draft` - Borrador
+          * `active` - Activo
+          * `archived` - Archivado
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminProductList'
+          description: ''
+    post:
+      operationId: admin_products_create
+      description: |-
+        Sin filtro de `status`/`is_published` en el queryset (a diferencia de la pública,
+        `ProductViewSet`): el panel necesita ver y editar borradores y archivados.
+        "Borrar" archiva en vez de eliminar la fila (D8, ver ADMIN_API_PLAN.md) — conserva el
+        histórico de pedidos/reseñas que lo referencien.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProduct'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProduct'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProduct'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProduct'
+          description: ''
+  /api/v1/admin/products/{id}/:
+    get:
+      operationId: admin_products_retrieve
+      description: |-
+        Sin filtro de `status`/`is_published` en el queryset (a diferencia de la pública,
+        `ProductViewSet`): el panel necesita ver y editar borradores y archivados.
+        "Borrar" archiva en vez de eliminar la fila (D8, ver ADMIN_API_PLAN.md) — conserva el
+        histórico de pedidos/reseñas que lo referencien.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este producto.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProduct'
+          description: ''
+    put:
+      operationId: admin_products_update
+      description: |-
+        Sin filtro de `status`/`is_published` en el queryset (a diferencia de la pública,
+        `ProductViewSet`): el panel necesita ver y editar borradores y archivados.
+        "Borrar" archiva en vez de eliminar la fila (D8, ver ADMIN_API_PLAN.md) — conserva el
+        histórico de pedidos/reseñas que lo referencien.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este producto.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProduct'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProduct'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProduct'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProduct'
+          description: ''
+    patch:
+      operationId: admin_products_partial_update
+      description: |-
+        Sin filtro de `status`/`is_published` en el queryset (a diferencia de la pública,
+        `ProductViewSet`): el panel necesita ver y editar borradores y archivados.
+        "Borrar" archiva en vez de eliminar la fila (D8, ver ADMIN_API_PLAN.md) — conserva el
+        histórico de pedidos/reseñas que lo referencien.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este producto.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProduct'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProduct'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProduct'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProduct'
+          description: ''
+    delete:
+      operationId: admin_products_destroy
+      description: |-
+        Sin filtro de `status`/`is_published` en el queryset (a diferencia de la pública,
+        `ProductViewSet`): el panel necesita ver y editar borradores y archivados.
+        "Borrar" archiva en vez de eliminar la fila (D8, ver ADMIN_API_PLAN.md) — conserva el
+        histórico de pedidos/reseñas que lo referencien.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este producto.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admin/returns/:
+    get:
+      operationId: admin_returns_list
+      description: |-
+        Sin `create`: una devolución nace de la solicitud del cliente
+        (`OrderViewSet.create_return`, API pública), el panel solo la gestiona.
+      parameters:
+      - in: query
+        name: order
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          title: Estado
+          enum:
+          - accepted
+          - rejected
+          - requested
+        description: |-
+          * `requested` - Solicitada
+          * `accepted` - Aceptada
+          * `rejected` - Rechazada
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminReturnList'
+          description: ''
+  /api/v1/admin/returns/{id}/:
+    get:
+      operationId: admin_returns_retrieve
+      description: |-
+        Sin `create`: una devolución nace de la solicitud del cliente
+        (`OrderViewSet.create_return`, API pública), el panel solo la gestiona.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este devolución.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminReturn'
+          description: ''
+    put:
+      operationId: admin_returns_update
+      description: |-
+        Sin `create`: una devolución nace de la solicitud del cliente
+        (`OrderViewSet.create_return`, API pública), el panel solo la gestiona.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este devolución.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminReturn'
+          description: ''
+    patch:
+      operationId: admin_returns_partial_update
+      description: |-
+        Sin `create`: una devolución nace de la solicitud del cliente
+        (`OrderViewSet.create_return`, API pública), el panel solo la gestiona.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este devolución.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminReturn'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminReturn'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminReturn'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminReturn'
+          description: ''
+  /api/v1/admin/returns/{id}/accept/:
+    post:
+      operationId: admin_returns_accept_create
+      description: |-
+        Sin `create`: una devolución nace de la solicitud del cliente
+        (`OrderViewSet.create_return`, API pública), el panel solo la gestiona.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este devolución.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminReturn'
+          description: ''
+  /api/v1/admin/returns/{id}/mark-refunded/:
+    post:
+      operationId: admin_returns_mark_refunded_create
+      description: |-
+        Sin `create`: una devolución nace de la solicitud del cliente
+        (`OrderViewSet.create_return`, API pública), el panel solo la gestiona.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este devolución.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminReturn'
+          description: ''
+  /api/v1/admin/returns/{id}/reject/:
+    post:
+      operationId: admin_returns_reject_create
+      description: |-
+        Sin `create`: una devolución nace de la solicitud del cliente
+        (`OrderViewSet.create_return`, API pública), el panel solo la gestiona.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este devolución.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminReturn'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminReturn'
+          description: ''
+  /api/v1/admin/sizes/:
+    get:
+      operationId: admin_sizes_list
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminSizeList'
+          description: ''
+    post:
+      operationId: admin_sizes_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSize'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminSize'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminSize'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSize'
+          description: ''
+  /api/v1/admin/sizes/{id}/:
+    get:
+      operationId: admin_sizes_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este talla.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSize'
+          description: ''
+    put:
+      operationId: admin_sizes_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este talla.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSize'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminSize'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminSize'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSize'
+          description: ''
+    patch:
+      operationId: admin_sizes_partial_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este talla.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminSize'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminSize'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminSize'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSize'
+          description: ''
+    delete:
+      operationId: admin_sizes_destroy
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este talla.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admin/stock/locations/:
+    get:
+      operationId: admin_stock_locations_list
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - in: query
+        name: is_sellable
+        schema:
+          type: boolean
+      - in: query
+        name: kind
+        schema:
+          type: string
+          title: Tipo
+          enum:
+          - store
+          - warehouse
+        description: |-
+          * `store` - Tienda
+          * `warehouse` - Almacén
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminLocationList'
+          description: ''
+    post:
+      operationId: admin_stock_locations_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminLocation'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminLocation'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminLocation'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminLocation'
+          description: ''
+  /api/v1/admin/stock/locations/{id}/:
+    get:
+      operationId: admin_stock_locations_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este ubicación.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminLocation'
+          description: ''
+    put:
+      operationId: admin_stock_locations_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este ubicación.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminLocation'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminLocation'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminLocation'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminLocation'
+          description: ''
+    patch:
+      operationId: admin_stock_locations_partial_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este ubicación.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminLocation'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminLocation'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminLocation'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminLocation'
+          description: ''
+    delete:
+      operationId: admin_stock_locations_destroy
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este ubicación.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admin/stock/movements/:
+    get:
+      operationId: admin_stock_movements_list
+      description: |-
+        Solo lectura — un `StockMovement` lo crea `adjust`/`set` de arriba, nunca un POST
+        directo a este endpoint (sería auditoría que se audita a sí misma sin control).
+      parameters:
+      - in: query
+        name: location
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      - in: query
+        name: variant
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminStockMovementList'
+          description: ''
+  /api/v1/admin/stock/variants/:
+    get:
+      operationId: admin_stock_variants_list
+      parameters:
+      - in: query
+        name: colorway__product
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminStockVariantList'
+          description: ''
+  /api/v1/admin/stock/variants/{id}/:
+    get:
+      operationId: admin_stock_variants_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este variante.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminStockVariant'
+          description: ''
+  /api/v1/admin/stock/variants/{id}/adjust/:
+    post:
+      operationId: admin_stock_variants_adjust_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este variante.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminStockVariant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminStockVariant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminStockVariant'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminStockVariant'
+          description: ''
+  /api/v1/admin/stock/variants/{id}/set/:
+    post:
+      operationId: admin_stock_variants_set_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este variante.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminStockVariant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminStockVariant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminStockVariant'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminStockVariant'
+          description: ''
+  /api/v1/admin/variants/:
+    get:
+      operationId: admin_variants_list
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: query
+        name: colorway
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      - in: query
+        name: size
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminVariantList'
+          description: ''
+    post:
+      operationId: admin_variants_create
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminVariant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminVariant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminVariant'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminVariant'
+          description: ''
+  /api/v1/admin/variants/{id}/:
+    get:
+      operationId: admin_variants_retrieve
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este variante.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminVariant'
+          description: ''
+    put:
+      operationId: admin_variants_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este variante.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminVariant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminVariant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminVariant'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminVariant'
+          description: ''
+    patch:
+      operationId: admin_variants_partial_update
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este variante.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminVariant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminVariant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminVariant'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminVariant'
+          description: ''
+    delete:
+      operationId: admin_variants_destroy
+      description: |-
+        Base de todo endpoint del panel admin: exige `IsStaff`, pagina igual que la API
+        pública (20/página, máx. 100 — `DefaultPagination`) y va bajo el cupo de límite de
+        ritmo `admin`, aparte del público (`DEFAULT_THROTTLE_RATES` en settings/base.py) —
+        personal identificado, no tráfico anónimo, así que el cupo es más generoso.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un Cadena UUID que identifique este variante.
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/v1/auth/csrf/:
     get:
       operationId: auth_csrf_retrieve
@@ -717,6 +3979,19 @@ paths:
         description: |-
           * `simple` - Prenda
           * `bundle` - Conjunto
+      - in: query
+        name: line
+        schema:
+          type: string
+          title: Línea
+          enum:
+          - archive
+          - atelier
+          - pret_a_porter
+        description: |-
+          * `pret_a_porter` - Prêt-à-porter
+          * `atelier` - Atelier
+          * `archive` - Archivo
       - name: ordering
         required: false
         in: query
@@ -1217,6 +4492,1085 @@ components:
       - postal_code
       - province
       - recipient
+    AdminCategory:
+      type: object
+      description: |-
+        Plana (sin `children` anidados, a diferencia de la pública): el panel construye
+        el árbol en cliente a partir de `parent`, más fácil de reordenar/editar así.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        parent:
+          type: string
+          format: uuid
+          nullable: true
+          title: Categoría padre
+        parent_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 120
+        slug:
+          type: string
+          maxLength: 140
+          pattern: ^[-a-zA-Z0-9_]+$
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+        is_active:
+          type: boolean
+          title: Activa
+      required:
+      - id
+      - name
+      - parent_name
+      - slug
+    AdminCollection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Código
+          maxLength: 32
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 120
+        starts_on:
+          type: string
+          format: date
+          nullable: true
+          title: Fecha de inicio
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+          title: Fecha de fin
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+        is_active:
+          type: boolean
+          title: Activa
+      required:
+      - code
+      - id
+      - name
+    AdminColor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Código
+          maxLength: 8
+        name:
+          type: string
+          title: Nombre
+          maxLength: 80
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 80
+        hex_value:
+          type: string
+          title: Color hexadecimal
+          description: 'Para la muestra en el frontend, p. ej. #C41E3A.'
+          maxLength: 7
+      required:
+      - code
+      - id
+      - name
+    AdminColorway:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        product:
+          type: string
+          format: uuid
+          title: Producto
+        color:
+          type: string
+          format: uuid
+        color_detail:
+          allOf:
+          - $ref: '#/components/schemas/Color'
+          readOnly: true
+        sku:
+          type: string
+          description: Se genera como familia-diseño-color si se deja vacío.
+          maxLength: 64
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+        is_active:
+          type: boolean
+          title: Activo
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminVariant'
+          readOnly: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductImage'
+          readOnly: true
+      required:
+      - color
+      - color_detail
+      - id
+      - images
+      - product
+      - variants
+    AdminFabric:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 120
+        composition:
+          type: string
+          title: Composición
+          maxLength: 255
+        image:
+          type: string
+          format: uuid
+          nullable: true
+          title: Foto
+        image_detail:
+          allOf:
+          - $ref: '#/components/schemas/MediaAsset'
+          readOnly: true
+      required:
+      - id
+      - image_detail
+      - name
+    AdminFamily:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Código
+          maxLength: 8
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 120
+        slug:
+          type: string
+          maxLength: 140
+          pattern: ^[-a-zA-Z0-9_]+$
+        is_active:
+          type: boolean
+          title: Activa
+      required:
+      - code
+      - id
+      - name
+      - slug
+    AdminLocation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Código
+          maxLength: 16
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/LocationKindEnum'
+          title: Tipo
+        is_sellable:
+          type: boolean
+          title: Vendible
+          description: De aquí sale lo que se vende (D3) — como mucho una ubicación
+            vendible a la vez, lo valida el serializer, no el modelo.
+        is_active:
+          type: boolean
+          title: Activa
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+      required:
+      - code
+      - id
+      - name
+    AdminOrder:
+      type: object
+      description: |-
+        Vista de pedido del panel — añade lo que no necesita el cliente: seguimiento
+        interno (D4), historial de estado, notas en hilo, devoluciones y el flag de
+        "retrasado" (ver `Order.is_delayed`).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        email:
+          type: string
+          format: email
+          title: Correo de contacto
+          maxLength: 254
+        phone:
+          type: string
+          title: Teléfono
+          maxLength: 32
+        shipping_recipient:
+          type: string
+          title: Destinatario
+          maxLength: 150
+        shipping_line1:
+          type: string
+          title: Dirección
+          maxLength: 255
+        shipping_line2:
+          type: string
+          title: Dirección (línea 2)
+          maxLength: 255
+        shipping_postal_code:
+          type: string
+          title: Código postal
+          maxLength: 10
+        shipping_city:
+          type: string
+          title: Localidad
+          maxLength: 120
+        shipping_province:
+          type: string
+          title: Provincia
+          maxLength: 120
+        shipping_country:
+          type: string
+          title: País
+          maxLength: 2
+        subtotal_net:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Subtotal sin IVA
+        shipping_net:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Envío sin IVA
+        vat_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,3})?$
+          title: Tipo de IVA
+        vat_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: IVA
+        total_gross:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Total con IVA
+        currency:
+          type: string
+          title: Moneda
+          maxLength: 3
+        is_paid:
+          type: boolean
+          readOnly: true
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Pagado el
+        can_be_returned:
+          type: boolean
+          readOnly: true
+        invoice_requested:
+          type: boolean
+          title: Factura solicitada
+        customer_note:
+          type: string
+          title: Nota del cliente
+        access_token:
+          type: string
+          readOnly: true
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminOrderLine'
+          readOnly: true
+        number:
+          type: integer
+          readOnly: true
+          title: Número de pedido
+        status:
+          allOf:
+          - $ref: '#/components/schemas/OrderStatusEnum'
+          title: Estado
+        user:
+          type: string
+          format: uuid
+          nullable: true
+          title: Usuario
+          description: Vacío en compras como invitado.
+        shipped_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Enviado el
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Entregado el
+        cancelled_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Cancelado el
+        stripe_payment_intent_id:
+          type: string
+          title: PaymentIntent de Stripe
+          maxLength: 255
+        reserved_until:
+          type: string
+          format: date-time
+          nullable: true
+          title: Stock reservado hasta
+        stock_committed:
+          type: boolean
+          title: Stock descontado
+          description: True cuando el pago se confirmó y el stock salió del almacén.
+        billing_name:
+          type: string
+          title: Razón social / nombre
+          maxLength: 150
+        billing_tax_id:
+          type: string
+          title: NIF/CIF
+          maxLength: 20
+        billing_address:
+          type: string
+          title: Dirección de facturación
+          maxLength: 400
+        staff_note:
+          type: string
+          title: Nota interna
+        is_delayed:
+          type: boolean
+          readOnly: true
+        user_email:
+          type: string
+          readOnly: true
+        tracking_carrier:
+          type: string
+          title: Transportista
+          maxLength: 100
+        tracking_code:
+          type: string
+          title: Código de seguimiento
+          maxLength: 100
+        tracking_url:
+          type: string
+          format: uri
+          title: Enlace de seguimiento
+          maxLength: 500
+        returns:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminReturn'
+          readOnly: true
+      required:
+      - access_token
+      - can_be_returned
+      - created_at
+      - email
+      - id
+      - is_delayed
+      - is_paid
+      - lines
+      - number
+      - reference
+      - returns
+      - shipping_city
+      - shipping_line1
+      - shipping_net
+      - shipping_postal_code
+      - shipping_province
+      - shipping_recipient
+      - subtotal_net
+      - total_gross
+      - user_email
+      - vat_rate
+      - vat_total
+    AdminOrderLine:
+      type: object
+      description: |-
+        Igual que la versión pública, más una imagen (el cliente no la necesita en su
+        propio pedido — ya vio la ficha al comprar — pero el panel sí, para hojear rápido) y
+        el id real del producto, para poder enlazar cada fila a su ficha de solo lectura
+        (`/admin/productos/:id`) — `sku`/`product_name` son copia congelada y no sirven de FK
+        si el producto se ha borrado o cambiado de nombre desde entonces (`product_id` es
+        `None` en ese caso: `variant` es `on_delete=SET_NULL`).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        sku:
+          type: string
+          maxLength: 64
+        product_name:
+          type: string
+          title: Producto
+          maxLength: 200
+        color_name:
+          type: string
+          title: Color
+          maxLength: 80
+        size_code:
+          type: string
+          title: Talla
+          maxLength: 8
+        quantity:
+          type: integer
+          maximum: 32767
+          minimum: 1
+          title: Cantidad
+        unit_price_net:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Precio unitario sin IVA
+        unit_price_gross:
+          type: string
+          readOnly: true
+        line_net:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Total línea sin IVA
+        line_gross:
+          type: string
+          readOnly: true
+        returnable_quantity:
+          type: integer
+          readOnly: true
+        image:
+          type: string
+          nullable: true
+          readOnly: true
+        product_id:
+          type: string
+          nullable: true
+          readOnly: true
+      required:
+      - id
+      - image
+      - line_gross
+      - line_net
+      - product_id
+      - product_name
+      - quantity
+      - returnable_quantity
+      - sku
+      - unit_price_gross
+      - unit_price_net
+    AdminOrderUpdate:
+      type: object
+      description: |-
+        `PATCH orders/{id}/` — solo lo que tiene sentido tocar después de creado: el resto
+        (importes, dirección, líneas...) es una copia congelada de la compra, no un
+        formulario editable.
+      properties:
+        tracking_carrier:
+          type: string
+          title: Transportista
+          maxLength: 100
+        tracking_code:
+          type: string
+          title: Código de seguimiento
+          maxLength: 100
+        tracking_url:
+          type: string
+          format: uri
+          title: Enlace de seguimiento
+          maxLength: 500
+        staff_note:
+          type: string
+          title: Nota interna
+    AdminProduct:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        family:
+          type: string
+          format: uuid
+          title: Familia
+        family_detail:
+          allOf:
+          - $ref: '#/components/schemas/Family'
+          readOnly: true
+        line:
+          allOf:
+          - $ref: '#/components/schemas/LineEnum'
+          title: Línea
+        categories:
+          type: array
+          items:
+            type: string
+            format: uuid
+            title: Categorías
+          title: Categorías
+        categories_detail:
+          type: array
+          items: {}
+          readOnly: true
+        collection:
+          type: string
+          format: uuid
+          nullable: true
+          title: Colección
+        collection_detail:
+          allOf:
+          - $ref: '#/components/schemas/AdminCollection'
+          readOnly: true
+        fabrics:
+          type: array
+          items:
+            type: string
+            format: uuid
+            title: Tejidos
+          title: Tejidos
+        fabrics_detail:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminFabric'
+          readOnly: true
+        design_code:
+          type: string
+          title: Número de diseño
+          description: Segundo segmento del SKU. Único dentro de la familia.
+          maxLength: 16
+        name:
+          type: string
+          title: Nombre
+          maxLength: 200
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 200
+        slug:
+          type: string
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+          title: Descripción
+        description_en:
+          type: string
+          title: Descripción (EN)
+        composition:
+          type: string
+          title: Composición
+          maxLength: 255
+        care:
+          type: string
+          title: Cuidados
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/KindEnum'
+          title: Tipo
+        sale_mode:
+          allOf:
+          - $ref: '#/components/schemas/SaleModeEnum'
+          title: Modo de venta
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Precio sin IVA
+          description: PVP **sin IVA**. Vacío solo en productos de tipo «solo consulta».
+        sale_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Precio rebajado sin IVA
+          description: Si está relleno, es el precio que se cobra.
+        is_outlet:
+          type: boolean
+          title: En outlet
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          title: Estado
+          description: |-
+            Fuente de verdad de la publicación. `is_published` se deriva de este campo.
+
+            * `draft` - Borrador
+            * `active` - Activo
+            * `archived` - Archivado
+        is_published:
+          type: boolean
+          readOnly: true
+          title: Publicado
+          description: Derivado de `status` en save() — no editar a mano, se sobrescribe.
+        published_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Fecha de publicación
+        colorways:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminColorway'
+          readOnly: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductImage'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - categories_detail
+      - collection_detail
+      - colorways
+      - created_at
+      - design_code
+      - fabrics_detail
+      - family
+      - family_detail
+      - id
+      - images
+      - is_published
+      - name
+      - published_at
+      - updated_at
+    AdminProductImage:
+      type: object
+      description: |-
+        `position` es escribible aquí a propósito: reordenar es un PATCH normal de este
+        campo, fila a fila — sin endpoint aparte para eso.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        product:
+          type: string
+          format: uuid
+          title: Producto
+        colorway:
+          type: string
+          format: uuid
+          nullable: true
+          title: Color de producto
+        asset:
+          type: string
+          format: uuid
+          title: Archivo
+        asset_detail:
+          allOf:
+          - $ref: '#/components/schemas/MediaAsset'
+          readOnly: true
+        alt_text:
+          type: string
+          title: Texto alternativo
+          maxLength: 200
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+      required:
+      - asset
+      - asset_detail
+      - id
+      - product
+    AdminReturn:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        order:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Pedido
+        order_reference:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ReturnStatusEnum'
+          readOnly: true
+          title: Estado
+        reason:
+          type: string
+          title: Motivo
+        staff_note:
+          type: string
+          title: Nota interna
+        refund_amount_gross:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+          title: Importe reembolsado con IVA
+        refunded_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Reembolsado el
+          description: Se rellena a mano tras ejecutar el reembolso en Stripe.
+        restock:
+          type: boolean
+          title: Devolver al stock
+          description: Si la prenda llegó en mal estado, desmarcar.
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReturnLine'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - lines
+      - order
+      - order_reference
+      - refund_amount_gross
+      - refunded_at
+      - status
+    AdminSize:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Talla
+          maxLength: 8
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+        is_active:
+          type: boolean
+          title: Activa
+      required:
+      - code
+      - id
+    AdminStockMovement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        variant:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Variante
+        variant_product_name:
+          type: string
+          readOnly: true
+        variant_sku:
+          type: string
+          readOnly: true
+        variant_size:
+          type: string
+          readOnly: true
+        location:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Ubicación
+        location_name:
+          type: string
+          readOnly: true
+        delta:
+          type: integer
+          readOnly: true
+          title: Cambio
+          description: Positivo o negativo — cuánto varió respecto al valor anterior.
+        quantity_before:
+          type: integer
+          readOnly: true
+          title: Cantidad anterior
+        quantity_after:
+          type: integer
+          readOnly: true
+          title: Cantidad posterior
+        reason:
+          type: string
+          readOnly: true
+          title: Motivo
+        created_by:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          title: Realizado por
+        created_by_email:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - created_by
+      - created_by_email
+      - delta
+      - id
+      - location
+      - location_name
+      - quantity_after
+      - quantity_before
+      - reason
+      - variant
+      - variant_product_name
+      - variant_size
+      - variant_sku
+    AdminStockVariant:
+      type: object
+      description: |-
+        Lectura del desglose por ubicación de una `Variant` — nunca escribe `stock`
+        directamente (eso es cosa de `adjust`/`set`, ver views.py).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        colorway:
+          type: string
+          format: uuid
+          title: Color de producto
+        colorway_detail:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+        size:
+          type: string
+          format: uuid
+          title: Talla
+        size_detail:
+          allOf:
+          - $ref: '#/components/schemas/Size'
+          readOnly: true
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Unidades en stock
+        reserved:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Unidades reservadas
+          description: Retenidas por checkouts en curso. Las libera el propio checkout.
+        available:
+          type: integer
+          readOnly: true
+        in_stock:
+          type: boolean
+          readOnly: true
+        is_active:
+          type: boolean
+          title: Activa
+        levels:
+          type: array
+          items: {}
+          readOnly: true
+      required:
+      - available
+      - colorway
+      - colorway_detail
+      - id
+      - in_stock
+      - levels
+      - size
+      - size_detail
+    AdminUser:
+      type: object
+      description: |-
+        Identidad del miembro del staff conectado al panel. Solo lectura: no hay edición
+        del propio perfil de staff desde aquí, para eso está el admin de Django.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Correo electrónico
+        first_name:
+          type: string
+          readOnly: true
+          title: Nombre
+        last_name:
+          type: string
+          readOnly: true
+          title: Apellidos
+        full_name:
+          type: string
+          readOnly: true
+        is_staff:
+          type: boolean
+          readOnly: true
+          title: Acceso al admin
+        is_superuser:
+          type: boolean
+          readOnly: true
+          title: Estado de superusuario
+          description: Indica que este usuario tiene todos los permisos sin asignárselos
+            explícitamente.
+      required:
+      - email
+      - first_name
+      - full_name
+      - id
+      - is_staff
+      - is_superuser
+      - last_name
+    AdminVariant:
+      type: object
+      description: |-
+        A diferencia de la pública (`VariantSerializer`, solo `available`), aquí se ve y
+        edita el `stock` real — es la vista de quien repone inventario, no de quien compra.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        colorway:
+          type: string
+          format: uuid
+          title: Color de producto
+        size:
+          type: string
+          format: uuid
+          title: Talla
+        size_detail:
+          allOf:
+          - $ref: '#/components/schemas/Size'
+          readOnly: true
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Unidades en stock
+        reserved:
+          type: integer
+          readOnly: true
+          title: Unidades reservadas
+          description: Retenidas por checkouts en curso. Las libera el propio checkout.
+        available:
+          type: integer
+          readOnly: true
+        in_stock:
+          type: boolean
+          readOnly: true
+        is_active:
+          type: boolean
+          title: Activa
+      required:
+      - available
+      - colorway
+      - id
+      - in_stock
+      - reserved
+      - size
+      - size_detail
     Cart:
       type: object
       description: 'Carrito con el desglose ya calculado: envío, IVA y total.'
@@ -1417,6 +5771,34 @@ components:
       - shipping_postal_code
       - shipping_province
       - shipping_recipient
+    Color:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Código
+          maxLength: 8
+        name:
+          type: string
+          title: Nombre
+          maxLength: 80
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 80
+        hex_value:
+          type: string
+          title: Color hexadecimal
+          description: 'Para la muestra en el frontend, p. ej. #C41E3A.'
+          maxLength: 7
+      required:
+      - code
+      - id
+      - name
     EmailVerificationConfirm:
       type: object
       description: Base de los enlaces firmados que viajan por correo (uid + token).
@@ -1488,6 +5870,24 @@ components:
       description: |-
         * `simple` - Prenda
         * `bundle` - Conjunto
+    LineEnum:
+      enum:
+      - pret_a_porter
+      - atelier
+      - archive
+      type: string
+      description: |-
+        * `pret_a_porter` - Prêt-à-porter
+        * `atelier` - Atelier
+        * `archive` - Archivo
+    LocationKindEnum:
+      enum:
+      - store
+      - warehouse
+      type: string
+      description: |-
+        * `store` - Tienda
+        * `warehouse` - Almacén
     Login:
       type: object
       properties:
@@ -1500,6 +5900,176 @@ components:
       required:
       - email
       - password
+    ManualOrderCreate:
+      type: object
+      description: |-
+        Alta manual de pedido desde el panel (venta por teléfono o en persona) — ver
+        `apps.orders.services.create_manual_order`. Mismos campos de envío/facturación que
+        `CheckoutSerializer` (checkout público), para poder reutilizar el mismo `Order.objects.create`.
+      properties:
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          default: ''
+          maxLength: 32
+        shipping_recipient:
+          type: string
+          maxLength: 150
+        shipping_line1:
+          type: string
+          maxLength: 255
+        shipping_line2:
+          type: string
+          default: ''
+          maxLength: 255
+        shipping_postal_code:
+          type: string
+          maxLength: 10
+        shipping_city:
+          type: string
+          maxLength: 120
+        shipping_province:
+          type: string
+          maxLength: 120
+        customer_note:
+          type: string
+          default: ''
+          maxLength: 1000
+        staff_note:
+          type: string
+          default: ''
+          maxLength: 4000
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ManualOrderCreateStatusEnum'
+          default: paid
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManualOrderLineWrite'
+      required:
+      - email
+      - lines
+      - shipping_city
+      - shipping_line1
+      - shipping_postal_code
+      - shipping_province
+      - shipping_recipient
+    ManualOrderCreateStatusEnum:
+      enum:
+      - pending_payment
+      - paid
+      - processing
+      type: string
+      description: |-
+        * `pending_payment` - Pendiente de pago
+        * `paid` - Pagado
+        * `processing` - En preparación
+    ManualOrderLineWrite:
+      type: object
+      properties:
+        variant:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+      required:
+      - quantity
+      - variant
+    MediaAsset:
+      type: object
+      description: |-
+        Lectura y edición de metadatos de un archivo ya subido. Solo `alt_text` es
+        editable — sustituir el archivo en sí es un alta nueva (`MediaUploadSerializer`),
+        no un PATCH sobre este, porque cambiaría dimensiones/miniatura/tipo a la vez.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/MediaKindEnum'
+          readOnly: true
+          title: Tipo
+        file:
+          type: string
+          format: uri
+          readOnly: true
+          title: Archivo
+        thumbnail:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+          title: Miniatura
+        original_filename:
+          type: string
+          readOnly: true
+          title: Nombre original
+        content_type:
+          type: string
+          readOnly: true
+          title: Tipo de contenido
+        size_bytes:
+          type: integer
+          readOnly: true
+          title: Peso en bytes
+        width:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Ancho
+        height:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Alto
+        alt_text:
+          type: string
+          title: Texto alternativo
+          maxLength: 200
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - content_type
+      - created_at
+      - file
+      - height
+      - id
+      - kind
+      - original_filename
+      - size_bytes
+      - thumbnail
+      - width
+    MediaKindEnum:
+      enum:
+      - image
+      - video
+      type: string
+      description: |-
+        * `image` - Imagen
+        * `video` - Vídeo
+    MediaUpload:
+      type: object
+      description: |-
+        Alta de un archivo (multipart). `kind`/`content_type`/peso/dimensiones se derivan
+        siempre del propio archivo, nunca de lo que declare el cliente — así una extensión
+        falsa no cuela un tipo distinto del real.
+      properties:
+        file:
+          type: string
+          format: uri
+        alt_text:
+          type: string
+          default: ''
+      required:
+      - file
     Order:
       type: object
       description: |-
@@ -1685,6 +6255,394 @@ components:
       - sku
       - unit_price_gross
       - unit_price_net
+    OrderStatusEnum:
+      enum:
+      - pending_payment
+      - paid
+      - processing
+      - shipped
+      - delivered
+      - cancelled
+      - refunded
+      - partially_refunded
+      type: string
+      description: |-
+        * `pending_payment` - Pendiente de pago
+        * `paid` - Pagado
+        * `processing` - En preparación
+        * `shipped` - Enviado
+        * `delivered` - Entregado
+        * `cancelled` - Cancelado
+        * `refunded` - Reembolsado
+        * `partially_refunded` - Reembolsado parcialmente
+    PaginatedAdminCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminCategory'
+    PaginatedAdminCollectionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminCollection'
+    PaginatedAdminColorList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminColor'
+    PaginatedAdminColorwayList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminColorway'
+    PaginatedAdminFabricList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminFabric'
+    PaginatedAdminFamilyList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminFamily'
+    PaginatedAdminLocationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminLocation'
+    PaginatedAdminOrderList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminOrder'
+    PaginatedAdminProductImageList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductImage'
+    PaginatedAdminProductList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProduct'
+    PaginatedAdminReturnList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminReturn'
+    PaginatedAdminSizeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminSize'
+    PaginatedAdminStockMovementList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminStockMovement'
+    PaginatedAdminStockVariantList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminStockVariant'
+    PaginatedAdminVariantList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminVariant'
+    PaginatedMediaAssetList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MediaAsset'
     PaginatedOrderList:
       type: object
       required:
@@ -1823,6 +6781,549 @@ components:
         is_default_billing:
           type: boolean
           title: Facturación por defecto
+    PatchedAdminCategory:
+      type: object
+      description: |-
+        Plana (sin `children` anidados, a diferencia de la pública): el panel construye
+        el árbol en cliente a partir de `parent`, más fácil de reordenar/editar así.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        parent:
+          type: string
+          format: uuid
+          nullable: true
+          title: Categoría padre
+        parent_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 120
+        slug:
+          type: string
+          maxLength: 140
+          pattern: ^[-a-zA-Z0-9_]+$
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+        is_active:
+          type: boolean
+          title: Activa
+    PatchedAdminCollection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Código
+          maxLength: 32
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 120
+        starts_on:
+          type: string
+          format: date
+          nullable: true
+          title: Fecha de inicio
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+          title: Fecha de fin
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+        is_active:
+          type: boolean
+          title: Activa
+    PatchedAdminColor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Código
+          maxLength: 8
+        name:
+          type: string
+          title: Nombre
+          maxLength: 80
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 80
+        hex_value:
+          type: string
+          title: Color hexadecimal
+          description: 'Para la muestra en el frontend, p. ej. #C41E3A.'
+          maxLength: 7
+    PatchedAdminColorway:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        product:
+          type: string
+          format: uuid
+          title: Producto
+        color:
+          type: string
+          format: uuid
+        color_detail:
+          allOf:
+          - $ref: '#/components/schemas/Color'
+          readOnly: true
+        sku:
+          type: string
+          description: Se genera como familia-diseño-color si se deja vacío.
+          maxLength: 64
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+        is_active:
+          type: boolean
+          title: Activo
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminVariant'
+          readOnly: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductImage'
+          readOnly: true
+    PatchedAdminFabric:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 120
+        composition:
+          type: string
+          title: Composición
+          maxLength: 255
+        image:
+          type: string
+          format: uuid
+          nullable: true
+          title: Foto
+        image_detail:
+          allOf:
+          - $ref: '#/components/schemas/MediaAsset'
+          readOnly: true
+    PatchedAdminFamily:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Código
+          maxLength: 8
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 120
+        slug:
+          type: string
+          maxLength: 140
+          pattern: ^[-a-zA-Z0-9_]+$
+        is_active:
+          type: boolean
+          title: Activa
+    PatchedAdminLocation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Código
+          maxLength: 16
+        name:
+          type: string
+          title: Nombre
+          maxLength: 120
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/LocationKindEnum'
+          title: Tipo
+        is_sellable:
+          type: boolean
+          title: Vendible
+          description: De aquí sale lo que se vende (D3) — como mucho una ubicación
+            vendible a la vez, lo valida el serializer, no el modelo.
+        is_active:
+          type: boolean
+          title: Activa
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+    PatchedAdminOrderUpdate:
+      type: object
+      description: |-
+        `PATCH orders/{id}/` — solo lo que tiene sentido tocar después de creado: el resto
+        (importes, dirección, líneas...) es una copia congelada de la compra, no un
+        formulario editable.
+      properties:
+        tracking_carrier:
+          type: string
+          title: Transportista
+          maxLength: 100
+        tracking_code:
+          type: string
+          title: Código de seguimiento
+          maxLength: 100
+        tracking_url:
+          type: string
+          format: uri
+          title: Enlace de seguimiento
+          maxLength: 500
+        staff_note:
+          type: string
+          title: Nota interna
+    PatchedAdminProduct:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        family:
+          type: string
+          format: uuid
+          title: Familia
+        family_detail:
+          allOf:
+          - $ref: '#/components/schemas/Family'
+          readOnly: true
+        line:
+          allOf:
+          - $ref: '#/components/schemas/LineEnum'
+          title: Línea
+        categories:
+          type: array
+          items:
+            type: string
+            format: uuid
+            title: Categorías
+          title: Categorías
+        categories_detail:
+          type: array
+          items: {}
+          readOnly: true
+        collection:
+          type: string
+          format: uuid
+          nullable: true
+          title: Colección
+        collection_detail:
+          allOf:
+          - $ref: '#/components/schemas/AdminCollection'
+          readOnly: true
+        fabrics:
+          type: array
+          items:
+            type: string
+            format: uuid
+            title: Tejidos
+          title: Tejidos
+        fabrics_detail:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminFabric'
+          readOnly: true
+        design_code:
+          type: string
+          title: Número de diseño
+          description: Segundo segmento del SKU. Único dentro de la familia.
+          maxLength: 16
+        name:
+          type: string
+          title: Nombre
+          maxLength: 200
+        name_en:
+          type: string
+          title: Nombre (EN)
+          maxLength: 200
+        slug:
+          type: string
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+          title: Descripción
+        description_en:
+          type: string
+          title: Descripción (EN)
+        composition:
+          type: string
+          title: Composición
+          maxLength: 255
+        care:
+          type: string
+          title: Cuidados
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/KindEnum'
+          title: Tipo
+        sale_mode:
+          allOf:
+          - $ref: '#/components/schemas/SaleModeEnum'
+          title: Modo de venta
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Precio sin IVA
+          description: PVP **sin IVA**. Vacío solo en productos de tipo «solo consulta».
+        sale_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Precio rebajado sin IVA
+          description: Si está relleno, es el precio que se cobra.
+        is_outlet:
+          type: boolean
+          title: En outlet
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          title: Estado
+          description: |-
+            Fuente de verdad de la publicación. `is_published` se deriva de este campo.
+
+            * `draft` - Borrador
+            * `active` - Activo
+            * `archived` - Archivado
+        is_published:
+          type: boolean
+          readOnly: true
+          title: Publicado
+          description: Derivado de `status` en save() — no editar a mano, se sobrescribe.
+        published_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Fecha de publicación
+        colorways:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminColorway'
+          readOnly: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductImage'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedAdminProductImage:
+      type: object
+      description: |-
+        `position` es escribible aquí a propósito: reordenar es un PATCH normal de este
+        campo, fila a fila — sin endpoint aparte para eso.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        product:
+          type: string
+          format: uuid
+          title: Producto
+        colorway:
+          type: string
+          format: uuid
+          nullable: true
+          title: Color de producto
+        asset:
+          type: string
+          format: uuid
+          title: Archivo
+        asset_detail:
+          allOf:
+          - $ref: '#/components/schemas/MediaAsset'
+          readOnly: true
+        alt_text:
+          type: string
+          title: Texto alternativo
+          maxLength: 200
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+    PatchedAdminReturn:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        order:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Pedido
+        order_reference:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ReturnStatusEnum'
+          readOnly: true
+          title: Estado
+        reason:
+          type: string
+          title: Motivo
+        staff_note:
+          type: string
+          title: Nota interna
+        refund_amount_gross:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+          title: Importe reembolsado con IVA
+        refunded_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Reembolsado el
+          description: Se rellena a mano tras ejecutar el reembolso en Stripe.
+        restock:
+          type: boolean
+          title: Devolver al stock
+          description: Si la prenda llegó en mal estado, desmarcar.
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReturnLine'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedAdminSize:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Talla
+          maxLength: 8
+        position:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Orden
+        is_active:
+          type: boolean
+          title: Activa
+    PatchedAdminVariant:
+      type: object
+      description: |-
+        A diferencia de la pública (`VariantSerializer`, solo `available`), aquí se ve y
+        edita el `stock` real — es la vista de quien repone inventario, no de quien compra.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        colorway:
+          type: string
+          format: uuid
+          title: Color de producto
+        size:
+          type: string
+          format: uuid
+          title: Talla
+        size_detail:
+          allOf:
+          - $ref: '#/components/schemas/Size'
+          readOnly: true
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Unidades en stock
+        reserved:
+          type: integer
+          readOnly: true
+          title: Unidades reservadas
+          description: Retenidas por checkouts en curso. Las libera el propio checkout.
+        available:
+          type: integer
+          readOnly: true
+        in_stock:
+          type: boolean
+          readOnly: true
+        is_active:
+          type: boolean
+          title: Activa
     PatchedCartItemWrite:
       type: object
       description: Alta o cambio de cantidad de una línea.
@@ -1834,6 +7335,63 @@ components:
           type: integer
           maximum: 99
           minimum: 1
+    PatchedMediaAsset:
+      type: object
+      description: |-
+        Lectura y edición de metadatos de un archivo ya subido. Solo `alt_text` es
+        editable — sustituir el archivo en sí es un alta nueva (`MediaUploadSerializer`),
+        no un PATCH sobre este, porque cambiaría dimensiones/miniatura/tipo a la vez.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/MediaKindEnum'
+          readOnly: true
+          title: Tipo
+        file:
+          type: string
+          format: uri
+          readOnly: true
+          title: Archivo
+        thumbnail:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+          title: Miniatura
+        original_filename:
+          type: string
+          readOnly: true
+          title: Nombre original
+        content_type:
+          type: string
+          readOnly: true
+          title: Tipo de contenido
+        size_bytes:
+          type: integer
+          readOnly: true
+          title: Peso en bytes
+        width:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Ancho
+        height:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Alto
+        alt_text:
+          type: string
+          title: Texto alternativo
+          maxLength: 200
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
     PatchedUser:
       type: object
       description: Datos del cliente en su área privada.
@@ -1901,6 +7459,10 @@ components:
           allOf:
           - $ref: '#/components/schemas/Family'
           readOnly: true
+        line:
+          allOf:
+          - $ref: '#/components/schemas/LineEnum'
+          title: Línea
         kind:
           allOf:
           - $ref: '#/components/schemas/KindEnum'
@@ -2034,6 +7596,10 @@ components:
       - product
     ProductImage:
       type: object
+      description: |-
+        `image` sigue siendo la URL del archivo, igual que antes de Fase 2 — la API pública
+        no cambia de forma aunque por dentro `ProductImage` ya no guarde el archivo, solo
+        referencie un `media.MediaAsset` (biblioteca reutilizable, ver apps/media/).
       properties:
         id:
           type: string
@@ -2041,8 +7607,7 @@ components:
           readOnly: true
         image:
           type: string
-          format: uri
-          title: Imagen
+          readOnly: true
         alt_text:
           type: string
           title: Texto alternativo
@@ -2062,7 +7627,14 @@ components:
       - image
     ProductList:
       type: object
-      description: Versión ligera para listados y rejillas.
+      description: |-
+        Versión ligera para listados y rejillas.
+
+        `line` se añadió aquí (y como filtro en `ProductFilter`) para que la web pública pueda
+        separar Prêt-à-porter/Atelier/Archivo — hasta ahora solo lo sabía el panel admin
+        (`Product.line`, Fase 2). Es un añadido puro (campo nuevo, nada renombrado ni de tipo
+        distinto), permitido por la regla de "la forma de la API pública no cambia" de
+        CLAUDE.md, que sí deja añadir campos.
       properties:
         id:
           type: string
@@ -2084,6 +7656,10 @@ components:
           allOf:
           - $ref: '#/components/schemas/Family'
           readOnly: true
+        line:
+          allOf:
+          - $ref: '#/components/schemas/LineEnum'
+          title: Línea
         kind:
           allOf:
           - $ref: '#/components/schemas/KindEnum'
@@ -2189,7 +7765,7 @@ components:
           title: Pedido
         status:
           allOf:
-          - $ref: '#/components/schemas/StatusEnum'
+          - $ref: '#/components/schemas/ReturnStatusEnum'
           readOnly: true
           title: Estado
         reason:
@@ -2282,6 +7858,16 @@ components:
       required:
       - order_line
       - quantity
+    ReturnStatusEnum:
+      enum:
+      - requested
+      - accepted
+      - rejected
+      type: string
+      description: |-
+        * `requested` - Solicitada
+        * `accepted` - Aceptada
+        * `rejected` - Rechazada
     SaleModeEnum:
       enum:
       - in_stock
@@ -2313,14 +7899,14 @@ components:
       - id
     StatusEnum:
       enum:
-      - requested
-      - accepted
-      - rejected
+      - draft
+      - active
+      - archived
       type: string
       description: |-
-        * `requested` - Solicitada
-        * `accepted` - Aceptada
-        * `rejected` - Rechazada
+        * `draft` - Borrador
+        * `active` - Activo
+        * `archived` - Archivado
     StockNotification:
       type: object
       description: '«Avísame cuando haya stock». No exige cuenta: basta un email.'

@@ -1,0 +1,74 @@
+/* MediaLink.module.css */
+
+/* Proporción 3/4 fija en vez de estirarse al alto disponible del
+   contenedor (quedaba desproporcionada dentro del PanelLateral). La
+   imagen ocupa toda la tarjeta de fondo, el label flota encima,
+   centrado en los dos ejes. */
+.card {
+  position: relative;
+  flex: 1;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--color-crema);
+}
+
+/* Solo, a todo el ancho de la fila: 3/4 la estiraría a una vertical
+   enorme, así que en vez de eso mantiene, aprox., el mismo alto que
+   dos tarjetas 3/4 puestas lado a lado. */
+.ancho {
+  aspect-ratio: 3 / 2;
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Velo oscuro entre la imagen y el label — sube el contraste del
+   texto blanco sin depender solo del text-shadow. z-index explícito
+   en los tres (imagen, velo, label) porque los tres son position:
+   absolute inset:0 sobre el mismo punto, y el orden de pintado tiene
+   que ser fijo pase lo que pase con el DOM. */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.05);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: var(--spacing-2);
+  text-align: center;
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.13);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: var(--spacing-1);
+  transition: text-decoration-color 0.25s var(--ease-marca);
+}
+
+/* Mismo criterio que .submenuLink de NavbarPanelLateralContent.module.css
+   (subrayado solo al hover) — en blanco aquí porque el texto vive sobre
+   una foto, no sobre --color-fondo. */
+.card:hover .label,
+.card:focus-visible .label {
+  text-decoration-color: #fff;
+}

@@ -1,0 +1,51 @@
+.textoExtracto {
+  display: block;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.miniatura {
+  display: block;
+  width: 44px;
+  height: 60px;
+  object-fit: cover;
+  background: var(--color-gris-100);
+}
+
+/* Mismo patrón que ListaProductos.module.css/Métricas .vistaToggle. */
+.vistaToggle {
+  display: inline-flex;
+  border: var(--border-regular) solid var(--color-gris-300);
+}
+
+.vistaBoton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--color-fondo);
+  border: none;
+  color: var(--color-gris-500);
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease-marca), color 0.2s var(--ease-marca);
+}
+
+.vistaBoton:not(:last-child) {
+  border-right: var(--border-regular) solid var(--color-gris-300);
+}
+
+.vistaBoton:hover {
+  color: var(--color-tinta);
+}
+
+.vistaBotonActiva {
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.vistaBotonActiva:hover {
+  color: var(--color-fondo);
+}

@@ -17,6 +17,7 @@ from apps.catalog.models import (
     Colorway,
     Family,
     Product,
+    ProductLine,
     ProductStatus,
     SaleMode,
     Size,
@@ -35,15 +36,20 @@ COLORS = [
 ]
 FAMILIES = [("VE", "Vestidos"), ("CH", "Chaquetas"), ("FA", "Faldas"), ("TO", "Tops")]
 
-# (familia, diseño, nombre, precio sin IVA, rebaja, outlet, modo de venta)
+# (familia, diseño, nombre, precio sin IVA, rebaja, outlet, modo de venta, línea)
+#
+# La `line` va explícita: las piezas de atelier (novia/fiesta, a medida y sin precio de
+# catálogo) son `ATELIER`, no `PRET_A_PORTER`. Sin esto, `/atelier/novias` —que filtra por
+# `line=atelier` + `category`— sale vacío aunque la categoría sí case.
 PRODUCTS = [
-    ("VE", "120", "Vestido Aria", "290.00", None, False, SaleMode.IN_STOCK),
-    ("VE", "121", "Vestido Noor", "340.00", "255.00", False, SaleMode.IN_STOCK),
-    ("VE", "122", "Vestido Bruma", "260.00", "130.00", True, SaleMode.IN_STOCK),
-    ("VE", "900", "Vestido de novia Sena", None, None, False, SaleMode.ON_REQUEST),
-    ("CH", "210", "Chaqueta Duna", "310.00", None, False, SaleMode.IN_STOCK),
-    ("FA", "330", "Falda Ónice", "180.00", None, False, SaleMode.IN_STOCK),
-    ("TO", "440", "Top Lino", "120.00", None, True, SaleMode.IN_STOCK),
+    ("VE", "120", "Vestido Aria", "290.00", None, False, SaleMode.IN_STOCK, ProductLine.PRET_A_PORTER),
+    ("VE", "121", "Vestido Noor", "340.00", "255.00", False, SaleMode.IN_STOCK, ProductLine.PRET_A_PORTER),
+    ("VE", "122", "Vestido Bruma", "260.00", "130.00", True, SaleMode.IN_STOCK, ProductLine.PRET_A_PORTER),
+    ("VE", "900", "Vestido de novia Sena", None, None, False, SaleMode.ON_REQUEST, ProductLine.ATELIER),
+    ("VE", "901", "Vestido de fiesta Adra", None, None, False, SaleMode.ON_REQUEST, ProductLine.ATELIER),
+    ("CH", "210", "Chaqueta Duna", "310.00", None, False, SaleMode.IN_STOCK, ProductLine.PRET_A_PORTER),
+    ("FA", "330", "Falda Ónice", "180.00", None, False, SaleMode.IN_STOCK, ProductLine.PRET_A_PORTER),
+    ("TO", "440", "Top Lino", "120.00", None, True, SaleMode.IN_STOCK, ProductLine.PRET_A_PORTER),
 ]
 
 
@@ -92,7 +98,7 @@ class Command(BaseCommand):
         )
 
         created = 0
-        for family_code, design, name, price, sale_price, is_outlet, mode in PRODUCTS:
+        for family_code, design, name, price, sale_price, is_outlet, mode, line in PRODUCTS:
             product, is_new = Product.objects.get_or_create(
                 family=families[family_code],
                 design_code=design,
@@ -101,6 +107,7 @@ class Command(BaseCommand):
                     "price": Decimal(price) if price else None,
                     "sale_price": Decimal(sale_price) if sale_price else None,
                     "sale_mode": mode,
+                    "line": line,
                     "is_outlet": is_outlet,
                     # is_published es un campo derivado desde Fase 2 (Product.save()) —
                     # se fija el estado real, no el booleano, que se sobrescribiría solo.
@@ -112,7 +119,14 @@ class Command(BaseCommand):
             if not is_new:
                 continue
             created += 1
-            product.categories.add(novia if mode == SaleMode.ON_REQUEST else fiesta)
+            product.categories.add(novia if "novia" in name.lower() else fiesta)
+
+            # Escaparate de la home: los cuatro primeros con stock. Sin esto, la home
+            # sale vacía con datos de ejemplo (no hay ningún destacado por defecto).
+            if mode != SaleMode.ON_REQUEST and created <= 4:
+                product.is_featured = True
+                product.featured_position = created
+                product.save(update_fields=["is_featured", "featured_position", "updated_at"])
             if is_outlet:
                 product.categories.add(outlet)
 

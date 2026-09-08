@@ -1,0 +1,124 @@
+/* ============================================================
+   SECTION CLIENTS REVIEW — Fely Campo
+   "Ellas te lo cuentan": una reseña a la vez, centrada, con una barra
+   de progreso segmentada debajo (un segmento por reseña) — mismo
+   lenguaje visual que la barra de HeroCarousel (pista --color-hairline
+   al 40%, relleno --color-tinta que avanza en 6s), pero repetido 5
+   veces en vez de una sola barra a todo el ancho.
+   ============================================================ */
+
+.seccion {
+  padding-block: var(--spacing-9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-6);
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .seccion {
+    padding-inline: var(--spacing-4);
+  }
+}
+
+/* Las 5 reseñas viven todas aquí, apiladas en la misma celda de grid
+   (grid-area: 1/1 en .slide) — el contenedor se ajusta solo al alto
+   de la más alta, sin necesidad de una altura fija a mano. */
+.pista {
+  display: grid;
+  width: 100%;
+  max-width: var(--max-texto);
+}
+
+/* Cross-fade quieto: solo opacity, sin desplazamiento ni escala, y
+   más lento (0.9s) que las transiciones de UI normales (0.25s) —
+   entre reseñas no hay prisa. Las 5 están montadas a la vez, así que
+   la que sale y la que entra se funden entre sí en vez de cortarse. */
+.slide {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+  opacity: 0;
+  transition: opacity 0.9s var(--ease-marca);
+  pointer-events: none;
+}
+
+.slide.activo {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Mismo aspect-ratio 3/4 que TarjetaProducto-module__marco, pero más
+   estrecha (240px vs los ~350px que mide una tarjeta en la cuadrícula
+   de 4) — es una foto de la clienta, no un producto. */
+.imagen {
+  width: 240px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: var(--color-crema);
+  border-radius: var(--radius-imagenes);
+}
+
+.texto {
+  font-size: var(--text-body-lg);
+  color: var(--color-tinta);
+  line-height: var(--leading-base);
+}
+
+.nombre {
+  font-size: var(--text-micro);
+  color: var(--color-gris-500);
+  letter-spacing: var(--tracking-label);
+}
+
+.barras {
+  display: flex;
+  gap: var(--spacing-2);
+  width: 100%;
+  max-width: 280px;
+}
+
+.segmento {
+  position: relative;
+  flex: 1;
+  height: 1px;
+}
+
+.segmentoPista {
+  position: absolute;
+  inset: 0;
+  background: var(--color-gris-200);
+  opacity: 0.4;
+}
+
+.segmentoRelleno {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  background: var(--color-tinta);
+}
+
+.animando {
+  animation: avanceProgreso 6s linear forwards;
+}
+
+.completo {
+  width: 100%;
+}
+
+@keyframes avanceProgreso {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide {
+    transition: none;
+  }
+  .animando {
+    animation: none;
+  }
+}

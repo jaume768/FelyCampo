@@ -1,0 +1,198 @@
+/* Duplicado de FormularioProducto.module.css .familiasGrid/.familiaChip/
+   .coloresGrid/.colorChip/… (no se puede importar una clase de otro CSS
+   Module) — mismo selector visual de colores que un producto, sin el
+   estado "activo" (aquí no hay nada que seleccionar, es la biblioteca en
+   sí; el número en la píldora es el total de colores del grupo, no una
+   cuenta de seleccionados). Grupos (Neutros, Rojos y vinos...) en una
+   rejilla de "padres" con 1-2 cuadraditos de muestra — tocar uno
+   despliega su rejilla de colores debajo de toda la fila de padres, así
+   55 colores no se enseñan de golpe. */
+.familiasGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-5);
+}
+
+.familiaChip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.familiaChip:hover {
+  border-color: var(--color-gris-300);
+}
+
+.familiaChipActiva {
+  border-color: var(--color-tinta);
+  color: var(--color-fondo);
+  background: var(--color-tinta);
+}
+
+.familiaMuestras {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.familiaMuestra {
+  width: 14px;
+  height: 14px;
+  border: var(--border-thin) solid var(--color-gris-300);
+}
+
+.familiaMuestra + .familiaMuestra {
+  margin-left: -5px;
+}
+
+/* Mismo lenguaje visual que AdminSidebar.module.css .contador (píldora
+   rosa numérica). */
+.familiaBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 50%;
+  background: var(--color-rosa);
+  color: var(--color-fondo);
+  font-size: var(--text-nano);
+  font-weight: var(--font-weight-semibold);
+  flex-shrink: 0;
+}
+
+.coloresGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  margin-bottom: var(--spacing-5);
+  background: var(--color-gris-100);
+}
+
+.colorChip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--border-regular) solid var(--color-gris-200);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.colorPunto {
+  width: 20px;
+  height: 20px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  flex-shrink: 0;
+}
+
+/* Nombre ES/EN apilados — un color de biblioteca ahora lleva dos idiomas. */
+.colorChipTexto {
+  display: flex;
+  flex-direction: column;
+}
+
+.colorNombre {
+  white-space: nowrap;
+  font-weight: var(--font-weight-medium);
+}
+
+.colorTraduccion {
+  white-space: nowrap;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+/* X para borrar — mismo patrón de botón-corner que .imagenQuitar/
+   .prendaQuitar en el resto del panel, aquí en línea dentro del chip en
+   vez de superpuesto porque el chip no es una foto. */
+.chipQuitar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-gris-400);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.chipQuitar:hover {
+  color: var(--color-rosa-oscuro);
+}
+
+/* Alta rápida de color — mismo patrón que FormularioProducto.module.css/
+   FormularioLook.module.css .anadirFila/.campoColor/.inputColor. */
+.anadirFila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  align-items: flex-end;
+  max-width: 780px;
+  margin-top: var(--spacing-5);
+}
+
+.anadirFila > * {
+  flex: 1;
+  min-width: 120px;
+}
+
+.selectInput {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: 12px var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+}
+
+.anadirFila > .campoColor,
+.anadirFila > button {
+  flex: none;
+}
+
+.anadirFila > button {
+  height: 41px;
+}
+
+.campoColor {
+  display: block;
+}
+
+.etiquetaCampo {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.inputColor {
+  width: 48px;
+  height: 41px;
+  padding: 2px;
+  border: 1px solid var(--color-gris-300);
+  background: var(--color-fondo);
+  cursor: pointer;
+}
+
+.aviso {
+  padding: 16px 0;
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+  color: var(--color-gris-500, #757575);
+}

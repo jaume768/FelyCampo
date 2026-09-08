@@ -1,0 +1,287 @@
+.campos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-4);
+  max-width: 640px;
+}
+
+.campoAncho {
+  grid-column: 1 / -1;
+}
+
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  resize: vertical;
+  min-height: 90px;
+}
+
+.etiquetaCampo {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-6);
+}
+
+/* Estado de publicación — mismo lenguaje visual que .estadoSelector de
+   /admin/consultas-precio/[id]/page.module.css (no se puede importar una
+   clase de otro CSS Module), en la cabecera en vez de metido como un
+   campo más del formulario: es un interruptor sobre TODA la reseña, no
+   un dato de contenido. Colores alineados con EstadoBadge.jsx (Publicada
+   → tinta, Oculta → gris). */
+.estadoSelector {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.estadoBoton {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-2) var(--spacing-4);
+  background: none;
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  line-height: normal;
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease-marca), color 0.2s var(--ease-marca);
+}
+
+.estadoBoton.oculta { border: var(--border-regular) solid var(--color-gris-500); color: var(--color-gris-500); }
+.estadoBoton.publicada { border: var(--border-regular) solid var(--color-tinta); color: var(--color-tinta); }
+
+.estadoBotonActivo.oculta { background: var(--color-gris-500); color: var(--color-fondo); }
+.estadoBotonActivo.publicada { background: var(--color-tinta); color: var(--color-fondo); }
+
+/* Fotos de clientas — mismo carrusel arrastrable que "Reseñas de
+   Clientas" en FormularioProducto.module.css .imagenesScroll/.imagenItem
+   (no se puede importar una clase de otro CSS Module), duplicado aquí a
+   las mismas medidas para que el diseño sea idéntico. */
+.imagenesScroll {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-3);
+  width: 100%;
+  height: 250px;
+  box-sizing: border-box;
+  padding: var(--spacing-3);
+  border: var(--border-regular) dashed var(--color-gris-300);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.imagenItem {
+  position: relative;
+  width: 150px;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.imagenMiniatura {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imagenQuitar {
+  position: absolute;
+  top: var(--spacing-1);
+  right: var(--spacing-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-fondo);
+  border: none;
+  padding: 0;
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: color 0.25s var(--ease-marca);
+}
+
+.imagenQuitar:hover {
+  color: var(--color-rosa-oscuro);
+}
+
+.fotoAnadir {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1);
+  width: 150px;
+  height: 100%;
+  flex-shrink: 0;
+  border: var(--border-regular) dashed var(--color-gris-300);
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-nano);
+  color: var(--color-gris-500);
+  text-align: center;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.fotoAnadir:hover {
+  border-color: var(--color-tinta);
+  color: var(--color-tinta);
+}
+
+.inputArchivo {
+  display: none;
+}
+
+/* Vínculo con el producto reseñado — duplicado de
+   FormularioProducto.module.css .vinculo* (no se puede importar una
+   clase de otro CSS Module) — mismo buscador + lista + tarjeta activa. */
+.vinculoActual {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  border: var(--border-regular) solid var(--color-tinta);
+  margin-bottom: var(--spacing-4);
+  max-width: 620px;
+}
+
+.vinculoActualImagen {
+  width: 44px;
+  height: 60px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-gris-100);
+}
+
+.vinculoActualTexto {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.vinculoActualNombre {
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.vinculoActualSub {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.vinculoVacio {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-3);
+}
+
+.vinculoBuscador {
+  position: relative;
+  margin-bottom: var(--spacing-3);
+  max-width: 620px;
+}
+
+.vinculoBuscadorIcono {
+  position: absolute;
+  top: 50%;
+  left: var(--spacing-3);
+  transform: translateY(-50%);
+  color: var(--color-gris-400);
+  pointer-events: none;
+}
+
+.vinculoBuscadorInput {
+  width: 100%;
+  height: 41px;
+  padding: 0 var(--spacing-3) 0 40px;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  background: var(--color-fondo);
+}
+
+.vinculoBuscadorInput::placeholder {
+  color: var(--color-gris-400);
+}
+
+.vinculoBuscadorInput:focus {
+  outline: none;
+  border-color: var(--color-tinta);
+}
+
+.vinculoLista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  max-height: 280px;
+  max-width: 620px;
+  overflow-y: auto;
+  border: var(--border-thin) solid var(--color-gris-200);
+  padding: var(--spacing-2);
+}
+
+.vinculoFila {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2);
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.vinculoFila:hover {
+  background: var(--color-gris-100);
+}
+
+.vinculoFilaActiva {
+  background: var(--color-gris-100);
+}
+
+.vinculoFilaImagen {
+  width: 36px;
+  height: 48px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-gris-100);
+}
+
+.vinculoFilaTexto {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.vinculoFilaNombre {
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.vinculoFilaSub {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.vinculoFilaCheck {
+  color: var(--color-tinta);
+  flex-shrink: 0;
+}

@@ -1,0 +1,75 @@
+.timeline {
+  display: flex;
+  align-items: center;
+}
+
+.paso {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.paso:last-child {
+  flex: 0;
+}
+
+.punto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: var(--border-regular) solid var(--color-gris-300);
+  color: var(--color-gris-300);
+  font-size: var(--text-micro);
+  background: var(--color-fondo);
+}
+
+.punto.completado {
+  border-color: var(--color-tinta);
+  color: var(--color-fondo);
+  background: var(--color-tinta);
+}
+
+.linea {
+  flex: 1;
+  height: var(--border-regular);
+  background: var(--color-gris-300);
+  margin: 0 var(--spacing-2);
+}
+
+.linea.completada {
+  background: var(--color-tinta);
+}
+
+.etiquetas {
+  display: flex;
+  margin-top: var(--spacing-2);
+}
+
+.etiqueta {
+  flex: 1;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  text-align: left;
+}
+
+.etiqueta:last-child {
+  flex: 0 0 28px;
+  text-align: right;
+}
+
+/* Pedido que salió de la secuencia (cancelado, reembolsado): la línea se corta donde se
+   quedó, no se pinta como un paso más. */
+.detenido {
+  background: var(--color-rosa-velo, #fce4ee);
+  color: var(--color-rosa-oscuro, #c2185f);
+  border-color: var(--color-rosa-oscuro, #c2185f);
+}
+
+.interrumpido {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-rosa-oscuro, #c2185f);
+}

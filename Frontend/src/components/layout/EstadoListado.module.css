@@ -1,0 +1,103 @@
+/* Estados de listado. CERO radio en todo el sistema (docs/design.md). */
+
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 4px;
+}
+
+@media (min-width: 768px) {
+  .rejilla {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.esqueleto {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.esqueletoImagen {
+  /* Misma proporción que TarjetaProducto: sin salto de layout al llegar los datos. */
+  aspect-ratio: 3 / 4;
+  background: var(--color-gris-100, #f2f2f2);
+  animation: latido 1.4s ease-in-out infinite;
+}
+
+.esqueletoLinea {
+  height: 12px;
+  width: 70%;
+  background: var(--color-gris-100, #f2f2f2);
+  animation: latido 1.4s ease-in-out infinite;
+}
+
+.corta {
+  width: 35%;
+}
+
+@keyframes latido {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Respeta a quien ha pedido menos animación en su sistema. */
+@media (prefers-reduced-motion: reduce) {
+  .esqueletoImagen,
+  .esqueletoLinea {
+    animation: none;
+  }
+}
+
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.estadoTitulo {
+  font-size: 1rem;
+  color: var(--color-tinta, #202020);
+  margin: 0;
+}
+
+.estadoTexto {
+  font-size: 0.875rem;
+  color: var(--color-gris-500, #757575);
+  margin: 0;
+  max-width: 44ch;
+}
+
+.boton {
+  margin-top: 8px;
+  padding: 12px 32px;
+  border: 1px solid var(--color-tinta, #202020);
+  background: transparent;
+  color: var(--color-tinta, #202020);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  /* Sin border-radius: esquinas rectas en todo el sistema. */
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.boton:hover {
+  /* El sólido vira a rosa al hover (docs/design.md, Boton). */
+  background: var(--color-rosa, #e92174);
+  border-color: var(--color-rosa, #e92174);
+  color: #fff;
+}
+
+.boton:focus-visible {
+  outline: 2px solid var(--color-rosa, #e92174);
+  outline-offset: 2px;
+}

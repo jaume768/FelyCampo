@@ -1,0 +1,147 @@
+/* ============================================================
+   CABECERA DE SECCIÓN — Fely Campo
+   Columna centrada: grupo título (subtítulo pequeño opcional +
+   título grande + descripción opcional, apilados) seguido de
+   contenido libre vía "children", todo centrado en el eje
+   horizontal. Usada por CuadriculaProductos (children = Boton "Ver
+   más" + toggle de densidad).
+   ============================================================ */
+
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  padding-inline: 0px;
+  margin: var(--spacing-4) 0 var(--spacing-6) 0;
+  min-height: 10vh;
+}
+
+.cabecera .tituloGrupo {
+  padding-left: 0;
+}
+
+/* "margenSuperiorAmplio" (ver CabeceraSeccion.jsx) — solo pisa el
+   margin-top de .cabecera (var(--spacing-4) por defecto), no todo el
+   shorthand: el margin-bottom/lados de .cabecera se mantienen. */
+.margenSuperiorAmplio {
+  margin-top: var(--spacing-6);
+}
+
+/* Misma regla que .cabecera — usada en su lugar cuando CabeceraSeccion
+   se renderiza dentro de CuadriculaProductos (ver CabeceraSeccion.jsx). */
+.cabeceraProductos {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  padding-inline: 0px;
+  margin: var(--spacing-4) 0 var(--spacing-4) 0;
+  min-height: 10vh;
+}
+
+.cabeceraProductos .tituloGrupo {
+  padding-left: 0;
+}
+
+/* "alinear='start'" (ver CabeceraSeccion.jsx) — páginas de catálogo
+   de Tienda/Atelier, con el toggle de densidad pegado arriba en vez
+   de compartir línea base con el título. */
+.cabeceraInicio {
+  align-items: start;
+  margin: var(--spacing-8) 0 var(--spacing-4) 0;
+}
+
+/* Único caso que combina enCuadricula + alinear="start" (CuadriculaProductos
+   en "grid", ver CuadriculaProductos.jsx, y VISÍTENOS) — "before" (botón
+   Filtros), el grupo título (70% de ancho) y "children" (toggle de
+   densidad) en fila en escritorio (mobile los apila, ver media query
+   más abajo: column-reverse). */
+.cabeceraProductos.cabeceraInicio {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding-inline: var(--spacing-7);
+  margin-top: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+.cabeceraProductos.cabeceraInicio .tituloGrupo {
+  width: 70%;
+}
+
+.tituloGrupo {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding-left: var(--spacing-7);
+}
+
+.subtitle {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  color: var(--color-gris-700);
+}
+
+/* Miga de pan (ver "breadcrumbItems" en CabeceraSeccion.jsx) — misma
+   clase .subtitle para heredar tamaño/mayúsculas/color, aquí aplicada
+   a un <nav> en vez de un <h2>. Lista en fila con " / " entre tramos
+   (::after, no texto real: no se lee dos veces en lectores de
+   pantalla) — el último tramo no lleva separador. */
+.migaLista {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: var(--spacing-1);
+}
+
+.migaLista li:not(:last-child)::after {
+  content: '/';
+  margin-left: var(--spacing-1);
+}
+
+.migaLista a {
+  text-decoration: underline;
+}
+
+/* Mismo estilo que .descripcion de CollectionTitle, sin el centrado
+   propio (aquí vive apilada dentro de .tituloGrupo, no sola). Ancho
+   acotado en escritorio para que no estire la cabecera de lado a lado
+   — en mobile no hace falta, ver media query abajo. */
+.descripcion {
+  max-width: 350px;
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+  line-height: var(--leading-base);
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .cabecera,
+  .cabeceraProductos {
+    padding-inline: var(--spacing-5);
+  }
+  .tituloGrupo {
+    padding-left: 0;
+  }
+  .descripcion {
+    max-width: none;
+  }
+  .cabeceraProductos.cabeceraInicio {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: var(--spacing-6);
+  }
+  .cabeceraProductos.cabeceraInicio .tituloGrupo {
+    width: 100%;
+  }
+}

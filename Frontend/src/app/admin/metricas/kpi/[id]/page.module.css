@@ -1,0 +1,164 @@
+.tarjeta {
+  border: var(--border-regular) solid var(--color-gris-200);
+  padding: var(--spacing-6);
+}
+
+.cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-6);
+}
+
+.etiquetaValor {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.valorPrincipal {
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-medium);
+}
+
+.variacion {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.variacionNegativa {
+  color: var(--color-rosa-oscuro);
+}
+
+.vacio {
+  padding: var(--spacing-7) var(--spacing-4);
+  text-align: center;
+  color: var(--color-gris-400);
+}
+
+.grafico {
+  display: flex;
+  gap: var(--spacing-3);
+  height: 220px;
+}
+
+.ejeY {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 28px;
+  font-size: var(--text-caption);
+  color: var(--color-gris-400);
+  font-variant-numeric: tabular-nums;
+  min-width: 56px;
+}
+
+.plano {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.zonaBarras {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-2);
+}
+
+.gridlinea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--color-gris-200);
+}
+
+.gridlineaArriba {
+  top: 0;
+}
+
+.gridlineaMedio {
+  top: 50%;
+}
+
+.columna {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-base);
+}
+
+.barra {
+  width: 20px;
+  max-width: 60%;
+  min-height: 2px;
+  background: var(--color-gris-300);
+  border-radius: 4px 4px 0 0;
+  transition: background-color 0.2s var(--ease-marca), opacity 0.2s var(--ease-marca);
+}
+
+.columna:hover .barra {
+  background: var(--color-gris-400);
+}
+
+.barraActiva,
+.columna:hover .barraActiva {
+  background: var(--color-rosa);
+}
+
+.etiquetasMes {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+}
+
+.etiquetaMes {
+  flex: 1;
+  text-align: center;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.toggleTabla {
+  display: inline-block;
+  margin-top: var(--spacing-6);
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--color-tinta);
+  font-size: var(--text-small);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.tabla {
+  width: 100%;
+  margin-top: var(--spacing-4);
+  border-collapse: collapse;
+}
+
+.tabla th,
+.tabla td {
+  text-align: left;
+  padding: var(--spacing-2) var(--spacing-3);
+  border-bottom: var(--border-thin) solid var(--color-gris-200);
+  font-size: var(--text-small);
+}
+
+.tabla th {
+  color: var(--color-gris-500);
+  font-weight: var(--font-weight-medium);
+}
+
+.tabla td {
+  font-variant-numeric: tabular-nums;
+}

@@ -136,6 +136,7 @@ class AdminProductFilter(filters.FilterSet):
             "kind",
             "sale_mode",
             "is_outlet",
+            "is_featured",
             "category",
             "collection",
         )

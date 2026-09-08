@@ -1,0 +1,95 @@
+/* ============================================================
+   PANEL "ENVÍOS Y DEVOLUCIONES" — Fely Campo
+   Cabecera/cerrar: mismo patrón que GuiaTallas.module.css/
+   CarritoPanel.module.css.
+   ============================================================ */
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-6);
+}
+
+.titulo {
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  text-transform: uppercase;
+}
+
+.cerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: var(--spacing-1);
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.cerrar:hover {
+  opacity: 0.6;
+}
+
+.seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding-bottom: var(--spacing-6);
+  margin-bottom: var(--spacing-6);
+  border-bottom: 0.75px solid var(--color-gris-300);
+}
+
+.seccion:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.subtitulo {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  color: var(--color-gris-700);
+}
+
+.intro {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  line-height: var(--leading-base);
+}
+
+.filaMetodo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.metodoNombre {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.metodoPlazo {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-top: var(--spacing-1);
+}
+
+.metodoPrecio {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  flex-shrink: 0;
+}
+
+.notaFinal {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  line-height: var(--leading-base);
+}

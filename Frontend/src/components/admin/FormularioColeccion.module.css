@@ -1,0 +1,116 @@
+.etiqueta {
+  display: block;
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.subirVacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  max-width: 220px;
+  border: var(--border-regular) dashed var(--color-gris-300);
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  text-align: center;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.subirVacio:hover {
+  border-color: var(--color-tinta);
+  color: var(--color-tinta);
+}
+
+.portada {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  max-width: 220px;
+  padding: 0;
+  border: var(--border-regular) solid var(--color-gris-200);
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.portadaImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.inputArchivo {
+  display: none;
+}
+
+/* FormSeccion.module.css .campos es una grid de 2 columnas por defecto
+   (mismo criterio que FormularioProducto.jsx .galeria) — para contenido
+   que debe ocupar el ancho completo de la sección, no una de las 2
+   columnas. */
+.seccionAncha {
+  grid-column: 1 / -1;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-6);
+}
+
+/* Mismo patrón que ListaProductos.module.css .temporadaSelector/.temporadaBoton
+   (no se puede importar una clase de otro CSS Module) — AW en azul, SS en
+   rosa-oscuro, mismos tokens que el badge/filtro de temporada de Runway. */
+.temporadaSelector {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.temporadaBoton {
+  padding: var(--spacing-2) var(--spacing-4);
+  background: none;
+  border: var(--border-regular) solid var(--color-gris-300);
+  color: var(--color-tinta);
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease-marca), color 0.2s var(--ease-marca), border-color 0.2s var(--ease-marca);
+}
+
+.temporadaBotonAw {
+  border-color: var(--color-azul);
+  color: var(--color-azul);
+}
+
+.temporadaBotonSs {
+  border-color: var(--color-rosa-oscuro);
+  color: var(--color-rosa-oscuro);
+}
+
+.temporadaBotonActivo {
+  background: var(--color-tinta);
+  border-color: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.temporadaBotonAw.temporadaBotonActivo {
+  background: var(--color-azul);
+  border-color: var(--color-azul);
+  color: var(--color-fondo);
+}
+
+.temporadaBotonSs.temporadaBotonActivo {
+  background: var(--color-rosa-oscuro);
+  border-color: var(--color-rosa-oscuro);
+  color: var(--color-fondo);
+}

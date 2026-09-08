@@ -106,7 +106,7 @@ class ProductAdmin(admin.ModelAdmin):
         "is_outlet",
         "status",
     )
-    list_filter = ("line", "status", "family", "sale_mode", "kind", "is_outlet", "categories")
+    list_filter = ("line", "status", "family", "sale_mode", "kind", "is_outlet", "is_featured", "categories")
     search_fields = ("name", "design_code", "colorways__sku")
     autocomplete_fields = ("family", "collection")
     filter_horizontal = ("categories", "fabrics")
@@ -121,6 +121,10 @@ class ProductAdmin(admin.ModelAdmin):
         (
             _("Venta y precio (sin IVA)"),
             {"fields": ("sale_mode", "price", "sale_price", "is_outlet")},
+        ),
+        (
+            _("Escaparate de la home"),
+            {"fields": ("is_featured", "featured_position")},
         ),
         (_("Publicación"), {"fields": ("status", "is_published", "published_at")}),
     )

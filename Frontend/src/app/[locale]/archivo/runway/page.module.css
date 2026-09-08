@@ -1,0 +1,44 @@
+/* ============================================================
+   RUNWAY — Fely Campo (archivo)
+   Cuadrícula editorial de 2 columnas, gap generoso a propósito (aire
+   entre colecciones, identidad "luz y aire" del sistema) — en mobile
+   pasa a 1 columna con un gap normal, el de 200px no cabe.
+   ============================================================ */
+
+.pagina {
+  padding-inline: var(--spacing-7);
+  padding-block: var(--spacing-8) var(--spacing-10);
+}
+
+@media (max-width: 767px) {
+  .pagina {
+    padding-inline: var(--spacing-5);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  justify-items: center;
+  gap: 200px;
+  margin-top: var(--spacing-8);
+}
+
+/* Tarjetas acotadas (no a todo el ancho de su columna) — justify-items:
+   center de arriba las centra dentro del hueco que les sobra. */
+.grid > a {
+  width: 100%;
+  max-width: 350px;
+}
+
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-8);
+    margin-top: 0;
+  }
+
+  .grid > a {
+    max-width: none;
+  }
+}

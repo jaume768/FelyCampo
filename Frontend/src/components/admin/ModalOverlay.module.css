@@ -1,0 +1,48 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-tinta);
+  opacity: 0.6;
+  z-index: 99;
+}
+
+.contenedor {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--spacing-8) var(--spacing-4);
+  overflow-y: auto;
+  cursor: pointer;
+}
+
+.panel {
+  position: relative;
+  background: var(--color-details);
+  width: 100%;
+  max-width: 720px;
+  margin: auto;
+  cursor: auto;
+}
+
+/* El padding vive aquí (no en .panel) para que un contenido que lo
+   necesite (ver FormularioProducto.jsx `.cabeceraFija`) pueda anular
+   este padding puntualmente y pegar un bloque sticky al borde real de
+   .panel — mismo resultado visual que antes para cualquier otro modal
+   que no lo necesite. */
+.contenido {
+  padding: var(--spacing-6);
+}
+
+.cerrar {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-tinta);
+  z-index: 2;
+}

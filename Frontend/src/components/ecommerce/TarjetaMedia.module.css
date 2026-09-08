@@ -1,0 +1,28 @@
+/* ============================================================
+   TARJETA DE MEDIA — Fely Campo (e-commerce)
+   Mismo aspect-ratio 3/4 que .marco en TarjetaProducto, para que el
+   contenedor de imagen mida igual entre tarjetas de la cuadrícula —
+   deja el mismo hueco vacío abajo que en las demás ocupan
+   nombre/precio/colores.
+   ============================================================ */
+
+.tarjetaMedia {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--color-crema);
+  border-radius: var(--radius-imagenes);
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Variante "carrusel" (ver TarjetaMedia.jsx) — usada por
+   CuadriculaProductos en modo banda horizontal, misma proporción
+   2/3 que TarjetaProducto.marcoCarrusel. */
+.tarjetaMediaCarrusel { aspect-ratio: 2 / 3; }

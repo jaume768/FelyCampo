@@ -1,0 +1,29 @@
+/* ============================================================
+   TARJETA DE TIENDA — Fely Campo
+   ============================================================ */
+
+.tienda { cursor: default; }
+
+.marco {
+  aspect-ratio: 3 / 4;
+  background: var(--color-crema);
+  border-radius: var(--radius-imagenes);
+  overflow: hidden;
+}
+.imagen { width: 100%; height: 100%; object-fit: cover; }
+
+.ciudad {
+  font-size: var(--text-body-lg);
+  color: var(--color-tinta);
+  margin-top: var(--spacing-3);
+}
+
+.direccion {
+  font-size: var(--text-label);
+  color: var(--color-gris-700);
+  line-height: 1.4;
+  margin-top: var(--spacing-2);
+  white-space: pre-line;
+}
+
+.enlace { margin-top: var(--spacing-3); }

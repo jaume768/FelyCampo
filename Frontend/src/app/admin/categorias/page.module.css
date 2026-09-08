@@ -1,0 +1,151 @@
+.tabs {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-6);
+  border-bottom: var(--border-thin) solid var(--color-gris-200);
+}
+
+.tab {
+  padding: var(--spacing-3) var(--spacing-4);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  color: var(--color-gris-500);
+  cursor: pointer;
+}
+
+.tab.activo {
+  color: var(--color-tinta);
+  border-bottom-color: var(--color-tinta);
+}
+
+.lista {
+  max-width: 480px;
+  margin-bottom: var(--spacing-5);
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) 0;
+  border-bottom: var(--border-thin) solid var(--color-gris-200);
+}
+
+.asaFija {
+  color: var(--color-gris-300);
+  flex-shrink: 0;
+}
+
+.nombre {
+  flex: 1;
+}
+
+.avisoFija {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-5);
+}
+
+.anadirFila {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: flex-end;
+  max-width: 480px;
+}
+
+.anadirFila > *:first-child {
+  flex: 1;
+}
+
+/* Árbol real de categorías. CERO radio; rosa solo como acento. */
+.explicacion {
+  max-width: 70ch;
+  margin: 0 0 24px;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-gris-500, #757575);
+}
+
+.aviso {
+  padding: 16px 0;
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+  color: var(--color-gris-500, #757575);
+}
+
+.filaHija {
+  padding-left: 24px;
+}
+
+.filaOculta {
+  opacity: 0.5;
+}
+
+.flechaHija {
+  color: var(--color-gris-400, #8e8e8e);
+  flex-shrink: 0;
+}
+
+.slug {
+  margin-left: 8px;
+  font-size: 0.75rem;
+  color: var(--color-gris-400, #8e8e8e);
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.mover,
+.borrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  background: none;
+  font: inherit;
+  color: var(--color-gris-500, #757575);
+  cursor: pointer;
+}
+
+.mover:hover:not(:disabled) {
+  border-color: var(--color-gris-200, #d9d9d9);
+  color: var(--color-tinta, #202020);
+}
+
+.borrar:hover:not(:disabled) {
+  color: var(--color-rosa-oscuro, #c2185f);
+}
+
+.mover:disabled,
+.borrar:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.campo {
+  display: block;
+}
+
+.etiquetaCampo {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.75rem;
+  color: var(--color-gris-500, #757575);
+}
+
+.select {
+  padding: 12px;
+  border: 1px solid var(--color-gris-300, #aeaeae);
+  background: transparent;
+  font: inherit;
+  font-size: 0.875rem;
+}

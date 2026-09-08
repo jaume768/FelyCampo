@@ -1,0 +1,261 @@
+/* ============================================================
+   FELY CAMPO — Sistema de diseño
+   CSS puro (sin Tailwind) · tokens declarados en :root.
+
+   Componentizado con CSS Modules: cada componente lleva su propio
+   estilo en cascada, referenciando estos tokens con var(--...).
+   No hace falta una capa de utilidades — la reutilización vive en
+   los componentes React, no en clases sueltas.
+
+   Estos tokens son EL MISMO SISTEMA que documenta styleguide.html
+   (misma escala, mismos nombres de valor, mismo criterio "1 fuente
+   real + alias corto en la guía visual").
+
+   Identidad: minimalismo de moda de autor (ref. Cecilie Bahnsen),
+   luz y aire, rosa de marca #E92174 como acento, Helvetica/Inter
+   sin letter-spacing, botones rectos, radio 0 en todo.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+
+  /* ---------- COLOR ---------- */
+  /* Base neutra — el color lo pone la fotografía */
+  --color-fondo:          #FFFFFF;   /* alias en styleguide: --fondo */
+  --color-tinta:          #202020;   /* alias: --tinta */
+  --color-negro:          #101010;   /* alias: --negro */
+
+  /* Escala de grises */
+  --color-gris-700:       #404040;   /* alias: --g700 */
+  --color-gris-600:       #5B5B5B;   /* alias: --g600 */
+  --color-gris-500:       #757575;   /* alias: --g500 */
+  --color-gris-400:       #8E8E8E;   /* alias: --g400 */
+  --color-gris-300:       #AEAEAE;   /* alias: --g300 */
+  --color-gris-200:       #D9D9D9;   /* alias: --g200 */
+  --color-gris-100:       #F2F2F2;   /* alias: --g100 */
+  --color-hairline:       #EFEFEF;   /* alias: --hairline */
+  --color-details:        #f6f6f7;   /* alias: --details */
+  --color-light-details:  #fdfdfd;   /* alias: --light-details */
+
+  /* Rosa de marca — ACENTO, nunca superficie grande */
+  --color-rosa:           #E92174;   /* alias: --rosa */
+  --color-rosa-oscuro:    #C2185F;   /* alias: --rosa-oscuro */
+  --color-rosa-velo:      #FCE4EE;   /* alias: --rosa-velo */
+  --color-rosa-light:     #fff2f6;   /* alias: --rosa-light */
+
+  --color-crema:          #F5F1EE;   /* alias: --crema */
+
+  /* Colores de estado — SOLO panel admin (badges de estado/origen,
+     pestañas de TabsFiltro, chips de acción en FormularioProducto,
+     botones de bulk-actions en ListaProductos). No forman parte de la
+     identidad de marca del sitio público — por eso no están en
+     styleguide.html. Mismo patrón que rosa: base / oscuro / velo /
+     velo-oscuro. "oscuro" hace doble uso: es el texto sobre fondo
+     "velo" en cualquier badge (nunca el tono base — no da suficiente
+     contraste) Y el hover cuando el tono base se usa como fondo sólido
+     (ej. botón bulkPublicar). "velo-oscuro" es solo el hover sobre el
+     propio fondo pastel (chips de FormularioProducto). Cada familia
+     solo define los tonos que realmente se usan en algún sitio. */
+  --color-azul:              #1c74d4;
+  --color-azul-oscuro:       #1659A3;
+  --color-azul-velo:         #DCE9FB;
+  --color-azul-velo-oscuro:  #C3DCF7;
+
+  --color-amarillo:              #b58c04;
+  --color-amarillo-oscuro:       #8c6c02;
+  --color-amarillo-velo:         #FBEFC6;
+  --color-amarillo-velo-oscuro:  #F5E3A0;
+
+  --color-verde:              #2a8b41;
+  --color-verde-oscuro:       #17612A;
+  --color-verde-velo:         #DCF3E1;
+  --color-verde-light:        #f5fff6;
+  --color-verde-velo-oscuro:  #C7EAD0;
+
+  --color-naranja:        #9A4E12;
+  --color-naranja-oscuro: #773C0E;
+  --color-naranja-velo:   #FBE3CE;
+
+  --color-rojo:        #C0392B;
+  --color-rojo-oscuro: #A5311F;
+
+  /* ---------- TIPOGRAFÍA — familia ---------- */
+  --font-base: Helvetica, Inter, Arial, sans-serif;
+
+  /* ---------- TIPOGRAFÍA — escala en REM ----------
+     El <html> fija font-size:87.5% (1rem = 14px), igual que
+     en styleguide.html. Sin letter-spacing en el propio paso de
+     escala — el tracking va aparte, ver --tracking-label. */
+  --text-nano:       0.625rem;   /* 8.75px · más pequeño que --text-micro */
+  --text-micro:      0.6875rem;  /* 9.6px  · alias: --text-micro */
+  --text-caption:    0.75rem;    /* 10.5px · etiquetas, metadatos */
+  --text-label:      0.8125rem;  /* 11.4px · botones, nav */
+  --text-small:      0.90rem;   /* 12.6px · precios, notas */
+  --text-body:        1rem;       /* 14px  · cuerpo base */
+  --text-body-lg:     1.125rem;   /* 15.75px */
+  --text-h4:          1.25rem;    /* 17.5px */
+  --text-h3:          1.5rem;     /* 21px */
+  --text-h2:          2rem;       /* 28px */
+  --text-h1:          3rem;       /* 42px */
+  --text-display:     4rem;       /* 56px */
+
+  /* Pesos */
+  --font-weight-light:    300;
+  --font-weight-regular:  400;
+  --font-weight-medium:   500;   /* titulares h1-h4 */
+  --font-weight-semibold: 600;
+
+  /* Tracking (letter-spacing) — un único paso, usado en botones,
+     tabs, nombres de producto y otros textos en mayúsculas/label. */
+  --tracking-label: 0.02rem;
+
+  /* ---------- ESPACIADO — escala por PASO (1 a 11) ----------
+     OJO: renombrado desde la versión anterior, que nombraba
+     los tokens por su valor en px (--spacing-24 = 24px).
+     Ahora se nombran por posición en la escala, igual que
+     styleguide.html (--space-5 = 24px, es el 5º paso). */
+  --spacing-1:    4px;
+  --spacing-2:    8px;
+  --spacing-3:    12px;
+  --spacing-4:    16px;
+  --spacing-5:    24px;
+  --spacing-6:    32px;
+  --spacing-7:    40px;
+  --spacing-8:    64px;
+  --spacing-9:    80px;
+  --spacing-10:   120px;  /* separación de sección — base/móvil */
+  --spacing-11:   200px;  /* separación de sección — desktop */
+  --spacing-12:   320px;  /* los últimos pasos suman los dos anteriores (80+120=200, 120+200=320) — heroes a pantalla completa */
+
+  /* ---------- BORDES — grosor de trazo ---------- */
+  --border-thin:    0.75px;  /* separadores delicados (acordeón, puntos de color) */
+  --border-regular: 1px;     /* inputs, botones, tarjetas, hairlines */
+  --border-thick:   1.5px;     /* hover de enlaces subrayados (Boton "texto") — engrosa el trazo en vez de cambiar de color. OJO: a densidad estándar (DPR 1x) los navegadores redondean el grosor de borde al píxel entero, así que este valor renderiza igual que --border-regular (1px) — sin cambio visible — en pantallas no-Retina; verificado en Chromium 149. */
+
+  /* ---------- RADIOS: 0px en TODO, sin excepción ----------
+     Verificado contra capturas y CSS reales de Cecilie Bahnsen:
+     no hay un solo border-radius en su interfaz, ni en imágenes. */
+  --radius-none:      0px;
+  --radius-full:      9999px;  /* sin uso actual; reservado por si hiciera falta un pill puntual */
+  --radius-botones:   0px;
+  --radius-inputs:    0px;
+  --radius-tarjetas:  0px;
+  --radius-imagenes:  0px;
+  --radius-badges:    0px;
+
+  /* ---------- BREAKPOINTS Y ANCHOS ---------- */
+  --screen-tablet:   768px;   /* alias: --screen-tablet */
+  --screen-desktop:  1024px;  /* alias: --screen-desktop */
+  --max-texto:       700px;   /* ancho de bloques de texto legibles */
+  --max-contenido:   1440px;  /* ancho de contenido */
+  --max-sitio:       1920px;  /* ancho máximo del sitio */
+  --nav-height:      76px;    /* alto de .navRow (Navbar) — min-height + padding-block, box-sizing: border-box */
+
+  /* ---------- INTERLINEADO (line-height) ---------- */
+  --leading-tight: 1.15;
+  --leading-base:  1.6;
+
+  /* ---------- TRANSICIONES ---------- */
+  --ease-marca: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   BASE — reseteo y raíz
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  font-size: 87.5%; /* 1rem = 14px: base tipográfica del sistema.
+    OJO — esto reescala CUALQUIER valor en rem de toda la web,
+    incluidas utilidades de Tailwind no cubiertas por estos tokens
+    (por defecto Tailwind también usa rem). Es una decisión de
+    sistema deliberada, no un efecto secundario: asúmelo así en
+    todo el proyecto, no solo en los componentes ya tokenizados. */
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-base);
+  font-size: var(--text-body);
+  line-height: normal;
+  color: var(--color-tinta);
+  background: var(--color-fondo);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+main {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+h1, h2, h3, h4 {
+  font-weight: var(--font-weight-medium);
+  line-height: normal;
+  color: var(--color-tinta);
+}
+h1 { font-size: var(--text-h1); }
+h2 { font-size: var(--text-h2); }
+h3 { font-size: var(--text-h3); }
+h4 { font-size: var(--text-h4); }
+
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; height: auto; }
+
+/* ---------- SCROLLBAR — fina, sin flechas ---------- */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+/* Sin flechas arriba/abajo */
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Track invisible */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* La barra en sí */
+::-webkit-scrollbar-thumb {
+  background: var(--color-gris-600);
+  border-radius: 0; /* línea recta, no redondeada */
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gris-600) transparent;
+}
+
+/* ============================================================
+   UTILIDADES semánticas propias (complementan a Tailwind)
+   ============================================================ */
+
+.enlace-texto {
+  color: var(--color-tinta);
+  border-bottom: var(--border-regular) solid var(--color-tinta);
+  padding-bottom: 2px;
+  transition: border-color 0.25s var(--ease-marca);
+}
+.enlace-texto:hover { border-color: var(--color-tinta); }
+
+.contenedor {
+  width: 100%;
+  max-width: var(--max-sitio);
+  margin-inline: auto;
+}
+
+
+.texto-legible { 
+   max-width: var(--max-texto); 
+}

@@ -1,0 +1,35 @@
+/* ============================================================
+   PRODUCT HERO — Fely Campo
+   Sin marco (radio 0, sin sombra) — mismo criterio que el resto del
+   sistema. Pegada al techo de la página: el Navbar flota encima en
+   position:fixed mientras esta franja está en pantalla (ver
+   Navbar.module.css .header.transparent), así que no lleva
+   padding/margin de compensación propio.
+   ============================================================ */
+.envoltorio {
+  width: 100%;
+  height: 50vh;
+  position: relative;
+}
+
+.hero {
+  width: 100%;
+  height: 50vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Mobile: la imagen se queda fija en su sitio en vez de desplazarse
+   con la página — CuadriculaProductos (position:relative + z-index +
+   fondo opaco, ver CuadriculaProductos.module.css) va por delante en
+   el flujo normal y la va tapando según se scrollea. z-index:0 para
+   quedar explícitamente por debajo de esa sección. */
+@media (max-width: 767px) {
+  .hero {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0;
+  }
+}

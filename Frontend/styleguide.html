@@ -1,0 +1,1094 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fely Campo — Design System</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23E92174'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fondo:#FFFFFF; --tinta:#202020; --negro:#101010;
+    --g700:#404040; --g500:#757575; --g400:#8E8E8E; --g300:#AEAEAE;
+    --g200:#D9D9D9; --g100:#F2F2F2; --hairline:#EFEFEF;
+    --rosa:#E92174; --rosa-oscuro:#C2185F; --rosa-velo:#FCE4EE; --crema:#F5F1EE;
+    --fuente:Helvetica, Inter, Arial, sans-serif;
+    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px;
+    --space-6:32px; --space-7:40px; --space-8:64px; --space-9:80px; --space-10:120px; --space-11:200px;
+    --text-display:4rem; --text-h1:3rem; --text-h2:2rem; --text-h3:1.5rem; --text-h4:1.25rem;
+    --text-body-lg:1.25rem; --text-body:1rem; --text-small:0.875rem; --text-label:0.8125rem;
+    --text-caption:0.75rem; --text-micro:0.6875rem;
+    --border-thin:0.75px; --border-regular:1px; --border-thick:1.5px;
+    --screen-tablet:768px; --screen-desktop:1024px;
+    --max-texto:700px; --max-contenido:1440px; --max-sitio:1920px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { font-size:87.5%; } /* 1rem = 14px: base tipográfica del sistema */
+  body { font-family:var(--fuente); color:var(--tinta); background:var(--fondo); font-size:var(--text-body); line-height: normal; -webkit-font-smoothing:antialiased; }
+
+  /* Layout con sidebar de navegación */
+  .sg-layout { display:flex; }
+  .sg-nav { position:sticky; top:0; align-self:flex-start; width:200px; height:100vh; overflow-y:auto; padding:var(--space-7) var(--space-5); border-right:1px solid var(--hairline); flex-shrink:0; }
+  .sg-nav .sg-logo { width:100%; height:auto; display:block; margin-bottom:32px; }
+  .sg-nav a { display:block; font-size:var(--text-label); color:var(--g500); padding:var(--space-2) 0; margin-left:16px; text-decoration:none; transition:color .2s; }
+  .sg-nav a:hover { color:var(--rosa); }
+  .sg-nav details { margin-bottom:8px; }
+  .sg-nav summary { cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; font-size:var(--text-label); font-weight:500; color:var(--fondo); background:var(--rosa); border:var(--border-regular) solid var(--hairline); padding:var(--space-2); user-select:none; }
+  .sg-nav summary::-webkit-details-marker { display:none; }
+  .sg-nav details[open] summary .ac-chevron { transform:rotate(180deg); }
+  .sg-main { flex:1; padding:var(--space-8); max-width:1100px; }
+
+  section { margin-bottom:88px; scroll-margin-top:40px; }
+  .sg-rotulo { font-size:var(--text-micro); text-transform:uppercase; color:var(--g500); margin-bottom:24px; padding-bottom:var(--space-3); border-bottom:1px solid var(--hairline); letter-spacing:0; }
+  .sg-nota { font-size:var(--text-small); color:var(--g500); margin-top:16px; line-height:1.6; max-width:640px; background-color: var(--crema); padding: var(--space-1); }
+  h1,h2,h3,h4 { font-weight:500; line-height:1.15; }
+
+  .sg-hero { margin-bottom:72px; }
+  .sg-hero .sg-eyebrow { font-size:var(--text-caption); text-transform:uppercase; color:var(--g500); margin-bottom:12px; }
+  .sg-hero h1 { font-size:var(--text-display); line-height:1.05; margin-bottom:16px; }
+  .sg-hero p { color:var(--g500); max-width:560px; font-size:var(--text-body-lg); }
+  .sg-hero .sg-acento { color:var(--rosa); }
+
+  /* Color */
+  .sg-colores { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:16px; }
+  .sg-sw .sg-muestra { height:80px; border-radius:4px; border:1px solid var(--hairline); }
+  .sg-sw .sg-nom { font-size:var(--text-label); margin-top:8px; }
+  .sg-sw .sg-var { font-size:var(--text-micro); color:var(--tinta); font-family:Consolas,'SFMono-Regular',monospace; margin-top:4px; }
+  .sg-sw .sg-hex { font-size:var(--text-caption); color:var(--g500); }
+  .sg-sw .sg-rol { font-size:var(--text-micro); color:var(--g400); margin-top:2px; line-height:1.4; }
+
+  /* Tipografía */
+  .sg-tipo-fila { display:flex; align-items:baseline; gap:24px; padding:var(--space-4) 0; border-bottom:1px solid var(--hairline); }
+  .sg-tipo-fila .sg-etq { font-size:var(--text-micro); color:var(--g500); width:160px; flex-shrink:0; }
+
+  /* Grid */
+  .sg-grid-demo { display:grid; grid-template-columns:repeat(12,1fr); }
+  .sg-grid-demo .sg-col { background:var(--rosa-velo); color:var(--rosa-oscuro); font-size:var(--text-micro); text-align:center; padding:var(--space-4) 0; border-radius:2px; }
+
+  /* Tamaños de pantalla */
+  .pantallas { display:flex; flex-direction:column; gap:var(--space-6); }
+  .pantalla-fila { display:flex; flex-direction:column; gap:var(--space-2); }
+  .pantalla-etiqueta { display:flex; align-items:baseline; gap:var(--space-3); font-size:var(--text-label); color:var(--tinta); }
+  .pantalla-etiqueta .bp { font-size:var(--text-caption); color:var(--g500); }
+  .pantalla-viewport { display:flex; background:var(--rosa-velo); border:1px dashed var(--rosa-oscuro); box-sizing:border-box; min-width:120px; }
+  .pantalla-contenido { flex:1; height:36px; background:var(--tinta); color:var(--fondo); display:flex; align-items:center; justify-content:center; font-size:var(--text-micro); white-space:nowrap; box-sizing:border-box; }
+  .pantalla-proporcion { display:flex; height:8px; margin-top:4px; }
+  .pantalla-prop-margen { background:var(--rosa); flex-shrink:0; }
+  .pantalla-prop-contenido { background:var(--g200); }
+  .pantalla-tokens { font-size:var(--text-caption); color:var(--g500); }
+  .pantalla-tokens code { font-family:Consolas,'SFMono-Regular',monospace; color:var(--g700); }
+
+  /* Espaciado (margin / padding / gap tokens) */
+  .token-grupo { display:flex; flex-wrap:wrap; gap:32px; margin-bottom:40px; }
+  .token-item { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .token-etq { font-size:var(--text-caption); color:var(--g500); text-align:center; }
+  .token-marco { background:var(--rosa-velo); border:1px dashed var(--rosa-oscuro); display:inline-flex; }
+  .token-caja { width:56px; height:56px; background:var(--tinta); }
+  .token-caja-pad { background:var(--tinta); display:inline-flex; }
+  .token-caja-inner { width:56px; height:56px; background:var(--fondo); }
+  .token-fila-gap { display:flex; background:var(--g100); padding:var(--space-2); }
+  .token-chip { width:32px; height:32px; background:var(--rosa-velo); border:1px solid var(--rosa-oscuro); flex-shrink:0; }
+
+  /* Bordes */
+  .sg-borde-caja { width:64px; height:64px; border-style:solid; border-color:var(--tinta); }
+
+  /* Botones */
+  .sg-fila { display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin-bottom:16px; }
+  .sg-btn { font-family:inherit; cursor:pointer; border:none; transition:all .25s; font-size:var(--text-label); letter-spacing:0.02rem; }
+  .sg-btn-m { padding:var(--space-3) var(--space-6); }
+  .sg-btn-solido { background:var(--tinta); color:var(--fondo); }
+  .sg-btn-solido:hover { background:var(--tinta); }
+  .sg-btn-contorno { background:transparent; color:var(--tinta); border:1px solid var(--tinta); }
+  .sg-btn-contorno:hover { background:var(--tinta); color:var(--fondo); }
+  .sg-btn-rosa { background:var(--rosa); color:var(--fondo); }
+  .sg-btn-rosa:hover { background:var(--rosa-oscuro); }
+  .sg-btn-contorno-rosa { background:transparent; color:var(--rosa-oscuro); border:1px solid var(--rosa-oscuro); }
+  .sg-btn-contorno-rosa:hover { background:var(--rosa-oscuro); color:var(--fondo); }
+  .sg-btn-texto { background:none; font-size:var(--text-label); color:var(--tinta); text-decoration:none; border-bottom: solid var(--border-regular) var(--tinta); padding-bottom:var(--space-1); transition:border-bottom-width .25s, padding-bottom .25s; }
+  .sg-btn-texto:hover { border-bottom-width:var(--border-thick); padding-bottom:calc(var(--space-1) - 0.5px); }
+  .sg-btn-texto-mayus { text-transform:uppercase; }
+  .sg-btn-avisa { width:100%; box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center; padding:var(--space-2); font-size:var(--text-caption); white-space:nowrap; text-align:center; background:none; border:1px solid var(--tinta); color:var(--tinta); margin-top:8px; }
+  .sg-btn-avisa:hover { background:var(--tinta); color:var(--fondo); }
+
+  /* Cabecera de sección — grid de 4 columnas: grupo título (subtítulo +
+     título + descripción) en la 1ª, acción en las últimas. */
+  .sg-cabecera { display:grid; grid-template-columns:repeat(4,1fr); align-items:end; gap:2px; padding-inline:0; margin-bottom:32px; }
+  .sg-cabecera-titulo-grupo { grid-column:1/2; display:flex; flex-direction:column; padding-left:var(--space-7); }
+  .sg-cabecera-subtitle { font-size:var(--text-caption); font-weight:500; text-transform:uppercase; color:var(--tinta); }
+  .sg-cabecera-titulo { font-size:var(--text-body-lg); font-weight:500; color:var(--tinta); text-transform:uppercase; }
+  .sg-cabecera-descripcion { font-size:var(--text-small); color:var(--g500); line-height:1.5; }
+  .sg-cabecera-accion { grid-column:4/5; justify-self:end; margin-right:var(--space-7); }
+  .sg-cabecera-accion-ancha { grid-column:2/5; justify-self:stretch; margin-right:0; display:flex; justify-content:flex-end; flex-wrap:wrap; gap:var(--space-5); }
+  @media (max-width:767px) {
+    .sg-cabecera { grid-template-columns:1fr; }
+    .sg-cabecera-titulo-grupo, .sg-cabecera-accion, .sg-cabecera-accion-ancha { grid-column:1; }
+    .sg-cabecera-accion { justify-self:start; margin-right:0; }
+  }
+
+  /* Badges */
+  .sg-badges { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .sg-badge { font-size:var(--text-caption); text-transform:uppercase; }
+  .sg-badge-rosa { color:var(--rosa); }
+  .sg-badge-velo { color:var(--g700); }
+  .sg-badge-tinta { color:var(--tinta); }
+  .sg-badge-agotado { color:var(--g400); text-decoration:line-through; }
+
+  /* Productos */
+  .sg-productos { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:24px; }
+  .sg-prod { position:relative; cursor:pointer; }
+  .sg-prod .sg-img { position:relative; aspect-ratio:3/4; background:var(--crema); border-radius:0; overflow:hidden; }
+  .sg-prod .sg-img img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:opacity .6s ease; }
+  .sg-prod .sg-img img.sg-hover { opacity:0; }
+  .sg-prod:hover .sg-img img.sg-base { opacity:0; }
+  .sg-prod:hover .sg-img img.sg-hover { opacity:1; }
+  .sg-etiqueta { position:absolute; top:10px; left:10px; font-size:var(--text-micro); line-height: normal; text-transform:uppercase; z-index:2; }
+  .sg-prod .sg-info { display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-top:8px; }
+  .sg-prod .sg-nom { font-size:var(--text-small); }
+  .sg-prod .sg-precio { font-size:var(--text-small); color:var(--g700); }
+  .sg-prod .sg-precio .sg-prediscount { text-decoration:line-through; color:var(--g400); margin-right:6px; }
+  .sg-prod .sg-precio .sg-discount { color:var(--rosa); }
+  .sg-colores-prod { height:14px; margin-top:4px; display:flex; align-items:center; gap:6px; opacity:0; transition:opacity .3s ease; }
+  .sg-accion-prod { display:flex; opacity:0; transition:opacity .3s ease; }
+  .sg-prod:hover .sg-colores-prod, .sg-prod:hover .sg-accion-prod { opacity:1; }
+  .sg-punto-color { width:14px; height:14px; border-radius:50%; box-shadow:0 0 0 0.75px var(--g500); outline:1px solid transparent; outline-offset:2px; transition:outline-color .2s ease; }
+
+  .sg-punto-mas { font-size:var(--text-caption); color:var(--g700); }
+
+  /* Tarjeta de producto relacionado */
+  .sg-relacionado-demo { max-width:200px; }
+  .sg-prod-relacionado .sg-img { aspect-ratio:4/5; overflow:hidden; }
+  @media (min-width:48rem) {
+    .sg-prod-relacionado { width:calc(var(--space-10) + var(--space-5)); }
+  }
+  .sg-info-relacionado { display:flex; flex-direction:column; gap:var(--space-1); margin-top:var(--space-2); }
+  .sg-prod-relacionado .sg-nom,
+  .sg-prod-relacionado .sg-precio,
+  .sg-prod-relacionado .sg-colores-texto { font-size:var(--text-small); }
+  .sg-colores-texto { color:var(--g500); margin-top:2px; }
+
+  /* Tarjeta de tienda */
+  .sg-tiendas { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:24px; }
+  .sg-tienda-img { aspect-ratio:3/4; background:var(--crema); border-radius:0; overflow:hidden; }
+  .sg-tienda-img img { width:100%; height:100%; object-fit:cover; display:block; }
+  .sg-tienda-ciudad { font-size:var(--text-body-lg); margin-top:12px; }
+  .sg-tienda-direccion { font-size:var(--text-label); color:var(--g700); margin-top:8px; line-height:1.4; }
+  .sg-tienda .sg-btn-texto { margin-top:12px; display:inline-block; }
+
+  /* Visita el atelier */
+  .sg-boutique { display:grid; grid-template-columns:1fr; grid-template-rows:1fr 1fr; row-gap:var(--space-4); height:100dvh; }
+  .sg-boutique-texto { grid-column:1; grid-row:1; display:flex; flex-direction:column; justify-content:flex-end; gap:var(--space-2); }
+  .sg-boutique-img { grid-column:1; grid-row:2; background:var(--crema); overflow:hidden; }
+  .sg-boutique-img img { width:100%; height:100%; object-fit:cover; display:block; }
+  .sg-boutique-titulo { font-size:var(--text-body-lg); }
+  .sg-boutique-parrafo { font-size:var(--text-small); color:var(--g700);}
+  .sg-boutique-texto .sg-btn-texto { width: fit-content; font-size:var(--text-label); display:inline-block; }
+  @media (min-width:48rem) {
+    .sg-boutique { grid-template-columns:repeat(12,1fr); grid-template-rows:1fr; column-gap:var(--space-1); row-gap:0; }
+    .sg-boutique-texto { grid-column:1/5; grid-row:1; justify-content:center; gap:var(--space-4); }
+    .sg-boutique-img { grid-column:6/12; grid-row:1; }
+  }
+
+  /* Wishlist / guardar */
+  .wishlist { position:absolute; top:10px; right:10px; z-index:3; opacity:0; pointer-events:none; transition:opacity .3s ease; }
+  .sg-prod:hover .wishlist { opacity:1; pointer-events:auto; }
+  .wishlist-tooltip { position:relative; display:inline-flex; }
+  .wishlist-check { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+  .wishlist-tag { display:flex; align-items:center; justify-content:center; width:20px; height:20px; cursor:pointer; }
+  .wishlist-tag svg { width:18px; height:18px; stroke:var(--tinta); fill:none; transition:stroke .2s ease, fill .2s ease; }
+  .wishlist-check:checked + .wishlist-tag svg { stroke:var(--tinta); fill:var(--tinta); }
+  .sg-tooltip-texto { position:absolute; top:calc(100% + 6px); left:50%; transform:translateX(-50%); background:var(--tinta); color:var(--fondo); font-size:var(--text-caption); padding:var(--space-1) var(--space-2); white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .2s ease; z-index:3; }
+  .wishlist-tooltip:hover .sg-tooltip-texto { opacity:1; }
+
+  /* E-commerce controls */
+  .sg-tallas { display:flex; gap:8px; }
+  .sg-talla { min-width:44px; height:44px; padding:0 var(--space-3); font-size:var(--text-label); border:1px solid var(--g300); background:var(--fondo); cursor:pointer; font-family:inherit; }
+  .sg-talla.sg-activa { background:var(--tinta); color:var(--fondo); border-color:var(--tinta); }
+  .sg-talla.sg-agotada { color:var(--g300); border-color:var(--g200); text-decoration:line-through; cursor:not-allowed; }
+  .sg-cantidad { display:inline-flex; align-items:center; border:1px solid var(--g300); }
+  .sg-cantidad button { width:40px; height:40px; background:none; border:none; cursor:pointer; font-size:var(--text-body); font-family:inherit; }
+  .sg-cantidad button:hover { background:var(--g100); }
+  .sg-cantidad .sg-n { width:40px; text-align:center; font-size:var(--text-small); }
+  .sg-campo { max-width:360px; }
+  .sg-campo label { display:block; font-size:var(--text-caption); color:var(--g500); margin-bottom:8px; }
+  .sg-campo input { width:100%; border: solid transparent; border-bottom:1px solid var(--g300); padding:var(--space-3) var(--space-4); font-size:var(--text-small); font-family:inherit; outline:none; }
+  .sg-campo input:focus { border-bottom: solid 0.75px var(--tinta); }
+
+  /* Selector de color */
+  .sg-color-selector { display:flex; flex-direction:column; gap:8px; }
+  .sg-color-actual { font-size:var(--text-body); }
+  .sg-color-swatches { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+  .sg-swatch { width:24px; height:24px; border-radius:50%; box-shadow:0 0 0 1px rgba(0,0,0,.08); cursor:pointer; outline:1px solid transparent; outline-offset:2px; transition:outline-color .2s ease; }
+  .sg-swatch:hover, .sg-swatch.sg-activo { outline-color:var(--tinta); }
+
+  /* Superficies */
+  .sg-surfaces { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:16px; }
+  .sg-surf { height:100px; border-radius:4px; display:flex; align-items:flex-end; padding:var(--space-3); font-size:var(--text-caption); border:1px solid var(--hairline); }
+  .sg-surf-var { font-family:Consolas,'SFMono-Regular',monospace; opacity:.7; margin-top:2px; }
+
+  /* Do / Don't */
+  .sg-dodont { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .sg-dodont h4 { font-size:var(--text-small); margin-bottom:12px; }
+  .sg-dodont ul { list-style:none; }
+  .sg-dodont li { font-size:var(--text-label); color:var(--g700); padding:var(--space-2) 0 var(--space-2) var(--space-5); position:relative; line-height:1.5; }
+  .sg-do li:before { content:"✓"; position:absolute; left:0; color:var(--rosa); }
+  .sg-dont li:before { content:"×"; position:absolute; left:0; color:var(--g400); }
+
+  /* Acordeón */
+  .ac-lista { max-width:520px; }
+  .ac-fila { border-bottom:var(--border-thin) solid var(--g300); }
+  .ac-check { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+  .ac-cabecera { cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); padding:var(--space-3) 0; font-size:var(--text-caption); color:var(--tinta); }
+  .ac-chevron { width:14px; height:14px; flex-shrink:0; transition:transform .28s ease; }
+  .ac-check:checked + .ac-cabecera .ac-chevron { transform:rotate(180deg); }
+  .ac-contenido { display:grid; grid-template-rows:0fr; transition:grid-template-rows .28s ease; }
+  .ac-check:checked ~ .ac-contenido { grid-template-rows:1fr; }
+  .ac-contenido-inner { overflow:hidden; min-height:0; }
+  .ac-texto { font-size:var(--text-caption); color:var(--g700); padding-bottom:var(--space-3); }
+  .ac-texto p + p { margin-top:var(--space-3); }
+
+  /* Cargar más */
+  .cargar-check { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+  .cargar-demo { display:flex; flex-direction:column; align-items:center; gap:var(--space-4); max-width:400px; }
+  .cargar-estado { font-size:var(--text-caption); color:var(--g500); }
+  .cargar-despues { display:none; }
+  .cargar-check:checked ~ .cargar-demo .cargar-antes { display:none; }
+  .cargar-check:checked ~ .cargar-demo .cargar-despues { display:inline; }
+  .cargar-pista { position:relative; width:100%; height:var(--border-regular); background:var(--hairline); }
+  .cargar-relleno { position:absolute; top:0; left:0; height:100%; background:var(--tinta); width:21%; transition:width .4s ease; }
+  .cargar-check:checked ~ .cargar-demo .cargar-relleno { width:42%; }
+  .cargar-boton-demo { width:100%; box-sizing:border-box; text-align:center; display:block; }
+
+  /* Sitemap (tabla por niveles) — reutilizable: Web pública, Panel de admin */
+  .sitemap-bloque + .sitemap-bloque { margin-top:var(--space-9); }
+  .sitemap-etiqueta { display:inline-block; background:var(--tinta); color:var(--fondo); font-size:var(--text-micro); text-transform:uppercase; padding:var(--space-1) var(--space-2); margin-bottom:var(--space-3); }
+  .sitemap-ruta { display:block; font-size:var(--text-caption); color:var(--g500); margin-bottom:var(--space-3); }
+  .sitemap-tabla { width:100%; border-collapse:collapse; }
+  .sitemap-tabla th { text-align:left; font-size:var(--text-micro); text-transform:uppercase; color:var(--g500); font-weight:500; padding:var(--space-2) var(--space-3); border-bottom:1px solid var(--hairline); }
+  .sitemap-tabla td { padding:var(--space-2) var(--space-3); border-bottom:var(--border-thin) solid var(--g300); font-size:var(--text-caption); color:var(--g700); vertical-align:top; }
+  .sitemap-tabla td:first-child { font-size:var(--text-small); color:var(--tinta); font-weight:500; }
+  .sitemap-tabla td.sg-vacio { color:var(--g400); }
+</style>
+</head>
+<body>
+<div class="sg-layout">
+
+  <aside class="sg-nav">
+    <img class="sg-logo" src="public/img/logo/logo-felycampo.png" alt="Fely Campo">
+    <details open>
+      <summary>Styleguide<svg class="ac-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <a href="#color">Color</a>
+      <a href="#tipografia">Tipografía</a>
+      <a href="#espaciado">Espaciado</a>
+      <a href="#bordes">Bordes</a>
+      <a href="#grid">Grid</a>
+      <a href="#pantallas">Tamaños de pantalla</a>
+      <a href="#superficies">Superficies</a>
+      <a href="#botones">Botones</a>
+      <a href="#etiquetas">Etiquetas</a>
+      <a href="#ecommerce">E-commerce</a>
+      <a href="#reglas">Do & Don't</a>
+    </details>
+    <details open>
+      <summary>Componentes<svg class="ac-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <a href="#cabecera-seccion">Cabecera de sección</a>
+      <a href="#producto">Tarjeta de producto</a>
+      <a href="#tarjeta-tienda">Tarjeta de tienda</a>
+      <a href="#atelier">Visita el atelier</a>
+      <a href="#acordeon">Acordeón</a>
+      <a href="#cargar-mas">Cargar más</a>
+    </details>
+    <details open>
+      <summary>Navegación web<svg class="ac-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <a href="#sitemap-web">Web pública</a>
+      <a href="#sitemap-usuario">Usuario registrado</a>
+      <a href="#sitemap-panel">Panel de administración</a>
+    </details>
+  </aside>
+
+  <main class="sg-main">
+
+    <div class="sg-hero">
+      <p class="sg-eyebrow">Design system · Salamanca desde 1997</p>
+      <h1>Transmitir mi pasión por la moda<br>es el <span class="sg-acento">leit motiv de mi trabajo</span>.</h1>
+      <p>Minimalismo editorial inspirado en Cecilie Bahnsen. Lienzo blanco, mucho aire, la fotografía manda. El rosa #E92174 firma como acento — nunca grita.</p>
+    </div>
+
+    <section id="color">
+      <p class="sg-rotulo">Color</p>
+      <div class="sg-colores">
+        <div class="sg-sw"><div class="sg-muestra" style="background:#FFFFFF"></div><p class="sg-nom">Fondo</p><p class="sg-var">--fondo</p><p class="sg-hex">#FFFFFF</p><p class="sg-rol">Lienzo</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#F2F2F2"></div><p class="sg-nom">Gris 100</p><p class="sg-var">--g100</p><p class="sg-hex">#F2F2F2</p><p class="sg-rol">Fondo hover sutil</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#EFEFEF"></div><p class="sg-nom">Hairline</p><p class="sg-var">--hairline</p><p class="sg-hex">#EFEFEF</p><p class="sg-rol">Separadores</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#D9D9D9"></div><p class="sg-nom">Gris 200</p><p class="sg-var">--g200</p><p class="sg-hex">#D9D9D9</p><p class="sg-rol">Borde deshabilitado</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#AEAEAE"></div><p class="sg-nom">Gris 300</p><p class="sg-var">--g300</p><p class="sg-hex">#AEAEAE</p><p class="sg-rol">Borde input</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#8E8E8E"></div><p class="sg-nom">Gris 400</p><p class="sg-var">--g400</p><p class="sg-hex">#8E8E8E</p><p class="sg-rol">Texto terciario, tachados</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#757575"></div><p class="sg-nom">Gris 500</p><p class="sg-var">--g500</p><p class="sg-hex">#757575</p><p class="sg-rol">Secundario, precio</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#404040"></div><p class="sg-nom">Gris 700</p><p class="sg-var">--g700</p><p class="sg-hex">#404040</p><p class="sg-rol">Texto apoyo</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#202020"></div><p class="sg-nom">Tinta</p><p class="sg-var">--tinta</p><p class="sg-hex">#202020</p><p class="sg-rol">Texto principal</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#101010"></div><p class="sg-nom">Negro</p><p class="sg-var">--negro</p><p class="sg-hex">#101010</p><p class="sg-rol">Negro puro, uso reservado</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#F5F1EE"></div><p class="sg-nom">Crema</p><p class="sg-var">--crema</p><p class="sg-hex">#F5F1EE</p><p class="sg-rol">Fondo cálido</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#E92174"></div><p class="sg-nom">Rosa marca</p><p class="sg-var">--rosa</p><p class="sg-hex">#E92174</p><p class="sg-rol">Acento</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#C2185F"></div><p class="sg-nom">Rosa oscuro</p><p class="sg-var">--rosa-oscuro</p><p class="sg-hex">#C2185F</p><p class="sg-rol">Hover, texto</p></div>
+        <div class="sg-sw"><div class="sg-muestra" style="background:#FCE4EE"></div><p class="sg-nom">Rosa velo</p><p class="sg-var">--rosa-velo</p><p class="sg-hex">#FCE4EE</p><p class="sg-rol">Fondo etiqueta</p></div>
+      </div>
+      <p class="sg-nota">El rosa es acento, no superficie. El neutro sostiene la interfaz; el rosa aparece en detalles para conservar fuerza. Rosa oscuro para hover y texto rosa sobre blanco. Usa siempre la variable (<code>var(--g500)</code>, etc.) — nunca el hex suelto.</p>
+    </section>
+
+    <section id="tipografia">
+      <p class="sg-rotulo">Tipografía · Helvetica / Inter · sin tracking</p>
+      <div class="sg-tipo-fila"><span class="sg-etq">--text-display · 4rem (56px) / 500</span><span style="font-size:var(--text-display);font-weight:500;line-height:1.05;">Fely Campo</span></div>
+      <div class="sg-tipo-fila"><span class="sg-etq">--text-h1 · 3rem (42px) / 500</span><span style="font-size:var(--text-h1);font-weight:500;">Colección Novias</span></div>
+      <div class="sg-tipo-fila"><span class="sg-etq">--text-h2 · 2rem (28px) / 500</span><span style="font-size:var(--text-h2);font-weight:500;">Prêt-à-porter</span></div>
+      <div class="sg-tipo-fila"><span class="sg-etq">--text-h3 · 1.5rem (21px) / 500</span><span style="font-size:var(--text-h3);font-weight:500;">Vestidos de fiesta</span></div>
+      <div class="sg-tipo-fila"><span class="sg-etq">--text-h4 · 1.25rem (17.5px) / 500</span><span style="font-size:var(--text-h4);font-weight:500;">Costura a medida</span></div>
+      <div class="sg-tipo-fila"><span class="sg-etq">--text-body-lg · 1.125rem (15.75px) / 400</span><span style="font-size:var(--text-body-lg);">Elegancia contemporánea desde Salamanca.</span></div>
+      <div class="sg-tipo-fila"><span class="sg-etq">--text-body · 1rem (14px) / 400</span><span style="font-size:var(--text-body);max-width:600px;">Desde 1997, Fely Campo diseña colecciones de fiesta y novia que combinan artesanía y una mirada contemporánea.</span></div>
+      <div class="sg-tipo-fila"><span class="sg-etq">--text-small · 0.875rem (12.25px) / 400</span><span style="font-size:var(--text-small);color:var(--g700);">Envíos en 24-48h · Devoluciones gratuitas</span></div>
+      <div class="sg-tipo-fila"><span class="sg-etq">--text-label · 0.8125rem (11.375px) / 400</span><span style="font-size:var(--text-label);color:var(--g700);">Ver colección · Añadir a la cesta</span></div>
+      <div class="sg-tipo-fila"><span class="sg-etq">--text-caption · 0.75rem (10.5px) / 400</span><span style="font-size:var(--text-caption);color:var(--g500);">Salamanca · desde 1997</span></div>
+      <div class="sg-tipo-fila"><span class="sg-etq">--text-micro · 0.6875rem (9.625px) / 400</span><span style="font-size:var(--text-micro);color:var(--g500);text-transform:uppercase;">Nueva colección</span></div>
+      <p class="sg-nota">Escala completa (definida en <code>:root</code>): --text-display 4rem · --text-h1 3rem · --text-h2 2rem · --text-h3 1.5rem · --text-h4 1.25rem · --text-body-lg 1.125rem · --text-body 1rem · --text-small 0.875rem · --text-label 0.8125rem · --text-caption 0.75rem · --text-micro 0.6875rem. Usa siempre el token en <code>font-size</code> — nunca un valor suelto en rem.</p>
+    </section>
+
+    <section id="espaciado">
+      <p class="sg-rotulo">Espaciado</p>
+
+      <h4 style="margin-bottom:20px;">Margin</h4>
+      <div class="token-grupo">
+        <div class="token-item">
+          <div class="token-marco"><div class="token-caja" style="margin:var(--space-1)"></div></div>
+          <span class="token-etq">--space-1<br>4px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-marco"><div class="token-caja" style="margin:var(--space-2)"></div></div>
+          <span class="token-etq">--space-2<br>8px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-marco"><div class="token-caja" style="margin:var(--space-3)"></div></div>
+          <span class="token-etq">--space-3<br>12px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-marco"><div class="token-caja" style="margin:var(--space-4)"></div></div>
+          <span class="token-etq">--space-4<br>16px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-marco"><div class="token-caja" style="margin:var(--space-5)"></div></div>
+          <span class="token-etq">--space-5<br>24px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-marco"><div class="token-caja" style="margin:var(--space-7)"></div></div>
+          <span class="token-etq">--space-7<br>40px</span>
+        </div>
+      </div>
+
+      <h4 style="margin-bottom:20px;">Padding</h4>
+      <div class="token-grupo">
+        <div class="token-item">
+          <div class="token-caja-pad" style="padding:var(--space-1)"><div class="token-caja-inner"></div></div>
+          <span class="token-etq">--space-1<br>4px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-caja-pad" style="padding:var(--space-2)"><div class="token-caja-inner"></div></div>
+          <span class="token-etq">--space-2<br>8px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-caja-pad" style="padding:var(--space-3)"><div class="token-caja-inner"></div></div>
+          <span class="token-etq">--space-3<br>12px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-caja-pad" style="padding:var(--space-4)"><div class="token-caja-inner"></div></div>
+          <span class="token-etq">--space-4<br>16px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-caja-pad" style="padding:var(--space-5)"><div class="token-caja-inner"></div></div>
+          <span class="token-etq">--space-5<br>24px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-caja-pad" style="padding:var(--space-7)"><div class="token-caja-inner"></div></div>
+          <span class="token-etq">--space-7<br>40px</span>
+        </div>
+      </div>
+
+      <h4 style="margin-bottom:20px;">Gap</h4>
+      <div class="token-grupo">
+        <div class="token-item">
+          <div class="token-fila-gap" style="gap:var(--space-1)"><span class="token-chip"></span><span class="token-chip"></span><span class="token-chip"></span></div>
+          <span class="token-etq">--space-1<br>4px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-fila-gap" style="gap:var(--space-2)"><span class="token-chip"></span><span class="token-chip"></span><span class="token-chip"></span></div>
+          <span class="token-etq">--space-2<br>8px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-fila-gap" style="gap:var(--space-3)"><span class="token-chip"></span><span class="token-chip"></span><span class="token-chip"></span></div>
+          <span class="token-etq">--space-3<br>12px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-fila-gap" style="gap:var(--space-4)"><span class="token-chip"></span><span class="token-chip"></span><span class="token-chip"></span></div>
+          <span class="token-etq">--space-4<br>16px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-fila-gap" style="gap:var(--space-5)"><span class="token-chip"></span><span class="token-chip"></span><span class="token-chip"></span></div>
+          <span class="token-etq">--space-5<br>24px</span>
+        </div>
+        <div class="token-item">
+          <div class="token-fila-gap" style="gap:var(--space-7)"><span class="token-chip"></span><span class="token-chip"></span><span class="token-chip"></span></div>
+          <span class="token-etq">--space-7<br>40px</span>
+        </div>
+      </div>
+
+      <p class="sg-nota">Escala completa (definida en <code>:root</code>): --space-1 4px · --space-2 8px · --space-3 12px · --space-4 16px · --space-5 24px · --space-6 32px · --space-7 40px · --space-8 64px · --space-9 80px · --space-10 120px · --space-11 200px. Usa siempre el token en <code>margin</code>, <code>padding</code> y <code>gap</code> — nunca un valor suelto en px.</p>
+    </section>
+
+    <section id="bordes">
+      <p class="sg-rotulo">Bordes · grosor de trazo</p>
+      <div class="token-grupo">
+        <div class="token-item">
+          <div class="sg-borde-caja" style="border-width:var(--border-regular)"></div>
+          <span class="token-etq">--border-regular<br>1px</span>
+        </div>
+        <div class="token-item">
+          <div class="sg-borde-caja" style="border-width:var(--border-thin)"></div>
+          <span class="token-etq">--border-thin<br>0.75px</span>
+        </div>
+        <div class="token-item">
+          <div class="sg-borde-caja" style="border-width:var(--border-thick)"></div>
+          <span class="token-etq">--border-thick<br>1.5px</span>
+        </div>
+      </div>
+      <p class="sg-nota"><code>--border-regular</code> (1px): grosor estándar en inputs, botones, tarjetas y separadores. <code>--border-thin</code> (0.75px): reservado para elementos pequeños y delicados, como el contorno de los puntos de color de producto. <code>--border-thick</code> (1.5px): estado hover de los enlaces subrayados (<code>.sg-btn-texto</code>) — el trazo engrosa en vez de cambiar de color a rosa; el padding-bottom baja la misma medida para que el bloque no cambie de alto. OJO: a densidad estándar (DPR 1x) los navegadores redondean el grosor de borde al píxel entero, así que este valor renderiza igual que <code>--border-regular</code> — sin cambio visible — en pantallas no-Retina.</p>
+
+      <p class="sg-rotulo" style="margin-top:32px;">Bordes · grosor de trazo · color hairline</p>
+      <div class="token-grupo">
+        <div class="token-item">
+          <div class="sg-borde-caja" style="border-width:var(--border-regular); border-color:var(--hairline);"></div>
+          <span class="token-etq">--border-regular<br>--hairline</span>
+        </div>
+        <div class="token-item">
+          <div class="sg-borde-caja" style="border-width:var(--border-thin); border-color:var(--hairline);"></div>
+          <span class="token-etq">--border-thin<br>--hairline</span>
+        </div>
+      </div>
+      <p class="sg-nota">Misma escala de grosor, aplicada con <code>--hairline</code> como color — el uso real en separadores y líneas divisorias del sistema (nav, filas de tipografía, tarjetas).</p>
+    </section>
+
+    <section id="grid">
+      <p class="sg-rotulo">Grid · 12 columnas · gap 4px</p>
+      <div class="sg-grid-demo" style="gap:var(--space-1)">
+        <div class="sg-col">1</div><div class="sg-col">2</div><div class="sg-col">3</div><div class="sg-col">4</div>
+        <div class="sg-col">5</div><div class="sg-col">6</div><div class="sg-col">7</div><div class="sg-col">8</div>
+        <div class="sg-col">9</div><div class="sg-col">10</div><div class="sg-col">11</div><div class="sg-col">12</div>
+      </div>
+      <p class="sg-nota"><code>--space-1</code> (4px) de gap — para rejillas densas, ej. miniaturas de color o swatches.</p>
+
+      <p class="sg-rotulo" style="margin-top:32px;">Grid · 12 columnas · gap 12px</p>
+      <div class="sg-grid-demo" style="gap:var(--space-3)">
+        <div class="sg-col">1</div><div class="sg-col">2</div><div class="sg-col">3</div><div class="sg-col">4</div>
+        <div class="sg-col">5</div><div class="sg-col">6</div><div class="sg-col">7</div><div class="sg-col">8</div>
+        <div class="sg-col">9</div><div class="sg-col">10</div><div class="sg-col">11</div><div class="sg-col">12</div>
+      </div>
+      <p class="sg-nota"><code>--space-3</code> (12px) de gap — la rejilla base para contenido general. Contenido a 1440px, sitio a 1920px, texto a 700px máximo.</p>
+    </section>
+
+    <section id="pantallas">
+      <p class="sg-rotulo">Tamaños de pantalla · breakpoints y máximos</p>
+      <div class="pantallas">
+        <div class="pantalla-fila">
+          <div class="pantalla-etiqueta"><span>Móvil</span><span class="bp">—</span></div>
+          <div class="pantalla-viewport" style="width:36%">
+            <div class="pantalla-contenido" style="padding:0 var(--space-4)">700px</div>
+          </div>
+          <div class="pantalla-proporcion" style="width:36%">
+            <div class="pantalla-prop-margen" style="flex-grow:16"></div>
+            <div class="pantalla-prop-contenido" style="flex-grow:700"></div>
+            <div class="pantalla-prop-margen" style="flex-grow:16"></div>
+          </div>
+          <div class="pantalla-tokens"><code>--space-4</code> · 16px &nbsp;·&nbsp; <code>--max-texto</code> · 700px &nbsp;·&nbsp; margen 2% / contenido 96%</div>
+        </div>
+        <div class="pantalla-fila">
+          <div class="pantalla-etiqueta"><span>Tablet</span><span class="bp"><code>--screen-tablet</code> · 768px</span></div>
+          <div class="pantalla-viewport" style="width:75%">
+            <div class="pantalla-contenido" style="padding:0 var(--space-5)">1440px</div>
+          </div>
+          <div class="pantalla-proporcion" style="width:75%">
+            <div class="pantalla-prop-margen" style="flex-grow:24"></div>
+            <div class="pantalla-prop-contenido" style="flex-grow:1440"></div>
+            <div class="pantalla-prop-margen" style="flex-grow:24"></div>
+          </div>
+          <div class="pantalla-tokens"><code>--space-5</code> · 24px &nbsp;·&nbsp; <code>--max-contenido</code> · 1440px &nbsp;·&nbsp; margen 2% / contenido 97%</div>
+        </div>
+        <div class="pantalla-fila">
+          <div class="pantalla-etiqueta"><span>Desktop</span><span class="bp"><code>--screen-desktop</code> · 1024px</span></div>
+          <div class="pantalla-viewport" style="width:75%">
+            <div class="pantalla-contenido" style="padding:0 var(--space-7)">1440px</div>
+          </div>
+          <div class="pantalla-proporcion" style="width:75%">
+            <div class="pantalla-prop-margen" style="flex-grow:40"></div>
+            <div class="pantalla-prop-contenido" style="flex-grow:1440"></div>
+            <div class="pantalla-prop-margen" style="flex-grow:40"></div>
+          </div>
+          <div class="pantalla-tokens"><code>--space-7</code> · 40px &nbsp;·&nbsp; <code>--max-contenido</code> · 1440px &nbsp;·&nbsp; margen 3% / contenido 95%</div>
+        </div>
+        <div class="pantalla-fila">
+          <div class="pantalla-etiqueta"><span>Sitio</span><span class="bp">—</span></div>
+          <div class="pantalla-viewport" style="width:100%">
+            <div class="pantalla-contenido" style="padding:0">1920px</div>
+          </div>
+          <div class="pantalla-proporcion" style="width:100%">
+            <div class="pantalla-prop-contenido" style="flex-grow:1"></div>
+          </div>
+          <div class="pantalla-tokens"><code>--max-sitio</code> · 1920px &nbsp;·&nbsp; sin margen propio, contenido 100%</div>
+        </div>
+      </div>
+      <p class="sg-nota">Breakpoints en <code>min-width</code>. Las barras están a escala proporcional entre sí (referencia: <code>--max-sitio</code> = 100%). El tono rosa-velo asomando a los lados de cada bloque tinta es, literalmente, el margen lateral (mismo patrón visual que en Margin/Padding/Gap); el bloque tinta central es el ancho máximo de contenido. Debajo de cada barra, la tira fina desglosa a escala real cuánto de esa pantalla es margen (rosa) frente a contenido útil (gris), con el % de cada uno. El texto legible se limita a <code>--max-texto</code> (700px) en cualquier tamaño de pantalla.</p>
+    </section>
+
+    <section id="superficies">
+      <p class="sg-rotulo">Superficies · elevación por tono</p>
+      <div class="sg-surfaces">
+        <div class="sg-surf" style="background:var(--fondo)"><div><div>0 · Lienzo</div><div class="sg-surf-var">--fondo</div></div></div>
+        <div class="sg-surf" style="background:var(--crema)"><div><div>1 · Crema</div><div class="sg-surf-var">--crema</div></div></div>
+        <div class="sg-surf" style="background:var(--hairline)"><div><div>2 · Hairline</div><div class="sg-surf-var">--hairline</div></div></div>
+        <div class="sg-surf" style="background:var(--tinta);color:var(--fondo);border:none"><div><div>dark · Panel</div><div class="sg-surf-var">--tinta</div></div></div>
+      </div>
+      <p class="sg-nota">La elevación se implica con el tono, no con sombras. El panel oscuro se reserva para hero split y footer.</p>
+    </section>
+
+    <section id="botones">
+      <p class="sg-rotulo">Botones</p>
+      <div class="sg-fila">
+        <button class="sg-btn sg-btn-solido sg-btn-m">Comprar</button>
+        <button class="sg-btn sg-btn-contorno sg-btn-m">Ver colección</button>
+        <button class="sg-btn sg-btn-contorno-rosa sg-btn-m">Limpiar filtros</button>
+        <button class="sg-btn sg-btn-rosa sg-btn-m">Añadir a la cesta</button>
+        <button class="sg-btn sg-btn-texto">Descubre más</button>
+        <button class="sg-btn sg-btn-texto sg-btn-texto-mayus">Términos y condiciones</button>
+        <button class="sg-btn sg-btn-avisa">Avísame cuando esté disponible</button>
+        <span class="wishlist-tooltip">
+          <input type="checkbox" id="wishlist-demo" class="wishlist-check">
+          <label for="wishlist-demo" class="wishlist-tag" aria-label="Añadir a wishlist" title="Añadir a wishlist">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+          </label>
+          <span class="sg-tooltip-texto">Añadir a wishlist</span>
+        </span>
+      </div>
+      <p class="sg-nota">Sólido (negro) para acción principal; contorno para secundaria; contorno-rosa es el mismo contorno pero en rosa-oscuro, para acciones secundarias de limpiar/descartar (ej. "Limpiar filtros" en el panel admin) — mismo patrón de hover que contorno, invierte a relleno sólido con texto/icono en --fondo; rosa solo para la CTA de compra; texto subrayado para enlaces — al hover engrosa el trazo (<code>--border-thick</code>), nunca cambia de color. Esquinas rectas. "Avísame cuando esté disponible" es un botón compacto (padding 8px, texto en <code>--text-caption</code>) para tarjetas de producto agotado. El icono de guardar (Bookmark, Lucide, esquinas rectas) lleva tooltip "Añadir a wishlist"; su trazo es tinta (<code>stroke-width:1</code>) y, al hacer clic, se rellena también en tinta. En la tarjeta de producto solo aparece al hacer hover sobre la tarjeta.</p>
+    </section>
+
+    <section id="etiquetas">
+      <p class="sg-rotulo">Etiquetas</p>
+      <div class="sg-badges">
+        <span class="sg-badge sg-badge-rosa">Nueva colección</span>
+        <span class="sg-badge sg-badge-rosa">-20%</span>
+        <span class="sg-badge sg-badge-velo">Novia</span>
+        <span class="sg-badge sg-badge-velo">Edición limitada</span>
+        <span class="sg-badge sg-badge-agotado">Agotado</span>
+      </div>
+    </section>
+
+
+    <section id="ecommerce">
+      <p class="sg-rotulo">Componentes de e-commerce</p>
+      <h4 style="margin-bottom:16px;">Selector de sg-talla</h4>
+      <div class="sg-tallas" style="margin-bottom:40px;">
+        <button class="sg-talla">XS</button><button class="sg-talla sg-activa">S</button><button class="sg-talla">M</button><button class="sg-talla">L</button><button class="sg-talla sg-agotada">XL</button>
+      </div>
+      <h4 style="margin-bottom:16px;">Selector de sg-cantidad</h4>
+      <div class="sg-cantidad" style="margin-bottom:40px;"><button>−</button><span class="sg-n">1</span><button>+</button></div>
+      <h4 style="margin-bottom:16px;">Campo de formulario</h4>
+      <div class="sg-campo" style="margin-bottom:40px;"><label>Email</label><input type="email" placeholder="nombre@email.com"></div>
+      <h4 style="margin-bottom:16px;">Selector de color</h4>
+      <div class="sg-color-selector">
+        <span class="sg-color-actual">Rosa suave</span>
+        <div class="sg-color-swatches">
+          <span class="sg-swatch sg-activo" style="background:#EED3E8" title="Rosa suave"></span>
+          <span class="sg-swatch" style="background:#F7F7F7" title="Blanco"></span>
+          <span class="sg-swatch" style="background:#101010" title="Negro"></span>
+          <span class="sg-swatch" style="background:#F5F1EE" title="Crema"></span>
+          <span class="sg-swatch" style="background:#AEAEAE" title="Gris piedra"></span>
+          <span class="sg-swatch" style="background:#23324A" title="Azul marino"></span>
+          <span class="sg-swatch" style="background:#6B705C" title="Verde oliva"></span>
+          <span class="sg-swatch" style="background:#6E2635" title="Burdeos"></span>
+          <span class="sg-swatch" style="background:#C19A6B" title="Camel"></span>
+          <span class="sg-swatch" style="background:#C1653D" title="Terracota"></span>
+        </div>
+      </div>
+      <p class="sg-nota">24px, gap 12px. El color activo o en hover muestra un anillo (outline + offset) en tinta. El nombre del color seleccionado se actualiza arriba (aquí estático a modo de referencia).</p>
+    </section>
+
+    <section id="reglas">
+      <p class="sg-rotulo">Do & Don't</p>
+      <div class="sg-dodont">
+        <div class="sg-do">
+          <h4>Do</h4>
+          <ul>
+            <li>Rosa como acento: etiquetas, hover, CTA de compra.</li>
+            <li>Texto rosa sobre blanco → rosa oscuro (contraste).</li>
+            <li>Titulares en 500, cuerpo en 400. Sin tracking.</li>
+            <li>Esquinas rectas; 4px solo en imágenes.</li>
+            <li>Elevación por tono, no por sombra.</li>
+            <li>Aire: 120–200px entre secciones.</li>
+          </ul>
+        </div>
+        <div class="sg-dont">
+          <h4>Don't</h4>
+          <ul>
+            <li>Rosa como superficie dominante o relleno.</li>
+            <li>Bold (700+).</li>
+            <li>Sombras decorativas en tarjetas o imágenes.</li>
+            <li>Botones redondeados.</li>
+            <li>Interfaz que compita con la fotografía.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="cabecera-seccion">
+      <p class="sg-rotulo">Cabecera de sección</p>
+
+      <div class="sg-cabecera">
+        <div class="sg-cabecera-titulo-grupo">
+          <p class="sg-cabecera-subtitle">FW27</p>
+          <p class="sg-cabecera-titulo">La Colección</p>
+          <p class="sg-cabecera-descripcion">Piezas nuevas de temporada, pensadas para acompañar cada ocasión con la misma artesanía de siempre.</p>
+        </div>
+        <div class="sg-cabecera-accion">
+          <a href="#" class="sg-btn-texto sg-btn-texto-mayus">Ver colección</a>
+        </div>
+      </div>
+
+      <div class="sg-cabecera" style="margin-bottom:0;">
+        <div class="sg-cabecera-titulo-grupo">
+          <p class="sg-cabecera-subtitle">Atelier</p>
+          <p class="sg-cabecera-titulo">Un look para cada ocasión</p>
+          <p class="sg-cabecera-descripcion">Reserva tu cita y vive un día único en el Atelier. Disfruta del asesoramiento personalizado de nuestra diseñadora.</p>
+        </div>
+        <div class="sg-cabecera-accion-ancha">
+          <a href="#" class="sg-btn-texto sg-btn-texto-mayus">Invitada boda día</a>
+          <a href="#" class="sg-btn-texto sg-btn-texto-mayus">Invitada boda noche</a>
+          <a href="#" class="sg-btn-texto sg-btn-texto-mayus">Comuniones &amp; bautizos</a>
+        </div>
+      </div>
+
+      <p class="sg-nota">Componente <code>CabeceraSeccion</code> (<code>src/components/ui/CabeceraSeccion.jsx</code>) — grid de 4 columnas: grupo título (subtítulo pequeño opcional + título grande + descripción opcional, apilados) en la 1ª columna, "accion" libre (vía <code>children</code>) en las últimas. Por defecto la accion ocupa 1 columna (la 4ª), pegada a la derecha — un botón suelto, como en la primera fila de arriba (usada por <code>CuadriculaProductos</code>). Con la prop <code>accionAncha</code> ocupa 3 columnas (2ª a 4ª) — para contenido que necesita más sitio que un botón, como la fila de tabs de la segunda fila (usada por <code>CollectionTitle</code> variante <code>"tabs"</code>). En mobile, todo se apila en una sola columna. Reutilizada así para que las dos cabeceras no diverjan con el tiempo al vivir cada una su propia copia del layout.</p>
+    </section>
+
+    <section id="producto">
+      <p class="sg-rotulo">Tarjeta de producto</p>
+      <div class="sg-productos">
+        <div class="sg-prod">
+          <div class="sg-img">
+            <span class="sg-etiqueta sg-badge-tinta">Novia</span>
+            <img class="sg-base" src="public/img/styleguide/prod-tarjeta.webp" alt="Vestido Aurora">
+            <img class="sg-hover" src="public/img/styleguide/prod-tarjeta-hover.webp" alt="">
+          </div>
+          <span class="wishlist">
+            <span class="wishlist-tooltip">
+              <input type="checkbox" id="wishlist-aurora" class="wishlist-check">
+              <label for="wishlist-aurora" class="wishlist-tag" aria-label="Añadir a wishlist" title="Añadir a wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+              </label>
+              <span class="sg-tooltip-texto">Añadir a wishlist</span>
+            </span>
+          </span>
+          <div class="sg-info"><div class="sg-nom">Vestido Aurora</div><div class="sg-precio">890 €</div></div>
+          <div class="sg-colores-prod">
+            <span class="sg-punto-color" style="background:#EED3E8" title="Rosa suave"></span>
+            <span class="sg-punto-color" style="background:#F7F7F7" title="Blanco"></span>
+          </div>
+        </div>
+        <div class="sg-prod">
+          <div class="sg-img">
+            <img class="sg-base" src="public/img/styleguide/prod-tarjeta.webp" alt="Falda Vera">
+            <img class="sg-hover" src="public/img/styleguide/prod-tarjeta-hover.webp" alt="">
+          </div>
+          <span class="wishlist">
+            <span class="wishlist-tooltip">
+              <input type="checkbox" id="wishlist-vera" class="wishlist-check">
+              <label for="wishlist-vera" class="wishlist-tag" aria-label="Añadir a wishlist" title="Añadir a wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+              </label>
+              <span class="sg-tooltip-texto">Añadir a wishlist</span>
+            </span>
+          </span>
+          <div class="sg-info"><div class="sg-nom">Falda Vera</div><div class="sg-precio">420 €</div></div>
+          <div class="sg-colores-prod">
+            <span class="sg-punto-color" style="background:#F5F1EE" title="Crema"></span>
+            <span class="sg-punto-color" style="background:#AEAEAE" title="Gris piedra"></span>
+            <span class="sg-punto-color" style="background:#101010" title="Negro"></span>
+          </div>
+        </div>
+        <div class="sg-prod">
+          <div class="sg-img">
+            <span class="sg-etiqueta sg-badge-rosa">-20%</span>
+            <img class="sg-base" src="public/img/styleguide/prod-tarjeta.webp" alt="Vestido Lía">
+            <img class="sg-hover" src="public/img/styleguide/prod-tarjeta-hover.webp" alt="">
+          </div>
+          <span class="wishlist">
+            <span class="wishlist-tooltip">
+              <input type="checkbox" id="wishlist-lia" class="wishlist-check">
+              <label for="wishlist-lia" class="wishlist-tag" aria-label="Añadir a wishlist" title="Añadir a wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+              </label>
+              <span class="sg-tooltip-texto">Añadir a wishlist</span>
+            </span>
+          </span>
+          <div class="sg-info"><div class="sg-nom">Vestido Lía</div><div class="sg-precio"><span class="sg-prediscount">1.150 €</span><span class="sg-discount">920 €</span></div></div>
+          <div class="sg-colores-prod">
+            <span class="sg-punto-color" style="background:#EED3E8" title="Rosa suave"></span>
+            <span class="sg-punto-color" style="background:#F7F7F7" title="Blanco"></span>
+            <span class="sg-punto-color" style="background:#101010" title="Negro"></span>
+            <span class="sg-punto-mas">+1</span>
+          </div>
+        </div>
+        <div class="sg-prod">
+          <div class="sg-img">
+            <img class="sg-base" src="public/img/styleguide/prod-tarjeta.webp" alt="Vestido Sol">
+            <img class="sg-hover" src="public/img/styleguide/prod-tarjeta-hover.webp" alt="">
+          </div>
+          <span class="wishlist">
+            <span class="wishlist-tooltip">
+              <input type="checkbox" id="wishlist-sol" class="wishlist-check">
+              <label for="wishlist-sol" class="wishlist-tag" aria-label="Añadir a wishlist" title="Añadir a wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+              </label>
+              <span class="sg-tooltip-texto">Añadir a wishlist</span>
+            </span>
+          </span>
+          <div class="sg-info"><div class="sg-nom">Vestido Sol</div><div class="sg-precio">760 €</div></div>
+          <div class="sg-colores-prod">
+            <span class="sg-punto-color" style="background:#6E2635" title="Burdeos"></span>
+            <span class="sg-punto-color" style="background:#23324A" title="Azul marino"></span>
+            <span class="sg-punto-color" style="background:#6B705C" title="Verde oliva"></span>
+            <span class="sg-punto-mas">+3</span>
+          </div>
+        </div>
+        <div class="sg-prod">
+          <div class="sg-img">
+            <span class="sg-etiqueta sg-badge-agotado">Agotado</span>
+            <img class="sg-base" src="public/img/styleguide/prod-tarjeta.webp" alt="Vestido Nube">
+            <img class="sg-hover" src="public/img/styleguide/prod-tarjeta-hover.webp" alt="">
+          </div>
+          <span class="wishlist">
+            <span class="wishlist-tooltip">
+              <input type="checkbox" id="wishlist-nube" class="wishlist-check">
+              <label for="wishlist-nube" class="wishlist-tag" aria-label="Añadir a wishlist" title="Añadir a wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+              </label>
+              <span class="sg-tooltip-texto">Añadir a wishlist</span>
+            </span>
+          </span>
+          <div class="sg-info"><div class="sg-nom">Vestido Nube</div><div class="sg-precio">690 €</div></div>
+          <div class="sg-accion-prod">
+            <button class="sg-btn sg-btn-avisa">Avísame cuando esté disponible</button>
+          </div>
+        </div>
+      </div>
+      <p class="sg-nota">Al pasar el cursor, la foto cruza en fundido hacia el plano detalle. Los colores se reservan siempre como espacio en blanco justo debajo de la info (para que la tarjeta no salte de tamaño) y solo se revelan en hover; su borde va en gris 500 (0.75px, <code>--border-thin</code>) y el texto "+N" en gris 700. Máximo 3 puntos visibles; a partir de 4 colores se añade "+N" con el resto. Máximo 4 elementos por tarjeta (3 puntos + "+N"). En una tarjeta agotada, la fila de colores se sustituye por el botón "Avísame cuando esté disponible" (mismo padding y tipografía que en la sección Botones) y se muestra siempre, sin depender del hover.</p>
+
+      <h4 style="margin-top:32px; margin-bottom:16px;">Tarjeta de producto relacionado</h4>
+      <div class="sg-relacionado-demo">
+        <div class="sg-prod sg-prod-relacionado">
+          <div class="sg-img">
+            <img class="sg-base" src="public/img/styleguide/prod-tarjeta-relacionado.webp" alt="Top Flores">
+            <img class="sg-hover" src="public/img/styleguide/prod-tarjeta-relacionado-hover.webp" alt="">
+          </div>
+          <div class="sg-info-relacionado">
+            <div class="sg-nom">Top Flores</div>
+            <div class="sg-precio">€590</div>
+          </div>
+          <div class="sg-colores-prod">
+            <span class="sg-punto-color" style="background:#101010" title="Negro"></span>
+            <span class="sg-punto-color" style="background:#AEAEAE" title="Gris"></span>
+            <span class="sg-punto-color" style="background:#EED3E8" title="Rosa suave"></span>
+          </div>
+        </div>
+      </div>
+      <p class="sg-nota">Variante compacta para raíles de "también te puede interesar": todo el texto (nombre, precio, número de colores) en <code>--text-small</code>, sin mezclar tamaños. Los swatches de color se revelan al hover, igual que en la tarjeta de producto estándar. La imagen usa <code>aspect-ratio:4/5</code> (≈145:217) y, a partir de <code>@media (min-width:48rem)</code>, un ancho <code>calc(var(--space-10) + var(--space-5))</code> = 144px — derivado de la escala de espaciado (equivalentes a <code>--spacing-120</code> y <code>--spacing-24</code> en <code>global.css</code>), no un valor suelto a mano.</p>
+    </section>
+
+    <section id="tarjeta-tienda">
+      <p class="sg-rotulo">Tarjeta de tienda</p>
+      <div class="sg-tiendas">
+        <div class="sg-tienda">
+          <div class="sg-tienda-img"><img src="public/img/styleguide/punto-venta.webp" alt="Tienda Madrid"></div>
+          <h3 class="sg-tienda-ciudad">Madrid</h3>
+          <p class="sg-tienda-direccion">C/ Claudio Coello, 88<br>28006, Madrid, España</p>
+          <a href="#" class="sg-btn sg-btn-texto">Cómo llegar</a>
+        </div>
+        <div class="sg-tienda">
+          <div class="sg-tienda-img"><img src="public/img/styleguide/punto-venta.webp" alt="Tienda Salamanca"></div>
+          <h3 class="sg-tienda-ciudad">Salamanca</h3>
+          <p class="sg-tienda-direccion">C/ Valencia, 264<br>08007, Salamanca, España</p>
+          <a href="#" class="sg-btn sg-btn-texto">Cómo llegar</a>
+        </div>
+        <div class="sg-tienda">
+          <div class="sg-tienda-img"><img src="public/img/styleguide/punto-venta.webp" alt="Tienda Oviedo"></div>
+          <h3 class="sg-tienda-ciudad">Oviedo</h3>
+          <p class="sg-tienda-direccion">Carrer de Jorge Juan, 32<br>46004, Oviedo, España</p>
+          <a href="#" class="sg-btn sg-btn-texto">Cómo llegar</a>
+        </div>
+      </div>
+      <p class="sg-nota">Imagen sin radio ni borde (mismo tratamiento que Tarjeta de producto). Ciudad en <code>--text-body-lg</code>, dirección en <code>--text-label</code> (los mismos tamaños que ya demuestra la sección Tipografía). Enlace "Cómo llegar" reutilizando <code>.sg-btn-texto</code> tal cual, sin estilo nuevo.</p>
+    </section>
+
+    <section id="atelier">
+      <p class="sg-rotulo">Visita el atelier</p>
+      <div class="sg-boutique">
+        <div class="sg-boutique-texto">
+          <h2 class="sg-boutique-titulo">Visita el atelier</h2>
+          <p class="sg-boutique-parrafo">Cita previa en Salamanca, en el corazón del taller donde nace cada pieza.</p>
+          <a href="#" class="sg-btn sg-btn-texto">Descubre más</a>
+        </div>
+        <div class="sg-boutique-img"><img src="public/img/styleguide/punto-venta.webp" alt="Atelier Fely Campo"></div>
+      </div>
+      <p class="sg-nota">Bloque a pantalla completa (<code>height:100dvh</code>, no <code>100vh</code>) con <code>display:grid</code>. En móvil (por defecto): filas <code>1fr / 1fr</code> con <code>row-gap:var(--space-4)</code> (texto arriba, imagen debajo, mismo alto); el texto se alinea al final de su celda (<code>justify-content:flex-end</code>, pegado justo encima de la imagen) con <code>gap:var(--space-2)</code> entre título, párrafo y enlace. A partir de <code>@media (min-width:48rem)</code>, se alinea a la misma rejilla de 12 columnas que <code>.sg-grid-demo</code> (<code>grid-template-columns:repeat(12,1fr)</code>): el texto ocupa columnas 1-5 y la imagen columnas 6-12, con el texto ahora centrado verticalmente (<code>justify-content:center</code>) y <code>gap:var(--space-4)</code>. Tipografía deliberadamente pequeña y editorial: título en <code>--text-body-lg</code>, párrafo en <code>--text-small</code>, enlace en <code>--text-label</code> reutilizando <code>.sg-btn-texto</code>. Imagen real (<code>punto-venta.webp</code>) con <code>object-fit:cover</code>.</p>
+    </section>
+
+    <section id="acordeon">
+      <p class="sg-rotulo">Acordeón</p>
+      <div class="ac-lista">
+        <div class="ac-fila">
+          <input type="checkbox" id="ac-details" class="ac-check">
+          <label for="ac-details" class="ac-cabecera">
+            <span>Details</span>
+            <svg class="ac-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter"><path d="m6 9 6 6 6-6"/></svg>
+          </label>
+          <div class="ac-contenido">
+            <div class="ac-contenido-inner">
+              <div class="ac-texto">
+                <p>Corte relajado, cintura fruncida y tejido jacquard con flor en relieve.</p>
+                <p>Fabricado en Salamanca, colección Novias.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ac-fila">
+          <input type="checkbox" id="ac-materials" class="ac-check">
+          <label for="ac-materials" class="ac-cabecera">
+            <span>Materials and care</span>
+            <svg class="ac-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter"><path d="m6 9 6 6 6-6"/></svg>
+          </label>
+          <div class="ac-contenido">
+            <div class="ac-contenido-inner">
+              <div class="ac-texto">
+                <p>100% algodón.</p>
+                <p>Lavado a mano, no usar secadora.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ac-fila">
+          <input type="checkbox" id="ac-size" class="ac-check">
+          <label for="ac-size" class="ac-cabecera">
+            <span>Size and fit</span>
+            <svg class="ac-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter"><path d="m6 9 6 6 6-6"/></svg>
+          </label>
+          <div class="ac-contenido">
+            <div class="ac-contenido-inner">
+              <div class="ac-texto">
+                <p>El modelo mide 1.78m y lleva la sg-talla S.</p>
+                <p>Corte regular, ajuste real a la sg-talla.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ac-fila">
+          <input type="checkbox" id="ac-shipping" class="ac-check">
+          <label for="ac-shipping" class="ac-cabecera">
+            <span>Shipping and returns</span>
+            <svg class="ac-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter"><path d="m6 9 6 6 6-6"/></svg>
+          </label>
+          <div class="ac-contenido">
+            <div class="ac-contenido-inner">
+              <div class="ac-texto">
+                <p>Envíos en 24-48h. Devoluciones gratuitas en 30 días.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ac-fila">
+          <input type="checkbox" id="ac-help" class="ac-check">
+          <label for="ac-help" class="ac-cabecera">
+            <span>Need assistance</span>
+            <svg class="ac-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter"><path d="m6 9 6 6 6-6"/></svg>
+          </label>
+          <div class="ac-contenido">
+            <div class="ac-contenido-inner">
+              <div class="ac-texto">
+                <p>Escríbenos a atencioncliente@felycampo.com.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="sg-nota">Cada fila se abre/cierra de forma independiente (no exclusiva). Divisor <code>--border-thin</code> en <code>--g300</code>, texto en <code>--text-caption</code>, espaciado vertical en <code>--space-3</code>. La flecha rota 180° y el contenido anima su altura con la técnica <code>grid-template-rows: 0fr → 1fr</code> — sin JavaScript en esta demo (checkbox + label), igual que el componente React real (<code>Acordeon.jsx</code> / <code>Acordeon.module.css</code> en <code>src/components/ui</code>), que usa <code>useState</code> por fila, <code>aria-expanded</code> y <code>aria-hidden</code>.</p>
+    </section>
+
+    <section id="cargar-mas">
+      <p class="sg-rotulo">Cargar más</p>
+      <input type="checkbox" id="cargar-check-demo" class="cargar-check">
+      <div class="cargar-demo">
+        <p class="cargar-estado">
+          <span class="cargar-antes">Mostrando 20 de 95 productos</span>
+          <span class="cargar-despues">Mostrando 40 de 95 productos</span>
+        </p>
+        <div class="cargar-pista">
+          <div class="cargar-relleno"></div>
+        </div>
+        <label for="cargar-check-demo" class="sg-btn sg-btn-solido sg-btn-m cargar-boton-demo">Cargar más</label>
+      </div>
+      <p class="sg-nota">Pulsa "Cargar más" para ver la animación. Texto de estado en <code>--text-caption</code>; pista en <code>--hairline</code> (1px, <code>--border-regular</code>), relleno en <code>--tinta</code> con <code>transition:width</code> — no salta de golpe. Espaciado entre texto/barra/botón en <code>--space-4</code>. Cuando <code>mostrados >= total</code> el botón se oculta (no queda un "Cargar más" que no cargue nada) — sin JavaScript en esta demo (checkbox + label), igual que el componente React real (<code>CargarMas.jsx</code> / <code>CargarMas.module.css</code> en <code>src/components/producto</code>), que gestiona <code>mostrados</code> con <code>useState</code> y reutiliza <code>&lt;Boton variante="solido" tamano="full"&gt;</code>.</p>
+    </section>
+
+    <section id="sitemap-web">
+      <p class="sg-rotulo">Web pública · sitemap</p>
+
+      <div class="sitemap-bloque">
+        <span class="sitemap-etiqueta">Header</span>
+        <span class="sitemap-ruta">FELY CAMPO › Web Pública</span>
+        <table class="sitemap-tabla">
+          <thead><tr><th>Sección</th><th>Sub-sección</th><th>Detalle</th></tr></thead>
+          <tbody>
+            <tr><td rowspan="2">Atelier</td><td>Novias</td><td class="sg-vacio">—</td></tr>
+            <tr><td>Fiesta</td><td class="sg-vacio">—</td></tr>
+
+            <tr><td rowspan="4">Prêt-à-porter</td><td rowspan="4">(E-commerce) — Venta de productos online</td><td>Vestidos</td></tr>
+            <tr><td>Faldas</td></tr>
+            <tr><td>[+] (más categorías)</td></tr>
+            <tr><td>Ficha producto individual</td></tr>
+
+            <tr><td rowspan="5">Archivo</td><td>Runway</td><td class="sg-vacio">—</td></tr>
+            <tr><td rowspan="4">Colecciones</td><td>Novias</td></tr>
+            <tr><td>Fiesta</td></tr>
+            <tr><td>Colección Individual</td></tr>
+            <tr><td>Look Individual</td></tr>
+
+            <tr><td rowspan="2">About</td><td>Atelier</td><td class="sg-vacio">—</td></tr>
+            <tr><td>Fely Campo (Diseñadora)</td><td class="sg-vacio">—</td></tr>
+
+            <tr><td rowspan="3">Visítenos</td><td rowspan="3">Puntos de venta</td><td>Atelier</td></tr>
+            <tr><td>Nacional</td></tr>
+            <tr><td>Internacional</td></tr>
+
+            <tr><td>Agendar cita</td><td class="sg-vacio">—</td><td class="sg-vacio">—</td></tr>
+
+            <tr><td rowspan="2">Carrito</td><td>Tu cuenta</td><td class="sg-vacio">—</td></tr>
+            <tr><td>Usuario</td><td class="sg-vacio">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sitemap-bloque">
+        <span class="sitemap-etiqueta">Footer</span>
+        <table class="sitemap-tabla">
+          <thead><tr><th>Sección</th><th>Detalle</th></tr></thead>
+          <tbody>
+            <tr><td>Ayuda</td><td>Atención cliente</td></tr>
+
+            <tr><td rowspan="4">Legal</td><td>Aviso legal</td></tr>
+            <tr><td>Política de Privacidad</td></tr>
+            <tr><td>Política de Cookies</td></tr>
+            <tr><td>Términos y Condiciones</td></tr>
+
+            <tr><td rowspan="2">Fely Campo</td><td>About</td></tr>
+            <tr><td>Responsabilidad</td></tr>
+
+            <tr><td rowspan="3">Síguenos</td><td>Instagram</td></tr>
+            <tr><td>Youtube</td></tr>
+            <tr><td>Tiktok</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="sg-nota">Tabla de solo lectura (sin JS) para ver de un vistazo qué contiene cada zona antes de maquetarla — en horizontal, por columnas y filas, en vez de en cascada. Header y Footer son dos tablas independientes. Columna "Sección" en <code>--text-small</code>, el resto en <code>--text-caption</code>; separadores en <code>--border-thin</code> sobre <code>--g300</code>. <code>.sitemap-tabla</code> es genérica: la misma clase, sin duplicar CSS, reutilizada tal cual en "Usuario registrado" y "Panel de administración".</p>
+    </section>
+
+    <section id="sitemap-usuario">
+      <p class="sg-rotulo">Usuario registrado · sitemap</p>
+      <div class="sitemap-bloque">
+        <span class="sitemap-ruta">FELY CAMPO › Usuario registrado</span>
+        <table class="sitemap-tabla">
+          <thead><tr><th>Sección</th><th>Detalle</th></tr></thead>
+          <tbody>
+            <tr><td rowspan="2">Mi cuenta</td><td>Datos personales</td></tr>
+            <tr><td>Cambiar contraseña</td></tr>
+
+            <tr><td rowspan="2">Mis pedidos</td><td>Listado</td></tr>
+            <tr><td>Detalles pedidos</td></tr>
+
+            <tr><td rowspan="2">Mis consultas</td><td>Listado</td></tr>
+            <tr><td>Estado consulta</td></tr>
+
+            <tr><td rowspan="2">Mis citas</td><td>Próximas citas</td></tr>
+            <tr><td>Historial</td></tr>
+
+            <tr><td rowspan="3">Carrito</td><td>Resumen</td></tr>
+            <tr><td>Checkout</td></tr>
+            <tr><td>Confirmación</td></tr>
+
+            <tr><td>Cerrar sesión</td><td class="sg-vacio">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="sg-nota">Misma tabla genérica <code>.sitemap-tabla</code> que en Web pública — área privada del usuario tras iniciar sesión.</p>
+    </section>
+
+    <section id="sitemap-panel">
+      <p class="sg-rotulo">Panel de administración · sitemap</p>
+      <p class="sg-nota" style="margin-top:0;">La vista principal del panel (dashboard) incluye, antes de entrar en cualquier sección:</p>
+      <div class="sg-dodont" style="grid-template-columns:1fr; max-width:480px;">
+        <div class="sg-do">
+          <ul>
+            <li>Total de pedidos</li>
+            <li>Pedidos pendientes</li>
+            <li>Productos activos</li>
+            <li>Últimas consultas recibidas</li>
+            <li>Accesos rápidos a secciones</li>
+            <li>Vista principal del panel</li>
+            <li>Notificación email nuevo pedido</li>
+            <li>Notificación email nueva consulta</li>
+            <li>Notificación email nueva cita</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sitemap-bloque" style="margin-top:var(--space-7);">
+        <span class="sitemap-ruta">FELY CAMPO › Panel de administración</span>
+        <table class="sitemap-tabla">
+          <thead><tr><th>Sección</th><th>Detalle</th></tr></thead>
+          <tbody>
+            <tr><td rowspan="3">Productos</td><td>Listado</td></tr>
+            <tr><td>Crear</td></tr>
+            <tr><td>Editar</td></tr>
+
+            <tr><td rowspan="3">Categoría</td><td>Listado</td></tr>
+            <tr><td>Crear</td></tr>
+            <tr><td>Editar</td></tr>
+
+            <tr><td rowspan="3">Pedidos</td><td>Listado</td></tr>
+            <tr><td>Crear</td></tr>
+            <tr><td>Editar</td></tr>
+
+            <tr><td rowspan="3">Consultas / Citas</td><td>Listado</td></tr>
+            <tr><td>Crear</td></tr>
+            <tr><td>Editar</td></tr>
+
+            <tr><td rowspan="3">Contenido</td><td>Listado</td></tr>
+            <tr><td>Crear</td></tr>
+            <tr><td>Editar</td></tr>
+
+            <tr><td rowspan="3">Blog</td><td>Listado</td></tr>
+            <tr><td>Crear</td></tr>
+            <tr><td>Editar</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="sg-nota">Misma tabla genérica <code>.sitemap-tabla</code>. Las seis secciones comparten el mismo patrón CRUD (Listado / Crear / Editar).</p>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

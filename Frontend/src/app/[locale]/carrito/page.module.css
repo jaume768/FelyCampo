@@ -1,0 +1,246 @@
+/* ============================================================
+   BOLSA (/carrito) — Fely Campo
+   Dos columnas: cuadrícula de productos + resumen del pedido, mismo
+   patrón que .ficha/.info en tienda/[producto]/page.module.css.
+   ============================================================ */
+
+/* "cart": hook estable sin hash (ver <section className="seccion
+   contenedor cart">), mismo patrón que .vermas-overlay en
+   VerMasOverlay.jsx — el nombre de la página como clase plana, junto
+   a "seccion"/"contenedor". */
+:global(.cart) {
+  padding-inline: var(--spacing-6);
+}
+
+.vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  height: 90vh;
+  padding-block: var(--spacing-8);
+  text-align: center;
+}
+
+.vacioIcono {
+  width: 64px;
+  height: 64px;
+  color: var(--color-gris-300);
+}
+
+.vacioTexto {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+}
+
+.layout {
+  display: grid;
+  /* minmax(0, 3fr) en la cuadrícula: sin el minmax(0, …), un grid track
+     nunca se encoge por debajo del min-content de sus hijos (fotos,
+     nombres largos…), así que la columna podía forzar a .layout a
+     desbordar. Con minmax(0, …) la cuadrícula cede lo que le sobre y el
+     resumen puede plantar su mínimo de 400px (ver .resumen) sin que el
+     conjunto supere el ancho de .layout. */
+  grid-template-columns: minmax(0, 3fr) minmax(400px, 2fr);
+  gap: var(--spacing-8);
+  padding-block: var(--spacing-6) var(--spacing-12);
+}
+
+@media (max-width: 767px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-6);
+  }
+}
+
+/* auto-fill + minmax, no un número fijo de columnas: con repeat(3, …) la
+   única forma de no desbordar era encoger las 3 columnas por debajo de
+   su ancho cómodo (tarjetas aplastadas) cuando el resumen le quita
+   sitio. Con auto-fill el propio grid decide cuántas caben a 180px cada
+   una — 3, 2 o 1 según el espacio real — y el resto de tarjetas pasa a
+   la fila siguiente en vez de apretarse todas en la misma fila.
+   auto-fill, no auto-fit: con auto-fit, si solo hay 1 o 2 productos
+   pero cabrían 3 columnas, esas 1-2 tarjetas se estiran para repartirse
+   el ancho de las columnas vacías y quedan enormes. auto-fill mantiene
+   esas columnas vacías como huecos en blanco en vez de repartirlas —
+   las tarjetas existentes conservan su ancho normal. */
+.cuadricula {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--spacing-4) var(--spacing-4);
+  align-content: start;
+}
+
+.resumen {
+  position: sticky;
+  top: var(--spacing-8);
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+  padding: var(--spacing-6);
+  background: var(--color-details);
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .resumen {
+    min-width: 400px;
+  }
+}
+
+@media (max-width: 767px) {
+  .resumen {
+    position: static;
+  }
+}
+
+.resumenTitulo {
+  font-size: var(--text-h3);
+}
+
+/* Solo "¿Ya tienes cuenta?" lleva subrayado (ver .loginPromptPregunta
+   más abajo) — el resto de la frase, plano. flex-wrap: wrap, no una
+   media query — así ".loginPromptGrupo" (icono + pregunta) y el resto
+   de la frase se quedan en fila mientras quepan, y en cuanto no hay
+   ancho de sobra el segundo pasa solo a su propia línea (columna),
+   pegado al ancho real del contenedor en vez de a un breakpoint fijo. */
+/* <button>, no <a> (ver page.js) — abre MiCuentaModal en vez de
+   navegar a una página, así que resetea el estilo nativo de botón. */
+.loginPrompt {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1) var(--spacing-2);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: center;
+}
+
+.loginPromptGrupo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.loginPromptIcono {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.loginPromptPregunta {
+  text-decoration: underline;
+  text-decoration-color: var(--color-gris-300);
+  text-underline-offset: var(--spacing-1);
+  transition: text-decoration-color 0.25s var(--ease-marca);
+}
+
+.loginPrompt:hover .loginPromptPregunta {
+  text-decoration-color: var(--color-tinta);
+}
+
+.filaPedir {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.costes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding-block: var(--spacing-4);
+  border-block: 0.75px solid var(--color-gris-300);
+}
+
+.filaCoste {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-small);
+  color: var(--color-gris-700);
+}
+
+.filaTotal {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+/* <button> (abre PanelInfoEnvios, ver page.js) — mismo aspecto que el
+   texto informativo de antes, sin verse como una caja. Mayúsculas por
+   CSS (no en la traducción) — todo el texto lleva subrayado, ver
+   .infoEnvioSubrayado. */
+.infoEnvio {
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  text-transform: uppercase;
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  line-height: var(--leading-base);
+  cursor: pointer;
+  margin-top: var(--spacing-4);
+}
+
+.infoEnvioSubrayado {
+  text-decoration: underline;
+  text-decoration-color: var(--color-gris-300);
+  text-underline-offset: var(--spacing-1);
+  transition: text-decoration-color 0.25s var(--ease-marca);
+}
+
+.infoEnvio:hover .infoEnvioSubrayado {
+  text-decoration-color: var(--color-gris-500);
+}
+
+/* Aviso de la cesta anterior descartada y de pérdida de stock. Sin radio, rosa como
+   acento (docs/design.md). */
+.avisoCarritoViejo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  background: var(--color-gris-100, #f2f2f2);
+  border-left: 2px solid var(--color-rosa, #e92174);
+  font-size: 0.875rem;
+  color: var(--color-gris-700, #404040);
+}
+
+.avisoCarritoViejo p {
+  margin: 0;
+}
+
+.avisoCarritoViejo button {
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--color-gris-500, #757575);
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.avisoCarritoViejo button:hover {
+  color: var(--color-rosa-oscuro, #c2185f);
+}
+
+.avisoStock {
+  margin: 0 0 24px;
+  padding: 12px 16px;
+  background: var(--color-rosa-velo, #fce4ee);
+  color: var(--color-rosa-oscuro, #c2185f);
+  font-size: 0.875rem;
+}

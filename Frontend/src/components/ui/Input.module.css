@@ -1,0 +1,39 @@
+/* ============================================================
+   INPUT — Fely Campo
+   ============================================================ */
+
+.campo { display: block; }
+
+.etiqueta {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: 12px var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  outline: none;
+  transition: border-color 0.25s var(--ease-marca);
+}
+.input::placeholder { color: var(--color-gris-400); }
+.input:focus { border-color: var(--color-tinta); }
+
+/* Estado de error del campo. Rosa oscuro para que el texto sobre blanco tenga
+   contraste legible (docs/design.md). Sin radio. */
+.inputError {
+  border-color: var(--color-rosa-oscuro, #c2185f);
+}
+
+.error {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--color-rosa-oscuro, #c2185f);
+}

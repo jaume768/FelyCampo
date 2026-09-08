@@ -1,0 +1,689 @@
+.miniatura {
+  width: 44px;
+  height: 60px;
+  object-fit: cover;
+  display: block;
+  background: var(--color-gris-100);
+}
+
+.nombreCelda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+/* Debajo del nombre, en cualquier fila con color asignado (la raíz
+   incluida, no solo sus variantes) — el color real de esa fila sin
+   necesitar una columna propia ni repetir el nombre del color en
+   texto. */
+.nombreVarianteSwatch {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border: var(--border-thin) solid var(--color-gris-300);
+}
+
+/* Mismo patrón que pedidos/[id]/page.module.css .cabeceraSuperior (no se
+   puede importar una clase de otro CSS Module) — BotonVolver a la
+   izquierda, un control a la derecha, en vez de meterlo dentro de
+   PageHeader. Usado por la vista de looks: el toggle tabla/rejilla va
+   aquí, "Añadir Look" se queda en PageHeader → children, debajo. */
+.cabeceraSuperior {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+}
+
+.publicarBoton {
+  background: var(--color-azul);
+  border-color: var(--color-azul);
+}
+
+.publicarBoton:hover {
+  background: var(--color-azul-oscuro);
+  border-color: var(--color-azul-velo);
+}
+
+/* Ya publicada (botón desactivado, ver ListaProductos.jsx) — verde de
+   "hecho", no el azul de "acción disponible" del resto de .publicarBoton.
+   Sin la opacidad 0.5 de .boton:disabled (Boton.module.css): atenuada
+   parecería una acción no disponible, cuando en realidad confirma que
+   la colección SÍ está publicada — selector con "button." para pesar más
+   que ".boton:disabled" pase lo que pase el orden de los CSS Modules. */
+.publicarBotonPublicada {
+  background: var(--color-verde);
+  border-color: var(--color-verde);
+}
+
+button.publicarBotonPublicada:disabled {
+  opacity: 1;
+}
+
+.bulkBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-tinta);
+  margin-bottom: var(--spacing-3);
+}
+
+.bulkTexto {
+  font-size: var(--text-caption);
+  color: var(--color-fondo);
+  margin-right: auto;
+}
+
+.bulkBar button {
+  color: var(--color-fondo);
+  border-color: var(--color-fondo);
+}
+
+.bulkBar .bulkPublicar {
+  background: var(--color-verde);
+  border-color: var(--color-verde);
+}
+.bulkBar .bulkPublicar:hover {
+  background: var(--color-verde-oscuro);
+  border-color: var(--color-verde-oscuro);
+}
+
+.bulkBar .bulkDesactivar {
+  background: var(--color-gris-500);
+  border-color: var(--color-gris-500);
+}
+.bulkBar .bulkDesactivar:hover {
+  background: var(--color-gris-700);
+  border-color: var(--color-gris-700);
+}
+
+.bulkBar .bulkBorrar {
+  background: var(--color-rojo);
+  border-color: var(--color-rojo);
+}
+.bulkBar .bulkBorrar:hover {
+  background: var(--color-rojo-oscuro);
+  border-color: var(--color-rojo-oscuro);
+}
+
+.bulkCerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-fondo);
+  transition: color 0.25s var(--ease-marca);
+}
+
+.bulkCerrar:hover {
+  color: var(--color-rosa);
+}
+
+.acciones {
+  display: flex;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.filaAcciones {
+  display: flex;
+  gap: var(--spacing-3);
+}
+
+.iconoAnadir {
+  vertical-align: text-bottom;
+}
+
+.categoriasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--spacing-4);
+}
+
+/* Mismo patrón que pedidos/[id]/page.module.css .estadoSelector/.estadoBoton
+   — inactivo: contorno del color de la temporada; activo: relleno sólido.
+   "Todas" no lleva color propio, es el filtro neutro. AW en azul, SS en
+   rosa-oscuro, mismos tokens que .categoriaBadgeAw/.categoriaBadgeSs. */
+.temporadaSelector {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.temporadaBoton {
+  padding: var(--spacing-2) var(--spacing-4);
+  background: none;
+  border: var(--border-regular) solid var(--color-gris-300);
+  color: var(--color-tinta);
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease-marca), color 0.2s var(--ease-marca), border-color 0.2s var(--ease-marca);
+}
+
+.temporadaBotonAw {
+  border-color: var(--color-azul);
+  color: var(--color-azul);
+}
+
+.temporadaBotonSs {
+  border-color: var(--color-rosa-oscuro);
+  color: var(--color-rosa-oscuro);
+}
+
+.temporadaBotonActivo {
+  background: var(--color-tinta);
+  border-color: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.temporadaBotonAw.temporadaBotonActivo {
+  background: var(--color-azul);
+  border-color: var(--color-azul);
+  color: var(--color-fondo);
+}
+
+.temporadaBotonSs.temporadaBotonActivo {
+  background: var(--color-rosa-oscuro);
+  border-color: var(--color-rosa-oscuro);
+  color: var(--color-fondo);
+}
+
+.categoriaTarjeta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-6) var(--spacing-4);
+  border: var(--border-regular) solid var(--color-gris-200);
+  color: var(--color-tinta);
+  text-align: center;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.categoriaTarjeta:hover {
+  border-color: var(--color-tinta);
+  background: var(--color-rosa-velo);
+}
+
+.categoriaIcono {
+  width: 28px;
+  height: 28px;
+  color: var(--color-rosa-oscuro);
+}
+
+.categoriaNombre {
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Variante con foto en vez de icono (Prêt-à-porter) — misma tarjeta que
+   GridPedidos.module.css .tarjeta/.imagenWrap/.imagen, 4 columnas fijas
+   en vez del auto-fill de .categoriasGrid. */
+.categoriasGridImagenes {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.categoriaTarjetaImagen {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border: var(--border-thin) solid var(--color-gris-200);
+  background: var(--color-light-details);
+  transition: border-color 0.2s var(--ease-marca);
+}
+
+.categoriaEditar {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease-marca), color 0.2s var(--ease-marca);
+}
+
+.categoriaTarjetaImagen:hover .categoriaEditar,
+.categoriaEditar:focus-visible {
+  opacity: 1;
+}
+
+.categoriaEditar:hover {
+  color: var(--color-rosa-oscuro);
+}
+
+.categoriaTarjetaImagen:hover {
+  border-color: var(--color-gris-400);
+}
+
+.categoriaTarjetaImagen:focus-visible {
+  outline: var(--border-regular) solid var(--color-tinta);
+  outline-offset: -2px;
+}
+
+.categoriaImagenWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background: var(--color-gris-100);
+  overflow: hidden;
+}
+
+/* Mismo formato de badge que EstadoPedidoBadge.module.css .badge (fondo
+   -velo + texto -oscuro, ver regla de contraste en docs/adminpanel.md
+   sección 2), posicionado como esquina sobre la imagen — código de
+   temporada de una colección de Runway. AW en azul (frío/invierno), SS en
+   naranja (cálido/verano) — mismo par de colores que ya usa
+   OrigenProductoBadge para Novias/Fiesta, así no se inventa un tercer
+   lenguaje de color en el panel. */
+.categoriaBadge {
+  position: absolute;
+  top: var(--spacing-2);
+  left: var(--spacing-2);
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.categoriaBadgeAw {
+  background: var(--color-azul-velo);
+  color: var(--color-azul-oscuro);
+}
+
+.categoriaBadgeSs {
+  background: var(--color-rosa-velo);
+  color: var(--color-rosa-oscuro);
+}
+
+.categoriaImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.categoriaImagenVacia {
+  width: 100%;
+  height: 100%;
+  background: var(--color-gris-100);
+}
+
+.categoriaInfoFila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3);
+}
+
+.categoriaTarjetaImagen .categoriaNombre {
+  display: block;
+}
+
+.categoriaContador {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  white-space: nowrap;
+}
+
+/* Mismo patrón que /admin/metricas page.module.css .vistaToggle/.vistaBoton
+   (no se puede importar una clase de otro CSS Module) — toggle tabla/
+   rejilla de la vista de looks (ver ListaProductos.jsx "Vista de looks"). */
+.vistaToggle {
+  display: inline-flex;
+  border: var(--border-regular) solid var(--color-gris-300);
+}
+
+.vistaBoton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--color-fondo);
+  border: none;
+  color: var(--color-gris-500);
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease-marca), color 0.2s var(--ease-marca);
+}
+
+.vistaBoton:not(:last-child) {
+  border-right: var(--border-regular) solid var(--color-gris-300);
+}
+
+.vistaBoton:hover {
+  color: var(--color-tinta);
+}
+
+.vistaBotonActiva {
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.vistaBotonActiva:hover {
+  color: var(--color-fondo);
+}
+
+/* Rejilla de looks — mismas proporciones que .categoriasGridImagenes, pero
+   la tarjeta no es un <Link> (no hay a dónde navegar, abre el modal de
+   edición del look) y el hueco vacío pide "Añadir imágenes" en vez de
+   caer a un rectángulo gris silencioso, porque aquí SIEMPRE hay algo que
+   hacer con un hueco vacío (subir las fotos de ese look). */
+.looksGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-4);
+}
+
+/* Mismo patrón que GridPedidos.module.css .tarjeta (no se puede importar
+   una clase de otro CSS Module) — borde fino gris-200, fondo
+   light-details, hover oscurece el borde. Es un <div>, no un <button>: el
+   click-para-editar, el botón de borrar y el de editar son 3 controles
+   independientes dentro, y un <button> no puede anidar otro <button>
+   (HTML inválido) — igual que las tarjetas de colección resuelven esto
+   con un <Link> + un <button> de editar aparte. */
+.lookTarjeta {
+  position: relative;
+  border: var(--border-thin) solid var(--color-gris-200);
+  background: var(--color-light-details);
+  transition: border-color 0.2s var(--ease-marca);
+}
+
+.lookTarjeta:hover {
+  border-color: var(--color-gris-400);
+}
+
+.lookTarjetaBoton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.lookTarjetaBoton:focus-visible {
+  outline: var(--border-regular) solid var(--color-tinta);
+  outline-offset: -2px;
+}
+
+/* Editar/borrar — mismo criterio que .categoriaEditar (visible solo al
+   hover de la tarjeta o al enfocar por teclado). Borrar a la izquierda,
+   editar a la derecha. */
+.lookQuitar,
+.lookEditar {
+  position: absolute;
+  top: var(--spacing-2);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease-marca), color 0.2s var(--ease-marca);
+}
+
+.lookQuitar {
+  left: var(--spacing-2);
+}
+
+.lookEditar {
+  right: var(--spacing-2);
+}
+
+.lookTarjeta:hover .lookQuitar,
+.lookTarjeta:hover .lookEditar,
+.lookQuitar:focus-visible,
+.lookEditar:focus-visible {
+  opacity: 1;
+}
+
+.lookQuitar:hover {
+  color: var(--color-rosa-oscuro);
+}
+
+/* Mismo patrón que GridPedidos.module.css .flecha/.puntos — desliza entre
+   las imágenes de un look que tiene más de una. */
+.flecha {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease-marca);
+}
+
+.lookImagenWrap:hover .flecha {
+  opacity: 1;
+}
+
+.flechaIzq { left: var(--spacing-2); }
+.flechaDer { right: var(--spacing-2); }
+
+.puntos {
+  position: absolute;
+  bottom: var(--spacing-2);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+}
+
+.punto {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.puntoActivo {
+  background: var(--color-fondo);
+}
+
+.lookVacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background: var(--color-gris-100);
+  color: var(--color-gris-500);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  text-align: center;
+}
+
+.lookImagenWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+
+.lookImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lookContador {
+  position: absolute;
+  bottom: var(--spacing-2);
+  right: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Superpuesta a .lookImagenWrap pero FUERA de .lookTarjetaBoton (ver
+   comentario en ListaProductos.jsx) — mismo box exacto (top:0/left:0,
+   ancho 100%, aspect-ratio 3:4) porque .lookImagenWrap es el primer hijo
+   de ese botón, que a su vez es el primer hijo de .lookTarjeta: ambas
+   parten del mismo origen. pointer-events:none dejar pasar los clicks
+   sobre el resto de la imagen; los hijos reactivan pointer-events. */
+.lookImagenOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Mini rejilla de productos vinculados (ver FormularioLook.jsx "Productos
+   vinculados") — hasta 2 miniaturas 3:4, cada una navega a la ficha de
+   solo lectura del producto. Con más de 2, la segunda pasa a ser un
+   contador "+N" que abre el propio look en vez de un producto concreto
+   (no hay una única ficha a la que llevar un agregado). */
+.lookVinculadosGrid {
+  position: absolute;
+  bottom: var(--spacing-2);
+  right: var(--spacing-2);
+  display: flex;
+  gap: 4px;
+  pointer-events: auto;
+}
+
+.lookVinculadoTile {
+  display: block;
+  width: 26px;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border: var(--border-thin) solid var(--color-fondo);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.lookVinculadoImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--color-gris-100);
+}
+
+.lookVinculadoMas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border: var(--border-thin) solid var(--color-fondo);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  font-family: var(--font-base);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.lookInfo {
+  padding: var(--spacing-3);
+}
+
+.lookNombre {
+  display: block;
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+/* Estados del listado contra la API y paginación de servidor. */
+.estadoAviso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: var(--color-rosa-velo, #fce4ee);
+  color: var(--color-rosa-oscuro, #c2185f);
+  font-size: 0.875rem;
+}
+
+.estadoAviso p {
+  margin: 0;
+}
+
+.estadoCargando,
+.estadoVacio {
+  padding: 32px 0;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-gris-500, #757575);
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 0;
+}
+
+.paginaBoton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-gris-200, #d9d9d9);
+  background: transparent;
+  color: var(--color-tinta, #202020);
+  cursor: pointer;
+}
+
+.paginaBoton:hover:not(:disabled) {
+  border-color: var(--color-rosa, #e92174);
+  color: var(--color-rosa, #e92174);
+}
+
+.paginaBoton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.paginaTexto {
+  font-size: 0.8125rem;
+  color: var(--color-gris-500, #757575);
+}

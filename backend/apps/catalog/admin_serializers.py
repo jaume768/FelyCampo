@@ -10,6 +10,7 @@ PrimaryKeyRelatedField normal (escribible) — mismo criterio que ya usaba
 la ficha completa de una tirada y escribir mandando solo ids, sin dos peticiones.
 """
 
+from django.utils import timezone
 from rest_framework import serializers
 
 from apps.media.serializers import MediaAssetSerializer
@@ -23,6 +24,8 @@ from .models import (
     Family,
     Product,
     ProductImage,
+    ProductStatus,
+    SaleMode,
     Size,
     Variant,
 )
@@ -173,6 +176,8 @@ class AdminProductSerializer(serializers.ModelSerializer):
             "price",
             "sale_price",
             "is_outlet",
+            "is_featured",
+            "featured_position",
             "status",
             "is_published",
             "published_at",
@@ -181,10 +186,63 @@ class AdminProductSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
-        read_only_fields = ("is_published", "published_at", "created_at", "updated_at")
+        # `published_at` YA NO es de solo lectura: es la fecha a partir de la cual se
+        # publica un producto programado. `is_published` sigue derivándose en
+        # `Product.save()` y no se acepta del cliente.
+        read_only_fields = ("is_published", "created_at", "updated_at")
         extra_kwargs = {
             "slug": {"required": False},  # autogenerado en Product.save() si se deja vacío
+            "published_at": {"required": False, "allow_null": True},
         }
+
+    def validate(self, attrs):
+        """
+        `SCHEDULED` sin fecha no significa nada: el producto se quedaría invisible para
+        siempre, sin que nada lo publique. Se exige la fecha, y que sea futura — programar
+        para el pasado es publicar ya, y para eso está `ACTIVE`.
+        """
+        status = attrs.get("status", getattr(self.instance, "status", None))
+        published_at = attrs.get(
+            "published_at", getattr(self.instance, "published_at", None)
+        )
+
+        # La base de datos tiene un CheckConstraint
+        # (`catalog_product_price_required_unless_on_request`) que exige precio salvo en
+        # los productos de solo consulta. Sin reflejarlo aquí, guardar un borrador sin
+        # precio —lo más normal del mundo en el panel— revienta con un IntegrityError y
+        # un 500 opaco en vez de señalar el campo.
+        sale_mode = attrs.get("sale_mode", getattr(self.instance, "sale_mode", SaleMode.IN_STOCK))
+        price = attrs.get("price", getattr(self.instance, "price", None))
+        # Al crear se comprueba siempre (no mandar el campo es exactamente el caso que
+        # reventaba); al editar, solo si el resultado se queda sin precio.
+        if sale_mode != SaleMode.ON_REQUEST and price is None:
+            raise serializers.ValidationError(
+                {
+                    "price": (
+                        "Indica el precio. Solo puede quedar vacío en los productos de "
+                        "«solo consulta»."
+                    )
+                }
+            )
+
+        if status == ProductStatus.SCHEDULED:
+            if published_at is None:
+                raise serializers.ValidationError(
+                    {"published_at": "Indica la fecha desde la que se publicará."}
+                )
+            # Solo se comprueba cuando la fecha viene en ESTA petición: si no, editar
+            # cualquier otro campo de un programado ya vencido daría un error inútil.
+            if "published_at" in attrs and published_at <= timezone.now():
+                raise serializers.ValidationError(
+                    {
+                        "published_at": (
+                            "La fecha debe ser futura. Para publicar ahora, usa el estado "
+                            "«Activo»."
+                        )
+                    }
+                )
+
+        return attrs
 
     def get_categories_detail(self, obj) -> list:
         from .serializers import CategorySerializer

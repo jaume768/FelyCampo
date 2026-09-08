@@ -1,0 +1,86 @@
+.nombreFila {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.etiquetaCliente {
+  display: inline-block;
+  padding: 1px var(--spacing-2);
+  border: var(--border-thin) solid var(--color-tinta);
+  font-size: var(--text-nano);
+  color: var(--color-tinta);
+}
+
+.telefono {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.recibidaUrgente {
+  color: var(--color-rosa-oscuro);
+}
+
+.origenFila {
+  margin-bottom: var(--spacing-1);
+}
+
+.productoFila {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.miniatura {
+  display: block;
+  width: 30px;
+  height: 50px;
+  object-fit: cover;
+  background: var(--color-gris-100);
+}
+
+.fechaColumna {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fechaSecundaria {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.vistaToggle {
+  display: inline-flex;
+  border: var(--border-regular) solid var(--color-gris-300);
+}
+
+.vistaBoton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--color-fondo);
+  border: none;
+  color: var(--color-gris-500);
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease-marca), color 0.2s var(--ease-marca);
+}
+
+.vistaBoton:not(:last-child) {
+  border-right: var(--border-regular) solid var(--color-gris-300);
+}
+
+.vistaBoton:hover {
+  color: var(--color-tinta);
+}
+
+.vistaBotonActiva {
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+.vistaBotonActiva:hover {
+  color: var(--color-fondo);
+}

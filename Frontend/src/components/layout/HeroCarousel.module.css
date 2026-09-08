@@ -1,0 +1,110 @@
+/* ============================================================
+   HERO CAROUSEL — Fely Campo
+   Full-width a propósito: no usa .contenedor (esa clase limita a
+   --max-contenido y añade padding lateral, justo lo contrario de
+   lo que necesita un hero a sangre).
+   ============================================================ */
+
+.hero {
+  position: relative;
+  height: 105dvh;
+  overflow: hidden;
+  background: var(--color-tinta);
+  border-radius: var(--radius-none);
+}
+
+/* Los 3 slides están siempre montados, apilados uno sobre otro —
+   el cambio es un fundido (opacity), no un desplazamiento lateral. */
+.slide {
+  position: absolute;
+  inset: 0;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-marca);
+  pointer-events: none;
+}
+
+.slide.activo {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* background: se ve mientras el vídeo no tiene aún el primer frame
+   (o si tarda/falla la carga) — en vez de una imagen de carga, un
+   fondo sólido de marca. */
+.media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-none);
+  background: var(--color-rosa);
+}
+
+/* Solo posicionamiento — el contenido (título + CTA) vive en el
+   componente ImageTitle (src/components/ui). */
+.contenido {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--spacing-7) var(--spacing-4) var(--spacing-9);
+}
+
+/* La entrada de título + CTA (fundido + subida) vive en ImageTitle,
+   que es quien siempre renderiza el contenido real de cada slide —
+   ver ImageTitle.module.css. */
+
+/* ---------- Barra de progreso ---------- */
+
+.progreso {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+}
+
+/* Pista y relleno son hermanos (no padre/hijo): así la opacidad de la
+   pista no se le pega también al relleno por composición. */
+.progresoPista {
+  position: absolute;
+  inset: 0;
+  background: var(--color-hairline);
+  opacity: 0.4;
+}
+
+.progresoRelleno {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  background: var(--color-tinta);
+  animation: avanceProgreso 8s linear forwards;
+}
+
+@keyframes avanceProgreso {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progresoRelleno {
+    animation: none;
+  }
+  .slide {
+    transition: none;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .hero {
+    /* height:auto es imprescindible: la regla base fija height:105dvh,
+       y con esa altura definida el aspect-ratio calculaba el ANCHO a
+       partir de ella (498px en un viewport de 390px) en vez de al
+       revés — de ahí el scroll horizontal en móvil. Sin una altura
+       definida propia, el ancho vuelve a ser el 100% normal del
+       bloque y es la altura la que se deriva de él vía aspect-ratio. */
+    height: auto;
+    aspect-ratio: 9 / 16;
+  }
+}

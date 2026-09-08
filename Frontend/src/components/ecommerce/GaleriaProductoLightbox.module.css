@@ -1,0 +1,188 @@
+/* ============================================================
+   LIGHTBOX DE GALERÍA DE PRODUCTO — Fely Campo
+   Siempre montado (igual que PanelLateral) — "abierta" solo cambia
+   opacidad/visibilidad, así la transición de salida se ve.
+   ============================================================ */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--color-fondo);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease-marca), visibility 0s linear 0.35s;
+}
+
+.lightbox.abierta {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.35s var(--ease-marca);
+}
+
+/* Flotante sobre las imágenes (no reserva alto propio) — así .pista
+   ocupa la pantalla entera y las imágenes hacen de fondo. Misma altura
+   de fila que .navRow del Navbar real (76px) y mismo sitio (arriba,
+   ancho completo): el logo queda visualmente donde estaba, aunque esto
+   no sea el Navbar. */
+.cabecera {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 76px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoLink {
+  display: block;
+}
+
+.logo {
+  height: 50px;
+  width: auto;
+}
+
+.cerrar {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.cerrar:hover {
+  opacity: 0.6;
+}
+
+.pista {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.pista::-webkit-scrollbar {
+  display: none;
+}
+
+/* Una pantalla completa por imagen — sin gap, scroll-snap decide el
+   punto de reposo de cada una. */
+.item {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+}
+
+.imagen {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Miniaturas — a la izquierda, centradas verticalmente; la activa
+   siempre a opacidad completa, el resto atenuadas (así se ve, sin
+   más, en cuál se está y cómo saltar). */
+.miniaturas {
+  position: absolute;
+  top: 50%;
+  left: var(--spacing-3);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.miniatura {
+  width: 44px;
+  height: 56px;
+  padding: 0;
+  border: none;
+  background: none;
+  opacity: 0.4;
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.miniatura:hover {
+  opacity: 0.7;
+}
+
+.miniaturaActiva,
+.miniaturaActiva:hover {
+  opacity: 1;
+}
+
+.miniaturaImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 767px) {
+  .miniaturas {
+    display: none;
+  }
+}
+
+/* Panel de compra rápida — flotante sobre la imagen, esquina inferior
+   derecha. width con min(): respeta el max-width de 350px en escritorio
+   sin desbordar en pantallas más estrechas que 350px + los 48px de los
+   dos márgenes de 24px. */
+.panelInfo {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2;
+  width: min(350px, calc(100% - 48px));
+  background: var(--color-fondo);
+  border-radius: 0;
+  padding: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.panelCabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.panelNombre {
+  font-size: var(--text-h4);
+}
+
+.panelPrecio {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+/* "esAtelier": mismo aviso que .avisoColor en FichaProductoAtelier.module.css
+   (InfoAtelier.jsx) — sin color elegido, "Contacta con nosotros" no
+   abre el modal, solo avisa aquí debajo del selector. */
+.avisoColor {
+  color: var(--color-rosa-oscuro);
+  font-size: var(--text-caption);
+}

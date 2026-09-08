@@ -1,0 +1,134 @@
+/* ============================================================
+   GALERÍA DE PRODUCTO — Fely Campo
+   ============================================================ */
+
+.galeria {
+  position: relative;
+  height: calc(110vh - var(--nav-height));
+}
+
+/* Sin scroll-snap: el scroll manual (rueda o arrastre) queda libre y
+   fluido, sin que el navegador fuerce paradas a mitad de gesto — con
+   scroll-snap-type activo, reevalúa el encaje en cada "fin de scroll" y
+   un simple cambio de scrollLeft por JS (rueda del ratón) ya cuenta
+   como uno, así que corrige de golpe al punto más cercano y da un
+   salto brusco. La parada exacta en cada imagen la dan solo las
+   flechas, por JS (ver desplazar() en GaleriaProducto.jsx). */
+.pista {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  height: 100%;
+}
+
+.pista::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ancho al contenido (fit-content): cada botón mide lo que mida su
+   imagen a altura completa, no un 80% fijo — object-fit:contain en
+   .imagen (ver abajo) ya no recorta la foto, así que forzar un ancho
+   fijo dejaría bandas vacías o cortaría igual según el aspect-ratio de
+   cada foto. El "peek" de la siguiente ya no es una fracción fija: es
+   lo que sobre del ancho de la pista tras la imagen actual. */
+.imagenBoton {
+  flex: 0 0 fit-content;
+  width: fit-content;
+  height: 100%;
+  display: block;
+  padding: 0;
+  border: none;
+  background: none;
+  /* "+" en tinta sobre fondo, cursor de 38x38 (no más grande) — no se
+     puede leer var(--color-tinta)/var(--color-fondo) dentro de un data
+     URI, así que son sus valores actuales (#202020/#FFFFFF) copiados a
+     mano. */
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='38'%3E%3Crect width='38' height='38' fill='%23FFFFFF'/%3E%3Cpath d='M19 9.5v19M9.5 19h19' stroke='%23202020' stroke-width='1.5'/%3E%3C/svg%3E") 19 19, zoom-in;
+}
+
+.imagen {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: var(--radius-imagenes);
+}
+
+.flecha {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-fondo);
+  border: none;
+  border-radius: 0;
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.flecha:hover {
+  opacity: 1;
+}
+
+.flecha:active {
+  opacity: 1;
+  box-shadow: none;
+  outline: none;
+}
+
+.flecha:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.flechaIzquierda {
+  left: var(--spacing-2);
+}
+
+.flechaDerecha {
+  right: var(--spacing-2);
+}
+
+@media (max-width: 767px) {
+  /* La imagen se queda fija justo debajo del navbar (sticky de
+     siempre, ver Navbar.module.css — ya no se hace position:absolute
+     ni desaparece con el scroll) en vez de desplazarse con la página.
+     .galeria (arriba) pasa a reservar exactamente ese hueco restante
+     (100vh - nav-height, no 110vh: ya no hace falta el "de más" que
+     compensaba el navbar flotando encima) — mismo criterio que
+     .envoltorio de ProductHero.module.css, así el flujo no colapsa
+     nada. El resto del contenido de la ficha (.info y todo lo que
+     viene después — reseñas, recomendados, "sigue explorando", ver
+     page.module.css/FichaProductoAtelier.module.css) la va tapando
+     según se hace scroll (position:relative + z-index por encima).
+     Las flechas pasan también a fijas, centradas en ese mismo hueco,
+     para que no se "despeguen" de la pista al primer scroll. */
+  .galeria {
+    height: calc(100vh - var(--nav-height));
+  }
+
+  .pista {
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    width: 100%;
+    height: calc(100vh - var(--nav-height));
+    z-index: 0;
+  }
+
+  .flecha {
+    position: fixed;
+    top: calc(var(--nav-height) + (100vh - var(--nav-height)) / 2);
+    width: 32px;
+    height: 32px;
+  }
+
+  .imagen {
+    object-fit: cover;
+  }
+}

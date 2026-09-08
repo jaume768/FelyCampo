@@ -1,0 +1,421 @@
+/* ============================================================
+   GALERÍA DE RUNWAY — Fely Campo
+   Cuadrícula: mismos breakpoints que .cuadriculaGrid de
+   CuadriculaProductos.module.css (4 columnas escritorio, 2 mobile).
+   Lightbox: mismo mecanismo que GaleriaProductoLightbox.module.css
+   (siempre montado, "abierta" solo cambia opacidad/visibilidad).
+   ============================================================ */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-2);
+}
+
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.item {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  aspect-ratio: 3 / 4.5;
+  overflow: hidden;
+}
+
+.itemImagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---------- Lightbox ---------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--color-fondo);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease-marca), visibility 0s linear 0.35s;
+}
+
+.lightbox.abierta {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.35s var(--ease-marca);
+}
+
+/* Flotante sobre las imágenes (no reserva alto propio) — mismo criterio
+   que .cabecera de GaleriaProductoLightbox.module.css: misma altura de
+   fila que .navRow del Navbar real (76px) y mismo sitio, para que el
+   logo quede visualmente donde estaba aunque esto no sea el Navbar. */
+.cabecera {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 76px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoLink {
+  display: block;
+}
+
+.logo {
+  height: 50px;
+  width: auto;
+}
+
+.cerrar {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.cerrar:hover {
+  opacity: 0.6;
+}
+
+.pista {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.pista::-webkit-scrollbar {
+  display: none;
+}
+
+.pistaItem {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+}
+
+.pistaImagen {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Miniaturas a la izquierda, centradas verticalmente — saltar entre
+   looks sin cerrar ("mantener el scroll vivo"). */
+.miniaturas {
+  position: absolute;
+  top: 50%;
+  left: var(--spacing-3);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  max-height: 80vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.miniaturas::-webkit-scrollbar {
+  display: none;
+}
+
+.miniatura {
+  flex-shrink: 0;
+  width: 44px;
+  height: 56px;
+  padding: 0;
+  border: none;
+  background: none;
+  opacity: 0.4;
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.miniatura:hover {
+  opacity: 0.7;
+}
+
+.miniaturaActiva,
+.miniaturaActiva:hover {
+  opacity: 1;
+}
+
+.miniaturaImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 767px) {
+  .miniaturas {
+    display: none;
+  }
+
+  /* A pantalla completa de verdad en mobile — sin miniaturas que
+     roben sitio, la foto puede permitirse recortar (cover) en vez de
+     dejar barras (contain, ver regla base) para aprovechar alto y
+     ancho a la vez. */
+  .pistaImagen {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    object-fit: cover;
+  }
+}
+
+/* Panel del look activo — número de look + descripción (siempre) y,
+   debajo, los productos vinculados (solo si hay alguno — ver
+   productosDelLook en RunwayGaleria.jsx). Cabecera con el mismo diseño
+   que .panelCabecera de GaleriaProductoLightbox.module.css.
+   No todos los looks traen descripción/productos, así que el alto del
+   panel varía de uno a otro — crece/encoge, no aparece/desaparece de
+   golpe. "bottom" fijo (position:absolute) ya hace que ese cambio de
+   alto se note desde ARRIBA del panel (su borde inferior no se mueve);
+   el "height" + overflow:hidden de aquí son lo que permite animarlo
+   (con height:auto no hay transición posible) — el valor en px real lo
+   calcula un ResizeObserver sobre .panelInfoInterior (ver
+   RunwayGaleria.jsx), que mide su alto natural sin verse afectado por
+   este recorte. */
+.panelInfo {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2;
+  width: min(320px, calc(100% - 48px));
+  background: var(--color-fondo);
+  overflow: hidden;
+  transition: height 0.32s var(--ease-marca);
+}
+
+.panelInfoInterior {
+  padding: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.panelCabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.panelTitulo {
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Botón "+" que colapsa/expande el resto del panel (descripción +
+   productos) — solo tiene efecto en mobile, ver media query al final
+   del archivo. En escritorio queda oculto: el panel se pinta siempre
+   entero, mismo criterio de siempre para esta franja del sitio. Icono
+   suelto sin fondo, mismo lenguaje que .icono de Acordeon.module.css
+   (rota en vez de cambiar de icono — aquí 45°, "+" pasa a leerse "×"). */
+.panelToggle {
+  display: none;
+}
+
+.panelDetalle {
+  /* Wrapper sin efecto en escritorio — el layout real vive en
+     .panelDetalleContenido, para que sea el mismo en ambos tamaños y
+     el mecanismo de colapso (mobile) no tenga que duplicarlo. */
+}
+
+.panelDetalleInner {
+  /* Ídem: sin efecto en escritorio, solo relevante en mobile. */
+}
+
+.panelDetalleContenido {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.panelDescripcion {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.panelProductosBloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+/* Mismo font-size que .subtitle de CabeceraSeccion.module.css. */
+.panelProductosTitulo {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+}
+
+.panelProductos {
+  flex-wrap: wrap;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.panelProducto {
+  width: fit-content;
+  max-width: 110px;
+  color: inherit;
+  flex-direction: column;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-2);
+}
+
+.panelProductoImagenWrap {
+  position: relative;
+}
+
+.panelProductoImagen {
+  width: 90px;
+  height: auto;
+  aspect-ratio: 3 / 4.5;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-crema);
+}
+
+/* Botón "añadir" flotante, esquina inferior derecha de la foto — mismo
+   criterio que .wishlist de TarjetaProducto.module.css (absolute sobre
+   la imagen, dentro del propio <a>, con stopPropagation en el click
+   para no disparar la navegación de la tarjeta). Sin backend real
+   todavía (ver FichaProductoAcciones). */
+.panelProductoAnadir {
+  position: absolute;
+  bottom: var(--spacing-1);
+  right: var(--spacing-1);
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  border: none;
+  border-radius: var(--radius-botones);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.panelProductoAnadir:hover {
+  opacity: 0.7;
+}
+
+.panelProductoNombre {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+/* Mobile: el panel pasa a ocupar todo el ancho (antes tope de 320px) y
+   se vuelve colapsable — colapsado se ve solo "Look X" + .panelToggle
+   ("+"), expandido crece para enseñar descripción y productos. Mismo
+   mecanismo grid-template-rows 0fr → 1fr que .contenido de
+   Acordeon.module.css. */
+@media (max-width: 767px) {
+  .panelInfo {
+    width: calc(100% - 48px);
+  }
+
+  .panelToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--color-tinta);
+    cursor: pointer;
+    transition: transform 0.28s var(--ease-marca);
+  }
+
+  .panelToggleAbierto {
+    transform: rotate(45deg);
+  }
+
+  .panelDetalle {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.28s var(--ease-marca);
+  }
+
+  .panelDetalleAbierto {
+    grid-template-rows: 1fr;
+  }
+
+  .panelDetalleInner {
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* 3+ productos vinculados (ver panelProductosScroll en
+     RunwayGaleria.jsx): banda con scroll horizontal en vez de wrap —
+     cada tarjeta ocupa 1/2.25 del ancho disponible, así se ven 2
+     enteras + un cuarto de la siguiente asomando (aviso de que hay
+     más). Con 2 productos o menos no se aplica esta clase — se quedan
+     con el wrap + space-between de base, "mostrados sin más". */
+  .panelProductosScroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .panelProductosScroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .panelProductosScroll .panelProducto {
+    flex: 0 0 calc((100% - 2 * var(--spacing-3)) / 2.25);
+    max-width: none;
+    scroll-snap-align: start;
+  }
+
+  .panelProductosScroll .panelProductoImagenWrap,
+  .panelProductosScroll .panelProductoImagen {
+    width: 100%;
+  }
+}

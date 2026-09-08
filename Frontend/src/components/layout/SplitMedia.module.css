@@ -1,0 +1,193 @@
+/* ============================================================
+   SPLIT MEDIA — Fely Campo
+   Dos piezas editoriales lado a lado — sin radios, sombras ni
+   bordes. Gap denso (--spacing-1) entre ellas, en desktop y móvil.
+   ============================================================ */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-1);
+}
+
+/* landing: las dos piezas quedan pegadas, sin gap entre ellas. */
+.grid.landing {
+  gap: 0;
+}
+
+.pieza {
+  position: relative;
+  display: block;
+  height: 80vh;
+  overflow: hidden;
+}
+
+/* landing: más alto que el resto de variantes (100vh vs 80vh). */
+.grid.landing .pieza {
+  height: 100vh;
+}
+
+.media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Abajo, centrado, en las dos variantes — solo cambia el color del
+   texto (--color-fondo en "etiqueta", --color-tinta vía ImageTitle en
+   "imageTitle"), no la posición. */
+.contenido {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  text-align: center;
+}
+
+.etiqueta {
+  font-size: var(--text-body-lg);
+  color: var(--color-fondo);
+}
+
+/* Selector .contenido .cta (no un solo .cta): sube la especificidad
+   por encima de .texto de Boton.module.css sin !important y sin
+   depender de qué CSS module carga primero. */
+.contenido .cta {
+  color: var(--color-fondo);
+  border-bottom-color: var(--color-fondo);
+}
+
+/* landing: abajo pero pegado a la izquierda, no centrado — mismo
+   bottom que .contenido, solo cambia el eje horizontal. */
+.contenidoLanding {
+  height: 100%;
+
+  position: absolute;
+  left: var(--spacing-5);
+  right: var(--spacing-5);
+  bottom: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-2);
+  text-align: center;
+}
+
+.tituloLanding {
+  font-size: var(--text-body-lg);
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--color-fondo);
+  letter-spacing: normal;
+}
+
+.contenidoLanding .cta {
+  color: var(--color-fondo);
+  border-bottom-color: var(--color-fondo);
+  text-transform: uppercase;
+}
+
+/* El CTA solo aparece en hover/foco — oculto por opacidad, no por
+   display, así que sigue ocupando su sitio en el flex column y el
+   título/etiqueta de encima no se mueve al aparecer. */
+.cta {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-marca);
+}
+.pieza:hover .cta,
+.pieza:focus-within .cta {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Entrada de título/etiqueta + CTA (mismo patrón en ImageTitle y
+   MediaBanner): fundido + subida, el CTA un poco después. Ocultos
+   hasta que el contenedor (.contenido/.contenidoLanding) recibe
+   .enVista (ver SplitMedia.jsx / useEnVista) — la primera vez que
+   entra en el viewport, no al montar. El CTA aquí ya tiene su propia
+   opacidad gobernada por el hover (arriba) o por "siempre visible" en
+   mobile landing (ver media query) — por eso su entrada solo anima
+   transform, nunca opacity, para no pelearse con esas reglas. */
+.etiqueta,
+.tituloLanding {
+  opacity: 0;
+}
+.contenido.enVista .etiqueta,
+.contenidoLanding.enVista .tituloLanding {
+  animation: entradaContenido 0.9s var(--ease-marca) forwards;
+}
+
+.contenido.enVista .cta,
+.contenidoLanding.enVista .cta {
+  animation: entradaCta 0.9s var(--ease-marca) forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes entradaContenido {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes entradaCta {
+  from { transform: translateY(16px); }
+  to { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .etiqueta,
+  .tituloLanding {
+    animation: none;
+    opacity: 1;
+  }
+  /* Sin "opacity: 1" aquí a propósito: la visibilidad del CTA sigue
+     gobernada por el hover/focus (o por mobile landing, ver abajo) —
+     reducir movimiento solo quita la animación de entrada, no cambia
+     esa lógica. */
+  .cta {
+    animation: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-1);
+  }
+  .grid.landing {
+    gap: 0;
+  }
+  .pieza {
+    aspect-ratio: 4 / 3;
+  }
+  /* Los 90vh de desktop, apilados en dos piezas, se irían a 180vh —
+     en mobile pasa a 3/4, más vertical que el 4/3 del resto de
+     variantes (imagen editorial, no banda ancha). */
+  .grid.landing .pieza {
+    height: auto;
+    aspect-ratio: 3 / 4;
+  }
+  .contenidoLanding {
+    left: var(--spacing-4);
+    right: var(--spacing-4);
+    bottom: var(--spacing-4);
+  }
+  /* Sin hover en mobile: el CTA de "landing" no puede depender de
+     :hover/:focus-within para aparecer, así que aquí queda siempre
+     visible en vez de oculto por opacidad. */
+  .grid.landing .cta {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

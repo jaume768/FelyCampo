@@ -5,5 +5,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 staticfiles/
-media/
+# Carpeta de archivos subidos (MEDIA_ROOT = BASE_DIR / "media"). Anclada con "/" inicial
+# para NO tragarse la app Django "apps/media/", que sí va versionada.
+/media/
 *.sqlite3

@@ -1,0 +1,88 @@
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+  padding-bottom: var(--spacing-5);
+  border-bottom: var(--border-thin) solid var(--color-gris-200);
+}
+
+.select {
+  display: block;
+}
+
+.selectEtiqueta {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-1);
+}
+
+.selectInput {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: var(--border-regular) solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: 12px var(--spacing-6) 12px var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background-color: var(--color-fondo);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23757575' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-3) center;
+  color: var(--color-tinta);
+  min-width: 160px;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease-marca);
+}
+
+.selectInput:hover {
+  border-color: var(--color-gris-400);
+}
+
+.selectInput:focus {
+  outline: none;
+  border-color: var(--color-tinta);
+}
+
+.selectInput option {
+  cursor: pointer;
+}
+
+/* Para selects con opciones cortas (talla, año...) que no necesitan el
+   min-width de 160px pensado para textos largos — el select sigue
+   creciendo lo justo para la opción elegida, no un ancho fijo. */
+.selectInputCompacta {
+  min-width: 90px;
+}
+
+/* La página decide qué cuenta como "filtro activo" (valor distinto del
+   por defecto) y pasa `activo` — mismo criterio que ya usa para mostrar
+   "Limpiar filtros". Mismo SVG del chevron que .selectInput, solo con el
+   stroke en rosa-oscuro (#C2185F) en vez de gris — no se puede referenciar
+   un custom property dentro de una data URI. */
+.selectInputActiva {
+  border-color: var(--color-rosa-oscuro);
+  color: var(--color-rosa-oscuro);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23C2185F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.selectInputActiva:hover,
+.selectInputActiva:focus {
+  border-color: var(--color-rosa-oscuro);
+}
+
+/* Selector con etiqueta (button.limpiar) para ganar en especificidad a
+   .boton de Boton.module.css sin depender del orden de carga de los CSS
+   modules — necesario para el display:inline-flex del icono. El color
+   (rosa-oscuro, con hover invertido) ya lo trae la propia variante
+   "contorno-rosa" de Boton. */
+button.limpiar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-left: auto;
+  margin-bottom: var(--spacing-2);
+}

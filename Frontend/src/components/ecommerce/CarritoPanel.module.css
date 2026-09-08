@@ -1,0 +1,91 @@
+/* ============================================================
+   PANEL DE CARRITO — Fely Campo
+   Cabecera/cerrar: mismo patrón que GuiaTallas.module.css.
+   ============================================================ */
+
+/* .contenido extra (ver claseContenido en PanelLateral.jsx): alto 100%
+   del panel + columna, para que .lista (flex:1 más abajo) pueda tener
+   su propio scroll acotado y .acciones quede siempre justo debajo,
+   nunca reposicionándose. */
+.contenido {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-fondo);
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-4);
+}
+
+.titulo {
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  text-transform: uppercase;
+}
+
+.cerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: var(--spacing-1);
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.cerrar:hover {
+  opacity: 0.6;
+}
+
+.vacio {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+  padding-block: var(--spacing-6);
+}
+
+/* flex:1 + min-height:0 (imprescindible: sin él, un hijo flex no
+   encoge por debajo del alto de su contenido) sobre el .contenido de
+   alto 100% de arriba: la lista ocupa exactamente el hueco que le
+   sobra a .cabecera/.acciones y se desplaza dentro de ese hueco — una
+   sola barra, propia de la lista, no de todo el panel. Sigue
+   desplazándose igual, solo sin barra visible (mismo criterio que
+   .tablaScroll de GuiaTallas.module.css). */
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.lista::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ya no necesita position:sticky: al vivir fuera del hueco que se
+   desplaza (.lista, arriba), queda siempre en el mismo sitio sin
+   truco ninguno — ni al llegar al final del scroll. */
+.acciones {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-4);
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 12px;
+  font-size: 0.9375rem;
+  color: var(--color-tinta, #202020);
+}

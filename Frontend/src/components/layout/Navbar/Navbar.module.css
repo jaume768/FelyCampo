@@ -1,0 +1,275 @@
+/* Navbar.module.css */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: var(--color-fondo);
+  transition: background-color 0.45s var(--ease-marca), transform 0.35s var(--ease-marca);
+}
+
+/* Con el Footer a la vista (ver useEnVista-style observer en
+   Navbar.jsx) el header se desliza fuera de pantalla — su logo y el
+   del Footer no deben competir a la vez. Sticky/fixed en los dos
+   casos (ver .transparent más abajo), así que un translateY basta,
+   sin dejar hueco vacío donde estaba. */
+.header.ocultoPorFooter {
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+
+/* Transparente solo mientras no se ha hecho scroll y no está en hover —
+   en cuanto se cumple cualquiera de las dos, vuelve al mismo blanco de
+   siempre (misma declaración en ambas reglas, sin contradicción).
+   position: fixed (en vez del sticky de siempre): así no reserva su
+   propio hueco en el flujo — flota encima del Hero desde el primer
+   píxel, en lugar de empujarlo hacia abajo. Solo pasa esto con
+   transparent; en el resto de páginas el header sigue siendo sticky
+   normal, sin necesitar padding-top de compensación en el contenido. */
+.header.transparent {
+  position: fixed;
+  background: transparent;
+}
+
+/* "opaco" se activa por scroll o por hover (ambos vía JS en Navbar.jsx,
+   ver isLight/solido) — cuando no está activo (.light) el texto y el
+   logo pasan a --color-fondo para leerse sobre el Hero.
+   Fondo blanco sólido (sin blur ni transparencia) — necesario aunque
+   coincida con el --color-fondo de .header base: .transparent (más
+   específico) lo pone a transparent, esta regla lo devuelve a sólido. */
+.header.transparent.opaco {
+  background: var(--color-fondo);
+}
+
+/* .light: header transparente y aún sin fondo sólido (home, antes del
+   primer scroll/hover) — texto e icono del hamburguesa en --color-fondo
+   para leerse sobre el Hero. El logo cambia de imagen en el JSX, no aquí. */
+.header.light .navLink,
+.header.light .navActionsMobile {
+  color: var(--color-fondo);
+}
+
+.header.light .navToggleBar {
+  background: var(--color-fondo);
+}
+
+/* El subrayado de hover/activo (.navLink:hover/.navLinkActivo más abajo)
+   por defecto es --color-tinta — ilegible sobre un Hero oscuro con el
+   texto ya en --color-fondo. En .light se invierte igual que el texto. */
+.header.light .navLink:hover,
+.header.light .navLinkActivo {
+  text-decoration-color: var(--color-fondo);
+}
+
+.navRow {
+  min-height: var(--nav-height);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-3) var(--spacing-7);
+}
+
+/* Logo: centrado en el ancho total de la barra, no en el hueco
+   que dejan los enlaces/utilidades (que no miden lo mismo).
+   Anclado por "top" en vez de centrado verticalmente: el borde
+   superior queda fijo en la posición que antes ocupaba el centrado
+   (50% - la mitad del alto por defecto, 64px/2). Mismo anclaje para
+   los dos estados (normal y .navLogoGrande, ver más abajo) — al
+   crecer se desplaza hacia abajo desde ese punto fijo, al encoger se
+   recoge hacia arriba hasta él, nunca simétrico desde el centro. */
+.navLogoLink {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 32px);
+  transform: translateX(-50%);
+}
+
+.navLogo {
+  height: 50px;
+  width: auto;
+  margin-top: var(--spacing-2);
+  transition: height 0.45s var(--ease-marca);
+}
+
+/* Solo se aplica junto con .light (header transparente, arriba del todo,
+   sin scroll ni hover) — logo grande en blanco. En cuanto se activa
+   "opaco" (scroll o hover) vuelve al tamaño base con la misma
+   transición, y si se sube de nuevo al top, vuelve a crecer. */
+.navLogoGrande {
+  margin-top: 0px;
+  height: 175px;
+}
+
+/* Enlaces (compartido por desktop y móvil) — también "Mi cuenta"
+   (ver Navbar.jsx), un <button> en vez de un <a> porque abre
+   MiCuentaModal en vez de navegar: background/border/font/cursor
+   resetean el estilo nativo de botón (sin efecto sobre los <a>, que no
+   los necesitan). El subrayado (no el color) marca tanto el hover
+   como la página activa — mismo trazo en los dos casos, así el hover
+   "anticipa" cómo se ve la sección ya activa. */
+.navLink {
+  font-family: var(--font-base);
+  font-size: 0.95rem;
+  color: var(--color-tinta);
+  background: none;
+  border: none;
+  padding: var(--spacing-3) 0 0 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: var(--spacing-1);
+  transition: text-decoration-color 0.25s var(--ease-marca);
+}
+.navLink:hover {
+  text-decoration-color: var(--color-tinta);
+}
+
+/* Marca en qué sección se está navegando ahora mismo — mismo trazo
+   que :hover, pero fijo. */
+.navLinkActivo {
+  text-decoration-color: var(--color-tinta);
+}
+
+/* Grupo de enlaces de escritorio */
+.navLinks {
+  display: flex;
+  gap: var(--spacing-5);
+}
+
+/* Wishlist + carrito — escritorio: texto completo */
+.navActions {
+  display: flex;
+  gap: var(--spacing-5);
+}
+
+/* Utilidades — móvil: solo el icono del carrito, oculto por defecto.
+   min-width/min-height 24px: área táctil mínima aunque el icono sea más pequeño. */
+.navActionsMobile {
+  display: none;
+  min-width: 24px;
+  min-height: 24px;
+  color: var(--color-tinta);
+  transition: color 0.25s var(--ease-marca);
+}
+.navActionsMobile:hover {
+  color: var(--color-rosa);
+}
+
+.cartIcon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Botón hamburguesa: oculto por defecto (solo aparece en móvil).
+   Dos barras posicionadas de forma absoluta dentro de una caja de 24x24;
+   al abrir, ambas se desplazan al centro y rotan ±45° formando una X. */
+.navToggle {
+  display: none;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.navToggleBar {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  border-radius: 1px;
+  background: var(--color-tinta);
+  transition: top 0.3s var(--ease-marca), transform 0.3s var(--ease-marca);
+}
+
+.navToggleBarTop { top: 7px; }
+.navToggleBarBottom { top: 15px; }
+
+.navToggleBarTopOpen {
+  top: 11px;
+  transform: rotate(45deg);
+}
+.navToggleBarBottomOpen {
+  top: 11px;
+  transform: rotate(-45deg);
+}
+
+/* Lista de enlaces dentro del panel móvil (el padding ya lo aporta
+   .contenido de PanelLateral) */
+.mobileMenu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* También "Mi cuenta" (ver Navbar.jsx), un <button> en vez de un <a>
+   — resetea el estilo nativo de botón (sin efecto sobre los <a>). */
+.mobileMenuLink {
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  color: var(--color-tinta);
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.25s var(--ease-marca);
+}
+.mobileMenuLink:hover {
+  color: var(--color-rosa);
+}
+
+.mobileMenuDivider {
+  height: 1px;
+  background: var(--color-hairline);
+}
+
+/* ---------- RESPONSIVE ---------- */
+/* Por debajo de 768px: se esconden los enlaces de escritorio y aparece la hamburguesa */
+@media (max-width: 767px) {
+
+  .navRow {
+    padding: var(--spacing-4);
+  }
+  .navLinks {
+    display: none;
+  }
+  .navToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .navActions {
+    display: none;
+  }
+  .navActionsMobile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .navLogoLink {
+    top: calc(50% - 24px);
+  }
+  .navLogo {
+    height: 48px;
+    margin-top: 0;
+  }
+  .navLogoGrande {
+    height: 100px;
+  }
+}
+
+/* El logo grande (.light, antes de scroll/hover) ya molesta a 175px
+   antes de que el navRow cambie a hamburguesa a los 767px — lo baja a
+   100px un poco antes, sin tocar el resto del layout de esa franja. */
+@media (max-width: 920px) and (min-width: 765px) {
+  .navLogoGrande {
+    height: 100px;
+  }
+}

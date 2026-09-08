@@ -1,0 +1,124 @@
+/* ============================================================
+   LÍNEA DE CARRITO — Fely Campo (e-commerce)
+   ============================================================ */
+
+.linea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+  padding: var(--spacing-4);
+  border: 0.75px solid var(--color-gris-300);
+  background: var(--color-fondo);
+  transition: opacity 0.3s var(--ease-marca), transform 0.3s var(--ease-marca);
+}
+
+/* Al bajar la cantidad a 0 (ver manejarCantidad en LineaCarrito.jsx) —
+   la duración tiene que coincidir con DURACION_SALIDA_MS ahí, que es
+   quien de verdad quita la línea del carrito cuando termina. */
+.saliendo {
+  opacity: 0;
+  transform: scale(0.92);
+  pointer-events: none;
+}
+
+/* Fila superior: columna nombre+precio+talla a la izquierda, color a
+   la derecha. */
+.filaSuperior {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.columnaNombre {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.nombrePrecio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.nombre { font-size: var(--text-body-lg); color: var(--color-tinta); }
+
+.talla {
+  font-size: var(--text-label);
+  color: var(--color-gris-500);
+}
+
+.colorNombre {
+  font-size: var(--text-label);
+  color: var(--color-gris-500);
+}
+
+.color {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.colorPunto {
+  width: 24px;
+  height: 24px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  flex-shrink: 0;
+}
+
+/* Ancho acotado (no 100%): a lo ancho completo del panel, el 3/4.5 de
+   aspect-ratio se disparaba a una imagen enorme — 160px basta para
+   reconocer el producto sin dominar la línea, y acorta de paso el
+   alto de toda la tarjeta (.linea) y por tanto el de .lista. */
+.marco {
+  aspect-ratio: 3 / 4.5;
+  background: var(--color-crema);
+  border-radius: var(--radius-imagenes);
+  flex-shrink: 0;
+  width: 180px;
+  margin-inline: auto;
+}
+.imagen { width: 100%; height: 100%; object-fit: cover; }
+
+/* Fila inferior: "Quitar" a la izquierda, selector de cantidad a la
+   derecha. */
+.filaInferior {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Antes solo icono (mismo patrón que .cerrar de CarritoPanel.module.css)
+   — ahora con el texto "Quitar" (ver LineaCarrito.jsx), mismo fondo
+   gris-100 pero sin las dimensiones fijas de una caja de icono. */
+.quitar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-gris-100);
+  border: none;
+  border-radius: 0;
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca);
+}
+.quitar:hover { opacity: 0.6; }
+
+.pie {
+  display: flex;
+}
+
+/* .control de SelectorCantidad (ver className en LineaCarrito.jsx) —
+   ocupa el ancho de .pie. Solo aquí: no toca el resto de usos de
+   SelectorCantidad (ej. TarjetaCarrito, en una fila con selector de
+   talla y color al lado). */
+.controlAncho {
+  width: 100%;
+}
+
+.precio { font-size: var(--text-body-lg); color: var(--color-tinta); }
