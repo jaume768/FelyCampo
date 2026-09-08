@@ -64,6 +64,10 @@ if not DEFAULT_FROM_EMAIL:
     )
 
 SECURE_SSL_REDIRECT = True
+# Las sondas de salud van por HTTP plano desde dentro del contenedor (docker healthcheck):
+# sin esta excepción reciben un 301 a https://localhost:8000, que no habla TLS, y el
+# contenedor se marca "unhealthy" para siempre aunque esté perfectamente.
+SECURE_REDIRECT_EXEMPT = [r"^api/v1/health/"]
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True

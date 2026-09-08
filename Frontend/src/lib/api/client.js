@@ -177,13 +177,25 @@ export async function apiFetch(ruta, opciones = {}) {
   const url = `${baseUrl()}${PREFIJO}${ruta}${construirQuery(params)}`;
   const esFormData = typeof FormData !== 'undefined' && body instanceof FormData;
 
+  const enServidor = typeof window === 'undefined';
+
   /** @type {Record<string, string>} */
   const cabeceras = { Accept: 'application/json', ...headers };
+
+  // Llamadas internas (Server Component -> backend por la red de Docker): van por HTTP
+  // plano, y en producción Django tiene SECURE_SSL_REDIRECT, así que responde 301 a
+  // `https://backend:8000` — un host que no habla TLS. La petición se quedaba colgada
+  // hasta agotar el timeout: la home tardaba 20 s en pintar (dos llamadas × 10 s).
+  //
+  // La cabecera dice la verdad: el visitante SÍ llegó por HTTPS, Caddy es quien terminó
+  // el TLS. Es la misma que Django ya mira vía SECURE_PROXY_SSL_HEADER, solo que en las
+  // llamadas internas no la pone nadie por el camino.
+  if (enServidor) cabeceras['X-Forwarded-Proto'] = 'https';
   if (body !== undefined && !esFormData) cabeceras['Content-Type'] = 'application/json';
 
   // CSRF solo en escrituras, y solo desde el navegador: en servidor no hay sesión de
   // usuario ni cookie que proteger.
-  if (METODOS_ESCRITURA.has(metodo) && typeof window !== 'undefined') {
+  if (METODOS_ESCRITURA.has(metodo) && !enServidor) {
     const token = await obtenerTokenCsrf();
     if (token) cabeceras['X-CSRFToken'] = token;
   }
