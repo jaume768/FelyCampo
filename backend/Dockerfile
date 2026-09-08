@@ -29,7 +29,13 @@ FROM base AS prod
 RUN pip install -r requirements/base.txt
 COPY . .
 
+# Los directorios de los volúmenes se crean AQUÍ, en la imagen, y con el dueño
+# correcto. Motivo: un volumen con nombre vacío lo crea Docker como root, y el
+# proceso corre como appuser — `collectstatic` moría con «Permission denied:
+# /app/staticfiles/admin». Si el directorio ya existe en la imagen, Docker
+# inicializa el volumen a partir de él conservando permisos y dueño.
 RUN adduser --disabled-password --gecos "" appuser \
+    && mkdir -p /app/staticfiles /app/media \
     && chown -R appuser:appuser /app
 USER appuser
 
