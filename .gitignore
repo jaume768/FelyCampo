@@ -5,3 +5,9 @@
 # `Frontend/.gitignore` sigue aplicándose: git respeta los .gitignore anidados, así que
 # node_modules/ y .next/ del frontend se ignoran solos, sin repetirlos aquí.
 .env
+# Secretos de producción. `.env` a secas NO los cubre: git compara el nombre entero, y
+# `.env.prod` es otro archivo. Los *.example SÍ se versionan (son plantillas sin valores).
+.env.prod
+.env.*
+!.env.example
+!.env.prod.example

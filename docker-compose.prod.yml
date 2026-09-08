@@ -1,0 +1,112 @@
+# Despliegue en servidor. Se usa SOLO este archivo, no como añadido al de desarrollo:
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Diferencias con el de desarrollo, ninguna cosmética:
+#   · Caddy delante, con HTTPS automático. Es el único que publica puertos al exterior.
+#   · Postgres y Redis NO publican puertos: solo se llegan por la red interna. Publicarlos
+#     dejaría la base de datos accesible desde internet.
+#   · Imágenes `prod`: gunicorn y Next en modo standalone, sin bind mounts de código.
+#   · Sin debugpy.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-felycampo}
+      POSTGRES_USER: ${POSTGRES_USER:-felycampo}
+      # Sin default a propósito: una contraseña por defecto en producción es una puerta
+      # abierta. Si falta, el contenedor no arranca.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD es obligatoria}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-felycampo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      target: prod
+    restart: unless-stopped
+    env_file: ./backend/.env.prod
+    volumes:
+      # Los archivos subidos tienen que sobrevivir a los despliegues: la imagen se
+      # reconstruye, el volumen no. Caddy lo monta en solo lectura para servirlos.
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/v1/health/live/').status==200 else 1)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./Frontend
+      target: prod
+      args:
+        # Se incrusta en el bundle del navegador DURANTE EL BUILD, no se lee al arrancar:
+        # si cambia el dominio hay que reconstruir la imagen, no basta reiniciarla.
+        NEXT_PUBLIC_API_URL: ${PUBLIC_URL:?PUBLIC_URL es obligatoria (p. ej. https://websjfs.com)}
+    restart: unless-stopped
+    environment:
+      # Solo servidor: los Server Components hablan con el backend por la red interna,
+      # donde "localhost" sería el propio contenedor del frontend.
+      API_INTERNAL_URL: http://backend:8000
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+    depends_on:
+      - backend
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    # El único servicio expuesto a internet. 80 hace falta además de 443: Let's Encrypt
+    # lo usa para validar el dominio, y Caddy redirige a HTTPS por su cuenta.
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN es obligatorio (p. ej. websjfs.com)}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL es obligatorio para Let's Encrypt}
+      # Sin barras: el Caddyfile la añade. Debe coincidir con DJANGO_ADMIN_URL del backend.
+      DJANGO_ADMIN_PATH: ${DJANGO_ADMIN_PATH:-panel-django}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Certificados y claves de ACME. Sin persistirlos, cada redespliegue pediría
+      # certificados nuevos y Let's Encrypt tiene límite semanal por dominio.
+      - caddy_data:/data
+      - caddy_config:/config
+      - media_data:/srv/media:ro
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  media_data:
+  static_data:
+  caddy_data:
+  caddy_config:

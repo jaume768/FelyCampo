@@ -56,6 +56,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# Ruta del admin de Django (con barra final). Se cambia en producción porque `/admin`
+# lo ocupa el panel del frontend en el mismo dominio — ver config/urls.py.
+DJANGO_ADMIN_URL = env("DJANGO_ADMIN_URL", default="admin/")
+
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 

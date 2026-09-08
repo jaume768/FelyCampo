@@ -42,6 +42,13 @@ FROM base AS build
 # desarrollo y el prerender falla.
 ENV NODE_ENV=production
 
+# Las NEXT_PUBLIC_* se INCRUSTAN en el bundle del navegador durante el build, no se leen
+# al arrancar: si no llega aquí, el sitio publicado pediría la API a localhost:8001 (la
+# de la máquina del visitante) y no cargaría nada. Por eso es un build arg, no una
+# variable de entorno del contenedor.
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 COPY . .
 RUN npm run build
 
@@ -53,8 +60,8 @@ ENV NODE_ENV=production \
 
 WORKDIR /app
 
-# Next.js en modo standalone deja un servidor mínimo en .next/standalone. Si algún día
-# se quiere esta imagen, hace falta `output: "standalone"` en next.config.mjs.
+# Next.js en modo standalone deja un servidor mínimo en .next/standalone
+# (`output: 'standalone'` en next.config.mjs).
 COPY --from=build /app/public ./public
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static

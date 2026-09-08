@@ -33,4 +33,7 @@ RUN adduser --disabled-password --gecos "" appuser \
     && chown -R appuser:appuser /app
 USER appuser
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+# El entrypoint corre migrate + collectstatic antes de gunicorn: con
+# CompressedManifestStaticFilesStorage, sin collectstatic no hay staticfiles.json y el
+# admin de Django revienta al primer render.
+CMD ["/app/scripts/entrypoint-prod.sh"]

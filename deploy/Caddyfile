@@ -1,0 +1,69 @@
+# Caddy — proxy inverso y TLS de Fely Campo.
+#
+# HTTPS AUTOMÁTICO: Caddy pide y renueva el certificado de Let's Encrypt solo, con que el
+# dominio apunte a esta máquina y los puertos 80 y 443 estén abiertos. No hay que generar
+# nada a mano ni montar certbot.
+#
+# TODO EN UN MISMO ORIGEN (websjfs.com). Eso simplifica mucho: frontend y API comparten
+# dominio, así que CORS es de mismo origen y las cookies de sesión funcionan con
+# `SameSite=Lax` sin necesidad de `None`+`Secure` para terceros.
+#
+#   OJO: `CLAUDE.md` dice que el panel admin irá en un SUBDOMINIO aparte en producción
+#   real (admin.felycampo.com). Aquí NO se hace: esto es un entorno de pruebas en un solo
+#   dominio. Cuando se separe habrá que añadir los dos orígenes a CORS_ALLOWED_ORIGINS y
+#   CSRF_TRUSTED_ORIGINS, y pasar las cookies a SameSite=None + Secure.
+
+{
+	# Correo para los avisos de caducidad de Let's Encrypt.
+	email {$ACME_EMAIL}
+}
+
+# www → apex. El CNAME de www ya apunta aquí; sin esta redirección se serviría el sitio
+# en dos URLs distintas, que para buscadores es contenido duplicado.
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# --- Archivos subidos ---------------------------------------------------------
+	# Los sirve Caddy directamente desde el volumen, NO Django: con DEBUG=False Django
+	# no sirve media (el `static()` de config/urls.py solo se añade en desarrollo), así
+	# que sin esto las fotos del catálogo darían 404 en producción.
+	handle_path /media/* {
+		root * /srv/media
+		file_server
+	}
+
+	# --- API y estáticos de Django ------------------------------------------------
+	# `/static/*` va al backend porque lo sirve whitenoise desde su middleware, con los
+	# nombres con hash del manifiesto.
+	@backend path /api/* /static/* /{$DJANGO_ADMIN_PATH}/*
+	handle @backend {
+		reverse_proxy backend:8000
+	}
+
+	# --- Todo lo demás: el frontend -----------------------------------------------
+	# Incluye `/admin`, que aquí es el PANEL DEL FRONTEND, no el admin de Django (ese
+	# vive en DJANGO_ADMIN_PATH justo arriba). Por eso la ruta del admin de Django se
+	# cambia por entorno: si las dos fueran `/admin`, ganaría la primera regla y el
+	# panel quedaría inaccesible.
+	handle {
+		reverse_proxy frontend:3000
+	}
+
+	# Cabeceras de seguridad. Django ya manda las suyas para lo que él sirve; estas
+	# cubren también lo que responde el frontend.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

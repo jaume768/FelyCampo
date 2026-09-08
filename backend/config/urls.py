@@ -9,8 +9,16 @@ from drf_spectacular.views import (
 )
 from rest_framework.permissions import AllowAny, IsAdminUser
 
+# Ruta del admin de Django, configurable por entorno.
+#
+# En producción TIENE que cambiarse: el panel del frontend vive en `/admin` del mismo
+# dominio, así que dejar aquí "admin/" hace que las dos cosas peleen por la misma URL y
+# gana quien esté delante en el proxy. Además, mover el admin de su ruta por defecto
+# quita de encima el ruido de los bots que la escanean.
+ADMIN_URL = settings.DJANGO_ADMIN_URL
+
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path(ADMIN_URL, admin.site.urls),
     path("api/v1/", include("config.api_urls")),
     # El esquema OpenAPI es el mapa completo de la API. En desarrollo es abierto (lo
     # consumen Swagger y ReDoc); fuera de él solo lo ve el personal autenticado.
