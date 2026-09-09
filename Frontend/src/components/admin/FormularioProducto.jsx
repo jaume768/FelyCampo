@@ -180,9 +180,6 @@ function FormularioProducto({
 }) {
   const router = useRouter();
   const { mostrarToast } = useToast();
-  // `Product.family` es FK obligatoria: sin ella el alta da 400. El formulario no tenía
-  // selector porque el mock no tenía familias.
-  const { familias, cargando: cargandoFamilias } = useFamiliasAdmin(tipo);
 
   // Semilla de datos iniciales: productoExistente (edición in-place, mismo
   // id) o productoBase (duplicar como variante de color desde el botón
@@ -211,6 +208,13 @@ function FormularioProducto({
   const tipoFijado = Boolean(tipoInicial) && !productoExistente;
   const ocultarSeccionTipo = tipoFijado || Boolean(productoExistente) || Boolean(productoBase);
   const [tipo, setTipo] = useState(semilla?.tipo || tipoInicial || '');
+  // Va DESPUÉS de `tipo`, no antes: leerlo arriba daba «Cannot access 'tipo' before
+  // initialization» y el modal entero se caía al abrirse.
+  //
+  // `Product.family` es FK obligatoria (sin ella el alta da 400) y el formulario no tenía
+  // selector porque el mock no tenía familias. Acotadas por línea: en atelier no pintan
+  // nada «Faldas» ni «Zapatos».
+  const { familias, cargando: cargandoFamilias } = useFamiliasAdmin(tipo);
   const [categoriaId, setCategoriaId] = useState(semilla?.categoriaId || categoriaInicial || '');
   const [idioma, setIdioma] = useState('es');
   const [nombre, setNombre] = useState({ es: semilla?.nombre || '', en: '' });
@@ -369,6 +373,9 @@ function FormularioProducto({
   const [textoResenaNueva, setTextoResenaNueva] = useState({ es: '', en: '' });
   const [fotosResenaNueva, setFotosResenaNueva] = useState([]);
 
+  // blob URL -> File real de cada foto nueva, para poder subirla al guardar. Un ref y no
+  // estado: cambiarlo no tiene que repintar nada, y así no se pierde entre renders.
+  const archivosRef = useRef({});
   const inputArchivoRef = useRef(null);
   const inputImagenEstampadoRef = useRef(null);
   const inputFotosResenaRef = useRef(null);

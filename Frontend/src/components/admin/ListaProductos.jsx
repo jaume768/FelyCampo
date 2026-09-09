@@ -28,6 +28,7 @@ import {
 import { useProductosAdmin, useAccionesProductoAdmin } from './useProductosAdmin';
 import { STATUS_POR_ESTADO } from '@/lib/api/adminCatalog';
 import { guardarProducto } from './guardarProducto';
+import { useFamiliasAdmin } from './useFamiliasAdmin';
 import { formatearImporte } from '@/lib/precio';
 import { calcularEstadoPublicacion, CONFIG_ESTADO_PUBLICACION } from './EstadoPublicacionBadge';
 import FormularioProducto from './FormularioProducto';
@@ -226,6 +227,10 @@ function ListaProductosContenido({
     pagina,
   });
   const { guardando, aplicarEnBloque: aplicarEnBloqueApi, archivar } = useAccionesProductoAdmin(recargar);
+  // Respaldo para los borradores que se guardan sin elegir familia: la primera de esta
+  // línea. `family` es FK obligatoria, así que sin esto un borrador a medias no se podría
+  // guardar (que es justo lo que se quiere permitir).
+  const { familias: familiasDeLaLinea } = useFamiliasAdmin(tipoFijo || filtroTipo);
 
   // Cualquier cambio de filtro vuelve a la página 1: seguir en la 4 tras estrechar el
   // filtro deja al usuario mirando una página que ya no existe.
