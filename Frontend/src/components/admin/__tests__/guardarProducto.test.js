@@ -94,16 +94,91 @@ describe('productoAFormulario', () => {
 });
 
 describe('camposQueNoSeGuardan', () => {
-  it('avisa de las tallas y el stock, que no son de Product sino de Variant', () => {
-    // Faltaban en la lista: se rellenaban y se perdían en silencio.
-    expect(camposQueNoSeGuardan({ tallas: [{ talla: '38', stock: 3 }] })).toContain('Tallas y stock');
+  it('las tallas y los colores YA NO se avisan: ahora se guardan', () => {
+    // Viven en `Colorway`/`Variant` y los crea `sincronizarColorways`. Antes se
+    // rellenaban y se perdían.
+    expect(camposQueNoSeGuardan({ tallas: [{ talla: '38', stock: 3 }], colorIds: ['negro'] })).toEqual([]);
   });
 
-  it('avisa de los colores, que viven en Colorway', () => {
-    expect(camposQueNoSeGuardan({ colorIds: ['negro'] })).toContain('Colores');
+  it('tampoco los orígenes ni los iconos de cuidado, que ya son campos de Product', () => {
+    expect(camposQueNoSeGuardan({
+      cuidadoIds: ['wash_30'],
+      disenadoEn: { es: 'Mallorca', en: '' },
+    })).toEqual([]);
+  });
+
+  it('sigue avisando de lo que de verdad no tiene dónde guardarse', () => {
+    // `Look` y `Review` no existen como modelos; las prendas con SKU propio son otra cosa.
+    expect(camposQueNoSeGuardan({ lookVinculado: { id: 'l1' } })).toContain('Look de pasarela');
+    expect(camposQueNoSeGuardan({ prendas: [{ nombre: 'Pantalón', sku: 'X' }] })).toContain('Prendas y sus SKU');
   });
 
   it('no avisa de lo que está vacío', () => {
-    expect(camposQueNoSeGuardan({ tallas: [], colorIds: [], prendas: [] })).toEqual([]);
+    expect(camposQueNoSeGuardan({ prendas: [], resenas: [], lookVinculado: null })).toEqual([]);
+  });
+});
+
+describe('productoAFormulario · colores y tallas', () => {
+  it('reconstruye los colores y el stock desde los colorways', () => {
+    const conInventario = productoAFormulario(adaptarProductoAdmin({
+      ...DE_LA_API,
+      colorways: [{
+        id: 'cw1',
+        color: 'color-uuid',
+        color_detail: { id: 'color-uuid', code: 'black', name: 'Negro' },
+        is_active: true,
+        variants: [
+          { id: 'v1', size: 's1', size_detail: { id: 's1', code: '38' }, stock: 3, is_active: true },
+          { id: 'v2', size: 's2', size_detail: { id: 's2', code: '40' }, stock: 0, is_active: true },
+        ],
+      }],
+    }), CATEGORIAS_PANEL);
+
+    expect(conInventario.colorIds).toEqual(['black']);
+    expect(conInventario.tallas).toEqual([{ talla: '38', stock: 3 }, { talla: '40', stock: 0 }]);
+  });
+
+  it('ignora los colorways desactivados: son colores que se quitaron', () => {
+    const conDesactivado = productoAFormulario(adaptarProductoAdmin({
+      ...DE_LA_API,
+      colorways: [
+        { id: 'cw1', color: 'c1', color_detail: { code: 'black' }, is_active: false, variants: [] },
+        { id: 'cw2', color: 'c2', color_detail: { code: 'camel' }, is_active: true, variants: [] },
+      ],
+    }), CATEGORIAS_PANEL);
+
+    expect(conDesactivado.colorIds).toEqual(['camel']);
+  });
+
+  it('sin colorways no inventa colores ni tallas', () => {
+    const sinNada = productoAFormulario(adaptarProductoAdmin(DE_LA_API), CATEGORIAS_PANEL);
+    expect(sinNada.colorIds).toEqual([]);
+    expect(sinNada.tallas).toEqual([]);
+  });
+});
+
+describe('serialización de cuidados y orígenes', () => {
+  it('manda los códigos de cuidado y los orígenes repartidos en es/en', () => {
+    const cuerpo = formularioAApi({
+      nombre: { es: 'x', en: '' },
+      cuidadoIds: ['wash_30', 'iron_low'],
+      composicion: { es: '100% seda', en: '100% silk' },
+      disenadoEn: { es: 'Mallorca', en: 'Majorca' },
+      origenTejido: { es: 'Japón', en: 'Japan' },
+    });
+
+    expect(cuerpo.care_codes).toEqual(['wash_30', 'iron_low']);
+    expect(cuerpo.composition).toBe('100% seda');
+    expect(cuerpo.composition_en).toBe('100% silk');
+    expect(cuerpo.designed_in).toBe('Mallorca');
+    expect(cuerpo.designed_in_en).toBe('Majorca');
+    expect(cuerpo.fabric_origin).toBe('Japón');
+    expect(cuerpo.fabric_origin_en).toBe('Japan');
+  });
+
+  it('un origen que el formulario no toca no se manda: no machaca lo guardado', () => {
+    const cuerpo = formularioAApi({ nombre: { es: 'x', en: '' } });
+    expect('made_in' in cuerpo).toBe(false);
+    expect('designed_in' in cuerpo).toBe(false);
   });
 });
