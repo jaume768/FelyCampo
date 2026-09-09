@@ -194,3 +194,49 @@ docker run --rm -v felycampo_media_data:/media -v "$PWD":/copia alpine \
 | Las imágenes no cargan | `BACKEND_PUBLIC_URL` mal puesto: es lo que se usa para construir sus URLs |
 | El frontend pide a `localhost:8001` | Se construyó sin `PUBLIC_URL`. Reconstruir con `--build` |
 | El backend no arranca | `production.py` valida al arrancar y dice qué falta: `logs backend` |
+
+## Tres cosas que se rompieron al desplegar por primera vez
+
+Están arregladas en el repo; se dejan escritas porque el síntoma no señalaba a la causa.
+
+### 1. `entrypoint-prod.sh: permission denied`
+
+El script se creó desde Windows, donde no existe el bit de ejecución, así que git lo
+registró como `100644` y el contenedor moría al arrancar. Se arregla en el índice de git,
+no con `chmod` en el servidor (se perdería en el siguiente clon):
+
+```bash
+git update-index --chmod=+x backend/scripts/entrypoint-prod.sh
+```
+
+### 2. `Permission denied: /app/staticfiles/admin`
+
+Un volumen con nombre **vacío** lo crea Docker como `root`, y el backend corre como
+`appuser`: `collectstatic` no podía escribir y el contenedor entraba en bucle de reinicio.
+
+La solución es crear los directorios **en la imagen** con el dueño correcto: si ya existen,
+Docker inicializa el volumen a partir de ellos conservando permisos. Si te pasa con un
+volumen ya creado, hay que borrarlo para que se reinicialice:
+
+```bash
+docker compose -f docker-compose.prod.yml stop backend
+docker volume rm felycampo_static_data
+docker compose -f docker-compose.prod.yml up -d --build backend
+```
+
+### 3. La home tardaba 20 segundos
+
+El más traicionero, porque *funcionaba*: devolvía 200, solo que muy tarde.
+
+`SECURE_SSL_REDIRECT = True` hace que Django redirija HTTP a HTTPS. Las llamadas de los
+Server Components salen por la red interna de Docker en **HTTP plano**, así que recibían un
+`301` a `https://backend:8000` — un host que no habla TLS. Cada llamada se quedaba colgada
+hasta agotar el timeout de 10 s, y la home hace dos: 20 segundos exactos.
+
+Ahora el cliente manda `X-Forwarded-Proto: https` en las peticiones de servidor. La
+cabecera **dice la verdad**: el visitante llegó por HTTPS y Caddy terminó el TLS.
+
+El mismo 301 dejaba el healthcheck de Docker en `unhealthy` para siempre; de ahí el
+`SECURE_REDIRECT_EXEMPT` para `/api/v1/health/`.
+
+Después del arreglo: **de 20 s a 0,4 s**.
