@@ -270,6 +270,99 @@ def test_product_delete_archiva_no_borra(staff_client, product):
     assert Product.objects.filter(pk=product.id).exists()  # sigue en la BD
 
 
+@pytest.mark.django_db
+def test_product_delete_force_borra_de_verdad_lo_que_nadie_ha_comprado(staff_client, product):
+    """El panel necesita poder quitar de en medio pruebas y borradores, no solo archivarlos."""
+    identificador = product.id
+
+    response = staff_client.delete(f"/api/v1/admin/products/{identificador}/?force=1")
+
+    assert response.status_code == 200
+    assert response.data["deleted"] is True
+    assert not Product.objects.filter(pk=identificador).exists()
+
+
+@pytest.mark.django_db
+def test_product_delete_force_archiva_si_esta_en_un_pedido(staff_client, product, colorway, size):
+    """
+    `OrderLine.variant` es SET_NULL: borrar a lo bruto dejaría el pedido sin el producto
+    que se vendió. Se archiva y se dice por qué, en vez de romper el histórico.
+    """
+    from apps.orders.models import Order, OrderLine
+
+    variant = Variant.objects.create(colorway=colorway, size=size, stock=1)
+    pedido = Order.objects.create(
+        number=1,
+        email="clienta@felycampo.test",
+        shipping_recipient="Clienta",
+        shipping_postal_code="07001",
+        shipping_city="Palma",
+        shipping_province="Illes Balears",
+        subtotal_net=Decimal("200.00"),
+        shipping_net=Decimal("0.00"),
+        vat_rate=Decimal("0.210"),
+        vat_total=Decimal("42.00"),
+        total_gross=Decimal("242.00"),
+    )
+    OrderLine.objects.create(
+        order=pedido,
+        variant=variant,
+        sku=colorway.sku,
+        product_name=product.name,
+        quantity=1,
+        unit_price_net=Decimal("200.00"),
+        line_net=Decimal("200.00"),
+    )
+
+    response = staff_client.delete(f"/api/v1/admin/products/{product.id}/?force=1")
+
+    assert response.status_code == 200
+    assert response.data["deleted"] is False
+    assert response.data["archived"] is True
+    assert response.data["reason"]
+    product.refresh_from_db()
+    assert product.status == ProductStatus.ARCHIVED
+
+
+@pytest.mark.django_db
+def test_product_guarda_cuidados_y_origenes(staff_client, product):
+    """Los campos que antes se editaban en el panel y se perdían al guardar."""
+    response = staff_client.patch(
+        f"/api/v1/admin/products/{product.id}/",
+        {
+            "composition": "100% seda",
+            "composition_en": "100% silk",
+            "care_codes": ["wash_30", "iron_low"],
+            "designed_in": "Mallorca",
+            "designed_in_en": "Mallorca",
+            "made_in": "España",
+            "dyeing_printing": "Italia",
+            "fabric_origin": "Japón",
+        },
+        format="json",
+    )
+
+    assert response.status_code == 200
+    product.refresh_from_db()
+    assert product.composition_en == "100% silk"
+    # Se guardan los CÓDIGOS, no el texto: la etiqueta la pone el frontend por idioma.
+    assert product.care_codes == ["wash_30", "iron_low"]
+    assert product.made_in == "España"
+    assert product.fabric_origin == "Japón"
+
+
+@pytest.mark.django_db
+def test_color_admite_codigos_largos_del_panel(staff_client):
+    """Los colores del panel son slugs legibles; en 8 caracteres no cabían."""
+    response = staff_client.post(
+        "/api/v1/admin/colors/",
+        {"code": "lilac-lavender", "name": "Lila lavanda", "hex_value": "#C8A2C8"},
+        format="json",
+    )
+
+    assert response.status_code == 201, response.data
+
+
 # ---------- Colorway ----------
 
 
