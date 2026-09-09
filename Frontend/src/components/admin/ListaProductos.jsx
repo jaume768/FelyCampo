@@ -59,9 +59,14 @@ function etiquetaColeccion(coleccion) {
   return coleccionesMock.find((c) => c.valor === coleccion)?.etiqueta || '—';
 }
 
+/**
+ * Unidades del producto. Sin variantes no es «0»: es que todavía no se le han puesto
+ * colores y tallas, que es otra cosa — y la diferencia importa para saber si falta
+ * trabajo o falta género.
+ */
 function stockTotal(producto) {
-  if (!producto.tallas) return '—';
-  return producto.tallas.reduce((total, t) => total + t.stock, 0);
+  if (!producto.tieneVariantes) return '—';
+  return producto.stock ?? 0;
 }
 
 // Tarjeta de un look en la rejilla — necesita su propio estado (índice de

@@ -235,6 +235,15 @@ export function adaptarProductoAdmin(producto) {
     telas: (producto.fabrics_detail || []).map((f) => ({ id: f.id, nombre: f.name })),
 
     colorways: producto.colorways || [],
+    // Stock real del producto: la suma de sus variantes (color + talla), que es donde
+    // vive. La columna «Stock» del listado leía un `tallas` que este adaptador no
+    // producía, así que salía siempre «—» aunque hubiera unidades.
+    stock: (producto.colorways || [])
+      .filter((cw) => cw.is_active !== false)
+      .reduce((total, cw) => total + (cw.variants || [])
+        .filter((v) => v.is_active !== false)
+        .reduce((suma, v) => suma + (v.stock ?? 0), 0), 0),
+    tieneVariantes: (producto.colorways || []).some((cw) => (cw.variants || []).length > 0),
     // DOS formas de lo mismo, a propósito: `imagenes` son URLs sueltas —es lo que
     // `FormularioProducto` sabe manejar (las arrastra, las quita, mezcla blob: nuevas)— y
     // `imagenesDetalle` conserva el id de cada `ProductImage`, que es lo único que

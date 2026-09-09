@@ -143,6 +143,38 @@ describe('adaptarProductoAdmin', () => {
     expect(p.imagenesDetalle[0].url).toBe('http://localhost:8001/media/library/image/a.webp');
   });
 
+  it('suma el stock de todas las variantes, que es donde vive de verdad', () => {
+    const conStock = adaptarProductoAdmin({
+      ...PRODUCTO_ADMIN,
+      colorways: [
+        {
+          id: 'cw1', is_active: true, color_detail: { code: 'black' },
+          variants: [{ stock: 3, is_active: true }, { stock: 2, is_active: true }],
+        },
+        { id: 'cw2', is_active: true, color_detail: { code: 'camel' }, variants: [{ stock: 5, is_active: true }] },
+      ],
+    });
+    expect(conStock.stock).toBe(10);
+    expect(conStock.tieneVariantes).toBe(true);
+  });
+
+  it('no cuenta el stock de colores ni tallas desactivados', () => {
+    const conBajas = adaptarProductoAdmin({
+      ...PRODUCTO_ADMIN,
+      colorways: [
+        { id: 'cw1', is_active: false, color_detail: { code: 'black' }, variants: [{ stock: 99, is_active: true }] },
+        { id: 'cw2', is_active: true, color_detail: { code: 'camel' }, variants: [{ stock: 4, is_active: true }, { stock: 50, is_active: false }] },
+      ],
+    });
+    expect(conBajas.stock).toBe(4);
+  });
+
+  it('sin variantes distingue «no tiene» de «cero unidades»', () => {
+    const p_ = adaptarProductoAdmin({ ...PRODUCTO_ADMIN, colorways: [] });
+    expect(p_.tieneVariantes).toBe(false);
+    expect(p_.stock).toBe(0);
+  });
+
   it('un producto sin precio (solo consulta) no inventa un cero', () => {
     const sinPrecio = adaptarProductoAdmin({ ...PRODUCTO_ADMIN, price: null, sale_mode: 'on_request' });
     expect(sinPrecio.precio).toBeNull();
