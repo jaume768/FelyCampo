@@ -6,7 +6,7 @@ pública, el panel necesita ver borradores y archivados.
 """
 
 import django_filters as filters
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 
 from apps.adminapi.viewsets import AdminModelViewSet
 
@@ -36,13 +36,30 @@ from .models import (
 )
 
 
+class AdminFamilyFilter(filters.FilterSet):
+    """
+    `?line=atelier` devuelve las familias de esa línea **y** las que no acotan ninguna:
+    `lines` vacío significa «en todas», así que excluirlas escondería las familias que
+    existían antes de que este campo existiera.
+    """
+
+    line = filters.CharFilter(method="filter_line")
+
+    class Meta:
+        model = Family
+        fields = ("is_active",)
+
+    def filter_line(self, queryset, name, value):
+        return queryset.filter(Q(lines__contains=[value]) | Q(lines=[]))
+
+
 class AdminFamilyViewSet(AdminModelViewSet):
     queryset = Family.objects.all()
     serializer_class = AdminFamilySerializer
     search_fields = ("code", "name")
     ordering_fields = ("name", "code", "created_at")
     ordering = ("name",)
-    filterset_fields = ("is_active",)
+    filterset_class = AdminFamilyFilter
 
 
 class AdminCategoryViewSet(AdminModelViewSet):

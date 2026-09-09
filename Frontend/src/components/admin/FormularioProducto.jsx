@@ -182,7 +182,7 @@ function FormularioProducto({
   const { mostrarToast } = useToast();
   // `Product.family` es FK obligatoria: sin ella el alta da 400. El formulario no tenía
   // selector porque el mock no tenía familias.
-  const { familias, cargando: cargandoFamilias } = useFamiliasAdmin();
+  const { familias, cargando: cargandoFamilias } = useFamiliasAdmin(tipo);
 
   // Semilla de datos iniciales: productoExistente (edición in-place, mismo
   // id) o productoBase (duplicar como variante de color desde el botón
@@ -406,6 +406,10 @@ function FormularioProducto({
       );
       const url = URL.createObjectURL(archivoNombrado);
       nombresNuevos[url] = archivoNombrado.name;
+      // El File se guarda aparte, no solo su blob URL: esa URL únicamente vale dentro de
+      // esta pestaña y muere al recargar. Para subir la foto al servidor hace falta el
+      // archivo de verdad.
+      archivosRef.current[url] = archivoNombrado;
       return url;
     }));
 
@@ -718,6 +722,9 @@ function FormularioProducto({
         // Para poder guardar de verdad: familia (FK obligatoria) y, si se programa, la
         // fecha desde la que se publica.
         familiaId,
+        // Los File de las fotos nuevas, indexados por su blob URL. Sin esto solo viajaban
+        // blob URLs, que fuera de esta pestaña no significan nada y no se pueden subir.
+        archivosPorUrl: archivosRef.current,
         publicadoEn: estadoFinal === 'Programado' && publicadoEn
           ? new Date(publicadoEn).toISOString()
           : undefined,

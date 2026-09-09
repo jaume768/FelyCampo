@@ -391,6 +391,9 @@ function ListaProductosContenido({
     const resultado = await guardarProducto(raiz, {
       familiaId: raiz.familiaId,
       publicadoEn: raiz.publicadoEn,
+      // Respaldo solo para borradores: `family` es FK obligatoria y sin ella no se
+      // podría guardar un borrador a medias.
+      familiaPorDefecto: familiasDeLaLinea[0]?.id,
     });
 
     if (!resultado.ok) {
@@ -399,10 +402,29 @@ function ListaProductosContenido({
     }
 
     avisarDeLoQueNoSeGuarda(resultado.perdidos, variantes.length);
-    mostrarToast('Producto creado');
+    // Se dice qué se ha rellenado solo: inventar datos en silencio es peor que bloquear.
+    if (resultado.rellenado?.length) {
+      mostrarToast(`Hemos rellenado por ti: ${resultado.rellenado.join(', ')} — cámbialo antes de publicar.`);
+    }
+    avisarDeLasFotos(resultado.fotos);
+    mostrarToast(raiz.estado === 'Activo' ? 'Producto publicado' : 'Producto guardado');
     setNuevoAbierto(false);
     setProductoParaDuplicar(null);
     recargar();
+  }
+
+  /** Dice qué se ha quedado fuera en vez de callarlo. */
+  /**
+   * Las fotos se suben DESPUÉS de guardar el producto (necesitan su id), así que pueden
+   * fallar por separado: se dice cuántas entraron y por qué falló cada una, en vez de dar
+   * el guardado por bueno sin más.
+   */
+  function avisarDeLasFotos(fotos) {
+    if (!fotos) return;
+    if (fotos.subidas > 0) {
+      mostrarToast(`${fotos.subidas} foto${fotos.subidas === 1 ? '' : 's'} subida${fotos.subidas === 1 ? '' : 's'}.`);
+    }
+    fotos.fallidas?.forEach((motivo) => mostrarToast(`Foto no subida — ${motivo}`));
   }
 
   /** Dice qué se ha quedado fuera en vez de callarlo. */
@@ -439,6 +461,7 @@ function ListaProductosContenido({
     }
 
     avisarDeLoQueNoSeGuarda(resultado.perdidos, variantes.length);
+    avisarDeLasFotos(resultado.fotos);
     mostrarToast('Cambios guardados');
     setProductoEnEdicion(null);
     recargar();

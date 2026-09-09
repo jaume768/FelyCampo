@@ -10,6 +10,7 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.utils.text import slugify
 
 from apps.catalog.models import (
     Category,
@@ -34,7 +35,21 @@ COLORS = [
     ("VER", "Verde agua", "#8FBFB0"),
     ("AZU", "Azul noche", "#1F2A54"),
 ]
-FAMILIES = [("VE", "Vestidos"), ("CH", "Chaquetas"), ("FA", "Faldas"), ("TO", "Tops")]
+# (código, nombre, líneas en las que se ofrece).
+#
+# `lines` es lo que hace que el formulario del panel enseñe solo lo que pega con el tipo
+# de producto: dando de alta una pieza de atelier no tiene sentido ofrecer «Zapatos».
+# Vestidos está en las dos: se vende de catálogo y también se hace a medida.
+FAMILIES = [
+    ("VE", "Vestidos", [ProductLine.PRET_A_PORTER, ProductLine.ATELIER]),
+    ("CH", "Chaquetas y Abrigos", [ProductLine.PRET_A_PORTER]),
+    ("FA", "Faldas", [ProductLine.PRET_A_PORTER]),
+    ("TO", "Tops y Camisas", [ProductLine.PRET_A_PORTER]),
+    ("ZA", "Zapatos", [ProductLine.PRET_A_PORTER]),
+    ("AC", "Accesorios", [ProductLine.PRET_A_PORTER]),
+    ("NO", "Novias", [ProductLine.ATELIER]),
+    ("FI", "Fiesta", [ProductLine.ATELIER]),
+]
 
 # (familia, diseño, nombre, precio sin IVA, rebaja, outlet, modo de venta, línea)
 #
@@ -77,12 +92,19 @@ class Command(BaseCommand):
             )[0]
             for code, name, hex_value in COLORS
         }
-        families = {
-            code: Family.objects.get_or_create(
-                code=code, defaults={"name": name, "slug": name.lower()}
-            )[0]
-            for code, name in FAMILIES
-        }
+        families = {}
+        for code, name, lines in FAMILIES:
+            familia, _creada = Family.objects.get_or_create(
+                code=code,
+                defaults={"name": name, "slug": slugify(name), "lines": lines},
+            )
+            # No se usa `update_or_create`: pisaría un nombre editado a mano desde el
+            # panel. Las líneas solo se rellenan si están vacías, que es el caso de las
+            # familias creadas antes de que ese campo existiera.
+            if not familia.lines:
+                familia.lines = lines
+                familia.save(update_fields=["lines", "updated_at"])
+            families[code] = familia
 
         fiesta, _ = Category.objects.get_or_create(
             slug="fiesta", defaults={"name": "Fiesta", "position": 1}

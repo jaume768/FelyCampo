@@ -3,7 +3,16 @@ from decimal import Decimal
 import pytest
 from django.db import IntegrityError, transaction
 
-from apps.catalog.models import Color, Colorway, Family, Product, SaleMode, Size, Variant
+from apps.catalog.models import (
+    Color,
+    Colorway,
+    Family,
+    Product,
+    ProductStatus,
+    SaleMode,
+    Size,
+    Variant,
+)
 from apps.catalog.pricing import gross, vat_amount
 
 
@@ -87,11 +96,29 @@ def test_producto_solo_consulta_no_lleva_precio_ni_es_comprable(family):
     assert product.is_purchasable is False
 
 
-def test_producto_vendible_exige_precio(family):
+def test_un_producto_publicado_exige_precio(family):
+    """La regla vive donde importa: nada llega al público sin precio."""
     with pytest.raises(IntegrityError), transaction.atomic():
         Product.objects.create(
-            family=family, design_code="901", name="Sin precio", sale_mode=SaleMode.IN_STOCK
+            family=family,
+            design_code="901",
+            name="Sin precio",
+            sale_mode=SaleMode.IN_STOCK,
+            status=ProductStatus.ACTIVE,
         )
+
+
+def test_un_borrador_puede_no_tener_precio(family):
+    """
+    Estar a medio rellenar es el estado normal de un borrador. Exigirle precio obligaba a
+    inventarse uno o a perder el trabajo, sin proteger nada: no es público.
+    """
+    producto = Product.objects.create(
+        family=family, design_code="902", name="Borrador sin precio", sale_mode=SaleMode.IN_STOCK
+    )
+
+    assert producto.price is None
+    assert producto.is_published is False
 
 
 def test_iva_se_anade_sobre_el_precio_sin_impuesto():

@@ -29,17 +29,23 @@
  *       No existe el modelo `Review` (docs/CONTRATO.md, C-1).
  *   composicion.en / descripcion en varios idiomas más allá de ES/EN
  *       El modelo tiene `composition` (una sola), y `name_en`/`description_en`.
- *   tallas[].stock, colorIds, imagenes
- *       SÍ existen, pero NO en `Product`: viven en `Colorway`/`Variant`/`ProductImage`,
- *       cada uno con su endpoint. El formulario los trata como campos planos del
- *       producto, que es otro modelo de datos. Se guardan aparte, no aquí.
+ *   tallas[].stock, colorIds
+ *       SÍ existen, pero NO en `Product`: viven en `Colorway`/`Variant`, cada uno con su
+ *       endpoint. El formulario los trata como campos planos del producto, que es otro
+ *       modelo de datos.
+ *
+ * Las IMÁGENES sí se guardan, en dos pasos (ver `subirImagenes`): el archivo va a la
+ * biblioteca de medios y luego se crea el `ProductImage` que lo coloca en la ficha.
  *
  * `categoriaId` merece nota propia: las categorías del panel vienen de
  * `CategoriasProvider` (contexto local, ids tipo 'cat1'), no de `Category` del backend.
  * Solo se manda si el id parece un UUID.
  */
 
-import { productos as apiProductos, serializarProductoAdmin } from '@/lib/api/adminCatalog';
+import {
+  productos as apiProductos, imagenesProducto as apiImagenes, serializarProductoAdmin,
+} from '@/lib/api/adminCatalog';
+import { subirMedia, motivoDeRechazo } from '@/lib/api/adminMedia';
 
 const ES_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -107,6 +113,57 @@ export function formularioAApi(f, { familiaId, publicadoEn } = {}) {
 }
 
 /**
+ * Sube las fotos nuevas y las coloca en la ficha del producto.
+ *
+ * Dos pasos, porque son dos cosas distintas:
+ *   1. El ARCHIVO va a la biblioteca de medios (`POST /admin/media/`, multipart). Ahí el
+ *      servidor lo normaliza: 2560px máximo, WebP, miniatura y EXIF limpio.
+ *   2. El `ProductImage` (`POST /admin/product-images/`) dice en qué ficha va, en qué
+ *      posición y de qué color. La imagen es reutilizable; su sitio en la ficha, no.
+ *
+ * Se hace DESPUÉS de guardar el producto porque hace falta su id.
+ *
+ * Las que ya son `http(s)` se saltan: son fotos ya subidas que solo se están reordenando.
+ *
+ * @param {string} productoId
+ * @param {string[]} imagenes URLs en el orden de la galería (blob: las nuevas).
+ * @param {Record<string, File>} archivosPorUrl
+ * @returns {Promise<{subidas: number, fallidas: string[]}>} Nunca lanza: una foto que
+ *   falla no puede tirar abajo un producto que ya se ha guardado bien.
+ */
+async function subirImagenes(productoId, imagenes = [], archivosPorUrl = {}) {
+  let subidas = 0;
+  const fallidas = [];
+
+  for (const [indice, url] of imagenes.entries()) {
+    // Ya subida (viene del servidor): solo estaba en la galería, no hay nada que hacer.
+    if (!url || !url.startsWith('blob:')) continue;
+
+    const archivo = archivosPorUrl[url];
+    if (!archivo) {
+      fallidas.push('una foto se perdió al recargar la página');
+      continue;
+    }
+
+    const motivo = motivoDeRechazo(archivo);
+    if (motivo) {
+      fallidas.push(`${archivo.name}: ${motivo}`);
+      continue;
+    }
+
+    try {
+      const asset = await subirMedia(archivo, archivo.name);
+      await apiImagenes.crear({ product: productoId, asset: asset.id, position: indice });
+      subidas += 1;
+    } catch (error) {
+      fallidas.push(`${archivo.name}: ${error?.firstDetail ?? error?.message ?? 'error al subir'}`);
+    }
+  }
+
+  return { subidas, fallidas };
+}
+
+/**
  * Crea o actualiza. Devuelve `{ok, producto|mensaje}` en vez de lanzar, para que la
  * pantalla decida qué enseñar.
  *
@@ -116,20 +173,55 @@ export function formularioAApi(f, { familiaId, publicadoEn } = {}) {
  * @param {string} [opciones.familiaId]
  * @param {string} [opciones.publicadoEn]
  */
-export async function guardarProducto(formulario, { id, familiaId, publicadoEn } = {}) {
+export async function guardarProducto(formulario, { id, familiaId, publicadoEn, familiaPorDefecto } = {}) {
   const cuerpo = formularioAApi(formulario, { familiaId, publicadoEn });
+  const esBorrador = formulario.estado !== 'Activo';
+  const rellenado = [];
 
-  // `family` es FK obligatoria (on_delete=PROTECT, not null): sin ella el alta da 400.
-  // Mejor decirlo aquí que traducir el error del backend.
+  // UN BORRADOR SE GUARDA SIEMPRE. Tres campos son obligatorios en la base de datos
+  // (`family` es FK not-null, `name` y `design_code` no admiten vacío), así que en vez de
+  // bloquear el guardado se rellenan con un mínimo razonable y se AVISA de cuáles.
+  // Perder el trabajo por no haber decidido todavía el nombre no ayuda a nadie; inventar
+  // datos a escondidas, tampoco.
+  if (esBorrador && !id) {
+    if (!cuerpo.name) {
+      cuerpo.name = 'Borrador sin título';
+      rellenado.push('nombre');
+    }
+    if (!cuerpo.family && familiaPorDefecto) {
+      cuerpo.family = familiaPorDefecto;
+      rellenado.push('familia');
+    }
+    if (!cuerpo.design_code) {
+      // Único dentro de la familia. El sufijo temporal evita chocar con otro borrador.
+      cuerpo.design_code = `B${String(Date.now()).slice(-6)}`;
+      rellenado.push('código de diseño');
+    }
+    // El precio ya NO hace falta: el backend solo lo exige al publicar.
+  }
+
+  // Al publicar sí se exige familia: es FK obligatoria y no se puede adivinar.
   if (!id && !cuerpo.family) {
-    return { ok: false, mensaje: 'Elige una familia de producto: es obligatoria para crear.' };
+    return {
+      ok: false,
+      mensaje: 'Elige una familia de producto: es obligatoria. Si aún no la sabes, guarda como borrador.',
+    };
   }
 
   try {
     const producto = id
       ? await apiProductos.actualizar(id, cuerpo)
       : await apiProductos.crear(cuerpo);
-    return { ok: true, producto, perdidos: camposQueNoSeGuardan(formulario) };
+
+    // Las fotos van después: necesitan el id del producto. Si alguna falla, el producto
+    // ya está guardado — se informa de cuáles, no se deshace todo.
+    const fotos = await subirImagenes(
+      producto.id,
+      formulario.imagenes,
+      formulario.archivosPorUrl
+    );
+
+    return { ok: true, producto, perdidos: camposQueNoSeGuardan(formulario), rellenado, fotos };
   } catch (error) {
     // Los errores por campo del backend se devuelven tal cual para poder pintarlos donde
     // toca; `mensaje` es el resumen para un toast.

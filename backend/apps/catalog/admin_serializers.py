@@ -35,7 +35,8 @@ from .serializers import ColorSerializer, FamilySerializer, SizeSerializer
 class AdminFamilySerializer(serializers.ModelSerializer):
     class Meta:
         model = Family
-        fields = ("id", "code", "name", "name_en", "slug", "is_active")
+        # `lines`: en qué líneas se ofrece esta familia. Vacío = en todas.
+        fields = ("id", "code", "name", "name_en", "slug", "lines", "is_active")
 
 
 class AdminCategorySerializer(serializers.ModelSerializer):
@@ -206,21 +207,22 @@ class AdminProductSerializer(serializers.ModelSerializer):
             "published_at", getattr(self.instance, "published_at", None)
         )
 
-        # La base de datos tiene un CheckConstraint
-        # (`catalog_product_price_required_unless_on_request`) que exige precio salvo en
-        # los productos de solo consulta. Sin reflejarlo aquí, guardar un borrador sin
-        # precio —lo más normal del mundo en el panel— revienta con un IntegrityError y
-        # un 500 opaco en vez de señalar el campo.
+        # El precio SOLO se exige al PUBLICAR, igual que el CheckConstraint
+        # `catalog_product_price_required_when_active` de la base de datos.
+        #
+        # Un borrador se guarda como esté: estar a medio rellenar es su estado normal, y
+        # bloquear el guardado obliga a inventarse un precio o a perder el trabajo. La
+        # regla de verdad —nada llega al público incompleto— sigue viva, solo que se
+        # aplica al pasar a «Activo».
         sale_mode = attrs.get("sale_mode", getattr(self.instance, "sale_mode", SaleMode.IN_STOCK))
         price = attrs.get("price", getattr(self.instance, "price", None))
-        # Al crear se comprueba siempre (no mandar el campo es exactamente el caso que
-        # reventaba); al editar, solo si el resultado se queda sin precio.
-        if sale_mode != SaleMode.ON_REQUEST and price is None:
+        if status == ProductStatus.ACTIVE and sale_mode != SaleMode.ON_REQUEST and price is None:
             raise serializers.ValidationError(
                 {
                     "price": (
-                        "Indica el precio. Solo puede quedar vacío en los productos de "
-                        "«solo consulta»."
+                        "Para publicar hace falta el precio. Solo puede quedar vacío en "
+                        "los productos de «solo consulta»; puedes guardarlo como borrador "
+                        "y ponerlo más tarde."
                     )
                 }
             )

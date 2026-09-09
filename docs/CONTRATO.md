@@ -659,3 +659,72 @@ que un cliente normal identificado recibe **403** en `/admin/me/` y en `/admin/c
 ### Pendiente
 
 `/admin/clientes/[id]` (ficha) sigue con datos de ejemplo; el listado ya no enlaza a ella.
+
+## Formulario de producto: familias por línea, borradores e imágenes (2026-09-09)
+
+### Las familias se acotan por línea
+
+`Family` no tenía ninguna relación con `line`, así que el selector del formulario ofrecía
+**todas** las familias: al dar de alta una pieza de atelier salían «Faldas» o «Zapatos».
+
+Se añade `Family.lines` (lista de líneas; **vacía = en todas**, para que las familias
+anteriores no desaparezcan) y el filtro `?line=` en el endpoint admin. Sembradas:
+
+| Línea | Familias |
+|---|---|
+| `pret_a_porter` | Vestidos, Chaquetas y Abrigos, Faldas, Tops y Camisas, Zapatos, Accesorios |
+| `atelier` | Vestidos, Novias, Fiesta |
+
+Nota: «Novias» y «Fiesta» existen **también** como `Category`. Que sean familias en
+atelier es lo que espera el panel (son sus «secciones»), pero conviene saber que el mismo
+nombre vive en los dos ejes.
+
+### Un borrador se guarda siempre; las validaciones son al publicar
+
+El `CheckConstraint` exigía precio en **todos** los productos, así que guardar un borrador
+a medias era imposible. Ahora la regla es
+`catalog_product_price_required_when_active`: **solo se exige al publicar**.
+
+- Guardar borrador sin precio → **201**, `is_published: false`.
+- Publicarlo sin precio → **400** con el motivo en el campo `price`.
+- Pasar de borrador a activo sin precio → **400** también.
+
+Tres campos siguen siendo obligatorios en la base de datos (`family`, `name`,
+`design_code`). En vez de bloquear el guardado, el panel los **rellena con un mínimo** y
+**avisa de cuáles**: «Hemos rellenado por ti: nombre, familia — cámbialo antes de
+publicar». Inventar datos en silencio sería peor.
+
+### Las imágenes: antes NO se subían
+
+El formulario hacía `URL.createObjectURL(...)`: **blobs en memoria del navegador**. Se
+veían en la pantalla, se perdían al recargar y **nunca llegaban al servidor**.
+`admin/product-images/` no se llamaba desde ningún sitio.
+
+Ahora se suben de verdad, en dos pasos y **después** de guardar el producto (necesitan su
+id):
+
+1. `POST /admin/media/` (multipart) → el servidor normaliza: **2560px máx., WebP,
+   miniatura y EXIF limpio**.
+2. `POST /admin/product-images/` con `product`, `asset` y `position`.
+
+Verificado: un PNG de 64×64 sale como
+`/media/library/image/<hash>.webp` con su miniatura en
+`/media/library/thumbnails/<hash>.webp`.
+
+**Dónde viven los archivos**, que es lo que se preguntaba: en el **disco del servidor**,
+en el volumen `media_data` (`MEDIA_ROOT = /app/media`), y en la base de datos solo se
+guarda la ruta relativa. Caddy los sirve en `/media/*` desde ese volumen. Sobreviven a los
+redespliegues porque el volumen no se reconstruye con la imagen.
+
+> Para pasar a S3/R2 más adelante basta cambiar `STORAGES["default"]` en
+> `production.py`: el resto del código ya usa el API de almacenamiento de Django, no rutas
+> a pelo.
+
+Una foto que falla **no tira abajo el producto ya guardado**: se informa de cuál y por qué.
+
+### Sigue pendiente
+
+- **Colorways**: las fotos se cuelgan del producto, no del color. `ProductImage.colorway`
+  existe, pero el formulario aún trata cada color como un producto aparte.
+- **Looks de Runway**: siguen en `mockData`, bloqueados sin el modelo `Look`. El grid de
+  colecciones y sus looks funcionan como antes (contexto local), pero nada de eso persiste.

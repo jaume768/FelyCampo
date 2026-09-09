@@ -413,11 +413,10 @@ def test_admin_editar_otro_campo_de_un_programado_vencido_no_falla(staff_client,
     assert respuesta.status_code == 200
 
 
-def test_admin_crear_sin_precio_da_400_no_500(staff_client, family):
+def test_admin_borrador_sin_precio_se_guarda(staff_client, family):
     """
-    La BD tiene un CheckConstraint que exige precio salvo en «solo consulta». Sin
-    reflejarlo en el serializer, guardar un borrador sin precio —lo más normal del mundo
-    en el panel— reventaba con IntegrityError y un 500 opaco.
+    Un borrador se guarda como esté. Antes esto daba 400 (y antes aún, un 500 opaco):
+    obligar a poner precio para guardar y seguir mañana no protegía nada.
     """
     respuesta = staff_client.post(
         "/api/v1/admin/products/",
@@ -428,6 +427,38 @@ def test_admin_crear_sin_precio_da_400_no_500(staff_client, family):
             "status": "draft",
         },
         format="json",
+    )
+
+    assert respuesta.status_code == 201
+    assert respuesta.json()["price"] is None
+    assert respuesta.json()["is_published"] is False
+
+
+def test_admin_publicar_sin_precio_da_400(staff_client, family):
+    """La regla sigue viva donde importa: al publicar."""
+    respuesta = staff_client.post(
+        "/api/v1/admin/products/",
+        {
+            "family": str(family.id),
+            "design_code": "982",
+            "name": "Sin precio",
+            "status": "active",
+        },
+        format="json",
+    )
+
+    assert respuesta.status_code == 400
+    assert "price" in respuesta.json()["error"]["details"]
+
+
+def test_admin_publicar_un_borrador_sin_precio_da_400(staff_client, family):
+    """Y también al pasar de borrador a publicado, no solo al crearlo ya activo."""
+    borrador = Product.objects.create(
+        family=family, design_code="983", name="Borrador", status=ProductStatus.DRAFT
+    )
+
+    respuesta = staff_client.patch(
+        f"/api/v1/admin/products/{borrador.id}/", {"status": "active"}, format="json"
     )
 
     assert respuesta.status_code == 400

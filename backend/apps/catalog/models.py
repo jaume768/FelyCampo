@@ -11,6 +11,7 @@ el 21% se aplica al calcular (ver `apps.catalog.pricing`).
 
 from decimal import Decimal
 
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -72,12 +73,31 @@ class ProductStatus(models.TextChoices):
 
 
 class Family(UUIDTimeStampedModel):
-    """Familia de producto. Primer segmento del SKU."""
+    """
+    Familia de producto: la sección del catálogo a la que pertenece. Primer segmento
+    del SKU.
+
+    `lines` acota en qué líneas se ofrece. Sin esto, el formulario del panel enseñaba
+    TODAS las familias sin importar el tipo de producto: al dar de alta una pieza de
+    atelier salían «Faldas» o «Zapatos», que ahí no pintan nada.
+
+    Una familia puede estar en varias líneas (un vestido se vende en prêt-à-porter y se
+    hace a medida en atelier), de ahí que sea una lista y no un único valor. **Vacía
+    significa «en todas»**: así las familias que ya existían siguen apareciendo en todas
+    partes sin tener que revisarlas una a una.
+    """
 
     code = models.CharField(_("código"), max_length=8, unique=True)
     name = models.CharField(_("nombre"), max_length=120)
     name_en = models.CharField(_("nombre (EN)"), max_length=120, blank=True)
     slug = models.SlugField(_("slug"), max_length=140, unique=True)
+    lines = ArrayField(
+        models.CharField(max_length=16, choices=ProductLine.choices),
+        verbose_name=_("líneas"),
+        default=list,
+        blank=True,
+        help_text=_("Líneas en las que se ofrece. Vacío = en todas."),
+    )
     is_active = models.BooleanField(_("activa"), default=True)
 
     class Meta:
@@ -337,9 +357,15 @@ class Product(UUIDTimeStampedModel):
                 fields=["family", "design_code"],
                 name="catalog_product_family_design_unique",
             ),
+            # El precio solo se exige al PUBLICAR. Un borrador es trabajo a medias por
+            # definición: obligar a poner precio para poder guardarlo y seguir mañana no
+            # protege nada, solo estorba. La regla de verdad —no hay producto público sin
+            # precio, salvo los de solo consulta— se mantiene intacta.
             models.CheckConstraint(
-                condition=models.Q(sale_mode="on_request") | models.Q(price__isnull=False),
-                name="catalog_product_price_required_unless_on_request",
+                condition=~models.Q(status="active")
+                | models.Q(sale_mode="on_request")
+                | models.Q(price__isnull=False),
+                name="catalog_product_price_required_when_active",
             ),
         ]
 
