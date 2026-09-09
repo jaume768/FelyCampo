@@ -6,9 +6,12 @@
  * Las páginas de tienda se sirven con ISR: sin este aviso, publicar un producto tardaba
  * hasta cinco minutos en verse y parecía que hacía falta recargar sin caché a mano.
  *
- * Va al propio Next (`/api/revalidar`), no a Django: el caché que hay que tirar es el de
- * Next. Mismo origen, así que viaja la cookie de sesión y el route handler comprueba
- * contra Django que quien llama es staff.
+ * Va al propio Next (`/next-cache/revalidar`), no a Django: el caché que hay que tirar es
+ * el de Next. Mismo origen, así que viaja la cookie de sesión y el route handler
+ * comprueba contra Django que quien llama es staff.
+ *
+ * Ojo con la ruta: NO puede colgar de `/api/`, que en producción Caddy entrega entero a
+ * Django (`deploy/Caddyfile`).
  *
  * **Nunca lanza.** Que no se pueda refrescar el caché no puede tumbar un guardado que ya
  * ha ido bien; como mucho el cambio tarda lo que diga el `revalidate`.
@@ -18,7 +21,7 @@
 export async function revalidarCatalogo() {
   if (typeof window === 'undefined') return false;
   try {
-    const respuesta = await fetch('/api/revalidar', {
+    const respuesta = await fetch('/next-cache/revalidar', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },

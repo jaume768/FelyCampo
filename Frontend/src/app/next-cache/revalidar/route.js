@@ -10,6 +10,11 @@
  * cambia algo y se tira el caché de golpe. Es la misma idea que un webhook, pero sin
  * secreto compartido que gestionar: quien llama ya es una sesión de staff.
  *
+ * **No vive bajo `/api/`, y no es un capricho**: en producción Caddy manda TODO `/api/*`
+ * a Django (ver `deploy/Caddyfile`), así que una ruta de Next ahí nunca llegaría a
+ * ejecutarse — devolvía el 404 de Django. `/next-cache/` deja claro de quién es el caché
+ * que se está tirando.
+ *
  * AUTORIZACIÓN: se reenvía la cookie de sesión a Django y se pregunta por
  * `/admin/me/`. No se confía en nada del cuerpo de la petición ni en una cabecera
  * inventada aquí — la única fuente de verdad sobre quién es staff es el backend. Sin

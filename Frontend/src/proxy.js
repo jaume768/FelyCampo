@@ -40,6 +40,8 @@ export default function middleware(request) {
 }
 
 export const config = {
-  // Corre en todo salvo assets estáticos, _next y api.
-  matcher: ['/((?!api|admin|_next|_vercel|.*\\..*).*)'],
+  // Corre en todo salvo assets estáticos, _next, api y los route handlers propios.
+  // `next-cache` es la invalidación de caché que llama el panel: es una API, no una
+  // página, así que no debe recibir prefijo de idioma ni redirección a /es.
+  matcher: ['/((?!api|admin|next-cache|_next|_vercel|.*\\..*).*)'],
 };
