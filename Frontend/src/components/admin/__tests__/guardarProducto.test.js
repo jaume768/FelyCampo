@@ -107,10 +107,14 @@ describe('camposQueNoSeGuardan', () => {
     })).toEqual([]);
   });
 
+  it('las prendas tampoco: ya tienen su modelo (ProductPiece)', () => {
+    expect(camposQueNoSeGuardan({ prendas: [{ nombre: 'Pantalón', sku: 'X' }] })).toEqual([]);
+  });
+
   it('sigue avisando de lo que de verdad no tiene dónde guardarse', () => {
-    // `Look` y `Review` no existen como modelos; las prendas con SKU propio son otra cosa.
+    // `Look` y `Review` no existen como modelos, ni hay modelo de estampado.
     expect(camposQueNoSeGuardan({ lookVinculado: { id: 'l1' } })).toContain('Look de pasarela');
-    expect(camposQueNoSeGuardan({ prendas: [{ nombre: 'Pantalón', sku: 'X' }] })).toContain('Prendas y sus SKU');
+    expect(camposQueNoSeGuardan({ estampadoId: 'e1' })).toContain('Estampado');
   });
 
   it('no avisa de lo que está vacío', () => {
@@ -135,7 +139,9 @@ describe('productoAFormulario · colores y tallas', () => {
     }), CATEGORIAS_PANEL);
 
     expect(conInventario.colorIds).toEqual(['black']);
-    expect(conInventario.tallas).toEqual([{ talla: '38', stock: 3 }, { talla: '40', stock: 0 }]);
+    // NÚMEROS, no cadenas: es el vocabulario del formulario (`TALLAS_DISPONIBLES` hace
+    // `Number(talla)`), y con cadenas `'38' === 38` era false y no se marcaba ninguna.
+    expect(conInventario.tallas).toEqual([{ talla: 38, stock: 3 }, { talla: 40, stock: 0 }]);
   });
 
   it('ignora los colorways desactivados: son colores que se quitaron', () => {
@@ -150,10 +156,51 @@ describe('productoAFormulario · colores y tallas', () => {
     expect(conDesactivado.colorIds).toEqual(['camel']);
   });
 
+  it('una talla que no es numérica se deja como está (escala de letras)', () => {
+    const conLetras = productoAFormulario(adaptarProductoAdmin({
+      ...DE_LA_API,
+      colorways: [{
+        id: 'cw1', color: 'c1', color_detail: { code: 'black' }, is_active: true,
+        variants: [{ size_detail: { code: 'M' }, stock: 2, is_active: true }],
+      }],
+    }), CATEGORIAS_PANEL);
+    expect(conLetras.tallas).toEqual([{ talla: 'M', stock: 2 }]);
+  });
+
   it('sin colorways no inventa colores ni tallas', () => {
     const sinNada = productoAFormulario(adaptarProductoAdmin(DE_LA_API), CATEGORIAS_PANEL);
     expect(sinNada.colorIds).toEqual([]);
     expect(sinNada.tallas).toEqual([]);
+  });
+});
+
+describe('prendas y colección', () => {
+  it('lee las prendas que devuelve la API', () => {
+    const conPrendas = productoAFormulario(adaptarProductoAdmin({
+      ...DE_LA_API,
+      pieces: [{ id: 'p1', name: 'Chaqueta', name_en: 'Jacket', sku: 'MBO2724', position: 0 }],
+    }), CATEGORIAS_PANEL);
+    expect(conPrendas.prendas).toEqual([{ nombre: 'Chaqueta', nombreEn: 'Jacket', sku: 'MBO2724' }]);
+  });
+
+  it('las manda de vuelta con su orden, descartando las filas vacías', () => {
+    const cuerpo = formularioAApi({
+      nombre: { es: 'x', en: '' },
+      prendas: [{ nombre: 'Chaqueta', sku: 'A' }, { nombre: '', sku: '' }, { nombre: 'Pantalón', sku: 'B' }],
+    });
+    expect(cuerpo.pieces).toEqual([
+      { name: 'Chaqueta', name_en: '', sku: 'A', position: 0 },
+      { name: 'Pantalón', name_en: '', sku: 'B', position: 1 },
+    ]);
+  });
+
+  it('sin prendas en el formulario no manda la clave: un PATCH parcial no las borra', () => {
+    expect('pieces' in formularioAApi({ nombre: { es: 'x', en: '' } })).toBe(false);
+  });
+
+  it('la colección se lee como código, que es lo que usa el desplegable', () => {
+    const semilla = productoAFormulario(adaptarProductoAdmin(DE_LA_API), CATEGORIAS_PANEL);
+    expect(semilla.coleccion).toBe('FW27');
   });
 });
 
