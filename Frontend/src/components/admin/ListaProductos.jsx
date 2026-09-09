@@ -26,7 +26,7 @@ import {
   tiposProducto, coleccionesMock, coloresMock, codigoTemporada, rutaTipoProducto,
 } from '@/components/admin/mockData';
 import { useProductosAdmin, useAccionesProductoAdmin } from './useProductosAdmin';
-import { STATUS_POR_ESTADO, slugCategoriaPanel } from '@/lib/api/adminCatalog';
+import { STATUS_POR_ESTADO, ESTADO_POR_STATUS, slugCategoriaPanel } from '@/lib/api/adminCatalog';
 import { guardarProducto } from './guardarProducto';
 import { useFamiliasAdmin } from './useFamiliasAdmin';
 import { formatearImporte } from '@/lib/precio';
@@ -431,6 +431,7 @@ function ListaProductosContenido({
     }
     avisarDeLasFotos(resultado.fotos);
     mostrarToast(raiz.estado === 'Activo' ? 'Producto publicado' : 'Producto guardado');
+    avisarSiLosFiltrosLoEsconden(resultado.producto);
     setNuevoAbierto(false);
     setProductoParaDuplicar(null);
     recargar();
@@ -447,7 +448,35 @@ function ListaProductosContenido({
     if (fotos.subidas > 0) {
       mostrarToast(`${fotos.subidas} foto${fotos.subidas === 1 ? '' : 's'} subida${fotos.subidas === 1 ? '' : 's'}.`);
     }
+    if (fotos.borradas > 0) {
+      mostrarToast(`${fotos.borradas} foto${fotos.borradas === 1 ? '' : 's'} quitada${fotos.borradas === 1 ? '' : 's'}.`);
+    }
     fotos.fallidas?.forEach((motivo) => mostrarToast(`Foto no subida — ${motivo}`));
+  }
+
+  /**
+   * El producto se ha guardado, pero el listado que se está mirando puede no enseñarlo:
+   * se está dentro de una categoría o con un filtro de estado que el producto nuevo no
+   * cumple. Sin este aviso parece que no se ha guardado nada — que es justo lo que
+   * parecía.
+   */
+  function avisarSiLosFiltrosLoEsconden(producto) {
+    if (!producto) return;
+    const slugFiltro = slugCategoriaPanel(categoriaSeleccionada);
+    const slugsDelProducto = (producto.categories_detail || []).map((c) => c.slug);
+    if (slugFiltro && !slugsDelProducto.includes(slugFiltro)) {
+      mostrarToast(
+        `Está guardado, pero no en «${categoriaSeleccionada.nombre}», que es la categoría que estás viendo`
+        + `${slugsDelProducto.length ? '' : ' (se ha guardado sin categoría)'}. Cámbiala en la ficha o mira el listado completo.`
+      );
+      return;
+    }
+    const estadoFiltrado = filtroPublicacion !== 'Todos'
+      ? STATUS_POR_ESTADO[ETIQUETA_A_ESTADO[filtroPublicacion]]
+      : null;
+    if (estadoFiltrado && producto.status !== estadoFiltrado) {
+      mostrarToast(`Está guardado como «${ESTADO_POR_STATUS[producto.status]}», y el listado está filtrado por «${filtroPublicacion}».`);
+    }
   }
 
   /** Dice qué se ha quedado fuera en vez de callarlo. */
@@ -479,6 +508,9 @@ function ListaProductosContenido({
       categoriaPanel: raiz.categoriaNombre
         ? { id: raiz.categoriaId, nombre: raiz.categoriaNombre }
         : categoriaSeleccionada,
+      // Las que la ficha ya tenía: sin esto, quitar una foto en el formulario no la
+      // quitaba del servidor y volvía a aparecer al recargar.
+      imagenesPrevias: productoEnEdicion?.imagenesDetalle || [],
     });
 
     if (!resultado.ok) {

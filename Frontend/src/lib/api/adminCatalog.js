@@ -12,7 +12,7 @@
 
 import { slugify } from '@/lib/slugify';
 
-import { get, post, patch, del } from './client';
+import { baseUrl, get, post, patch, del } from './client';
 
 /**
  * @typedef {object} Pagina
@@ -113,6 +113,46 @@ export const TIPO_POR_LINEA = {
 };
 
 /**
+ * Ruta de un archivo servido por el backend → URL utilizable en un `<img src>`.
+ *
+ * `MediaAssetSerializer` devuelve `file`/`thumbnail` **relativos a la raíz**
+ * (`/media/library/image/….webp`), no absolutos. En producción da igual —Caddy sirve
+ * `/media/*` en el mismo origen—, pero en desarrollo el frontend es `localhost:3000` y
+ * los archivos los sirve Django en `localhost:8001`: una ruta relativa se pediría al
+ * propio Next y daría 404. Se resuelve contra la base de la API, que es quien los sirve.
+ *
+ * @param {string|null|undefined} ruta
+ * @returns {string|null}
+ */
+export function urlMedia(ruta) {
+  if (!ruta) return null;
+  if (/^(https?:|blob:|data:)/i.test(ruta)) return ruta;
+  return `${baseUrl()}${ruta.startsWith('/') ? '' : '/'}${ruta}`;
+}
+
+/**
+ * `ProductImage` de la API → lo que el panel necesita para pintarla y para saber a qué
+ * fila corresponde si hay que borrarla.
+ *
+ * El campo con la foto es `asset_detail.file`; **no existe ningún `image`**. Leerlo de
+ * `producto.images[i].image` devolvía `undefined`, y pasar el objeto entero a `<img src>`
+ * pintaba literalmente `src="[object Object]"` — de ahí las fotos en blanco.
+ *
+ * @param {object} imagen
+ */
+export function adaptarImagenProducto(imagen) {
+  return {
+    id: imagen.id,
+    assetId: imagen.asset,
+    colorwayId: imagen.colorway,
+    url: urlMedia(imagen.asset_detail?.file),
+    miniatura: urlMedia(imagen.asset_detail?.thumbnail) || urlMedia(imagen.asset_detail?.file),
+    alt: imagen.alt_text || imagen.asset_detail?.alt_text || '',
+    posicion: imagen.position ?? 0,
+  };
+}
+
+/**
  * Producto de la API admin → forma que ya consumen `GridProductos`, `TablaAdmin` y
  * `FormularioProducto`.
  *
@@ -172,9 +212,15 @@ export function adaptarProductoAdmin(producto) {
     telas: (producto.fabrics_detail || []).map((f) => ({ id: f.id, nombre: f.name })),
 
     colorways: producto.colorways || [],
-    imagenes: producto.images || [],
+    // DOS formas de lo mismo, a propósito: `imagenes` son URLs sueltas —es lo que
+    // `FormularioProducto` sabe manejar (las arrastra, las quita, mezcla blob: nuevas)— y
+    // `imagenesDetalle` conserva el id de cada `ProductImage`, que es lo único que
+    // permite BORRAR del servidor la que se quite en el formulario.
+    imagenesDetalle: (producto.images || []).map(adaptarImagenProducto),
+    imagenes: (producto.images || []).map((i) => urlMedia(i.asset_detail?.file)).filter(Boolean),
     // Portada: la primera imagen por `position`, que es como la ordena el backend.
-    imagen: producto.images?.[0]?.image ?? null,
+    imagen: urlMedia(producto.images?.[0]?.asset_detail?.thumbnail
+      || producto.images?.[0]?.asset_detail?.file),
 
     creadoEn: producto.created_at,
     actualizadoEn: producto.updated_at,

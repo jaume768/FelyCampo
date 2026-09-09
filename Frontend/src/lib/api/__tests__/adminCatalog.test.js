@@ -41,7 +41,23 @@ const PRODUCTO_ADMIN = {
   fabrics: [],
   fabrics_detail: [],
   colorways: [],
-  images: [{ id: 'i1', image: 'http://localhost:8001/media/a.webp', position: 0 }],
+  // La forma REAL de `AdminProductImageSerializer`. La de antes se inventaba un campo
+  // `image` que no existe: por eso el test pasaba y la web enseñaba fotos en blanco.
+  images: [{
+    id: 'i1',
+    product: 'p-uuid',
+    colorway: null,
+    asset: 'a-uuid',
+    asset_detail: {
+      id: 'a-uuid',
+      kind: 'image',
+      file: '/media/library/image/a.webp',
+      thumbnail: '/media/library/thumbnails/a.webp',
+      alt_text: '',
+    },
+    alt_text: '',
+    position: 0,
+  }],
   created_at: '2026-09-01T10:00:00Z',
   updated_at: '2026-09-01T10:00:00Z',
 };
@@ -109,8 +125,22 @@ describe('adaptarProductoAdmin', () => {
     expect(p.categorias[0].nombre).toBe('Fiesta');
   });
 
-  it('usa como portada la primera imagen por posición', () => {
-    expect(p.imagen).toBe('http://localhost:8001/media/a.webp');
+  it('usa como portada la primera imagen por posición, absolutizada', () => {
+    // El backend devuelve la ruta relativa a la raíz; en desarrollo los archivos los
+    // sirve la API (:8001), no Next (:3000), así que relativa daría 404.
+    expect(p.imagen).toBe('http://localhost:8001/media/library/thumbnails/a.webp');
+  });
+
+  it('la galería son URLs, no objetos: es lo que sabe pintar y editar el formulario', () => {
+    // Pasarle el `ProductImage` entero acababa en `<img src="[object Object]">` y, al
+    // guardar, en un TypeError que se reportaba como «No se ha guardado».
+    expect(p.imagenes).toEqual(['http://localhost:8001/media/library/image/a.webp']);
+    expect(p.imagenes.every((u) => typeof u === 'string')).toBe(true);
+  });
+
+  it('conserva el id de cada ProductImage para poder borrar las que se quiten', () => {
+    expect(p.imagenesDetalle[0].id).toBe('i1');
+    expect(p.imagenesDetalle[0].url).toBe('http://localhost:8001/media/library/image/a.webp');
   });
 
   it('un producto sin precio (solo consulta) no inventa un cero', () => {

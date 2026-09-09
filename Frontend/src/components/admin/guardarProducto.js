@@ -34,7 +34,7 @@
  *       endpoint. El formulario los trata como campos planos del producto, que es otro
  *       modelo de datos.
  *
- * Las IMÁGENES sí se guardan, en dos pasos (ver `subirImagenes`): el archivo va a la
+ * Las IMÁGENES sí se guardan, en dos pasos (ver `sincronizarImagenes`): el archivo va a la
  * biblioteca de medios y luego se crea el `ProductImage` que lo coloca en la ficha.
  *
  * `categoriaId` merece nota propia: las categorías del panel vienen de
@@ -46,6 +46,7 @@ import {
   productos as apiProductos, imagenesProducto as apiImagenes, serializarProductoAdmin,
   asegurarCategoria, describirErrorApi,
 } from '@/lib/api/adminCatalog';
+import { ApiError } from '@/lib/api/errors';
 import { subirMedia, motivoDeRechazo } from '@/lib/api/adminMedia';
 
 const ES_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -105,6 +106,11 @@ export function formularioAApi(f, { familiaId, publicadoEn, categoriaId } = {}) 
     sku: f.sku,
     // Decimal o null: "" no es cero.
     precio: f.precio === undefined ? undefined : f.precio,
+    // `sale_mode` NO viajaba, y sin él el backend asume `in_stock`: publicar una pieza de
+    // atelier o de archivo («a consultar», sin precio) devolvía 400 pidiendo el precio,
+    // justo el caso en el que no lo hay. El formulario ya sabe cuál es; solo faltaba
+    // mandarlo.
+    modoVenta: f.modoVenta,
   };
 
   if (familiaId) datos.familiaId = familiaId;
@@ -122,7 +128,8 @@ export function formularioAApi(f, { familiaId, publicadoEn, categoriaId } = {}) 
 }
 
 /**
- * Sube las fotos nuevas y las coloca en la ficha del producto.
+ * Deja la galería del producto como la dejó el formulario: sube las nuevas y quita las
+ * que ya no están.
  *
  * Dos pasos, porque son dos cosas distintas:
  *   1. El ARCHIVO va a la biblioteca de medios (`POST /admin/media/`, multipart). Ahí el
@@ -137,16 +144,25 @@ export function formularioAApi(f, { familiaId, publicadoEn, categoriaId } = {}) 
  * @param {string} productoId
  * @param {string[]} imagenes URLs en el orden de la galería (blob: las nuevas).
  * @param {Record<string, File>} archivosPorUrl
- * @returns {Promise<{subidas: number, fallidas: string[]}>} Nunca lanza: una foto que
- *   falla no puede tirar abajo un producto que ya se ha guardado bien.
+ * @param {{id: string, url: string}[]} [previas] Las que la ficha YA tenía, para poder
+ *   borrar del servidor las que se hayan quitado en el formulario.
+ * @returns {Promise<{subidas: number, borradas: number, fallidas: string[]}>} Nunca
+ *   lanza: una foto que falla no puede tirar abajo un producto ya guardado.
  */
-async function subirImagenes(productoId, imagenes = [], archivosPorUrl = {}) {
+async function sincronizarImagenes(productoId, imagenes = [], archivosPorUrl = {}, previas = []) {
   let subidas = 0;
+  let borradas = 0;
   const fallidas = [];
 
-  for (const [indice, url] of imagenes.entries()) {
+  // El formulario trabaja con URLs sueltas. Cualquier otra cosa (un `ProductImage`
+  // entero, que es lo que llegaba antes de adaptarlo) se ignora en vez de reventar: un
+  // `url.startsWith` sobre un objeto lanzaba un TypeError que el `catch` de abajo
+  // convertía en «No se ha guardado» — con el producto YA guardado en el servidor.
+  const enGaleria = imagenes.filter((url) => typeof url === 'string' && url);
+
+  for (const [indice, url] of enGaleria.entries()) {
     // Ya subida (viene del servidor): solo estaba en la galería, no hay nada que hacer.
-    if (!url || !url.startsWith('blob:')) continue;
+    if (!url.startsWith('blob:')) continue;
 
     const archivo = archivosPorUrl[url];
     if (!archivo) {
@@ -169,7 +185,21 @@ async function subirImagenes(productoId, imagenes = [], archivosPorUrl = {}) {
     }
   }
 
-  return { subidas, fallidas };
+  // Las que se han quitado en el formulario. Se borra el `ProductImage` (la colocación en
+  // la ficha), NO el archivo de la biblioteca: la foto puede estar en uso en otro sitio y
+  // `MediaAsset` está protegido contra el borrado en cascada.
+  const quedan = new Set(enGaleria);
+  for (const previa of previas) {
+    if (!previa?.id || !previa.url || quedan.has(previa.url)) continue;
+    try {
+      await apiImagenes.borrar(previa.id);
+      borradas += 1;
+    } catch (error) {
+      fallidas.push(`no se pudo quitar una foto: ${error?.firstDetail ?? error?.message ?? 'error'}`);
+    }
+  }
+
+  return { subidas, borradas, fallidas };
 }
 
 /**
@@ -181,9 +211,11 @@ async function subirImagenes(productoId, imagenes = [], archivosPorUrl = {}) {
  * @param {string} [opciones.id] Si viene, es edición (PATCH); si no, alta (POST).
  * @param {string} [opciones.familiaId]
  * @param {string} [opciones.publicadoEn]
+ * @param {{id: string, url: string}[]} [opciones.imagenesPrevias] Las fotos que la ficha
+ *   ya tenía (`producto.imagenesDetalle`), para borrar las que se hayan quitado.
  */
 export async function guardarProducto(formulario, {
-  id, familiaId, publicadoEn, familiaPorDefecto, categoriaPanel,
+  id, familiaId, publicadoEn, familiaPorDefecto, categoriaPanel, imagenesPrevias = [],
 } = {}) {
   const esBorrador = formulario.estado !== 'Activo';
 
@@ -263,30 +295,21 @@ export async function guardarProducto(formulario, {
     };
   }
 
+  // El guardado del producto y el de sus fotos son DOS operaciones, y se tratan como
+  // tales: solo la primera decide si el producto se ha guardado. Antes iban en el mismo
+  // `try`, así que cualquier fallo subiendo una foto —incluido un TypeError del propio
+  // panel— se contaba como «No se ha guardado», con el producto ya creado en el servidor
+  // y el listado sin recargar. Era exactamente el bug de «le doy a guardar y no pasa
+  // nada»: sí pasaba, pero nadie lo decía.
+  let producto;
   try {
-    const producto = id
+    producto = id
       ? await apiProductos.actualizar(id, cuerpo)
       : await apiProductos.crear(cuerpo);
-
-    // Las fotos van después: necesitan el id del producto. Si alguna falla, el producto
-    // ya está guardado — se informa de cuáles, no se deshace todo.
-    const fotos = await subirImagenes(
-      producto.id,
-      formulario.imagenes,
-      formulario.archivosPorUrl
-    );
-
-    return {
-      ok: true,
-      producto,
-      perdidos: camposQueNoSeGuardan(formulario),
-      rellenado,
-      fotos,
-      categoriaFallida,
-    };
   } catch (error) {
     // Los errores por campo del backend se devuelven tal cual para poder pintarlos donde
     // toca; `mensaje` es el resumen para un toast.
+    if (!(error instanceof ApiError)) throw error;
     return {
       ok: false,
       error,
@@ -296,4 +319,28 @@ export async function guardarProducto(formulario, {
       mensaje: describirErrorApi(error),
     };
   }
+
+  // Las fotos van después: necesitan el id del producto. Si alguna falla, el producto ya
+  // está guardado — se informa de cuáles, no se deshace todo ni se da el guardado por
+  // fallido.
+  let fotos = { subidas: 0, borradas: 0, fallidas: [] };
+  try {
+    fotos = await sincronizarImagenes(
+      producto.id,
+      formulario.imagenes,
+      formulario.archivosPorUrl,
+      imagenesPrevias
+    );
+  } catch (error) {
+    fotos = { subidas: 0, borradas: 0, fallidas: [error?.message ?? 'error inesperado con las fotos'] };
+  }
+
+  return {
+    ok: true,
+    producto,
+    perdidos: camposQueNoSeGuardan(formulario),
+    rellenado,
+    fotos,
+    categoriaFallida,
+  };
 }
