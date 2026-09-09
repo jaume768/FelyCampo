@@ -1,7 +1,12 @@
 """
 Clientes del panel (`/api/v1/admin/customers/`).
 
-Un «cliente» aquí es un `accounts.User` **no staff**: alguien que se ha registrado.
+Un «cliente» aquí es alguien que se ha registrado y no forma parte del equipo — **más
+quien sí forma parte del equipo pero ha comprado de verdad**. Filtrar a todo el staff sin
+mirar escondía compras reales: un pedido hecho desde una cuenta del equipo (una prueba, o
+una compra de la propia gente de la casa) no aparecía por ninguna parte, ni aquí ni en
+invitados, y daba la sensación de que el pedido no había registrado a nadie. Las cuentas
+del equipo que nunca han comprado se siguen fuera: no son clientes, solo ensuciarían.
 
 OJO CON UNA COSA: **una compra de invitado NO crea usuario.** El checkout acepta pedidos
 sin cuenta (basta el correo, ver `CheckoutSerializer`), y esos pedidos guardan
@@ -59,6 +64,9 @@ class AdminCustomerSerializer(serializers.ModelSerializer):
             "accepts_marketing",
             "email_verified",
             "is_active",
+            # Para poder distinguir en el listado a quien es del equipo: aparece aquí solo
+            # porque ha comprado, no porque sea una clienta más.
+            "is_staff",
             "date_joined",
             "orders_count",
             "paid_orders_count",
@@ -94,13 +102,16 @@ class AdminCustomerViewSet(
     def get_queryset(self):
         con_valor = Q(orders__status__in=ESTADOS_CON_VALOR)
         return (
-            User.objects.filter(is_staff=False)
+            User.objects.filter(Q(is_staff=False) | Q(orders__isnull=False))
             .annotate(
                 orders_count=Count("orders", distinct=True),
                 paid_orders_count=Count("orders", filter=con_valor, distinct=True),
                 total_spent=Sum("orders__total_gross", filter=con_valor),
                 last_order_at=Max("orders__created_at"),
             )
+            # El `Q(orders__isnull=False)` es un JOIN: sin esto, una cuenta del equipo con
+            # tres pedidos saldría tres veces.
+            .distinct()
         )
 
     @extend_schema(responses={200: None})

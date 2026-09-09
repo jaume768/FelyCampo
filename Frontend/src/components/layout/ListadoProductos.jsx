@@ -54,7 +54,7 @@ export default async function ListadoProductos({
   try {
     pagina = await catalog.listarProductos(filtros, {
       // Revalidación corta: el catálogo cambia poco, pero el stock sí.
-      next: { revalidate: 60 },
+      next: { revalidate: 60, tags: ['catalogo'] },
     });
   } catch (error) {
     // Un backend caído no puede dejar la página en blanco: se explica y se puede

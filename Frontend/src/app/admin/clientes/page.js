@@ -176,7 +176,15 @@ export default function ClientesPage() {
 
           <TablaAdmin
             columnas={[
-              { clave: 'nombre', etiqueta: 'Nombre', render: (c) => c.nombre },
+              {
+                clave: 'nombre',
+                etiqueta: 'Nombre',
+                // Las cuentas del equipo salen aquí solo si han comprado. Se marcan para
+                // que no se confundan con clientela real al leer el recuento.
+                render: (c) => (c.esDelEquipo
+                  ? <span>{c.nombre} <span className={styles.marcaEquipo}>equipo</span></span>
+                  : c.nombre),
+              },
               ...columnasComunes,
               { clave: 'alta', etiqueta: 'Alta', render: (c) => fechaCorta(c.alta) },
               {

@@ -91,3 +91,17 @@
   font-size: 0.8125rem;
   color: var(--color-gris-500, #757575);
 }
+
+/* Cuenta del equipo que aparece en el listado porque ha hecho algún pedido. No es
+   clientela: se distingue para que no infle la lectura del recuento. */
+.marcaEquipo {
+  display: inline-block;
+  margin-left: var(--spacing-2);
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--color-gris-200);
+  color: var(--color-gris-700);
+  font-size: var(--text-nano);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

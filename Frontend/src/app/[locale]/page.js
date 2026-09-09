@@ -96,7 +96,7 @@ export default async function Home({ params }) {
   const paginaDestacados = await conValorPorDefecto(
     catalog.listarProductos(
       { is_featured: true, ordering: 'featured_position', page_size: 12 },
-      { next: { revalidate: 300 } }
+      { next: { revalidate: 300, tags: ['catalogo'] } }
     ),
     null
   );
@@ -106,7 +106,7 @@ export default async function Home({ params }) {
 
   // "Por ocasión": atelier (novia y fiesta), que no muestra precio de catálogo.
   const paginaOcasion = await conValorPorDefecto(
-    catalog.listarProductos({ line: 'atelier', page_size: 8 }, { next: { revalidate: 300 } }),
+    catalog.listarProductos({ line: 'atelier', page_size: 8 }, { next: { revalidate: 300, tags: ['catalogo'] } }),
     null
   );
   const ocasionReales = paginaOcasion ? adaptarPaginaProductos(paginaOcasion, locale).productos : [];

@@ -28,7 +28,7 @@ const RUTAS_ATELIER = ['/atelier', '/atelier/novias', '/atelier/fiesta', '/ateli
 export async function generateMetadata({ params }) {
   const { locale, producto: slug } = await params;
   try {
-    const datos = await catalog.obtenerProducto(slug, { next: { revalidate: 60 } });
+    const datos = await catalog.obtenerProducto(slug, { next: { revalidate: 60, tags: ['catalogo'] } });
     const ficha = adaptarProductoFicha(datos, locale);
     return { title: ficha.nombre, description: ficha.descripcion || undefined };
   } catch {
@@ -45,7 +45,7 @@ export default async function FichaProducto({ params }) {
 
   let datos;
   try {
-    datos = await catalog.obtenerProducto(slug, { next: { revalidate: 60 } });
+    datos = await catalog.obtenerProducto(slug, { next: { revalidate: 60, tags: ['catalogo'] } });
   } catch (error) {
     // 404 REAL de Next cuando el slug no existe, no una página vacía: así el buscador
     // recibe el código correcto y el usuario ve la página de "no encontrado" del sitio.
@@ -71,7 +71,7 @@ export default async function FichaProducto({ params }) {
   const paginaRelacionados = await conValorPorDefecto(
     catalog.listarProductos(
       { family: producto.familia?.slug, page_size: 11, line: producto.line },
-      { next: { revalidate: 60 } }
+      { next: { revalidate: 60, tags: ['catalogo'] } }
     ),
     { results: [], count: 0, next: null }
   );

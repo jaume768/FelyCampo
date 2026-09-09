@@ -309,6 +309,9 @@ export function adaptarCliente(c) {
     gasto: c.total_spent ? formatearImporte(c.total_spent) : '—',
     ultimoPedido: c.last_order_at,
     esInvitado: false,
+    // Solo aparece en el listado porque ha comprado: no es una clienta más. Se marca en
+    // la tabla para que no confunda con el volumen real de clientela.
+    esDelEquipo: c.is_staff === true,
   };
 }
 

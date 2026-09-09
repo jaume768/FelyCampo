@@ -85,7 +85,7 @@ async function FichaProductoAtelier({ slug, seccion, locale }) {
   // no slugify(nombre).
   let datos;
   try {
-    datos = await catalog.obtenerProducto(slug, { next: { revalidate: 60 } });
+    datos = await catalog.obtenerProducto(slug, { next: { revalidate: 60, tags: ['catalogo'] } });
   } catch (error) {
     // 404 real de Next cuando el slug no existe. El resto se pinta aquí mismo: un
     // error.js de segmento capturaría también la excepción de `notFound()` y el 404
@@ -116,7 +116,7 @@ async function FichaProductoAtelier({ slug, seccion, locale }) {
   const paginaRelacionados = await conValorPorDefecto(
     catalog.listarProductos(
       { line: 'atelier', category: CATEGORIA_POR_SECCION_ATELIER[seccion], page_size: 11 },
-      { next: { revalidate: 60 } }
+      { next: { revalidate: 60, tags: ['catalogo'] } }
     ),
     { results: [], count: 0, next: null }
   );

@@ -18,6 +18,7 @@ import {
   productos as apiProductos, adaptarProductoAdmin, filtrosProductosAdmin, describirErrorApi,
 } from '@/lib/api/adminCatalog';
 import { ApiError } from '@/lib/api/errors';
+import { revalidarCatalogo } from '@/lib/api/revalidar';
 
 /**
  * @param {object} filtros
@@ -105,6 +106,9 @@ export function useAccionesProductoAdmin(recargar) {
     setGuardando(true);
     try {
       await accion();
+      // Publicar, archivar o cambiar de estado también cambia lo que ve la web pública:
+      // se tira su caché aquí igual que al guardar el formulario.
+      await revalidarCatalogo();
       await recargar();
       return { ok: true };
     } catch (error) {
@@ -165,6 +169,7 @@ export function useAccionesProductoAdmin(recargar) {
       setGuardando(true);
       try {
         const resultado = await apiProductos.eliminar(id);
+        await revalidarCatalogo();
         await recargar();
         return { ok: true, resultado };
       } catch (error) {

@@ -53,6 +53,7 @@ import {
 import { slugify } from '@/lib/slugify';
 import { ApiError } from '@/lib/api/errors';
 import { subirMedia, motivoDeRechazo } from '@/lib/api/adminMedia';
+import { revalidarCatalogo } from '@/lib/api/revalidar';
 
 const ES_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -609,6 +610,11 @@ export async function guardarProducto(formulario, {
       avisos: [error?.message ?? 'error inesperado con los colores y tallas'],
     };
   }
+
+  // La web pública sirve el catálogo con ISR: sin este aviso el producto recién
+  // publicado tardaba minutos en aparecer. No se espera nada de él para dar el guardado
+  // por bueno.
+  await revalidarCatalogo();
 
   return {
     ok: true,

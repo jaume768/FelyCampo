@@ -105,6 +105,9 @@ function Navbar({ transparent = false, crecerLogo = false }) {
   const [scrolled, setScrolled] = useState(false);
   const [headerHovered, setHeaderHovered] = useState(false);
   const [footerVisible, setFooterVisible] = useState(false);
+  // ¿La página que se está viendo AHORA tiene hero? Arranca con lo que dijo el servidor
+  // (correcto en la primera carga y sin JS) y se corrige en cada navegación.
+  const [hayHero, setHayHero] = useState(transparent);
   const closeTimeout = useRef(null);
   const headerLeaveTimeout = useRef(null);
 
@@ -129,6 +132,16 @@ function Navbar({ transparent = false, crecerLogo = false }) {
   // el Hero de la página nueva.
   useEffect(() => {
     const heroMarcador = document.querySelector('[data-navbar-hero]');
+
+    // La transparencia solo es válida si esta página TIENE hero: el header en modo
+    // transparente pinta el texto y el logo en blanco, así que sobre una página de fondo
+    // claro y sin hero desaparece por completo. Es lo que pasaba en el carrito y en el
+    // checkout al llegar navegando desde la tienda: `transparent` lo decide el layout en
+    // SERVIDOR a partir de `x-pathname`, y Next NO vuelve a renderizar un layout
+    // compartido al navegar por cliente — el Navbar se quedaba con el valor de la página
+    // anterior. Se corrige aquí, que es el único sitio que sabe lo que hay de verdad en
+    // la página actual.
+    setHayHero(Boolean(heroMarcador));
 
     if (heroMarcador && typeof IntersectionObserver !== 'undefined') {
       const observer = new IntersectionObserver(
@@ -238,12 +251,15 @@ function Navbar({ transparent = false, crecerLogo = false }) {
   // mouseleave del header dispara igual, y sin "activeSubmenu" aquí el
   // fondo se volvía transparente con el panel (blanco) todavía abierto.
   const solido = scrolled || headerHovered || !!activeSubmenu;
-  const isLight = transparent && !solido;
+  // `transparent` es la INTENCIÓN del layout; `esTransparente` es lo que de verdad se
+  // puede aplicar en esta página. Sin hero detrás, el header va sólido siempre.
+  const esTransparente = transparent && hayHero;
+  const isLight = esTransparente && !solido;
 
   const headerClass = [
     styles.header,
-    transparent && styles.transparent,
-    transparent && solido && styles.opaco,
+    esTransparente && styles.transparent,
+    esTransparente && solido && styles.opaco,
     isLight && styles.light,
     footerVisible && styles.ocultoPorFooter,
   ].filter(Boolean).join(' ');
