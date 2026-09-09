@@ -500,6 +500,11 @@
     "referencia": "Reference",
     "confirmadoTexto": "We have sent the confirmation to {email}.",
     "sinPasarela": "The payment gateway is not active yet: your order is registered and awaiting payment. We will contact you to complete it.",
-    "seguirComprando": "Continue shopping"
+    "seguirComprando": "Continue shopping",
+    "subtitulo": "Three steps: contact, shipping and invoice. No account needed.",
+    "articulos": "{cantidad, plural, one {# item} other {# items}}",
+    "unidades": "{cantidad, plural, one {# unit} other {# units}}",
+    "ivaIncluido": "VAT included: {iva}",
+    "avisoReserva": "Confirming reserves your size for one hour. Nothing is charged yet."
   }
 }

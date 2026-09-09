@@ -1,168 +1,375 @@
-/* Checkout. Dos columnas en escritorio (formulario + resumen pegado arriba), apiladas
-   en móvil. CERO radio en todo el sistema; rosa solo como acento (docs/design.md). */
+/* ============================================================
+   CHECKOUT — Fely Campo
+
+   Mismo sistema que el resto del sitio: tokens de global.css, radio 0
+   en todo, rosa solo como acento y nunca como superficie grande. La
+   versión anterior escribía los tamaños y colores a pelo (0.875rem,
+   #f2f2f2) en vez de usar la escala, así que se salía del sistema sin
+   quererlo — aquí todo va por var().
+
+   Dos columnas en escritorio: el formulario manda y el resumen queda
+   pegado arriba, visible mientras se rellena. Apiladas en móvil, con
+   el resumen PRIMERO: quien compra desde el móvil quiere ver qué está
+   pagando antes de teclear seis campos.
+   ============================================================ */
 
 .titulo {
-  font-size: 1.5rem;
-  font-weight: 400;
-  margin: 0 0 32px;
-  color: var(--color-tinta, #202020);
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-light);
+  letter-spacing: var(--tracking-label);
+  margin: 0 0 var(--spacing-3);
+  color: var(--color-tinta);
+}
+
+/* Los pasos que faltan, dichos de una vez: nadie empieza a rellenar
+   una dirección sin saber cuánto queda. */
+.subtitulo {
+  margin: 0 0 var(--spacing-7);
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
 }
 
 .layout {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 40px;
+  gap: var(--spacing-7);
 }
 
 @media (min-width: 900px) {
   .layout {
-    grid-template-columns: 1fr 360px;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: var(--spacing-9);
     align-items: start;
   }
 }
 
+/* --- Formulario --- */
+
 .form {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: var(--spacing-8);
+  /* En móvil el resumen va delante (ver .resumen). */
+  order: 2;
+}
+
+@media (min-width: 900px) {
+  .form { order: 1; }
 }
 
 .bloque {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--spacing-4);
   border: 0;
   padding: 0;
   margin: 0;
 }
 
+/* La numeración va en la leyenda, no en un div aparte: así el lector de
+   pantalla anuncia «1. Contacto» al entrar en el fieldset. */
 .leyenda {
-  padding: 0 0 8px;
-  font-size: 0.75rem;
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-3);
+  width: 100%;
+  padding: 0 0 var(--spacing-3);
+  margin: 0 0 var(--spacing-2);
+  border-bottom: 1px solid var(--color-hairline);
+  font-size: var(--text-label);
+  font-weight: var(--font-weight-medium);
   text-transform: uppercase;
-  color: var(--color-gris-500, #757575);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+}
+
+.numeroPaso {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-regular);
+}
+
+/* Código postal / ciudad / provincia en línea: son tres campos cortos y
+   apilarlos alargaba el formulario sin motivo. */
+.filaCampos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
+}
+
+@media (min-width: 560px) {
+  .filaCamposTres {
+    grid-template-columns: 140px 1fr 1fr;
+  }
+  .filaCamposDos {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .nota {
   margin: 0;
-  font-size: 0.75rem;
-  color: var(--color-gris-500, #757575);
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
 }
 
 .checkbox {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
-  color: var(--color-tinta, #202020);
+  gap: var(--spacing-2);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
   cursor: pointer;
 }
 
-.errorGeneral {
+.checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-rosa);
+  cursor: pointer;
+}
+
+.camposFactura {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding-left: var(--spacing-4);
+  border-left: 2px solid var(--color-hairline);
+}
+
+.errorGeneral,
+.avisoStock {
   margin: 0;
-  padding: 12px 16px;
-  background: var(--color-rosa-velo, #fce4ee);
-  color: var(--color-rosa-oscuro, #c2185f);
-  font-size: 0.875rem;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-left: 2px solid var(--color-rosa);
+  background: var(--color-rosa-light);
+  color: var(--color-rosa-oscuro);
+  font-size: var(--text-small);
 }
 
 .avisoStock {
-  margin: 0 0 24px;
-  padding: 12px 16px;
-  background: var(--color-rosa-velo, #fce4ee);
-  color: var(--color-rosa-oscuro, #c2185f);
-  font-size: 0.875rem;
+  margin-bottom: var(--spacing-6);
+}
+
+/* El aviso legal pegado al botón, donde de verdad se lee. */
+.legal {
+  margin: calc(var(--spacing-2) * -1) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  text-align: center;
 }
 
 /* --- Resumen --- */
+
 .resumen {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 24px;
-  background: var(--color-gris-100, #f2f2f2);
+  padding: var(--spacing-6);
+  background: var(--color-details);
+  order: 1;
 }
 
 @media (min-width: 900px) {
   .resumen {
     position: sticky;
-    top: 24px;
+    top: var(--spacing-6);
+    order: 2;
   }
 }
 
 .resumenTitulo {
-  margin: 0 0 8px;
-  font-size: 1rem;
-  font-weight: 400;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--spacing-3);
+  margin: 0 0 var(--spacing-5);
+  padding-bottom: var(--spacing-4);
+  border-bottom: 1px solid var(--color-gris-200);
+  font-size: var(--text-label);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+}
+
+.resumenCantidad {
+  font-weight: var(--font-weight-regular);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-gris-500);
+}
+
+.articulos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+  padding-bottom: var(--spacing-5);
+  border-bottom: 1px solid var(--color-gris-200);
+}
+
+/* Con la foto delante: reconocer la prenda de un vistazo evita el paseo
+   de ida y vuelta al carrito para comprobar que es la correcta. */
+.articulo {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: var(--spacing-3);
+  align-items: start;
+}
+
+.articuloFoto {
+  width: 56px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: var(--color-gris-100);
+}
+
+.articuloDatos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.articuloNombre {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+.articuloMeta {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+.articuloPrecio {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  white-space: nowrap;
 }
 
 .filaResumen {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  font-size: 0.875rem;
-  color: var(--color-gris-700, #404040);
+  gap: var(--spacing-4);
+  padding: var(--spacing-1) 0;
+  font-size: var(--text-small);
+  color: var(--color-gris-600);
 }
 
+/* El total es lo último y lo más grande: es el número que se mira. El
+   IVA va DENTRO de él como aclaración, no como una fila más después
+   —que era lo que hacía dudar de si se sumaba o no. */
 .filaTotal {
-  padding-top: 12px;
-  margin-top: 4px;
-  border-top: 1px solid var(--color-gris-200, #d9d9d9);
-  color: var(--color-tinta, #202020);
+  align-items: baseline;
+  padding-top: var(--spacing-4);
+  margin-top: var(--spacing-3);
+  border-top: 1px solid var(--color-gris-200);
+  font-size: var(--text-body-lg);
+  color: var(--color-tinta);
+}
+
+.totalImporte {
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+}
+
+.notaIva {
+  margin: var(--spacing-1) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  text-align: right;
 }
 
 /* --- Confirmación --- */
+
 .confirmacion {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  max-width: 620px;
+  align-items: center;
+  gap: var(--spacing-4);
+  max-width: 560px;
+  margin: 0 auto;
+  padding: var(--spacing-9) 0;
+  text-align: center;
+}
+
+.marcaExito {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--spacing-2);
+  border: 1px solid var(--color-rosa);
+  color: var(--color-rosa);
 }
 
 .confirmacionTitulo {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 400;
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-light);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
 }
 
 .referencia {
   margin: 0;
-  font-size: 1rem;
-  color: var(--color-tinta, #202020);
+  font-size: var(--text-small);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-gris-500);
+}
+
+.referenciaCodigo {
+  display: block;
+  margin-top: var(--spacing-1);
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.08em;
+  color: var(--color-tinta);
 }
 
 .confirmacionTexto {
   margin: 0;
-  font-size: 0.875rem;
-  color: var(--color-gris-500, #757575);
+  font-size: var(--text-body);
+  color: var(--color-gris-600);
 }
 
 /* Sin pasarela configurada: se dice en claro, no se finge un cobro. */
 .avisoPago {
-  margin: 0;
-  padding: 12px 16px;
+  margin: var(--spacing-2) 0;
+  padding: var(--spacing-4);
   width: 100%;
-  border-left: 2px solid var(--color-rosa, #e92174);
-  background: var(--color-gris-100, #f2f2f2);
-  font-size: 0.875rem;
-  color: var(--color-gris-700, #404040);
+  border-left: 2px solid var(--color-rosa);
+  background: var(--color-rosa-light);
+  font-size: var(--text-small);
+  color: var(--color-gris-700);
+  text-align: left;
 }
 
 .resumenPedido {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-1);
   width: 100%;
-  padding: 24px 0;
+  margin: var(--spacing-4) 0;
+  padding: var(--spacing-6);
+  background: var(--color-details);
+  text-align: left;
 }
 
 .vacio {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 64px 24px;
+  gap: var(--spacing-4);
+  padding: var(--spacing-11) var(--spacing-6);
   text-align: center;
-  color: var(--color-gris-500, #757575);
+  color: var(--color-gris-500);
 }

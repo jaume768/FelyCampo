@@ -500,6 +500,11 @@
     "referencia": "Referencia",
     "confirmadoTexto": "Te hemos enviado la confirmación a {email}.",
     "sinPasarela": "La pasarela de pago aún no está activa: tu pedido queda registrado y pendiente de pago. Nos pondremos en contacto contigo para completarlo.",
-    "seguirComprando": "Seguir comprando"
+    "seguirComprando": "Seguir comprando",
+    "subtitulo": "Tres pasos: contacto, envío y factura. No hace falta crear cuenta.",
+    "articulos": "{cantidad, plural, one {# artículo} other {# artículos}}",
+    "unidades": "{cantidad, plural, one {# unidad} other {# unidades}}",
+    "ivaIncluido": "IVA incluido: {iva}",
+    "avisoReserva": "Al confirmar reservamos tu talla durante una hora. Todavía no se cobra nada."
   }
 }
