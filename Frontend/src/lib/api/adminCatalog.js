@@ -10,6 +10,8 @@
  * Sin sesión de staff: 401. Con sesión pero sin `is_staff`: 403 (ver `IsStaff`).
  */
 
+import { slugify } from '@/lib/slugify';
+
 import { get, post, patch, del } from './client';
 
 /**
@@ -276,4 +278,115 @@ export function filtrosProductosAdmin({
 /** Sesión de staff. 401 sin sesión, 403 con sesión pero sin `is_staff`. */
 export function obtenerAdmin() {
   return get('/admin/me/');
+}
+
+/* ============================================================
+   CATEGORÍAS DEL PANEL ↔ `Category` DEL BACKEND
+   ============================================================ */
+
+/**
+ * Las categorías del panel viven en `CategoriasProvider` (contexto local, ids `cat7`…),
+ * no en la base de datos. Eso hacía que:
+ *
+ *   - al guardar, la categoría no se mandara nunca (`cat7` no es un UUID), y
+ *   - al listar, `?category=cat7` filtrara por un slug que no existe → cero productos.
+ *
+ * El puente entre ambos mundos es el **slug**: `slugify(nombre)`. Esta función lo
+ * resuelve contra `/admin/categories/` y **crea la fila si no está**, para que el panel
+ * pueda seguir dando de alta categorías en local sin dejar de persistir los productos.
+ *
+ * @param {{id?: string, nombre: string}} categoriaPanel
+ * @returns {Promise<{id: string, slug: string}|null>} `null` si no se pudo resolver: una
+ *   categoría no puede impedir que se guarde el producto.
+ */
+export async function asegurarCategoria(categoriaPanel) {
+  const nombre = categoriaPanel?.nombre?.trim();
+  if (!nombre) return null;
+
+  const slug = slugify(nombre);
+  if (!slug) return null;
+
+  try {
+    // `search` es por `name`, así que se compara el slug de lo que vuelva: dos nombres
+    // distintos («Faldas» y «faldas ») comparten slug y deben ser la misma categoría.
+    const pagina = await categorias.listar({ search: nombre, page_size: 100 });
+    const lista = Array.isArray(pagina) ? pagina : pagina.results || [];
+    const existente = lista.find((c) => c.slug === slug);
+    if (existente) return { id: existente.id, slug: existente.slug };
+
+    const creada = await categorias.crear({ name: nombre, slug, is_active: true });
+    return { id: creada.id, slug: creada.slug };
+  } catch {
+    // Carrera con otra pestaña que la acaba de crear, o permisos: se reintenta la
+    // lectura una vez y, si tampoco, se guarda el producto sin categoría.
+    try {
+      const pagina = await categorias.listar({ search: nombre, page_size: 100 });
+      const lista = Array.isArray(pagina) ? pagina : pagina.results || [];
+      const existente = lista.find((c) => c.slug === slug);
+      return existente ? { id: existente.id, slug: existente.slug } : null;
+    } catch {
+      return null;
+    }
+  }
+}
+
+/** Slug con el que el listado filtra: el mismo que usa `asegurarCategoria`. */
+export function slugCategoriaPanel(categoriaPanel) {
+  const nombre = categoriaPanel?.nombre?.trim();
+  return nombre ? slugify(nombre) : undefined;
+}
+
+/* ============================================================
+   ERRORES DEL BACKEND, DICHOS POR SU NOMBRE
+   ============================================================ */
+
+/**
+ * Nombre del campo del modelo → como se llama en el formulario del panel.
+ *
+ * Sin esto, `ApiError.firstDetail` devolvía «Este campo es requerido.» a secas y el toast
+ * no decía **cuál**: era imposible saber qué faltaba (fue justo lo que pasó con
+ * `design_code`, que el formulario ni siquiera mandaba).
+ */
+export const ETIQUETA_CAMPO_PRODUCTO = {
+  name: 'Nombre',
+  name_en: 'Nombre (EN)',
+  design_code: 'Número de diseño (SKU)',
+  slug: 'Slug',
+  family: 'Familia de producto',
+  line: 'Tipo',
+  categories: 'Categoría',
+  collection: 'Colección',
+  fabrics: 'Tejidos',
+  description: 'Descripción',
+  composition: 'Composición',
+  care: 'Cuidados',
+  kind: 'Clase de producto',
+  sale_mode: 'Modo de venta',
+  price: 'Precio',
+  sale_price: 'Precio rebajado',
+  status: 'Estado',
+  published_at: 'Fecha de publicación',
+  is_featured: 'Destacado',
+  featured_position: 'Posición de destacado',
+  non_field_errors: 'Producto',
+  detail: 'Error',
+};
+
+/**
+ * Convierte los `details` del backend en un mensaje que NOMBRA los campos.
+ *
+ * @param {import('./errors').ApiError} error
+ * @param {Record<string, string>} [etiquetas]
+ * @returns {string}
+ */
+export function describirErrorApi(error, etiquetas = ETIQUETA_CAMPO_PRODUCTO) {
+  const detalles = error?.details || {};
+  const partes = Object.entries(detalles).map(([campo, motivo]) => {
+    const texto = Array.isArray(motivo) ? motivo.join(' ') : String(motivo);
+    const etiqueta = etiquetas[campo] || campo;
+    return campo === 'non_field_errors' || campo === 'detail' ? texto : `${etiqueta}: ${texto}`;
+  });
+
+  if (partes.length) return partes.join(' · ');
+  return error?.message || 'No se ha podido guardar.';
 }

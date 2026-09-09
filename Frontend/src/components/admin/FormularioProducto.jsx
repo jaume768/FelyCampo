@@ -150,6 +150,14 @@ const OPCIONES_TIPO_LOOK = [
   { valor: 'fiesta', etiqueta: 'Fiesta' },
 ];
 
+// Número de diseño provisional para un alta desde el panel. Único dentro de la familia
+// (restricción de la base de datos), de ahí el sufijo aleatorio además del reloj.
+function nuevoSku(indice = 0) {
+  const reloj = Date.now().toString(36).slice(-5).toUpperCase();
+  const azar = Math.random().toString(36).slice(2, 5).toUpperCase();
+  return `FC${reloj}${azar}${indice}`;
+}
+
 const CAMPOS_TIPO = {
   'pret-a-porter': {
     precio: { requerido: true, placeholder: '890 €' }, tallas: true, colores: true, telas: true, stock: true, coleccion: 'opcional',
@@ -703,7 +711,11 @@ function FormularioProducto({
 
   function guardar(estadoFinal) {
     setEstado(estadoFinal);
-    mostrarToast(MENSAJE_GUARDADO[estadoFinal](variantes.length));
+    // El aviso de éxito lo da QUIEN GUARDA de verdad (`crearProducto`/`guardarEdicion`),
+    // cuando la API ha contestado. Cantarlo aquí hacía que un alta fallida enseñara
+    // «Producto guardado» y acto seguido «No se ha guardado»: por eso parecía que el
+    // borrador se había guardado cuando en realidad no existía.
+    if (!onGuardado) mostrarToast(MENSAJE_GUARDADO[estadoFinal](variantes.length));
 
     if (onGuardado) {
       // Campos compartidos por todas las variantes de color de este
@@ -715,6 +727,12 @@ function FormularioProducto({
         nombre: nombre.es,
         descripcionCorta: descripcion.es,
         ...(campos.precio && !campos.precio.consulta && { precio }),
+        // Sin precio no es que falte el dato: es que la pieza se vende «a consultar».
+        // Hay que decírselo al backend o el CheckConstraint de publicación la rechaza.
+        modoVenta: campos.precio && !campos.precio.consulta ? 'in_stock' : 'on_request',
+        // El nombre de la categoría del panel: es lo único que permite resolverla a la
+        // `Category` real del backend (los ids 'cat7' solo existen en el contexto local).
+        categoriaNombre: categorias[tipo]?.find((c) => c.id === categoriaId)?.nombre,
         ...(campos.telas && {
           composicion: (composicion.es.trim() || composicion.en.trim()) ? composicion : undefined,
           disenadoEn: (disenadoEn.es.trim() || disenadoEn.en.trim()) ? disenadoEn : undefined,
@@ -759,7 +777,11 @@ function FormularioProducto({
           ...(campos.tallas && { tallas: v.tallas }),
           ...(campos.colores && { colorIds: v.colorIds, estampadoId: v.estampadoId || undefined }),
           ...(esRaiz && esVendible && { lookVinculado: lookVinculado || undefined, resenas: resenasVinculadas }),
-          sku: esRaiz ? (semilla?.sku || `FC-NEW-${Date.now().toString().slice(-4)}`) : `FC-NEW-${Date.now().toString().slice(-4)}${indice}`,
+          // `design_code` es ÚNICO dentro de la familia (y entra en el slug, que es
+          // único global). Los 4 últimos dígitos de Date.now() se repiten cada 10 s, así
+          // que se generan en base 36 desde el mismo milisegundo + el índice de variante:
+          // 16 caracteres es el máximo del campo, aquí se usan 11.
+          sku: esRaiz ? (semilla?.sku || nuevoSku(0)) : nuevoSku(indice),
         };
       });
 
@@ -985,6 +1007,25 @@ function FormularioProducto({
                 ))}
               </select>
             </label>
+
+            {/* Categoría del panel. Se resuelve a una `Category` real al guardar
+                (`asegurarCategoria`): sin ella el producto no aparece en el listado de
+                ninguna categoría, que es por donde se navega el catálogo. */}
+            {(categorias[tipo] || []).length > 0 && (
+              <label className={styles.campoAncho}>
+                <span className={styles.etiquetaCampo}>Categoría</span>
+                <select
+                  className={styles.selectInput}
+                  value={categoriaId}
+                  onChange={(e) => setCategoriaId(e.target.value)}
+                >
+                  <option value="">Sin categoría</option>
+                  {(categorias[tipo] || []).map((c) => (
+                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  ))}
+                </select>
+              </label>
+            )}
 
             {/* Solo cuando se programa: el backend exige fecha futura. */}
             {estado === 'Programado' && (

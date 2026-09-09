@@ -44,6 +44,7 @@
 
 import {
   productos as apiProductos, imagenesProducto as apiImagenes, serializarProductoAdmin,
+  asegurarCategoria, describirErrorApi,
 } from '@/lib/api/adminCatalog';
 import { subirMedia, motivoDeRechazo } from '@/lib/api/adminMedia';
 
@@ -85,9 +86,11 @@ export function camposQueNoSeGuardan(formulario) {
  * @param {object} [extra]
  * @param {string} [extra.familiaId] UUID de `Family`. **Obligatorio al crear**.
  * @param {string} [extra.publicadoEn] ISO. Obligatorio si el estado es 'Programado'.
+ * @param {string} [extra.categoriaId] UUID de `Category` ya resuelto (ver
+ *   `asegurarCategoria`): las categorías del panel son ids locales tipo 'cat7'.
  * @returns {object}
  */
-export function formularioAApi(f, { familiaId, publicadoEn } = {}) {
+export function formularioAApi(f, { familiaId, publicadoEn, categoriaId } = {}) {
   const datos = {
     nombre: typeof f.nombre === 'object' ? f.nombre.es : f.nombre,
     nombreEn: typeof f.nombre === 'object' ? f.nombre.en : undefined,
@@ -97,6 +100,9 @@ export function formularioAApi(f, { familiaId, publicadoEn } = {}) {
     composicion: typeof f.composicion === 'object' ? f.composicion.es : f.composicion,
     tipo: f.tipo,
     estado: f.estado,
+    // `design_code` es OBLIGATORIO en el modelo (no admite vacío) y el formulario ya lo
+    // genera. No mandarlo era la causa del 400 al publicar.
+    sku: f.sku,
     // Decimal o null: "" no es cero.
     precio: f.precio === undefined ? undefined : f.precio,
   };
@@ -104,8 +110,11 @@ export function formularioAApi(f, { familiaId, publicadoEn } = {}) {
   if (familiaId) datos.familiaId = familiaId;
   if (publicadoEn !== undefined) datos.publicadoEn = publicadoEn;
 
-  // Categorías del backend solo si son UUID; las del panel son de un contexto local.
-  if (f.categoriaId && ES_UUID.test(f.categoriaId)) datos.categoriaIds = [f.categoriaId];
+  // Categoría: o bien ya viene resuelta a UUID desde `asegurarCategoria`, o bien el
+  // propio formulario traía un UUID. Los ids del panel ('cat7') no se mandan nunca.
+  const uuidCategoria = categoriaId
+    || (f.categoriaId && ES_UUID.test(f.categoriaId) ? f.categoriaId : null);
+  if (uuidCategoria) datos.categoriaIds = [uuidCategoria];
   // Ídem con la colección: el mock usa códigos ('fw26'), el modelo un UUID.
   if (f.coleccion && ES_UUID.test(f.coleccion)) datos.coleccionId = f.coleccion;
 
@@ -173,9 +182,55 @@ async function subirImagenes(productoId, imagenes = [], archivosPorUrl = {}) {
  * @param {string} [opciones.familiaId]
  * @param {string} [opciones.publicadoEn]
  */
-export async function guardarProducto(formulario, { id, familiaId, publicadoEn, familiaPorDefecto } = {}) {
-  const cuerpo = formularioAApi(formulario, { familiaId, publicadoEn });
+export async function guardarProducto(formulario, {
+  id, familiaId, publicadoEn, familiaPorDefecto, categoriaPanel,
+} = {}) {
   const esBorrador = formulario.estado !== 'Activo';
+
+  // PUBLICAR: se comprueba ANTES de salir a la red, para poder decir TODO lo que falta de
+  // una vez y con el nombre que tiene el campo en el formulario. El backend valida lo
+  // mismo, pero de uno en uno y con nombres de modelo ('design_code'), que dentro de un
+  // toast no le dicen nada a nadie.
+  if (!esBorrador) {
+    const faltan = [];
+    const nombre = typeof formulario.nombre === 'object' ? formulario.nombre?.es : formulario.nombre;
+    if (!String(nombre ?? '').trim()) faltan.push('Nombre');
+    if (!familiaId) faltan.push('Familia de producto');
+    if (!formulario.sku) faltan.push('Número de diseño (SKU)');
+    // El precio solo se exige si la pieza se vende; las de «solo consulta»
+    // (`on_request`: atelier, archivo) se publican sin él, igual que el CheckConstraint
+    // `catalog_product_price_required_when_active` de la base de datos.
+    const aConsultar = formulario.modoVenta === 'on_request';
+    if (!aConsultar
+      && (formulario.precio === undefined || formulario.precio === null || formulario.precio === '')) {
+      faltan.push('Precio');
+    }
+    if (faltan.length) {
+      return {
+        ok: false,
+        campos: faltan,
+        mensaje: `Para publicar falta${faltan.length === 1 ? '' : 'n'}: ${faltan.join(', ')}. `
+          + 'Puedes guardarlo como borrador y completarlo luego.',
+      };
+    }
+  }
+
+  // La categoría del panel ('cat7') no existe en la base de datos: se resuelve —creándola
+  // si hace falta— a una `Category` real ANTES de guardar. Sin esto el producto se
+  // guardaba sin categoría y luego no aparecía en el listado de esa categoría, que filtra
+  // por slug (`?category=…`). Es el bug de «lo guardo y no sale en ninguna parte».
+  let categoriaId;
+  let categoriaFallida = false;
+  const panel = categoriaPanel || (formulario.categoriaNombre
+    ? { id: formulario.categoriaId, nombre: formulario.categoriaNombre }
+    : null);
+  if (panel?.nombre) {
+    const resuelta = await asegurarCategoria(panel);
+    if (resuelta) categoriaId = resuelta.id;
+    else categoriaFallida = true;
+  }
+
+  const cuerpo = formularioAApi(formulario, { familiaId, publicadoEn, categoriaId });
   const rellenado = [];
 
   // UN BORRADOR SE GUARDA SIEMPRE. Tres campos son obligatorios en la base de datos
@@ -221,7 +276,14 @@ export async function guardarProducto(formulario, { id, familiaId, publicadoEn, 
       formulario.archivosPorUrl
     );
 
-    return { ok: true, producto, perdidos: camposQueNoSeGuardan(formulario), rellenado, fotos };
+    return {
+      ok: true,
+      producto,
+      perdidos: camposQueNoSeGuardan(formulario),
+      rellenado,
+      fotos,
+      categoriaFallida,
+    };
   } catch (error) {
     // Los errores por campo del backend se devuelven tal cual para poder pintarlos donde
     // toca; `mensaje` es el resumen para un toast.
@@ -229,7 +291,9 @@ export async function guardarProducto(formulario, { id, familiaId, publicadoEn, 
       ok: false,
       error,
       detalles: error?.details ?? {},
-      mensaje: error?.firstDetail ?? error?.message ?? 'No se ha podido guardar.',
+      // Con el nombre del campo delante: «Este campo es requerido.» a secas no decía
+      // cuál, que era exactamente la queja.
+      mensaje: describirErrorApi(error),
     };
   }
 }

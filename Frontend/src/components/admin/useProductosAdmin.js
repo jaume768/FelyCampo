@@ -14,7 +14,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { productos as apiProductos, adaptarProductoAdmin, filtrosProductosAdmin } from '@/lib/api/adminCatalog';
+import {
+  productos as apiProductos, adaptarProductoAdmin, filtrosProductosAdmin, describirErrorApi,
+} from '@/lib/api/adminCatalog';
 import { ApiError } from '@/lib/api/errors';
 
 /**
@@ -107,7 +109,8 @@ export function useAccionesProductoAdmin(recargar) {
       return { ok: true };
     } catch (error) {
       if (!(error instanceof ApiError)) throw error;
-      return { ok: false, error, mensaje: error.firstDetail ?? error.message };
+      // Con el nombre del campo: «Este campo es requerido.» a secas no dice cuál.
+      return { ok: false, error, mensaje: describirErrorApi(error) };
     } finally {
       setGuardando(false);
     }

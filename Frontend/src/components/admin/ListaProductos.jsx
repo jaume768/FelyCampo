@@ -26,7 +26,7 @@ import {
   tiposProducto, coleccionesMock, coloresMock, codigoTemporada, rutaTipoProducto,
 } from '@/components/admin/mockData';
 import { useProductosAdmin, useAccionesProductoAdmin } from './useProductosAdmin';
-import { STATUS_POR_ESTADO } from '@/lib/api/adminCatalog';
+import { STATUS_POR_ESTADO, slugCategoriaPanel } from '@/lib/api/adminCatalog';
 import { guardarProducto } from './guardarProducto';
 import { useFamiliasAdmin } from './useFamiliasAdmin';
 import { formatearImporte } from '@/lib/precio';
@@ -195,6 +195,12 @@ function ListaProductosContenido({
   const categoriaFija = searchParams.get('categoria') || '';
   const [query, setQuery] = useState('');
   const [pagina, setPagina] = useState(1);
+  // La categoría del panel que está fijada por la URL (?categoria=cat7). Se resuelve
+  // aquí, ANTES del listado, porque el filtro contra la API va por su slug real.
+  const categoriaSeleccionada = categoriaFija
+    ? (categorias[tipoFijo] || []).find((c) => c.id === categoriaFija) || null
+    : null;
+
   const [filtroTipo, setFiltroTipo] = useState(tipoFijo || 'Todos');
   const [filtroPublicacion, setFiltroPublicacion] = useState('Todos');
   const [filtroColeccion, setFiltroColeccion] = useState('Todas');
@@ -223,7 +229,11 @@ function ListaProductosContenido({
     busqueda: query,
     tipo: tipoFijo || filtroTipo,
     estado: filtroPublicacion === 'Todos' ? undefined : ETIQUETA_A_ESTADO[filtroPublicacion],
-    categoriaSlug: categoriaFija || undefined,
+    // NO `categoriaFija` ('cat7'): ese id solo existe en el contexto local del panel.
+    // El backend filtra por el SLUG de la `Category` real — el mismo que construye
+    // `asegurarCategoria` al guardar. Mandar 'cat7' devolvía siempre cero productos, y
+    // por eso un producto recién guardado no aparecía en ninguna parte.
+    categoriaSlug: slugCategoriaPanel(categoriaSeleccionada) || undefined,
     pagina,
   });
   const { guardando, aplicarEnBloque: aplicarEnBloqueApi, archivar } = useAccionesProductoAdmin(recargar);
@@ -279,7 +289,7 @@ function ListaProductosContenido({
     setColeccionABorrar(null);
   }
 
-  const categoriaActual = categoriaFija ? categorias[tipoFijo]?.find((c) => c.id === categoriaFija) : null;
+  const categoriaActual = categoriaSeleccionada;
 
   // Vista de looks: si la colección se creó con `numeroLooks` (ver
   // FormularioColeccion), en vez de la tabla/rejilla de productos reales
@@ -396,6 +406,11 @@ function ListaProductosContenido({
     const resultado = await guardarProducto(raiz, {
       familiaId: raiz.familiaId,
       publicadoEn: raiz.publicadoEn,
+      // Categoría del panel → `Category` real (se crea si no existe). Sin esto el
+      // producto se guarda «suelto» y no sale en el listado de su categoría.
+      categoriaPanel: raiz.categoriaNombre
+        ? { id: raiz.categoriaId, nombre: raiz.categoriaNombre }
+        : categoriaSeleccionada,
       // Respaldo solo para borradores: `family` es FK obligatoria y sin ella no se
       // podría guardar un borrador a medias.
       familiaPorDefecto: familiasDeLaLinea[0]?.id,
@@ -407,6 +422,9 @@ function ListaProductosContenido({
     }
 
     avisarDeLoQueNoSeGuarda(resultado.perdidos, variantes.length);
+    if (resultado.categoriaFallida) {
+      mostrarToast('Guardado, pero no se pudo asignar la categoría: revísala en la ficha.');
+    }
     // Se dice qué se ha rellenado solo: inventar datos en silencio es peor que bloquear.
     if (resultado.rellenado?.length) {
       mostrarToast(`Hemos rellenado por ti: ${resultado.rellenado.join(', ')} — cámbialo antes de publicar.`);
@@ -458,6 +476,9 @@ function ListaProductosContenido({
       id,
       familiaId: raiz.familiaId,
       publicadoEn: raiz.publicadoEn,
+      categoriaPanel: raiz.categoriaNombre
+        ? { id: raiz.categoriaId, nombre: raiz.categoriaNombre }
+        : categoriaSeleccionada,
     });
 
     if (!resultado.ok) {
