@@ -591,6 +591,39 @@ class Variant(UUIDTimeStampedModel):
         return self.is_active and self.available > 0
 
 
+class ProductPiece(UUIDTimeStampedModel):
+    """
+    Una pieza del producto con su código de inventario, tal como se lista en la ficha
+    («Prendas y SKU» en el panel): un conjunto de chaqueta y pantalón, un vestido con su
+    cinturón.
+
+    **No es `BundleComponent`.** Ese apunta a una `Variant` real y sirve para vender un
+    conjunto descontando el stock de cada pieza por separado. Esto es descriptivo: el
+    código que lleva la etiqueta cosida, que puede no corresponderse con nada vendible por
+    su cuenta. El panel las editaba desde el principio y no se guardaban porque no había
+    dónde.
+    """
+
+    product = models.ForeignKey(
+        Product,
+        verbose_name=_("producto"),
+        on_delete=models.CASCADE,
+        related_name="pieces",
+    )
+    name = models.CharField(_("prenda"), max_length=120)
+    name_en = models.CharField(_("prenda (EN)"), max_length=120, blank=True)
+    sku = models.CharField(_("SKU"), max_length=64, blank=True)
+    position = models.PositiveSmallIntegerField(_("orden"), default=0)
+
+    class Meta:
+        verbose_name = _("prenda del producto")
+        verbose_name_plural = _("prendas del producto")
+        ordering = ["position", "name"]
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.sku})" if self.sku else self.name
+
+
 class BundleComponent(UUIDTimeStampedModel):
     """
     Pieza que compone un conjunto. Las piezas se venden también por separado, así que el

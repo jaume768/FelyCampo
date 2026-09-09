@@ -24,6 +24,7 @@ from .models import (
     Family,
     Product,
     ProductImage,
+    ProductPiece,
     ProductStatus,
     SaleMode,
     Size,
@@ -143,6 +144,12 @@ class AdminColorwaySerializer(serializers.ModelSerializer):
         extra_kwargs = {"sku": {"required": False}}
 
 
+class AdminProductPieceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductPiece
+        fields = ("id", "name", "name_en", "sku", "position")
+
+
 class AdminProductSerializer(serializers.ModelSerializer):
     family_detail = FamilySerializer(source="family", read_only=True)
     collection_detail = AdminCollectionSerializer(source="collection", read_only=True)
@@ -150,6 +157,11 @@ class AdminProductSerializer(serializers.ModelSerializer):
     fabrics_detail = AdminFabricSerializer(source="fabrics", many=True, read_only=True)
     colorways = AdminColorwaySerializer(many=True, read_only=True)
     images = AdminProductImageSerializer(many=True, read_only=True)
+    # Anidada y ESCRIBIBLE, a diferencia del resto: son cuatro campos sin vida propia
+    # fuera del producto, y darles su propio endpoint obligaría al panel a orquestar N
+    # peticiones para guardar una lista que se edita de una vez. Se manda entera y
+    # sustituye a la anterior (ver `update`/`create`).
+    pieces = AdminProductPieceSerializer(many=True, required=False)
 
     class Meta:
         model = Product
@@ -195,6 +207,7 @@ class AdminProductSerializer(serializers.ModelSerializer):
             "published_at",
             "colorways",
             "images",
+            "pieces",
             "created_at",
             "updated_at",
         )
@@ -206,6 +219,43 @@ class AdminProductSerializer(serializers.ModelSerializer):
             "slug": {"required": False},  # autogenerado en Product.save() si se deja vacío
             "published_at": {"required": False, "allow_null": True},
         }
+
+    def _guardar_prendas(self, product, prendas):
+        """
+        Sustituye la lista entera. Es una lista corta que se edita de una vez en el
+        formulario: reconciliar fila a fila añadiría complejidad sin ganar nada, y no hay
+        nada colgando de una `ProductPiece` que se pueda perder.
+        """
+        product.pieces.all().delete()
+        ProductPiece.objects.bulk_create(
+            [
+                ProductPiece(
+                    product=product,
+                    name=p.get("name", ""),
+                    name_en=p.get("name_en", ""),
+                    sku=p.get("sku", ""),
+                    position=p.get("position", indice),
+                )
+                for indice, p in enumerate(prendas)
+                if p.get("name") or p.get("sku")
+            ]
+        )
+
+    def create(self, validated_data):
+        prendas = validated_data.pop("pieces", None)
+        product = super().create(validated_data)
+        if prendas is not None:
+            self._guardar_prendas(product, prendas)
+        return product
+
+    def update(self, instance, validated_data):
+        # `None` (la clave no viene) NO es lo mismo que `[]` (el usuario las ha borrado
+        # todas): un PATCH de cualquier otro campo no puede llevarse por delante la lista.
+        prendas = validated_data.pop("pieces", None)
+        product = super().update(instance, validated_data)
+        if prendas is not None:
+            self._guardar_prendas(product, prendas)
+        return product
 
     def validate(self, attrs):
         """

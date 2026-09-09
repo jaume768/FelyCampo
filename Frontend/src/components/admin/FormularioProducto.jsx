@@ -751,7 +751,12 @@ function FormularioProducto({
           origenTejido: (origenTejido.es.trim() || origenTejido.en.trim()) ? origenTejido : undefined,
           cuidadoIds,
         }),
-        ...(campos.coleccion && { coleccion }),
+        // El nombre además del código: es lo que hace falta para crear la fila de
+        // `Collection` si todavía no existe (la tabla estaba vacía).
+        ...(campos.coleccion && {
+          coleccion,
+          coleccionNombre: coleccionesDisponibles.find((c) => c.valor === coleccion)?.etiqueta,
+        }),
         prendas: prendas.filter((p) => p.nombre.trim() || p.sku.trim()),
         estado: estadoFinal,
         // Para poder guardar de verdad: familia (FK obligatoria) y, si se programa, la

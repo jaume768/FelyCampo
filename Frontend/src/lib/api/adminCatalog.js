@@ -234,6 +234,8 @@ export function adaptarProductoAdmin(producto) {
     telaIds: producto.fabrics || [],
     telas: (producto.fabrics_detail || []).map((f) => ({ id: f.id, nombre: f.name })),
 
+    // «Prendas y SKU»: piezas del producto con su código. Modelo `ProductPiece`.
+    prendas: (producto.pieces || []).map((p) => ({ nombre: p.name, nombreEn: p.name_en, sku: p.sku })),
     colorways: producto.colorways || [],
     // Stock real del producto: la suma de sus variantes (color + talla), que es donde
     // vive. La columna «Stock» del listado leía un `tallas` que este adaptador no
@@ -292,6 +294,18 @@ export function serializarProductoAdmin(datos) {
   origen('dyeing_printing', datos.tinturaEstampacion);
   origen('fabric_origin', datos.origenTejido);
   poner('design_code', datos.sku);
+  // Lista completa: sustituye a la anterior. Solo se manda si el formulario la trae, para
+  // que un guardado parcial de otro campo no borre las prendas.
+  if (Array.isArray(datos.prendas)) {
+    cuerpo.pieces = datos.prendas
+      .filter((p) => (p?.nombre || '').trim() || (p?.sku || '').trim())
+      .map((p, indice) => ({
+        name: (p.nombre || '').trim(),
+        name_en: (p.nombreEn || '').trim(),
+        sku: (p.sku || '').trim(),
+        position: indice,
+      }));
+  }
   poner('kind', datos.kind);
   poner('sale_mode', datos.modoVenta);
   poner('is_outlet', datos.esOutlet);
@@ -415,6 +429,43 @@ export async function asegurarCategoria(categoriaPanel) {
       const lista = Array.isArray(pagina) ? pagina : pagina.results || [];
       const existente = lista.find((c) => c.slug === slug);
       return existente ? { id: existente.id, slug: existente.slug } : null;
+    } catch {
+      return null;
+    }
+  }
+}
+
+/**
+ * Resuelve la colección/temporada del panel ('FW27') a una fila real de `Collection`.
+ *
+ * `Product.collection` es una FK a `Collection`, pero el desplegable del panel maneja
+ * CÓDIGOS de `coleccionesMock`, no UUID. El guardado solo mandaba la colección si el
+ * valor «parecía un UUID», cosa que no pasaba nunca: la colección no se guardaba jamás y
+ * la tabla estaba vacía. Se crea la fila la primera vez que se usa, como con las
+ * categorías y los colores.
+ *
+ * @param {{codigo: string, nombre?: string}} coleccionPanel
+ * @returns {Promise<{id: string, code: string}|null>}
+ */
+export async function asegurarColeccion({ codigo, nombre } = {}) {
+  const code = String(codigo || '').trim().toLowerCase();
+  if (!code) return null;
+
+  const buscar = async () => {
+    const pagina = await colecciones.listar({ search: code, page_size: 100 });
+    const lista = Array.isArray(pagina) ? pagina : pagina.results || [];
+    return lista.find((c) => c.code?.toLowerCase() === code) || null;
+  };
+
+  try {
+    const existente = await buscar();
+    if (existente) return { id: existente.id, code: existente.code };
+    const creada = await colecciones.crear({ code, name: nombre || codigo, is_active: true });
+    return { id: creada.id, code: creada.code };
+  } catch {
+    try {
+      const existente = await buscar();
+      return existente ? { id: existente.id, code: existente.code } : null;
     } catch {
       return null;
     }

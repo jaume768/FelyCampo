@@ -15,6 +15,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCategorias } from './Categorias';
+import { useAvisosAdmin } from './useAvisosAdmin';
 import { codigoTemporada } from '@/components/admin/mockData';
 import {
   Home,
@@ -53,11 +54,13 @@ const grupos = [
   {
     titulo: 'Ventas',
     items: [
+      // `contador` nombra de dónde sale el número; NO se escribe aquí a mano (ver
+      // useAvisosAdmin). Antes eran un 3 y un 2 fijos, que no correspondían a nada.
       {
-        href: '/admin/pedidos', label: 'Pedidos', icono: Package, nuevos: 3,
+        href: '/admin/pedidos', label: 'Pedidos', icono: Package, contador: 'pedidosPendientes',
       },
       {
-        href: '/admin/consultas-precio', label: 'Consultas', icono: MessageCircleQuestionMark, nuevos: 2,
+        href: '/admin/consultas-precio', label: 'Consultas', icono: MessageCircleQuestionMark,
       },
       { href: '/admin/metricas', label: 'Métricas', icono: BarChart3 },
     ],
@@ -110,7 +113,9 @@ const grupos = [
       { href: '/admin/clientes', label: 'Clientes', icono: Users },
       { href: '/admin/newsletter', label: 'Newsletter', icono: Mail },
       {
-        href: '/admin/resenas', label: 'Reseñas', icono: Star, nuevos: 2,
+        // Sin contador: no existe el modelo `Review` todavía (docs/CONTRATO.md, C-1),
+        // así que no hay nada real que contar.
+        href: '/admin/resenas', label: 'Reseñas', icono: Star,
       },
       {
         href: '/admin/consultas', label: 'Consultas/Citas', icono: MessageCircle, porHacer: true,
@@ -173,6 +178,7 @@ function AdminSidebar() {
   const searchParams = useSearchParams();
   const categoriaActiva = searchParams.get('categoria');
   const { categorias } = useCategorias();
+  const avisos = useAvisosAdmin();
   const [subAbiertos, setSubAbiertos] = useState(() => {
     const itemActivo = itemsConSubmenu.find((item) => itemContieneRuta(item, pathname));
     return itemActivo ? { [itemActivo.href]: true } : {};
@@ -305,7 +311,11 @@ function AdminSidebar() {
         <Link href={item.href} className={`${styles.item} ${activo ? styles.activo : ''}`}>
           <Icono className={styles.icono} aria-hidden="true" />
           <span className={styles.label}>{item.label}</span>
-          {item.nuevos > 0 && <span className={styles.contador}>{item.nuevos}</span>}
+          {avisos[item.contador] > 0 && (
+            <span className={styles.contador} title={`${avisos[item.contador]} pendiente${avisos[item.contador] === 1 ? '' : 's'}`}>
+              {avisos[item.contador]}
+            </span>
+          )}
           {item.porHacer && <span className={styles.porHacer}>Por hacer</span>}
         </Link>
       </li>

@@ -187,6 +187,7 @@ class AdminProductViewSet(AdminModelViewSet):
             .prefetch_related(
                 "categories",
                 "fabrics__image",
+                "pieces",
                 Prefetch(
                     "images",
                     queryset=ProductImage.objects.select_related("asset").order_by("position"),

@@ -48,6 +48,7 @@ class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
             .select_related("family")
             .prefetch_related(
                 "categories",
+                "pieces",
                 Prefetch("images", queryset=ProductImage.objects.order_by("position")),
                 Prefetch(
                     "colorways",

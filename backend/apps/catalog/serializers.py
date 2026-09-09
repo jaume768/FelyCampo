@@ -189,6 +189,7 @@ class ProductDetailSerializer(ProductListSerializer):
     categories = CategorySerializer(many=True, read_only=True)
     components = serializers.SerializerMethodField()
     enquiry_only = serializers.SerializerMethodField()
+    pieces = serializers.SerializerMethodField()
 
     class Meta(ProductListSerializer.Meta):
         fields = ProductListSerializer.Meta.fields + (
@@ -215,11 +216,19 @@ class ProductDetailSerializer(ProductListSerializer):
             "images",
             "components",
             "enquiry_only",
+            "pieces",
         )
 
     def get_colorways(self, obj) -> list:
         active = [cw for cw in obj.colorways.all() if cw.is_active]
         return ColorwaySerializer(active, many=True, context=self.context).data
+
+    def get_pieces(self, obj) -> list:
+        """Las piezas del producto con su código, tal como se listan en la ficha."""
+        return [
+            {"name": p.name, "name_en": p.name_en, "sku": p.sku}
+            for p in obj.pieces.all()
+        ]
 
     def get_components(self, obj) -> list:
         """Piezas de un conjunto. Vacío en prendas sueltas."""

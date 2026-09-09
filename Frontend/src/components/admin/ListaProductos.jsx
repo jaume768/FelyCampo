@@ -55,7 +55,13 @@ function etiquetaTipo(tipo) {
   return tiposProducto.find((t) => t.valor === tipo)?.etiqueta || tipo;
 }
 
+/**
+ * La colección del producto ya es un dato real (`Collection`), no un código del mock: el
+ * nombre viene con ella. Se sigue mirando `coleccionesMock` como respaldo para los
+ * productos que solo tengan el código.
+ */
 function etiquetaColeccion(coleccion) {
+  if (coleccion && typeof coleccion === 'object') return coleccion.nombre || coleccion.code || '—';
   return coleccionesMock.find((c) => c.valor === coleccion)?.etiqueta || '—';
 }
 
@@ -460,6 +466,9 @@ function ListaProductosContenido({
     avisarDelInventario(resultado.inventario);
     if (resultado.categoriaFallida) {
       mostrarToast('Guardado, pero no se pudo asignar la categoría: revísala en la ficha.');
+    }
+    if (resultado.coleccionFallida) {
+      mostrarToast('Guardado, pero no se pudo asignar la colección: revísala en la ficha.');
     }
     // Se dice qué se ha rellenado solo: inventar datos en silencio es peor que bloquear.
     if (resultado.rellenado?.length) {

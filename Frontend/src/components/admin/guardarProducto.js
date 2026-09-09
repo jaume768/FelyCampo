@@ -13,9 +13,6 @@
  * Estos NO se mandan (no existen en el catálogo), y por eso no se guardan. Están
  * enumerados aquí y en `docs/CONTRATO.md` en vez de desaparecer en silencio:
  *
- *   prendas
- *       Lista de prendas con SKU propio. Existe `BundleComponent`, pero es otra
- *       cosa (componentes de un conjunto) y tiene su propio endpoint.
  *   estampadoId
  *       No hay modelo de estampado; `Colorway` referencia un `Color`.
  *   lookVinculado
@@ -31,6 +28,13 @@
  *   colorIds, tallas[].stock
  *       En `Colorway`/`Variant`, que es donde vive el catálogo de verdad — ver
  *       `sincronizarColorways`. El stock es de la `Variant`: color + talla.
+ *   prendas
+ *       En `ProductPiece` (migración 0008). NO es `BundleComponent`: ese apunta a una
+ *       `Variant` real para descontar stock de un conjunto; esto es descriptivo.
+ *   coleccion
+ *       Se resuelve del código del panel ('FW27') a la `Collection` real, creándola si
+ *       hace falta (`asegurarColeccion`). Antes solo se mandaba si «parecía un UUID»,
+ *       cosa que no pasaba nunca.
  *
  * Las IMÁGENES sí se guardan, en dos pasos (ver `sincronizarImagenes`): el archivo va a la
  * biblioteca de medios y luego se crea el `ProductImage` que lo coloca en la ficha.
@@ -43,13 +47,34 @@
 import {
   productos as apiProductos, imagenesProducto as apiImagenes,
   colorways as apiColorways, variantes as apiVariantes,
-  serializarProductoAdmin, asegurarCategoria, asegurarColor, asegurarTalla, describirErrorApi,
+  serializarProductoAdmin, asegurarCategoria, asegurarColeccion, asegurarColor, asegurarTalla,
+  describirErrorApi,
 } from '@/lib/api/adminCatalog';
 import { slugify } from '@/lib/slugify';
 import { ApiError } from '@/lib/api/errors';
 import { subirMedia, motivoDeRechazo } from '@/lib/api/adminMedia';
 
 const ES_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * `Size.code` de la API → el valor con el que el formulario compara.
+ *
+ * La escala del sitio son NÚMEROS (`TALLAS_DISPONIBLES` hace `Number(talla)`), y la API
+ * devuelve el código como cadena. El formulario marca la talla con
+ * `tallas.find((f) => f.talla === t)`, y `'36' === 36` es `false`: el stock se guardaba
+ * bien pero al reabrir la ficha no aparecía ninguna talla seleccionada.
+ *
+ * Se convierte solo lo que es numérico, para no romper una escala de letras (S/M/L) el
+ * día que exista.
+ *
+ * @param {string|number|null|undefined} codigo
+ * @returns {string|number|null}
+ */
+export function codigoTallaDelFormulario(codigo) {
+  if (codigo === null || codigo === undefined || codigo === '') return null;
+  const texto = String(codigo).trim();
+  return /^\d+$/.test(texto) ? Number(texto) : texto;
+}
 
 /**
  * Campos del formulario que hoy no se guardan, y cómo se llaman de cara al usuario.
@@ -59,7 +84,6 @@ const ES_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
  * ahora son campos del propio `Product`.
  */
 export const ETIQUETA_CAMPO_SIN_MODELO = {
-  prendas: 'Prendas y sus SKU',
   estampadoId: 'Estampado',
   lookVinculado: 'Look de pasarela',
   resenas: 'Reseñas',
@@ -127,8 +151,8 @@ export function productoAFormulario(producto, categoriasPanel = []) {
   // así que se enseña la del primer color; editar el resto es cosa de /admin/stock.
   const tallas = (colorways[0]?.variants || [])
     .filter((v) => v.is_active !== false)
-    .map((v) => ({ talla: v.size_detail?.code, stock: v.stock ?? 0 }))
-    .filter((t) => t.talla);
+    .map((v) => ({ talla: codigoTallaDelFormulario(v.size_detail?.code), stock: v.stock ?? 0 }))
+    .filter((t) => t.talla !== null && t.talla !== undefined && t.talla !== '');
 
   return {
     ...producto,
@@ -157,9 +181,11 @@ export function productoAFormulario(producto, categoriasPanel = []) {
  * @param {string} [extra.publicadoEn] ISO. Obligatorio si el estado es 'Programado'.
  * @param {string} [extra.categoriaId] UUID de `Category` ya resuelto (ver
  *   `asegurarCategoria`): las categorías del panel son ids locales tipo 'cat7'.
+ * @param {string} [extra.coleccionId] UUID de `Collection` ya resuelto (ver
+ *   `asegurarColeccion`): el desplegable del panel maneja códigos ('FW27').
  * @returns {object}
  */
-export function formularioAApi(f, { familiaId, publicadoEn, categoriaId } = {}) {
+export function formularioAApi(f, { familiaId, publicadoEn, categoriaId, coleccionId } = {}) {
   const datos = {
     nombre: typeof f.nombre === 'object' ? f.nombre.es : f.nombre,
     nombreEn: typeof f.nombre === 'object' ? f.nombre.en : undefined,
@@ -172,6 +198,8 @@ export function formularioAApi(f, { familiaId, publicadoEn, categoriaId } = {}) 
     cuidadoIds: f.cuidadoIds,
     cuidados: typeof f.cuidados === 'object' ? f.cuidados?.es : f.cuidados,
     cuidadosEn: typeof f.cuidados === 'object' ? f.cuidados?.en : undefined,
+    // Prendas del producto, cada una con su código.
+    prendas: f.prendas,
     // Los cuatro «orígenes», tal cual ({es, en}); `serializarProductoAdmin` los reparte.
     disenadoEn: f.disenadoEn,
     fabricadoEn: f.fabricadoEn,
@@ -199,8 +227,12 @@ export function formularioAApi(f, { familiaId, publicadoEn, categoriaId } = {}) 
   const uuidCategoria = categoriaId
     || (f.categoriaId && ES_UUID.test(f.categoriaId) ? f.categoriaId : null);
   if (uuidCategoria) datos.categoriaIds = [uuidCategoria];
-  // Ídem con la colección: el mock usa códigos ('fw26'), el modelo un UUID.
-  if (f.coleccion && ES_UUID.test(f.coleccion)) datos.coleccionId = f.coleccion;
+  // Ídem con la colección: el panel usa códigos ('FW27'), el modelo un UUID. Antes solo
+  // se mandaba si el valor «parecía un UUID» —que no pasaba nunca—, así que la colección
+  // no se guardaba jamás. Ahora llega ya resuelta desde `asegurarColeccion`.
+  const uuidColeccion = coleccionId
+    || (f.coleccion && ES_UUID.test(f.coleccion) ? f.coleccion : null);
+  if (uuidColeccion) datos.coleccionId = uuidColeccion;
 
   return serializarProductoAdmin(datos);
 }
@@ -473,7 +505,22 @@ export async function guardarProducto(formulario, {
     else categoriaFallida = true;
   }
 
-  const cuerpo = formularioAApi(formulario, { familiaId, publicadoEn, categoriaId });
+  // La colección del panel es un código ('FW27'), no un UUID: se resuelve —creándola si
+  // hace falta— antes de guardar, igual que la categoría.
+  let coleccionId;
+  let coleccionFallida = false;
+  if (formulario.coleccion) {
+    const resuelta = await asegurarColeccion({
+      codigo: formulario.coleccion,
+      nombre: formulario.coleccionNombre || formulario.coleccion,
+    });
+    if (resuelta) coleccionId = resuelta.id;
+    else coleccionFallida = true;
+  }
+
+  const cuerpo = formularioAApi(formulario, {
+    familiaId, publicadoEn, categoriaId, coleccionId,
+  });
   const rellenado = [];
 
   // UN BORRADOR SE GUARDA SIEMPRE. Tres campos son obligatorios en la base de datos
@@ -571,5 +618,6 @@ export async function guardarProducto(formulario, {
     fotos,
     inventario,
     categoriaFallida,
+    coleccionFallida,
   };
 }
