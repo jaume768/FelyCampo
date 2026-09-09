@@ -195,7 +195,21 @@ class ProductDetailSerializer(ProductListSerializer):
             "description",
             "description_en",
             "composition",
+            # Añadidos, no renombrados: la forma de lo que ya había no cambia. Antes la
+            # ficha pública enseñaba estos cuatro «orígenes» como texto fijo traducido en
+            # el frontend, igual para toda la web; ahora son dato de cada producto.
+            "composition_en",
             "care",
+            "care_en",
+            "care_codes",
+            "designed_in",
+            "designed_in_en",
+            "made_in",
+            "made_in_en",
+            "dyeing_printing",
+            "dyeing_printing_en",
+            "fabric_origin",
+            "fabric_origin_en",
             "categories",
             "colorways",
             "images",

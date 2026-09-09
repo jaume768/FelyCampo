@@ -153,5 +153,26 @@ export function useAccionesProductoAdmin(recargar) {
         await apiProductos.borrar(id);
       }
     }),
+
+    /**
+     * ELIMINAR de verdad, no archivar. El backend borra la fila si nadie ha comprado
+     * nunca ese producto, y lo archiva si aparece en algún pedido — devuelve cuál de las
+     * dos hizo, para poder decirlo.
+     * @param {string} id
+     * @returns {Promise<{ok: boolean, resultado?: {deleted: boolean, archived: boolean, reason: string}, mensaje?: string}>}
+     */
+    eliminar: async (id) => {
+      setGuardando(true);
+      try {
+        const resultado = await apiProductos.eliminar(id);
+        await recargar();
+        return { ok: true, resultado };
+      } catch (error) {
+        if (!(error instanceof ApiError)) throw error;
+        return { ok: false, error, mensaje: describirErrorApi(error) };
+      } finally {
+        setGuardando(false);
+      }
+    },
   };
 }

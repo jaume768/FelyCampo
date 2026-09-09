@@ -219,6 +219,8 @@ function ListaProductosContenido({
   const [nuevaColeccionAbierta, setNuevaColeccionAbierta] = useState(false);
   const [coleccionEnEdicion, setColeccionEnEdicion] = useState(null);
   const [coleccionABorrar, setColeccionABorrar] = useState(null);
+  // Producto pendiente de confirmar el borrado (el objeto, para poder nombrarlo).
+  const [productoAEliminar, setProductoAEliminar] = useState(null);
 
   // DATOS REALES: /api/v1/admin/products/. Búsqueda, filtros y paginación los resuelve
   // el SERVIDOR — antes era un Array.filter sobre el mock entero, que con un catálogo de
@@ -236,7 +238,9 @@ function ListaProductosContenido({
     categoriaSlug: slugCategoriaPanel(categoriaSeleccionada) || undefined,
     pagina,
   });
-  const { guardando, aplicarEnBloque: aplicarEnBloqueApi, archivar } = useAccionesProductoAdmin(recargar);
+  const {
+    guardando, aplicarEnBloque: aplicarEnBloqueApi, archivar, eliminar: eliminarApi,
+  } = useAccionesProductoAdmin(recargar);
   // Respaldo para los borradores que se guardan sin elegir familia: la primera de esta
   // línea. `family` es FK obligatoria, así que sin esto un borrador a medias no se podría
   // guardar (que es justo lo que se quiere permitir).
@@ -394,14 +398,37 @@ function ListaProductosContenido({
     setProductoParaDuplicar(producto);
   }
 
+  /**
+   * Eliminar de verdad, con confirmación. El backend borra la fila si el producto no se
+   * ha vendido nunca y lo archiva si aparece en algún pedido: se dice cuál de las dos ha
+   * pasado en vez de cantar «eliminado» en los dos casos.
+   */
+  async function confirmarEliminar() {
+    const producto = productoAEliminar;
+    setProductoAEliminar(null);
+    if (!producto) return;
+
+    const { ok, resultado, mensaje } = await eliminarApi(producto.id);
+    if (!ok) {
+      mostrarToast(`No se ha podido eliminar: ${mensaje}`);
+      return;
+    }
+    if (resultado?.archived) {
+      mostrarToast(resultado.reason || `«${producto.nombre}» se ha archivado: aparece en pedidos ya realizados.`);
+      return;
+    }
+    mostrarToast(`«${producto.nombre}» eliminado.`);
+  }
+
   // ALTA REAL contra POST /admin/products/.
   //
   // `FormularioProducto` puede emitir un array (varias "variantes de color"). Eso en el
-  // modelo real NO son productos distintos: son `Colorway` de un mismo `Product`. Aquí
-  // solo se guarda la raíz y se avisa; el flujo de colorways es otra pantalla.
+  // modelo real NO son productos distintos: son `Colorway` de un mismo `Product`. Se
+  // guarda la raíz como producto y TODAS las pestañas como colorways con sus tallas y su
+  // stock (`sincronizarColorways`) — antes se descartaban con un aviso.
   async function crearProducto(productoOProductos) {
     const lista = Array.isArray(productoOProductos) ? productoOProductos : [productoOProductos];
-    const [raiz, ...variantes] = lista;
+    const [raiz] = lista;
 
     const resultado = await guardarProducto(raiz, {
       familiaId: raiz.familiaId,
@@ -414,6 +441,9 @@ function ListaProductosContenido({
       // Respaldo solo para borradores: `family` es FK obligatoria y sin ella no se
       // podría guardar un borrador a medias.
       familiaPorDefecto: familiasDeLaLinea[0]?.id,
+      // TODAS las pestañas de color, no solo la raíz: cada una es un `Colorway` con sus
+      // tallas y su stock.
+      pestanasColor: lista,
     });
 
     if (!resultado.ok) {
@@ -421,7 +451,8 @@ function ListaProductosContenido({
       return;
     }
 
-    avisarDeLoQueNoSeGuarda(resultado.perdidos, variantes.length);
+    avisarDeLoQueNoSeGuarda(resultado.perdidos);
+    avisarDelInventario(resultado.inventario);
     if (resultado.categoriaFallida) {
       mostrarToast('Guardado, pero no se pudo asignar la categoría: revísala en la ficha.');
     }
@@ -480,12 +511,25 @@ function ListaProductosContenido({
   }
 
   /** Dice qué se ha quedado fuera en vez de callarlo. */
-  function avisarDeLoQueNoSeGuarda(perdidos, numeroVariantes) {
-    if (numeroVariantes > 0) {
-      mostrarToast(
-        `Las ${numeroVariantes} variantes de color no se han creado: en el catálogo real son colorways de un mismo producto, no productos aparte.`
-      );
+  /**
+   * Colores, tallas y stock. Se guardan aparte del producto (son `Colorway`/`Variant`),
+   * así que se dice qué ha entrado y qué no en vez de dar por hecho que fue todo bien.
+   */
+  function avisarDelInventario(inventario) {
+    if (!inventario) return;
+    if (inventario.colores > 0) {
+      mostrarToast(`${inventario.colores} color${inventario.colores === 1 ? '' : 'es'} guardado${inventario.colores === 1 ? '' : 's'}.`);
     }
+    if (inventario.variantes > 0) {
+      mostrarToast(`Stock guardado en ${inventario.variantes} talla${inventario.variantes === 1 ? '' : 's'}.`);
+    }
+    if (inventario.desactivados > 0) {
+      mostrarToast(`${inventario.desactivados} color${inventario.desactivados === 1 ? '' : 'es'} ya no seleccionado${inventario.desactivados === 1 ? '' : 's'}: desactivado${inventario.desactivados === 1 ? '' : 's'}, no borrado${inventario.desactivados === 1 ? '' : 's'} (su SKU puede estar en pedidos).`);
+    }
+    inventario.avisos?.forEach((motivo) => mostrarToast(`Colores y tallas — ${motivo}`));
+  }
+
+  function avisarDeLoQueNoSeGuarda(perdidos) {
     if (perdidos?.length) {
       mostrarToast(`Esto NO se ha guardado (el catálogo todavía no lo admite): ${perdidos.join(', ')}.`);
     }
@@ -512,7 +556,7 @@ function ListaProductosContenido({
   // EDICIÓN REAL contra PATCH /admin/products/{id}/.
   async function guardarEdicion(productoOProductos) {
     const lista = Array.isArray(productoOProductos) ? productoOProductos : [productoOProductos];
-    const [raiz, ...variantes] = lista;
+    const [raiz] = lista;
     const id = productoEnEdicion?.id;
 
     const resultado = await guardarProducto(raiz, {
@@ -525,6 +569,10 @@ function ListaProductosContenido({
       // Las que la ficha ya tenía: sin esto, quitar una foto en el formulario no la
       // quitaba del servidor y volvía a aparecer al recargar.
       imagenesPrevias: productoEnEdicion?.imagenesDetalle || [],
+      pestanasColor: lista,
+      // Los que ya existen, para actualizarlos en vez de duplicarlos (un `Colorway` es
+      // único por producto+color).
+      colorwaysPrevios: productoEnEdicion?.colorways || [],
     });
 
     if (!resultado.ok) {
@@ -532,7 +580,8 @@ function ListaProductosContenido({
       return;
     }
 
-    avisarDeLoQueNoSeGuarda(resultado.perdidos, variantes.length);
+    avisarDeLoQueNoSeGuarda(resultado.perdidos);
+    avisarDelInventario(resultado.inventario);
     avisarDeLasFotos(resultado.fotos);
     mostrarToast('Cambios guardados');
     setProductoEnEdicion(null);
@@ -906,11 +955,12 @@ function ListaProductosContenido({
             <div className={styles.filaAcciones}>
               <Boton variante="texto" onClick={() => abrirEdicion(p)}>Editar</Boton>
               <Boton variante="texto" onClick={() => duplicar(p)}>Duplicar</Boton>
+              <Boton variante="texto" className={styles.accionEliminar} onClick={() => setProductoAEliminar(p)}>Eliminar</Boton>
             </div>
           )}
         />
       ) : (
-        <GridProductos filas={filtrados} onClickFila={abrirEdicion} onDuplicar={duplicar} porPagina={12} />
+        <GridProductos filas={filtrados} onClickFila={abrirEdicion} onDuplicar={duplicar} onEliminar={setProductoAEliminar} porPagina={12} />
       )}
 
       {/* Paginación de SERVIDOR: cada página es una petición, no un recorte del array. */}
@@ -952,9 +1002,24 @@ function ListaProductosContenido({
 
       <ConfirmarBorrado
         abierto={confirmarBorradoBloqueAbierto}
-        titulo={`¿Borrar ${seleccionadas.length} producto${seleccionadas.length === 1 ? '' : 's'}?`}
+        titulo={`¿Archivar ${seleccionadas.length} producto${seleccionadas.length === 1 ? '' : 's'}?`}
+        mensaje="Dejarán de verse en la web, pero se podrán recuperar: siguen en el listado con el estado «Archivado»."
+        textoConfirmar="Archivar"
         onConfirmar={confirmarBorrarEnBloque}
         onCancelar={() => setConfirmarBorradoBloqueAbierto(false)}
+      />
+
+      <ConfirmarBorrado
+        abierto={!!productoAEliminar}
+        titulo={`¿Eliminar «${productoAEliminar?.nombre ?? ''}»?`}
+        mensaje={
+          'Se borra el producto con sus colores, tallas y fotos. Esto NO se puede deshacer. '
+          + 'Si el producto aparece en algún pedido ya realizado se archivará en vez de borrarse, '
+          + 'para no dejar esos pedidos sin el producto que se vendió.'
+        }
+        textoConfirmar="Eliminar"
+        onConfirmar={confirmarEliminar}
+        onCancelar={() => setProductoAEliminar(null)}
       />
     </div>
   );

@@ -31,7 +31,7 @@ import { Boton } from '../ui';
 import { rutaTipoProducto } from './mockData';
 import styles from './GridProductos.module.css';
 
-function Tarjeta({ producto, onClick, onDuplicar }) {
+function Tarjeta({ producto, onClick, onDuplicar, onEliminar }) {
   const router = useRouter();
   const lookVinculado = producto.lookVinculado;
 
@@ -64,6 +64,11 @@ function Tarjeta({ producto, onClick, onDuplicar }) {
         <Boton variante="contorno" tamano="s" onClick={() => onDuplicar(producto)}>
           Duplicar
         </Boton>
+        {onEliminar && (
+          <Boton variante="contorno" tamano="s" className={styles.accionEliminar} onClick={() => onEliminar(producto)}>
+            Eliminar
+          </Boton>
+        )}
       </div>
 
       {lookVinculado && (
@@ -85,7 +90,7 @@ function Tarjeta({ producto, onClick, onDuplicar }) {
 }
 
 function GridProductos({
-  filas, onClickFila, onDuplicar, porPagina = 12, vacio = 'No hay productos que mostrar.',
+  filas, onClickFila, onDuplicar, onEliminar, porPagina = 12, vacio = 'No hay productos que mostrar.',
 }) {
   const [pagina, setPagina] = useState(1);
 
@@ -101,7 +106,7 @@ function GridProductos({
     <div>
       <div className={styles.grid}>
         {filasPagina.map((producto) => (
-          <Tarjeta key={producto.id} producto={producto} onClick={() => onClickFila(producto)} onDuplicar={onDuplicar} />
+          <Tarjeta key={producto.id} producto={producto} onClick={() => onClickFila(producto)} onDuplicar={onDuplicar} onEliminar={onEliminar} />
         ))}
       </div>
       <Paginacion pagina={pagina} porPagina={porPagina} total={filas.length} onCambiar={setPagina} />

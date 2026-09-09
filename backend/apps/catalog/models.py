@@ -141,7 +141,10 @@ class Category(UUIDTimeStampedModel):
 class Color(UUIDTimeStampedModel):
     """Catálogo global de colores. Tercer segmento del SKU."""
 
-    code = models.CharField(_("código"), max_length=8, unique=True)
+    # 32 y no 8: el panel da de alta los colores desde su lista curada, cuyos códigos son
+    # slugs legibles ("optic-white", "lilac-lavender"). Sigue entrando de sobra en el SKU
+    # del colorway, que admite 64.
+    code = models.CharField(_("código"), max_length=32, unique=True)
     name = models.CharField(_("nombre"), max_length=80)
     name_en = models.CharField(_("nombre (EN)"), max_length=80, blank=True)
     hex_value = models.CharField(
@@ -266,7 +269,33 @@ class Product(UUIDTimeStampedModel):
     description = models.TextField(_("descripción"), blank=True)
     description_en = models.TextField(_("descripción (EN)"), blank=True)
     composition = models.CharField(_("composición"), max_length=255, blank=True)
+    composition_en = models.CharField(_("composición (EN)"), max_length=255, blank=True)
     care = models.TextField(_("cuidados"), blank=True)
+    care_en = models.TextField(_("cuidados (EN)"), blank=True)
+    # Iconos de cuidado elegidos en el panel, por su código de la lista curada
+    # ("wash_40", "iron_no"...). Se guardan los CÓDIGOS, no el texto: la etiqueta la pone
+    # el frontend en el idioma que toque, y así cambiar una traducción no obliga a
+    # reescribir cada producto. `care`/`care_en` siguen siendo texto libre, para lo que no
+    # cabe en un icono.
+    care_codes = ArrayField(
+        models.CharField(max_length=40),
+        verbose_name=_("códigos de cuidado"),
+        default=list,
+        blank=True,
+    )
+
+    # Los cuatro «orígenes» de la ficha. Eran texto fijo traducido en el frontend, igual
+    # para todas las piezas; ahora son dato de cada producto, editable desde el panel.
+    designed_in = models.CharField(_("diseñado en"), max_length=120, blank=True)
+    designed_in_en = models.CharField(_("diseñado en (EN)"), max_length=120, blank=True)
+    made_in = models.CharField(_("fabricado en"), max_length=120, blank=True)
+    made_in_en = models.CharField(_("fabricado en (EN)"), max_length=120, blank=True)
+    dyeing_printing = models.CharField(_("tintura y estampación"), max_length=120, blank=True)
+    dyeing_printing_en = models.CharField(
+        _("tintura y estampación (EN)"), max_length=120, blank=True
+    )
+    fabric_origin = models.CharField(_("origen del tejido"), max_length=120, blank=True)
+    fabric_origin_en = models.CharField(_("origen del tejido (EN)"), max_length=120, blank=True)
 
     kind = models.CharField(
         _("tipo"),

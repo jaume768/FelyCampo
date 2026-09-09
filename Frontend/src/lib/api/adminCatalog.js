@@ -55,7 +55,22 @@ function crud(recurso) {
   };
 }
 
-export const productos = crud('products');
+export const productos = {
+  ...crud('products'),
+  /**
+   * Borrado de verdad desde el panel.
+   *
+   * El `DELETE` normal **archiva** (`Product.archive()`, decisión D8): el histórico de
+   * pedidos referencia el producto. Con `?force=1` el backend borra la fila si nadie la
+   * ha comprado nunca, y la archiva igualmente si sí — devolviendo cuál de las dos cosas
+   * hizo, para poder decírselo al usuario en vez de mentirle con un «eliminado».
+   *
+   * @param {string} id
+   * @returns {Promise<{deleted: boolean, archived: boolean, reason: string}>}
+   */
+  eliminar: (id) => del(`/admin/products/${encodeURIComponent(id)}/`, { params: { force: 1 } })
+    .then((r) => r || { deleted: true, archived: false, reason: '' }),
+};
 export const colorways = crud('colorways');
 export const variantes = crud('variants');
 export const imagenesProducto = crud('product-images');
@@ -175,7 +190,15 @@ export function adaptarProductoAdmin(producto) {
     descripcion: producto.description,
     descripcionEn: producto.description_en,
     composicion: producto.composition,
+    composicionEn: producto.composition_en,
     cuidados: producto.care,
+    cuidadosEn: producto.care_en,
+    // Códigos de los iconos de cuidado ('wash_40'), no su texto.
+    cuidadoIds: producto.care_codes || [],
+    disenadoEn: { es: producto.designed_in || '', en: producto.designed_in_en || '' },
+    fabricadoEn: { es: producto.made_in || '', en: producto.made_in_en || '' },
+    tinturaEstampacion: { es: producto.dyeing_printing || '', en: producto.dyeing_printing_en || '' },
+    origenTejido: { es: producto.fabric_origin || '', en: producto.fabric_origin_en || '' },
 
     sku: producto.design_code,
     tipo: TIPO_POR_LINEA[producto.line] ?? producto.line,
@@ -245,7 +268,20 @@ export function serializarProductoAdmin(datos) {
   poner('description', datos.descripcion);
   poner('description_en', datos.descripcionEn);
   poner('composition', datos.composicion);
+  poner('composition_en', datos.composicionEn);
   poner('care', datos.cuidados);
+  poner('care_en', datos.cuidadosEn);
+  poner('care_codes', datos.cuidadoIds);
+  // Los cuatro «orígenes», bilingües. Llegan como {es, en} desde el formulario.
+  const origen = (clave, valor) => {
+    if (valor === undefined) return;
+    cuerpo[clave] = typeof valor === 'object' && valor !== null ? (valor.es || '') : (valor || '');
+    cuerpo[`${clave}_en`] = typeof valor === 'object' && valor !== null ? (valor.en || '') : '';
+  };
+  origen('designed_in', datos.disenadoEn);
+  origen('made_in', datos.fabricadoEn);
+  origen('dyeing_printing', datos.tinturaEstampacion);
+  origen('fabric_origin', datos.origenTejido);
   poner('design_code', datos.sku);
   poner('kind', datos.kind);
   poner('sale_mode', datos.modoVenta);
@@ -370,6 +406,92 @@ export async function asegurarCategoria(categoriaPanel) {
       const lista = Array.isArray(pagina) ? pagina : pagina.results || [];
       const existente = lista.find((c) => c.slug === slug);
       return existente ? { id: existente.id, slug: existente.slug } : null;
+    } catch {
+      return null;
+    }
+  }
+}
+
+/* ============================================================
+   COLORES Y TALLAS DEL PANEL ↔ `Color` / `Size` DEL BACKEND
+   ============================================================ */
+
+/**
+ * Resuelve un color de la lista curada del panel a una fila real de `Color`.
+ *
+ * Los colores del panel (`coloresMock`) son un catálogo estático con código legible
+ * (`'optic-white'`), nombre bilingüe y hex. `Colorway.color` es una FK a `Color`, y esa
+ * tabla estaba **vacía**: por eso las variantes de color no se podían guardar de ninguna
+ * manera. Se crea la fila la primera vez que se usa el color, igual que
+ * `asegurarCategoria` con las categorías.
+ *
+ * @param {{id: string, nombre: {es: string, en: string}|string, hex?: string}} colorPanel
+ * @returns {Promise<{id: string, code: string}|null>} `null` si no se pudo resolver.
+ */
+export async function asegurarColor(colorPanel) {
+  const code = String(colorPanel?.id || '').trim().toLowerCase();
+  if (!code) return null;
+
+  const nombre = typeof colorPanel.nombre === 'object' ? colorPanel.nombre?.es : colorPanel.nombre;
+  const nombreEn = typeof colorPanel.nombre === 'object' ? colorPanel.nombre?.en : '';
+
+  const buscar = async () => {
+    const pagina = await colores.listar({ search: code, page_size: 100 });
+    const lista = Array.isArray(pagina) ? pagina : pagina.results || [];
+    return lista.find((c) => c.code?.toLowerCase() === code) || null;
+  };
+
+  try {
+    const existente = await buscar();
+    if (existente) return { id: existente.id, code: existente.code };
+    const creado = await colores.crear({
+      code,
+      name: nombre || code,
+      name_en: nombreEn || '',
+      hex_value: colorPanel.hex || '',
+    });
+    return { id: creado.id, code: creado.code };
+  } catch {
+    // Carrera con otra pestaña que acaba de crearlo, o permisos: se reintenta la lectura.
+    try {
+      const existente = await buscar();
+      return existente ? { id: existente.id, code: existente.code } : null;
+    } catch {
+      return null;
+    }
+  }
+}
+
+/**
+ * Resuelve una talla ('38', 'M'…) a una fila real de `Size`.
+ *
+ * A diferencia de los colores, `Size` sí viene sembrada, así que casi siempre es una
+ * lectura. Se crea igualmente si falta, para que una talla fuera del rango estándar no
+ * bloquee el guardado.
+ *
+ * @param {string} codigo
+ * @param {number} [posicion] Orden dentro del listado, solo al crearla.
+ * @returns {Promise<{id: string, code: string}|null>}
+ */
+export async function asegurarTalla(codigo, posicion = 0) {
+  const code = String(codigo || '').trim();
+  if (!code) return null;
+
+  const buscar = async () => {
+    const pagina = await tallas.listar({ search: code, page_size: 100 });
+    const lista = Array.isArray(pagina) ? pagina : pagina.results || [];
+    return lista.find((t) => t.code === code) || null;
+  };
+
+  try {
+    const existente = await buscar();
+    if (existente) return { id: existente.id, code: existente.code };
+    const creada = await tallas.crear({ code, position: posicion, is_active: true });
+    return { id: creada.id, code: creada.code };
+  } catch {
+    try {
+      const existente = await buscar();
+      return existente ? { id: existente.id, code: existente.code } : null;
     } catch {
       return null;
     }

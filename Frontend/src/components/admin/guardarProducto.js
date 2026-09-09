@@ -10,14 +10,9 @@
  * ────────────────────────────────────────────────────────────────────────────
  * AUDITORÍA — campos que el formulario edita y el modelo NO tiene
  * ────────────────────────────────────────────────────────────────────────────
- * Estos NO se mandan (no existen en `Product`), y por eso no se guardan. Están
+ * Estos NO se mandan (no existen en el catálogo), y por eso no se guardan. Están
  * enumerados aquí y en `docs/CONTRATO.md` en vez de desaparecer en silencio:
  *
- *   disenadoEn, fabricadoEn, tinturaEstampacion, origenTejido
- *       Los cuatro "orígenes" de la ficha. Hoy son texto fijo traducido en el
- *       frontend (`producto.origenDisenado` etc. en messages/*.json), no datos.
- *   cuidadoIds
- *       Iconos de cuidado. El modelo solo tiene `care`, texto libre.
  *   prendas
  *       Lista de prendas con SKU propio. Existe `BundleComponent`, pero es otra
  *       cosa (componentes de un conjunto) y tiene su propio endpoint.
@@ -27,12 +22,15 @@
  *       No existe el modelo `Look` (docs/CONTRATO.md, C-3).
  *   resenas
  *       No existe el modelo `Review` (docs/CONTRATO.md, C-1).
- *   composicion.en / descripcion en varios idiomas más allá de ES/EN
- *       El modelo tiene `composition` (una sola), y `name_en`/`description_en`.
- *   tallas[].stock, colorIds
- *       SÍ existen, pero NO en `Product`: viven en `Colorway`/`Variant`, cada uno con su
- *       endpoint. El formulario los trata como campos planos del producto, que es otro
- *       modelo de datos.
+ *
+ * Lo que SÍ se guarda ya, y antes no:
+ *
+ *   composicion, cuidados, disenadoEn, fabricadoEn, tinturaEstampacion, origenTejido
+ *       Campos bilingües del propio `Product` desde la migración 0007. Los iconos de
+ *       cuidado van por su código en `care_codes`, no por su texto.
+ *   colorIds, tallas[].stock
+ *       En `Colorway`/`Variant`, que es donde vive el catálogo de verdad — ver
+ *       `sincronizarColorways`. El stock es de la `Variant`: color + talla.
  *
  * Las IMÁGENES sí se guardan, en dos pasos (ver `sincronizarImagenes`): el archivo va a la
  * biblioteca de medios y luego se crea el `ProductImage` que lo coloca en la ficha.
@@ -43,8 +41,9 @@
  */
 
 import {
-  productos as apiProductos, imagenesProducto as apiImagenes, serializarProductoAdmin,
-  asegurarCategoria, describirErrorApi,
+  productos as apiProductos, imagenesProducto as apiImagenes,
+  colorways as apiColorways, variantes as apiVariantes,
+  serializarProductoAdmin, asegurarCategoria, asegurarColor, asegurarTalla, describirErrorApi,
 } from '@/lib/api/adminCatalog';
 import { slugify } from '@/lib/slugify';
 import { ApiError } from '@/lib/api/errors';
@@ -55,23 +54,15 @@ const ES_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 /**
  * Campos del formulario que hoy no se guardan, y cómo se llaman de cara al usuario.
  *
- * `tallas` y `colorIds` son un caso aparte y por eso están aquí aunque el catálogo SÍ los
- * tenga: viven en `Colorway`/`Variant`, que el panel todavía no crea. Faltaban en esta
- * lista, así que se rellenaban las tallas y el stock y se perdían sin que nadie lo
- * dijera — y al reabrir la ficha aparecían vacías, como si el guardado hubiera fallado.
+ * `tallas` y `colorIds` YA NO están aquí: se guardan de verdad, en `Colorway`/`Variant`
+ * (ver `sincronizarColorways`). Tampoco los cuatro orígenes ni los iconos de cuidado, que
+ * ahora son campos del propio `Product`.
  */
 export const ETIQUETA_CAMPO_SIN_MODELO = {
-  disenadoEn: 'Diseñado en',
-  fabricadoEn: 'Fabricado en',
-  tinturaEstampacion: 'Tintura y estampación',
-  origenTejido: 'Origen del tejido',
-  cuidadoIds: 'Iconos de cuidado',
   prendas: 'Prendas y sus SKU',
   estampadoId: 'Estampado',
   lookVinculado: 'Look de pasarela',
   resenas: 'Reseñas',
-  tallas: 'Tallas y stock',
-  colorIds: 'Colores',
 };
 
 export const CAMPOS_SIN_MODELO = Object.keys(ETIQUETA_CAMPO_SIN_MODELO);
@@ -107,11 +98,13 @@ export function camposQueNoSeGuardan(formulario) {
  *   categoriaId         │ categoriaIds (UUID) — y el <select> usa ids
  *                       │ del panel ('cat7'), así que hay que traducir
  *   coleccion (código)  │ coleccion (un objeto {id, nombre, code})
+ *   colorIds / tallas   │ colorways[].color_detail / .variants[]
  *   nombre.en           │ nombreEn — se perdía al guardar: el formulario
  *                       │ mandaba '' y machacaba el `name_en` guardado
  *
- * `tallas` y `colorIds` no se rellenan porque no son de `Product`: viven en
- * `Colorway`/`Variant`, que el panel todavía no crea (ver la auditoría de arriba).
+ * `tallas` y `colorIds` se reconstruyen desde los colorways, que es donde viven de
+ * verdad. El stock que se enseña es el del primer color: la rejilla del formulario es
+ * una sola por pestaña.
  *
  * @param {object} producto Salida de `adaptarProductoAdmin`.
  * @param {object[]} [categoriasPanel] Las de `CategoriasProvider` para este tipo, para
@@ -126,13 +119,30 @@ export function productoAFormulario(producto, categoriasPanel = []) {
   const slugsGuardados = new Set((producto.categorias || []).map((c) => c.slug));
   const delPanel = categoriasPanel.find((c) => slugsGuardados.has(slugify(c.nombre || '')));
 
+  // Colores y tallas viven en los colorways, no en el producto. El formulario los quiere
+  // planos: los códigos de color de la lista del panel y una fila por talla con su stock.
+  const colorways = (producto.colorways || []).filter((cw) => cw.is_active !== false);
+  const colorIds = colorways.map((cw) => cw.color_detail?.code).filter(Boolean);
+  // El stock es por colorway. El formulario solo tiene una rejilla de tallas por pestaña,
+  // así que se enseña la del primer color; editar el resto es cosa de /admin/stock.
+  const tallas = (colorways[0]?.variants || [])
+    .filter((v) => v.is_active !== false)
+    .map((v) => ({ talla: v.size_detail?.code, stock: v.stock ?? 0 }))
+    .filter((t) => t.talla);
+
   return {
     ...producto,
     nombre: { es: producto.nombre || '', en: producto.nombreEn || '' },
     descripcionCorta: { es: producto.descripcion || '', en: producto.descripcionEn || '' },
-    composicion: { es: producto.composicion || '', en: '' },
+    composicion: { es: producto.composicion || '', en: producto.composicionEn || '' },
+    cuidados: { es: producto.cuidados || '', en: producto.cuidadosEn || '' },
+    // `cuidadoIds`, `disenadoEn`, `fabricadoEn`, `tinturaEstampacion` y `origenTejido`
+    // ya vienen con la forma correcta desde `adaptarProductoAdmin`, así que los hereda
+    // el spread de arriba.
     categoriaId: delPanel?.id || '',
     coleccion: producto.coleccion?.code || '',
+    colorIds,
+    tallas,
     // `precio` llega como decimal en cadena ("100.00"); el input lo quiere tal cual.
     precio: producto.precio ?? '',
   };
@@ -155,8 +165,18 @@ export function formularioAApi(f, { familiaId, publicadoEn, categoriaId } = {}) 
     nombreEn: typeof f.nombre === 'object' ? f.nombre.en : undefined,
     descripcion: typeof f.descripcionCorta === 'object' ? f.descripcionCorta.es : f.descripcionCorta,
     descripcionEn: typeof f.descripcionCorta === 'object' ? f.descripcionCorta.en : undefined,
-    // El modelo tiene UNA composición, no una por idioma.
+    // La composición ya es bilingüe en el modelo (`composition` / `composition_en`).
     composicion: typeof f.composicion === 'object' ? f.composicion.es : f.composicion,
+    composicionEn: typeof f.composicion === 'object' ? f.composicion.en : undefined,
+    // Iconos de cuidado: se mandan sus CÓDIGOS ('wash_40'), y el texto libre aparte.
+    cuidadoIds: f.cuidadoIds,
+    cuidados: typeof f.cuidados === 'object' ? f.cuidados?.es : f.cuidados,
+    cuidadosEn: typeof f.cuidados === 'object' ? f.cuidados?.en : undefined,
+    // Los cuatro «orígenes», tal cual ({es, en}); `serializarProductoAdmin` los reparte.
+    disenadoEn: f.disenadoEn,
+    fabricadoEn: f.fabricadoEn,
+    tinturaEstampacion: f.tinturaEstampacion,
+    origenTejido: f.origenTejido,
     tipo: f.tipo,
     estado: f.estado,
     // `design_code` es OBLIGATORIO en el modelo (no admite vacío) y el formulario ya lo
@@ -261,6 +281,134 @@ async function sincronizarImagenes(productoId, imagenes = [], archivosPorUrl = {
 }
 
 /**
+ * Deja los colores, tallas y stock del producto como los dejó el formulario.
+ *
+ * Es el tercer paso del guardado, y el que faltaba entero: el formulario editaba colores,
+ * tallas y stock y no se guardaba nada, porque en el catálogo **no son campos de
+ * `Product`**. Cuelgan de dos modelos más:
+ *
+ *     Product → Colorway (un color, dueño del SKU) → Variant (una talla, dueña del stock)
+ *
+ * Además, la tabla `Color` estaba vacía, así que cada color de la lista del panel se crea
+ * la primera vez que se usa (`asegurarColor`).
+ *
+ * Un colorway cuyo color ya no está seleccionado se DESACTIVA (`is_active: false`) en vez
+ * de borrarse: su SKU puede estar en pedidos antiguos, igual que archivar en vez de
+ * borrar un producto.
+ *
+ * @param {string} productoId
+ * @param {{colores?: object[], colorIds?: string[], tallas?: {talla: string, stock: number}[]}[]} pestanas
+ *   Una por pestaña de «variante de color» del formulario.
+ * @param {object[]} [previos] `producto.colorways` tal como los devolvió la API.
+ * @returns {Promise<{colores: number, variantes: number, desactivados: number, avisos: string[]}>}
+ *   Nunca lanza: el producto ya está guardado cuando se llama a esto.
+ */
+async function sincronizarColorways(productoId, pestanas = [], previos = []) {
+  const resumen = { colores: 0, variantes: 0, desactivados: 0, avisos: [] };
+
+  const porColorId = new Map(previos.map((cw) => [cw.color, cw]));
+  const vigentes = new Set();
+  let posicion = 0;
+
+  for (const pestana of pestanas) {
+    const seleccionados = pestana?.colores?.length
+      ? pestana.colores
+      : (pestana?.colorIds || []).map((id) => ({ id }));
+    const tallasDePestana = (pestana?.tallas || []).filter((t) => t?.talla);
+
+    if (!seleccionados.length) {
+      if (tallasDePestana.length) {
+        resumen.avisos.push('las tallas necesitan un color: el stock no se ha guardado en esa pestaña');
+      }
+      continue;
+    }
+
+    for (const [indice, colorPanel] of seleccionados.entries()) {
+      const color = await asegurarColor(colorPanel);
+      if (!color) {
+        resumen.avisos.push(`no se pudo crear el color «${colorPanel?.id}»`);
+        continue;
+      }
+
+      let colorway = porColorId.get(color.id);
+      try {
+        if (colorway) {
+          if (!colorway.is_active) await apiColorways.actualizar(colorway.id, { is_active: true });
+        } else {
+          colorway = await apiColorways.crear({
+            product: productoId, color: color.id, position: posicion, is_active: true,
+          });
+          resumen.colores += 1;
+        }
+      } catch (error) {
+        resumen.avisos.push(`color «${colorPanel?.id}»: ${error?.firstDetail ?? error?.message ?? 'no se pudo guardar'}`);
+        continue;
+      }
+      vigentes.add(colorway.id);
+      posicion += 1;
+
+      // El stock es de UN color concreto. Si la pestaña tiene varios, repartir la misma
+      // cifra entre todos inventaría inventario que no existe: se aplica al primero y los
+      // demás se crean a cero, dicho en voz alta.
+      const soloPrimero = indice > 0;
+      if (soloPrimero && tallasDePestana.some((t) => Number(t.stock) > 0)) {
+        resumen.avisos.push(
+          `«${colorPanel?.id}» se ha creado con las mismas tallas pero a 0: el stock que escribiste es de un solo color`
+        );
+      }
+
+      const previasDelColorway = new Map(
+        (colorway.variants || []).map((v) => [v.size_detail?.code ?? v.size, v])
+      );
+
+      for (const [orden, fila] of tallasDePestana.entries()) {
+        const talla = await asegurarTalla(fila.talla, orden);
+        if (!talla) {
+          resumen.avisos.push(`no se pudo crear la talla «${fila.talla}»`);
+          continue;
+        }
+        const stock = soloPrimero ? 0 : Math.max(0, Number(fila.stock) || 0);
+        const previa = previasDelColorway.get(fila.talla);
+        try {
+          if (previa) {
+            await apiVariantes.actualizar(previa.id, { stock, is_active: true });
+          } else {
+            await apiVariantes.crear({ colorway: colorway.id, size: talla.id, stock, is_active: true });
+          }
+          resumen.variantes += 1;
+        } catch (error) {
+          resumen.avisos.push(`talla ${fila.talla}: ${error?.firstDetail ?? error?.message ?? 'no se pudo guardar'}`);
+        }
+      }
+
+      // Tallas que ya no están en el formulario: se desactivan, no se borran (pueden
+      // aparecer en pedidos antiguos).
+      const tallasVigentes = new Set(tallasDePestana.map((t) => t.talla));
+      for (const [codigo, variante] of previasDelColorway) {
+        if (tallasVigentes.has(codigo) || !variante.is_active) continue;
+        try {
+          await apiVariantes.actualizar(variante.id, { is_active: false });
+        } catch {
+          // Que no se pueda desactivar una talla no invalida el resto del guardado.
+        }
+      }
+    }
+  }
+
+  for (const colorway of previos) {
+    if (vigentes.has(colorway.id) || !colorway.is_active) continue;
+    try {
+      await apiColorways.actualizar(colorway.id, { is_active: false });
+      resumen.desactivados += 1;
+    } catch {
+      // Ídem: informativo, no bloqueante.
+    }
+  }
+
+  return resumen;
+}
+
+/**
  * Crea o actualiza. Devuelve `{ok, producto|mensaje}` en vez de lanzar, para que la
  * pantalla decida qué enseñar.
  *
@@ -271,9 +419,14 @@ async function sincronizarImagenes(productoId, imagenes = [], archivosPorUrl = {
  * @param {string} [opciones.publicadoEn]
  * @param {{id: string, url: string}[]} [opciones.imagenesPrevias] Las fotos que la ficha
  *   ya tenía (`producto.imagenesDetalle`), para borrar las que se hayan quitado.
+ * @param {object[]} [opciones.pestanasColor] Todas las pestañas de «variante de color»
+ *   del formulario. Por defecto, solo la del propio `formulario`.
+ * @param {object[]} [opciones.colorwaysPrevios] `producto.colorways` de la API, para no
+ *   duplicar los que ya existen.
  */
 export async function guardarProducto(formulario, {
   id, familiaId, publicadoEn, familiaPorDefecto, categoriaPanel, imagenesPrevias = [],
+  pestanasColor, colorwaysPrevios = [],
 } = {}) {
   const esBorrador = formulario.estado !== 'Activo';
 
@@ -393,12 +546,30 @@ export async function guardarProducto(formulario, {
     fotos = { subidas: 0, borradas: 0, fallidas: [error?.message ?? 'error inesperado con las fotos'] };
   }
 
+  // Colores, tallas y stock: viven en `Colorway`/`Variant`, no en `Product`, así que son
+  // su propia tanda de peticiones. Como las fotos, un fallo aquí no invalida un producto
+  // que ya está guardado.
+  let inventario = { colores: 0, variantes: 0, desactivados: 0, avisos: [] };
+  try {
+    inventario = await sincronizarColorways(
+      producto.id,
+      pestanasColor || [formulario],
+      colorwaysPrevios
+    );
+  } catch (error) {
+    inventario = {
+      colores: 0, variantes: 0, desactivados: 0,
+      avisos: [error?.message ?? 'error inesperado con los colores y tallas'],
+    };
+  }
+
   return {
     ok: true,
     producto,
     perdidos: camposQueNoSeGuardan(formulario),
     rellenado,
     fotos,
+    inventario,
     categoriaFallida,
   };
 }

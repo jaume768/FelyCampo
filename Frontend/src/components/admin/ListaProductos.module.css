@@ -134,6 +134,15 @@ button.publicarBotonPublicada:disabled {
   gap: var(--spacing-3);
 }
 
+/* Eliminar es irreversible, a diferencia de Editar y Duplicar: se distingue por color
+   para que no se pulse por inercia al ir a por el de al lado. */
+.filaAcciones .accionEliminar {
+  color: var(--color-rojo);
+}
+.filaAcciones .accionEliminar:hover {
+  color: var(--color-rojo-oscuro);
+}
+
 .iconoAnadir {
   vertical-align: text-bottom;
 }

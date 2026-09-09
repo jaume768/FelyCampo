@@ -7,6 +7,8 @@ pública, el panel necesita ver borradores y archivados.
 
 import django_filters as filters
 from django.db.models import Prefetch, Q
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+from rest_framework.response import Response
 
 from apps.adminapi.viewsets import AdminModelViewSet
 
@@ -196,3 +198,54 @@ class AdminProductViewSet(AdminModelViewSet):
 
     def perform_destroy(self, instance):
         instance.archive()
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "force",
+                bool,
+                description=(
+                    "Borrar de verdad la fila en vez de archivarla. Se ignora —y el "
+                    "producto se archiva igual— si alguna línea de pedido lo referencia."
+                ),
+            )
+        ],
+        responses={200: None, 204: None},
+    )
+    def destroy(self, request, *args, **kwargs):
+        """
+        Sin `?force=1`: ARCHIVA (comportamiento de siempre, ADMIN_API_PLAN.md D8).
+
+        Con `?force=1`: borra la fila **solo si nadie la ha comprado nunca**. Si hay
+        líneas de pedido colgando de alguna de sus variantes, se archiva igualmente y se
+        dice por qué: `OrderLine.variant` es `SET_NULL`, así que un borrado a lo bruto
+        dejaría los pedidos antiguos sin enlace al producto. El panel necesitaba poder
+        quitar de en medio las pruebas y los borradores, que es el caso real, sin abrir la
+        puerta a romper el histórico.
+        """
+        instance = self.get_object()
+        forzar = str(request.query_params.get("force", "")).lower() in ("1", "true", "yes")
+
+        if not forzar:
+            self.perform_destroy(instance)
+            return Response(status=204)
+
+        from apps.orders.models import OrderLine
+
+        vendido = OrderLine.objects.filter(variant__colorway__product=instance).exists()
+        if vendido:
+            instance.archive()
+            return Response(
+                {
+                    "deleted": False,
+                    "archived": True,
+                    "reason": (
+                        "El producto aparece en pedidos ya realizados, así que se ha "
+                        "archivado en vez de borrarse: borrarlo dejaría esos pedidos sin "
+                        "el producto que se vendió."
+                    ),
+                }
+            )
+
+        instance.delete()
+        return Response({"deleted": True, "archived": False, "reason": ""})

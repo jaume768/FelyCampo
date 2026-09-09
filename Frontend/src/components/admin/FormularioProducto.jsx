@@ -785,7 +785,16 @@ function FormularioProducto({
           imagen: v.imagenes[0] || '',
           imagenes: v.imagenes,
           ...(campos.tallas && { tallas: v.tallas }),
-          ...(campos.colores && { colorIds: v.colorIds, estampadoId: v.estampadoId || undefined }),
+          // `colores` además de `colorIds`: para crear la fila de `Color` que falte hace
+          // falta su nombre y su hex, no solo el código. `coloresDisponibles` incluye los
+          // añadidos en esta misma sesión, que no están en `coloresMock`.
+          ...(campos.colores && {
+            colorIds: v.colorIds,
+            colores: v.colorIds
+              .map((id) => coloresDisponibles.find((c) => c.id === id))
+              .filter(Boolean),
+            estampadoId: v.estampadoId || undefined,
+          }),
           ...(esRaiz && esVendible && { lookVinculado: lookVinculado || undefined, resenas: resenasVinculadas }),
           // `design_code` es ÚNICO dentro de la familia (y entra en el slug, que es
           // único global). Los 4 últimos dígitos de Date.now() se repiten cada 10 s, así

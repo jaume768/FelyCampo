@@ -107,11 +107,24 @@
 }
 
 .tarjetaAcciones {
+  display: flex;
+  gap: var(--spacing-2);
   padding: 0 var(--spacing-3) var(--spacing-3);
 }
 
 .tarjetaAcciones > * {
-  width: 100%;
+  flex: 1;
+}
+
+/* Eliminar es irreversible: se distingue de Duplicar, que está justo al lado. */
+.tarjetaAcciones .accionEliminar {
+  color: var(--color-rojo);
+  border-color: var(--color-rojo);
+}
+.tarjetaAcciones .accionEliminar:hover {
+  color: var(--color-fondo);
+  background: var(--color-rojo);
+  border-color: var(--color-rojo);
 }
 
 .nombre {
