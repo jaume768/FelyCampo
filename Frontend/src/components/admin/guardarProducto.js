@@ -46,23 +46,35 @@ import {
   productos as apiProductos, imagenesProducto as apiImagenes, serializarProductoAdmin,
   asegurarCategoria, describirErrorApi,
 } from '@/lib/api/adminCatalog';
+import { slugify } from '@/lib/slugify';
 import { ApiError } from '@/lib/api/errors';
 import { subirMedia, motivoDeRechazo } from '@/lib/api/adminMedia';
 
 const ES_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Campos del formulario que hoy no tienen sitio en el modelo. */
-export const CAMPOS_SIN_MODELO = [
-  'disenadoEn',
-  'fabricadoEn',
-  'tinturaEstampacion',
-  'origenTejido',
-  'cuidadoIds',
-  'prendas',
-  'estampadoId',
-  'lookVinculado',
-  'resenas',
-];
+/**
+ * Campos del formulario que hoy no se guardan, y cómo se llaman de cara al usuario.
+ *
+ * `tallas` y `colorIds` son un caso aparte y por eso están aquí aunque el catálogo SÍ los
+ * tenga: viven en `Colorway`/`Variant`, que el panel todavía no crea. Faltaban en esta
+ * lista, así que se rellenaban las tallas y el stock y se perdían sin que nadie lo
+ * dijera — y al reabrir la ficha aparecían vacías, como si el guardado hubiera fallado.
+ */
+export const ETIQUETA_CAMPO_SIN_MODELO = {
+  disenadoEn: 'Diseñado en',
+  fabricadoEn: 'Fabricado en',
+  tinturaEstampacion: 'Tintura y estampación',
+  origenTejido: 'Origen del tejido',
+  cuidadoIds: 'Iconos de cuidado',
+  prendas: 'Prendas y sus SKU',
+  estampadoId: 'Estampado',
+  lookVinculado: 'Look de pasarela',
+  resenas: 'Reseñas',
+  tallas: 'Tallas y stock',
+  colorIds: 'Colores',
+};
+
+export const CAMPOS_SIN_MODELO = Object.keys(ETIQUETA_CAMPO_SIN_MODELO);
 
 /**
  * ¿Qué campos rellenados se van a perder al guardar? Para poder decirlo, no callarlo.
@@ -77,7 +89,53 @@ export function camposQueNoSeGuardan(formulario) {
       return Object.values(valor).some((v) => String(v ?? '').trim());
     }
     return Boolean(valor);
-  });
+  }).map((campo) => ETIQUETA_CAMPO_SIN_MODELO[campo] || campo);
+}
+
+/**
+ * API → formulario. El camino de vuelta de `formularioAApi`, que no existía: el modal de
+ * edición recibía el producto adaptado tal cual y leía claves que ese objeto no tiene.
+ *
+ * Los nombres NO coinciden, y por eso al editar salía casi todo en blanco aunque el dato
+ * estuviera guardado (comprobado contra el servidor: `description`, `composition`,
+ * `family` y `categories` venían rellenos):
+ *
+ *   el formulario lee   │ el producto adaptado trae
+ *   ────────────────────┼──────────────────────────────────────────────
+ *   descripcionCorta    │ descripcion / descripcionEn
+ *   composicion.es      │ composicion (una cadena, no un {es, en})
+ *   categoriaId         │ categoriaIds (UUID) — y el <select> usa ids
+ *                       │ del panel ('cat7'), así que hay que traducir
+ *   coleccion (código)  │ coleccion (un objeto {id, nombre, code})
+ *   nombre.en           │ nombreEn — se perdía al guardar: el formulario
+ *                       │ mandaba '' y machacaba el `name_en` guardado
+ *
+ * `tallas` y `colorIds` no se rellenan porque no son de `Product`: viven en
+ * `Colorway`/`Variant`, que el panel todavía no crea (ver la auditoría de arriba).
+ *
+ * @param {object} producto Salida de `adaptarProductoAdmin`.
+ * @param {object[]} [categoriasPanel] Las de `CategoriasProvider` para este tipo, para
+ *   poder preseleccionar la que corresponde en el desplegable.
+ * @returns {object} La «semilla» que espera `FormularioProducto`.
+ */
+export function productoAFormulario(producto, categoriasPanel = []) {
+  if (!producto) return producto;
+
+  // El puente entre la `Category` real y la del panel es el slug, igual que al guardar
+  // (`asegurarCategoria`). Comparar por nombre fallaba con «Faldas» vs «faldas ».
+  const slugsGuardados = new Set((producto.categorias || []).map((c) => c.slug));
+  const delPanel = categoriasPanel.find((c) => slugsGuardados.has(slugify(c.nombre || '')));
+
+  return {
+    ...producto,
+    nombre: { es: producto.nombre || '', en: producto.nombreEn || '' },
+    descripcionCorta: { es: producto.descripcion || '', en: producto.descripcionEn || '' },
+    composicion: { es: producto.composicion || '', en: '' },
+    categoriaId: delPanel?.id || '',
+    coleccion: producto.coleccion?.code || '',
+    // `precio` llega como decimal en cadena ("100.00"); el input lo quiere tal cual.
+    precio: producto.precio ?? '',
+  };
 }
 
 /**

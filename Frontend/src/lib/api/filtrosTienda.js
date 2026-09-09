@@ -10,22 +10,29 @@
  * Slug de la ruta del frontend → slug de `Family` en el backend.
  *
  * **Decidido**: el eje del menú de Tienda es `Family` (tipo de prenda), no `Category`
- * (ocasión: fiesta/novia/outlet). Solo `vestidos` y `faldas` coinciden literalmente; las
- * otras dos necesitan traducción, y `zapatos`/`accesorios` **no tienen `Family` todavía**
- * en el backend: sus rutas existen y devuelven vacío hasta que se creen. Ver
- * `docs/CONTRATO.md`.
+ * (ocasión: fiesta/novia/outlet). Ojo con esa decisión al usar el panel: asignar la
+ * CATEGORÍA «Tops y Camisas» a un producto no lo mete en `/tienda/tops-y-camisetas` —
+ * quien manda ahí es la **familia**.
+ *
+ * Los slugs son los que tiene la tabla `catalog_family` de verdad, comprobados contra el
+ * servidor. Antes había tres inventados (`tops`, `chaquetas`, y `zapatos`/`accesorios`
+ * marcadas como inexistentes): la ruta filtraba por una familia que no existe y el
+ * listado salía siempre vacío por mucho que el producto estuviera publicado.
  */
 export const FAMILIA_POR_RUTA = {
   vestidos: 'vestidos',
   faldas: 'faldas',
-  'tops-y-camisetas': 'tops',
-  'chaquetas-y-abrigos': 'chaquetas',
-  // Sin Family en el backend: el listado saldrá vacío, no roto.
-  zapatos: null,
-  accesorios: null,
+  'tops-y-camisetas': 'tops-y-camisas',
+  'chaquetas-y-abrigos': 'chaquetas-y-abrigos',
+  zapatos: 'zapatos',
+  accesorios: 'accesorios',
 };
 
-/** Rutas de categoría cuya `Family` aún no existe — para poder avisar en la interfaz. */
+/**
+ * Rutas cuya `Family` no existe en el backend — para poder avisar en la interfaz en vez
+ * de enseñar un listado vacío sin explicación. Hoy no hay ninguna: las ocho familias
+ * existen. Se deja porque el mapa de arriba puede volver a crecer antes que la tabla.
+ */
 export const RUTAS_SIN_FAMILIA = Object.entries(FAMILIA_POR_RUTA)
   .filter(([, familia]) => familia === null)
   .map(([ruta]) => ruta);

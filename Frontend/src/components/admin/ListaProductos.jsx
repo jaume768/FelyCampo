@@ -27,7 +27,7 @@ import {
 } from '@/components/admin/mockData';
 import { useProductosAdmin, useAccionesProductoAdmin } from './useProductosAdmin';
 import { STATUS_POR_ESTADO, ESTADO_POR_STATUS, slugCategoriaPanel } from '@/lib/api/adminCatalog';
-import { guardarProducto } from './guardarProducto';
+import { guardarProducto, productoAFormulario } from './guardarProducto';
 import { useFamiliasAdmin } from './useFamiliasAdmin';
 import { formatearImporte } from '@/lib/precio';
 import { calcularEstadoPublicacion, CONFIG_ESTADO_PUBLICACION } from './EstadoPublicacionBadge';
@@ -487,13 +487,27 @@ function ListaProductosContenido({
       );
     }
     if (perdidos?.length) {
-      mostrarToast(`Sin guardar (no existen en el catálogo): ${perdidos.join(', ')}.`);
+      mostrarToast(`Esto NO se ha guardado (el catálogo todavía no lo admite): ${perdidos.join(', ')}.`);
     }
   }
 
   function abrirEdicion(producto) {
     setProductoEnEdicion(producto);
   }
+
+  // El producto adaptado NO tiene la forma que lee el formulario (`descripcionCorta`,
+  // `composicion.es`, `categoriaId` del panel…): sin esta traducción el modal de edición
+  // salía casi vacío aunque el dato estuviera guardado. `productoEnEdicion` se conserva
+  // sin tocar porque `guardarEdicion` necesita su `id` y sus `imagenesDetalle`.
+  const categoriasDelTipo = categorias[tipoFijo || filtroTipo] || [];
+  const semillaEdicion = useMemo(
+    () => productoAFormulario(productoEnEdicion, categoriasDelTipo),
+    [productoEnEdicion, categoriasDelTipo]
+  );
+  const semillaDuplicar = useMemo(
+    () => productoAFormulario(productoParaDuplicar, categoriasDelTipo),
+    [productoParaDuplicar, categoriasDelTipo]
+  );
 
   // EDICIÓN REAL contra PATCH /admin/products/{id}/.
   async function guardarEdicion(productoOProductos) {
@@ -929,11 +943,11 @@ function ListaProductosContenido({
       </ModalOverlay>
 
       <ModalOverlay abierto={!!productoParaDuplicar} onCerrar={() => setProductoParaDuplicar(null)}>
-        <FormularioProducto productoBase={productoParaDuplicar} onGuardado={crearProducto} />
+        <FormularioProducto productoBase={semillaDuplicar} onGuardado={crearProducto} />
       </ModalOverlay>
 
       <ModalOverlay abierto={!!productoEnEdicion} onCerrar={() => setProductoEnEdicion(null)}>
-        <FormularioProducto productoExistente={productoEnEdicion} onGuardado={guardarEdicion} />
+        <FormularioProducto productoExistente={semillaEdicion} onGuardado={guardarEdicion} />
       </ModalOverlay>
 
       <ConfirmarBorrado

@@ -183,6 +183,16 @@ const CAMPOS_TIPO = {
   },
 };
 
+/**
+ * Semilla de un campo bilingüe. Acepta el `{es, en}` que produce `productoAFormulario` y
+ * también una cadena suelta (así sigue valiendo el mock, que guardaba solo el español).
+ * @param {string|{es?: string, en?: string}|null|undefined} valor
+ */
+function textoBilingue(valor) {
+  if (valor && typeof valor === 'object') return { es: valor.es || '', en: valor.en || '' };
+  return { es: valor || '', en: '' };
+}
+
 function FormularioProducto({
   productoExistente, productoBase, tipoInicial, categoriaInicial, onGuardado,
 }) {
@@ -225,8 +235,8 @@ function FormularioProducto({
   const { familias, cargando: cargandoFamilias } = useFamiliasAdmin(tipo);
   const [categoriaId, setCategoriaId] = useState(semilla?.categoriaId || categoriaInicial || '');
   const [idioma, setIdioma] = useState('es');
-  const [nombre, setNombre] = useState({ es: semilla?.nombre || '', en: '' });
-  const [descripcion, setDescripcion] = useState({ es: semilla?.descripcionCorta || '', en: '' });
+  const [nombre, setNombre] = useState(textoBilingue(semilla?.nombre));
+  const [descripcion, setDescripcion] = useState(textoBilingue(semilla?.descripcionCorta));
   const [estado, setEstado] = useState(semilla?.estado || 'Borrador');
   const [familiaId, setFamiliaId] = useState(semilla?.familiaId || '');
   // Fecha desde la que se publica un producto programado. El backend la exige (y futura)
@@ -337,7 +347,7 @@ function FormularioProducto({
   // comparte el `idioma` de "Datos comunes" porque son secciones
   // independientes del formulario).
   const [idiomaComposicion, setIdiomaComposicion] = useState('es');
-  const [composicion, setComposicion] = useState({ es: semilla?.composicion?.es || '', en: semilla?.composicion?.en || '' });
+  const [composicion, setComposicion] = useState(textoBilingue(semilla?.composicion));
   const [disenadoEn, setDisenadoEn] = useState({ es: semilla?.disenadoEn?.es || '', en: semilla?.disenadoEn?.en || '' });
   const [fabricadoEn, setFabricadoEn] = useState({ es: semilla?.fabricadoEn?.es || '', en: semilla?.fabricadoEn?.en || '' });
   const [tinturaEstampacion, setTinturaEstampacion] = useState({ es: semilla?.tinturaEstampacion?.es || '', en: semilla?.tinturaEstampacion?.en || '' });
