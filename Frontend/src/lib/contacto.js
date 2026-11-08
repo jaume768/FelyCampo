@@ -8,12 +8,12 @@
 // PARA EL PROGRAMADOR: al conectar la base de datos, solo hay que cambiar
 // obtenerContacto(). Ver docs/ADMIN.md.
 
-import { CONTACTO } from '@/datos/contacto';
+import { contenido } from './contenido';
 
 export const ID_PAGINA_CONTACTO = 'contacto';
 
 export function obtenerContacto() {
-  return CONTACTO;
+  return contenido('contacto');
 }
 
 // Las redes que puede tener el pie, en este orden.
@@ -27,7 +27,7 @@ export const REDES_SOCIALES = [
 ];
 
 // Las que tienen enlace: [{ clave, nombre, url }].
-export function redesConEnlace(contacto = CONTACTO) {
+export function redesConEnlace(contacto = contenido('contacto')) {
   return REDES_SOCIALES
     .filter(({ clave }) => String(contacto.redes[clave] || '').trim())
     .map(({ clave, nombre }) => ({ clave, nombre, url: contacto.redes[clave].trim() }));

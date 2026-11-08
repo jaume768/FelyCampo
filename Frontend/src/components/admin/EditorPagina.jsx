@@ -44,7 +44,8 @@ import { usePagina } from './Paginas';
 import { useToast } from './Toast';
 import styles from './EditorPagina.module.css';
 
-const DEMO = ' (demo: se guardará de verdad al conectar la base de datos)';
+// Ya se guarda en la base de datos (ContenidoAdmin.jsx): sin coletilla «demo».
+const DEMO = '';
 
 const IDIOMAS = [['es', 'Español'], ['en', 'English']];
 
@@ -261,8 +262,8 @@ function EditorPagina({
         <div className={styles.barraIzquierda}>
           {/* Volver al listado: un botón con borde, bien visible (el mismo
               BotonVolver del resto del panel), que dice adónde vuelve.
-              Es un Link (sin recargar): sin base de datos, recargar
-              perdería lo publicado. */}
+              Es un Link (sin recargar): no hace falta volver a cargar
+              el contenido del panel. */}
           {volver && (
             <BotonVolver href={volver} enBarra>
               {`Volver a ${migas.split(' · ').pop()}`}

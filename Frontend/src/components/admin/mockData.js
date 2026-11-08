@@ -824,7 +824,9 @@ export function codigoTemporada(temporada) {
 // (Los looks de ejemplo de Runway y Novias que había aquí ya no hacen
 // falta: el menú sale de los datos reales, ver categoriasMock.)
 
-export const categoriasMock = {
+// Función y no constante: lee el contenido de la base de datos, que el
+// panel carga al abrirse (ContenidoAdmin.jsx), después de importar esto.
+export const categoriasMock = () => ({
   // Las 5 categorías reales (lib/pretAPorter.js), igual que PretAPorter.jsx.
   'pret-a-porter': categoriasAdminPretAPorter(),
   atelier: [
@@ -839,7 +841,7 @@ export const categoriasMock = {
   // mismas que enseña /atelier/fiesta). AtelierFiesta.jsx las mantiene al
   // día mientras se editan en /admin/colecciones/fiesta.
   fiesta: categoriasAdminFiesta(obtenerColeccionesFiesta()),
-};
+});
 
 // ---------- STOCK ----------
 // Stock general, sin desglose por ubicación (se quitó el antiguo

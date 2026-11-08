@@ -14,16 +14,19 @@ import { SplitMedia } from '@/components/layout';
 import { enlaceEn, obtenerLanding, textoEn } from '@/lib/landing';
 import { metadataPagina, textosSeo } from '@/lib/seo';
 import { setRequestLocale } from 'next-intl/server';
+import { cargarContenido } from '@/lib/contenidoServidor';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/atelier' });
 }
 
 export default async function Pagina({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   const { atelier } = obtenerLanding();
   const pieza = (bloque) => ({
     src: bloque.imagen,

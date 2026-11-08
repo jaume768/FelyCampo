@@ -8,7 +8,7 @@
 // PARA EL PROGRAMADOR: al conectar la base de datos, solo hay que cambiar
 // obtenerSede() / obtenerSedes(). Ver docs/ADMIN.md.
 
-import { SEDES } from '@/datos/ateliers';
+import { contenido } from './contenido';
 
 export const IDS_SEDES = ['salamanca', 'madrid', 'oviedo'];
 
@@ -18,11 +18,11 @@ export const editorSede = (id) => `/admin/ateliers/${id}`;
 export const rutaWebSede = (id) => `/atelier-fiesta/${id}`;
 
 export function obtenerSede(id) {
-  return SEDES[id];
+  return contenido('sedes')[id];
 }
 
 export function obtenerSedes() {
-  return IDS_SEDES.map((id) => SEDES[id]);
+  return IDS_SEDES.map((id) => contenido('sedes')[id]);
 }
 
 // Límites para que el diseño no se rompa: las fotos del final van en una

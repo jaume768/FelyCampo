@@ -15,7 +15,7 @@
    ?previa=pret-a-porter-producto se pinta el borrador del admin
    (PreviaFichaTienda.jsx); sin indexar. */
 
-import dynamic from 'next/dynamic';
+import cargaDiferida from 'next/dynamic';
 import { permanentRedirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -26,9 +26,17 @@ import { ID_PREVIA_PRODUCTO, buscarProductoPretAPorter } from '@/lib/pretAPorter
 import { PARAMETRO_PREVIA } from '@/lib/previa';
 import { metadataPagina, recortar } from '@/lib/seo';
 import FichaTiendaCuerpo from './FichaTiendaCuerpo';
+import { cargarContenido } from '@/lib/contenidoServidor';
+
+// Dinámica a propósito: lee la URL (?previa= de la vista previa del admin,
+// ?coleccion=…). Las páginas no se generan en el build (layout.js), así que
+// Next ya no lo descubre solo y, sin esto, fallaba en producción con
+// DYNAMIC_SERVER_USAGE. Sigue siendo rápida: el contenido sale de la caché
+// de datos (cargarContenido), solo se renderiza en cada visita.
+export const dynamic = 'force-dynamic';
 
 // Solo se carga al abrir la vista previa (no pesa en las fichas normales).
-const PreviaFichaTienda = dynamic(() => import('./PreviaFichaTienda'));
+const PreviaFichaTienda = cargaDiferida(() => import('./PreviaFichaTienda'));
 
 // Páginas de listado reales (Prêt-à-porter + categorías, Atelier + sus
 // 3 secciones) — mismo criterio que RUTAS_CON_PRODUCT_HERO en
@@ -42,8 +50,9 @@ const enPrevia = async (searchParams) => (await searchParams)?.[PARAMETRO_PREVIA
 export async function generateMetadata({ params, searchParams }) {
   const { locale, producto: slug } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   if (await enPrevia(searchParams)) return { robots: { index: false, follow: false } };
-  const { producto } = buscarProductoPretAPorter(slug, tiendaProductos);
+  const { producto } = buscarProductoPretAPorter(slug, tiendaProductos());
   if (!producto) return {};
 
   const esEs = locale === 'es';
@@ -70,6 +79,7 @@ export async function generateMetadata({ params, searchParams }) {
 export default async function FichaProducto({ params, searchParams }) {
   const { locale, producto: slug } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   const t = await getTranslations('producto');
 
   // "Sigue explorando" (debajo de ProductosRecomendados): vuelve a la
@@ -109,16 +119,16 @@ export default async function FichaProducto({ params, searchParams }) {
   };
 
   if (await enPrevia(searchParams)) {
-    return <PreviaFichaTienda locale={locale} textos={textos} publicados={tiendaProductos} hrefSeguirExplorando={hrefSeguirExplorando} />;
+    return <PreviaFichaTienda locale={locale} textos={textos} publicados={tiendaProductos()} hrefSeguirExplorando={hrefSeguirExplorando} />;
   }
 
-  const { producto, redirigirA } = buscarProductoPretAPorter(slug, tiendaProductos);
+  const { producto, redirigirA } = buscarProductoPretAPorter(slug, tiendaProductos());
   if (redirigirA) permanentRedirect(`/${locale}/pret-a-porter/${redirigirA}`);
   if (!producto) permanentRedirect(`/${locale}/pret-a-porter`); // slug inexistente: al listado (ninguna URL en 404)
 
   // Mismo catálogo, excluyendo el producto actual — hasta 10, la misma
   // cantidad que espera ProductosRecomendados en su carrusel.
-  const relacionados = tiendaProductos.filter((candidato) => candidato.nombre !== producto.nombre).slice(0, 10);
+  const relacionados = tiendaProductos().filter((candidato) => candidato.nombre !== producto.nombre).slice(0, 10);
   const descripcion = locale === 'en' && producto.descripcionEn ? producto.descripcionEn : producto.descripcion;
 
   return (

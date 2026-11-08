@@ -15,7 +15,7 @@ import { categoriasMock } from './mockData';
 const CategoriasContext = createContext(null);
 
 function CategoriasProvider({ children }) {
-  const [categorias, setCategorias] = useState(categoriasMock);
+  const [categorias, setCategorias] = useState(categoriasMock);  // (función: useState la llama al montar)
 
   // `datos` acepta un nombre suelto (alta simple, /admin/categorias) o un
   // objeto { nombre, imagen?, numeroLooks?, temporada?, fija?, orden? }

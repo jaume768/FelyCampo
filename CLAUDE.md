@@ -37,29 +37,34 @@ clientes; no es producción.
   formulario de producto conectado) se retiró con la copia vieja. Si hace falta, está en
   el historial de git, antes del commit de la importación.
 
-### Cómo está hecho el frontend de Miriam
+### Cómo funciona ahora (detalle en `docs/CONTENIDO.md`)
 
-- El contenido vive en **`src/datos/*.js`** (16 archivos, 19 exports). Es «sustituto
-  provisional de la base de datos». La web lo lee **solo** a través de funciones
-  `obtener…()` de `src/lib/`.
-- El panel guarda a través de unos pocos proveedores (`components/admin/Paginas.jsx`,
-  `AtelierFiesta.jsx`, `Blog.jsx`, `Runway.jsx`…). Sus acciones `guardar`, `alternar`,
-  `borrar` y `reordenar` son las que tienen que llamar a la API.
-- La validación de campos son funciones puras de `src/lib/` (`campos…()`,
-  `validarExtra…()`), compartidas entre la web y el editor.
+- **Todo el contenido está en la base de datos** (`apps.content`, 19 documentos JSON) y se
+  edita desde el panel. `Frontend/src/datos/` ya no existe: su contenido es la semilla
+  (`backend/apps/content/seed/contenido.json`).
+- **La web** lee con las `obtener…()` de Miriam en `src/lib/`, que sacan los datos de un
+  almacén en memoria (`src/lib/contenido.js`). Ese almacén lo llena
+  **`await cargarContenido()`** en el servidor: **va en toda página, layout y
+  `generateMetadata`**, detrás de `setRequestLocale`. En el navegador lo llena
+  `<ContenidoCliente claves>`, que manda solo lo que necesitan los componentes de cliente.
+  **No leas contenido al importar un módulo**: usa una función o `derivado()`.
+- **El panel** publica con `useDocumentoAdmin(clave)` (`components/admin/ContenidoAdmin.jsx`),
+  que se usa igual que `useState`. Sube las fotos y vídeos nuevos, manda la versión y
+  avisa si hay conflicto.
+- **Formularios** (cita, consulta, newsletter): las rutas de `/api` de Next validan, guardan
+  en `apps.appointments` (`src/lib/backendInterno.js`) y envían los emails. Las bandejas
+  del panel leen de ahí (`lib/solicitudesAdmin.js`, `components/admin/useBandeja.js`).
 - `src/proxy.js` lleva unas 800 redirecciones 301 de la web de WordPress. **No las toques**
   sin leer `Frontend/docs/PUBLICAR.md`.
 
 ## Estado real
 
-- **Backend:** `apps.content` hecho: documentos JSON por sección, versiones con 409,
-  revisiones, aviso de revalidación a Next, `cargar_contenido` e `importar_medios_web`.
-  Los 19 documentos y las 1.494 fotos ya están cargados en la base de datos de desarrollo.
-- **Frontend:** sigue leyendo `src/datos/` (estático). Las rutas de las fotos del
-  contenido ya apuntan a `/media/web/…` (almacén de medios), así que la web funciona
-  igual antes y después de conectarla.
-- **Login hecho** (ver «Acceso del equipo y prelanzamiento»). **El panel todavía no guarda
-  nada**: lo publicado vive en memoria hasta conectarlo a `apps.content`.
+- **El panel modifica todo y se guarda en la base de datos**: páginas, fotos y vídeos,
+  colecciones y looks, blog, Vosotras, ateliers, puntos de venta, contacto, textos de
+  Google, citas, consultas y newsletter. Comprobado de punta a punta en el navegador
+  (`docs/CONTENIDO.md`, «Estado»).
+- **Login y prelanzamiento** hechos (abajo).
+- Pendiente: Substack, recompresión de vídeo y vista previa entre dispositivos.
 - Siguen en el código, sin usar: el catálogo, los pedidos, el stock y Stripe del backend
   (para cuando vuelva la tienda), y el carrito, la wishlist y la cuenta del frontend
   (ocultos, ver `Frontend/docs/ADMIN.md` §6). **No los conectes.**
@@ -182,7 +187,8 @@ misma.
 # --- Backend ---
 docker compose exec backend python manage.py migrate
 docker compose exec backend python manage.py makemigrations
-docker compose exec backend pytest                       # 319 tests, todos en verde
+docker compose exec backend pytest                       # 334 tests, todos en verde
+docker compose restart backend    # runserver tampoco ve los cambios del bind mount en OneDrive
 docker compose exec backend ruff check <rutas> && docker compose exec backend ruff format <rutas>
 docker compose exec backend python manage.py cargar_contenido   # --sobrescribir pisa lo publicado
 docker compose exec backend python manage.py generar_variantes  # versiones 480/960/1600 de las fotos
@@ -191,7 +197,6 @@ docker compose exec backend python manage.py generar_variantes  # versiones 480/
 docker compose restart frontend   # tras cambiar código: en Docker sobre Windows NO recarga solo
 docker compose exec -e NODE_ENV=production frontend npm run build
 docker compose exec frontend npm run storybook           # 6006, no publicado por compose
-node Frontend/scripts/exportar-contenido.mjs backend/apps/content/seed/contenido.json
 ```
 
 **Pasa `ruff format` solo por lo que hayas tocado**, no por `.`: hay archivos de la tienda
@@ -208,10 +213,13 @@ te lo pidan explícitamente**, ni añadas dependencias al frontend por tu cuenta
   formularios darán 404.
 - **Errores uniformes**: `{"error": {"code", "message", "details"}}`
   (`apps/core/exceptions.py`). No devuelvas otro shape.
-- **Contenido = un documento JSON por sección**, con la forma exacta de su export de
-  `src/datos/`. La lista de claves es cerrada (`apps/content/registry.py`, la misma que
-  `Frontend/scripts/exportar-contenido.mjs`). **No partas un documento en tablas** sin
-  decisión explícita: la lógica de Miriam en `src/lib/` cuenta con esa forma.
+- **Contenido = un documento JSON por sección** (la forma de los antiguos `src/datos/`).
+  La lista de claves es cerrada (`apps/content/registry.py`). **No partas un documento en
+  tablas** sin decisión explícita: la lógica de Miriam en `src/lib/` cuenta con esa forma.
+- **Las páginas no se generan en el build** (en Docker no hay API): `generateStaticParams`
+  devuelve `[]` en el layout y cada página se genera en su primera visita y queda en caché.
+  Una página que lea `searchParams` o `headers()` necesita `export const dynamic =
+  'force-dynamic'`, o falla en producción con `DYNAMIC_SERVER_USAGE`.
 - **Publicar exige `version`**; si no coincide, 409 `version_conflict`. Varias personas
   editan a la vez: no lo quites ni lo hagas opcional.
 - **La validación de campos es la de Miriam** (`src/lib/`); el backend valida estructura.
@@ -221,7 +229,8 @@ te lo pidan explícitamente**, ni añadas dependencias al frontend por tu cuenta
   cabecera, `SECURE_SSL_REDIRECT` responde 301 a `https://backend:8000` y cada llamada se
   cuelga 10 s (`docs/DESPLIEGUE.md`).
 - **`REVALIDATE_SECRET` se define una sola vez**, en el `.env` de la raíz, y compose lo
-  pasa a backend y frontend. No lo repitas en `backend/.env*`. Igual con
+  pasa a backend y frontend. No lo repitas en `backend/.env*`. También autentica las
+  llamadas internas de los formularios (`/api/v1/formularios/…`). Igual con
   `SESION_EQUIPO_SECRET`, `PRELANZAMIENTO` y `PRELANZAMIENTO_FECHA` (solo frontend).
 - **OneDrive:** el proyecto vive dentro de una carpeta de OneDrive y, al borrar muchos
   archivos de golpe, OneDrive llegó a **restaurar 209 archivos ya borrados** como

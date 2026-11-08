@@ -55,7 +55,8 @@ import styles from './AdminColeccionesAtelier.module.css';
 
 const NUEVO = 'nuevo';
 // Aviso común: sin base de datos, nada se guarda de verdad todavía.
-const DEMO = ' (demo: se guardará de verdad al conectar la base de datos)';
+// Ya se guarda en la base de datos (ContenidoAdmin.jsx): sin coletilla «demo».
+const DEMO = '';
 
 const fotos = (n) => `${n} ${n === 1 ? 'foto' : 'fotos'}`;
 

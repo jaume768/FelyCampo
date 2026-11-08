@@ -15,16 +15,19 @@ import { obtenerCabecera } from '@/lib/cabeceras';
 import { coleccionParaWeb, coleccionesVisiblesRunway } from '@/lib/runway';
 import styles from './page.module.css';
 import { metadataPagina } from '@/lib/seo';
+import { cargarContenido } from '@/lib/contenidoServidor';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/colecciones-fely-campo' });
 }
 
 export default async function Pagina({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   const t = await getTranslations();
 
   return (

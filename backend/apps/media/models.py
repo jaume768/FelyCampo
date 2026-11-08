@@ -10,21 +10,32 @@ y INTEGRACION.md.
 """
 
 import uuid
+from pathlib import PurePosixPath
 
 from django.conf import settings
 from django.db import models
 from django.db.models import TextField
 from django.db.models.functions import Cast
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import UUIDTimeStampedModel
 
 
 def media_upload_path(instance, filename):
-    del filename  # el nombre real no importa: se genera uno propio para no chocar ni
-    # arrastrar caracteres raros del archivo original (se conserva en original_filename).
+    """
+    `library/<tipo>/<nombre-seo>-<8 hex>.<ext>`. El nombre SEO lo pone quien sube (el
+    panel manda uno descriptivo, como los de las fotos de la web: «fely-campo-…»); si no,
+    el del archivo original. Siempre pasado por `slugify`: minúsculas, sin acentos ni «ñ»
+    (Next no sirve los nombres con «ñ» en NFD) y sin espacios. El sufijo aleatorio evita
+    choques y hace que un archivo nunca se sobrescriba (caché larga en Caddy).
+    """
+    base = slugify(getattr(instance, "nombre_seo", "") or PurePosixPath(filename).stem)[:80]
+    base = base or "fely-campo"
     ext = "webp" if instance.kind == MediaKind.IMAGE else instance.content_type.split("/")[-1]
-    return f"library/{instance.kind}/{uuid.uuid4().hex}.{ext}"
+    if ext == "quicktime":
+        ext = "mov"
+    return f"library/{instance.kind}/{base}-{uuid.uuid4().hex[:8]}.{ext}"
 
 
 def thumbnail_upload_path(instance, filename):

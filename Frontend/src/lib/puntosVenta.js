@@ -7,7 +7,7 @@
 // PARA EL PROGRAMADOR: al conectar la base de datos, solo hay que cambiar
 // obtenerPuntosVenta(). Ver docs/ADMIN.md.
 
-import { PUNTOS_VENTA } from '@/datos/puntosVenta';
+import { contenido } from './contenido';
 import { obtenerSede, ubicacionDe } from './ateliers';
 import { slugify } from './slugify';
 
@@ -27,20 +27,20 @@ export function conDatosDeSede(punto, sedes = obtenerSede) {
 
 // Tal como se guardan (el admin los edita así).
 export function puntosGuardados() {
-  return PUNTOS_VENTA;
+  return contenido('puntos-venta');
 }
 
 // Todos, también los ocultos, con los datos de los ateliers al día (la web
 // y el reparto de citas).
 export function obtenerPuntosVenta() {
-  return PUNTOS_VENTA.map((punto) => conDatosDeSede(punto));
+  return contenido('puntos-venta').map((punto) => conDatosDeSede(punto));
 }
 
 // Los que salen en el mapa de la web (y con su sitio marcado: uno a
 // medio crear, en la vista previa, todavía puede no tenerlo).
 export const tieneUbicacion = (punto) => typeof punto.lat === 'number' && typeof punto.lng === 'number';
 
-export function puntosPublicados(puntos = PUNTOS_VENTA) {
+export function puntosPublicados(puntos = contenido('puntos-venta')) {
   return puntos.filter((punto) => punto.publicado && tieneUbicacion(punto));
 }
 

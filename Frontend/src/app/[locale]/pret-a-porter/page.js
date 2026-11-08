@@ -33,6 +33,7 @@ import { obtenerEditorialPretAPorter } from '@/lib/atelierEditorial';
 import PretAPorterCabecera from './PretAPorterCabecera';
 import styles from './page.module.css';
 import { metadataPagina, textosSeo } from '@/lib/seo';
+import { cargarContenido } from '@/lib/contenidoServidor';
 
 // Foto de pasarela FW27 junto a su producto en la cuadrícula (ver
 // "imagenEditorial" en CuadriculaProductos.jsx): misma ficha al hacer
@@ -41,19 +42,21 @@ import { metadataPagina, textosSeo } from '@/lib/seo';
 // "antes" si va delante del producto en vez de detrás — así decide en qué
 // columna cae cada foto. El orden de la cuadrícula es el de los datos
 // (se cambia arrastrando en /admin/productos/pret-a-porter).
-const PRODUCTOS_CON_PASARELA = tiendaProductos.map((producto) => (producto.fotoPasarela
+const productosConPasarela = () => tiendaProductos().map((producto) => (producto.fotoPasarela
   ? { ...producto, imagenEditorial: producto.fotoPasarela.src, imagenEditorialAntes: Boolean(producto.fotoPasarela.antes) }
   : producto));
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/pret-a-porter' });
 }
 
 export default async function Pagina({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   const t = await getTranslations();
 
   return (
@@ -67,7 +70,7 @@ export default async function Pagina({ params }) {
           petición (no visibles). */}
 
       <CuadriculaProductos
-        productos={PRODUCTOS_CON_PASARELA}
+        productos={productosConPasarela()}
         disposicion="grid"
         // Cabecera (CabeceraSeccion) comentada a petición: sin "tituloKey"
         // CuadriculaProductos no la pinta (ni el botón de filtros, que va

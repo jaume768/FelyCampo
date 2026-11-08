@@ -15,12 +15,13 @@ import {
 } from 'react';
 import { categoriasAdminPretAPorter, obtenerProductosPretAPorter, slugProducto } from '@/lib/pretAPorter';
 import { useCategorias } from './Categorias';
+import { useDocumentoAdmin } from './ContenidoAdmin';
 
 const PretAPorterContext = createContext(null);
 
 function PretAPorterProvider({ children }) {
   // Copia profunda: el admin nunca muta los objetos que lee la web.
-  const [productos, setProductos] = useState(() => structuredClone(obtenerProductosPretAPorter()));
+  const [productos, setProductos] = useDocumentoAdmin('productos-pret-a-porter');
   const { reordenarCategorias } = useCategorias();
 
   // Submenú del menú lateral: las 5 categorías, con su número de productos.

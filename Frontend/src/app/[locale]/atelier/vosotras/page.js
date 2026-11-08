@@ -23,23 +23,29 @@ import { CabeceraPagina } from '@/components/layout/CabeceraPagina';
 import { obtenerCabecera } from '@/lib/cabeceras';
 import { metadataPagina, textosSeo } from '@/lib/seo';
 import { setRequestLocale } from 'next-intl/server';
+import { cargarContenido } from '@/lib/contenidoServidor';
+import ContenidoCliente from '@/components/layout/ContenidoCliente';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/atelier/vosotras' });
 }
 
 export default async function Pagina({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return (
     <section className="seccion">
       <h1 className="sr-only">{textosSeo('/atelier/vosotras', locale).h1}</h1>
       {/* Título y texto de entrada: lib/cabeceras.js (editables en el
           admin, Vosotras › Página de la web, con vista previa). */}
       <CabeceraPagina id="vosotras" publicado={obtenerCabecera('vosotras')}>
-        <GaleriaVosotras cabecera="vosotras" margenSuperiorAmplio />
+        <ContenidoCliente claves={['vosotras']}>
+          <GaleriaVosotras cabecera="vosotras" margenSuperiorAmplio />
+        </ContenidoCliente>
       </CabeceraPagina>
     </section>
   );

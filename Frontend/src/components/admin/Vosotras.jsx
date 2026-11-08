@@ -15,6 +15,7 @@ import {
   createContext, useCallback, useContext, useState,
 } from 'react';
 import { idNuevo, obtenerVosotras, PESTANAS_VOSOTRAS } from '@/lib/vosotras';
+import { useDocumentoAdmin } from './ContenidoAdmin';
 
 const VosotrasContext = createContext(null);
 
@@ -45,7 +46,7 @@ export function conResena(datos, resena) {
 
 function VosotrasProvider({ children }) {
   // Copia profunda: el admin nunca muta los objetos que lee la web.
-  const [datos, setDatos] = useState(() => structuredClone(obtenerVosotras()));
+  const [datos, setDatos] = useDocumentoAdmin('vosotras');
 
   // Devuelven el id con el que queda guardado.
   const guardarLook = useCallback((look, pestana) => {

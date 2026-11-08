@@ -1,133 +1,142 @@
-# Contenido editable: base de datos, fotos y panel
+# Contenido editable: base de datos, fotos, panel y formularios
 
-**Fecha: 2026-11-08.** Sustituye a `docs/CONTRATO.md` (el contrato de la tienda online,
-aparcada). Describe cómo pasa la web de Miriam de estática a servida desde la base de
-datos, qué está hecho y qué falta.
+**Fecha: 2026-11-09.** Cómo funciona la web de Miriam ahora que todo sale de la base de
+datos y se edita desde el panel. Sustituye a `docs/CONTRATO.md` (el contrato de la tienda
+online, aparcada).
+
+## Resumen
+
+| Qué | Dónde se guarda | Se edita en | La web lo lee |
+|---|---|---|---|
+| Textos, fotos y vídeos de todas las páginas, colecciones, looks, blog, Vosotras, ateliers, puntos de venta, contacto, textos de Google | `apps.content.Document` (19 documentos JSON) | Panel `/admin` | De la API, con caché; se actualiza al publicar |
+| Archivos de fotos y vídeos | Disco (volumen `media_data`) + fila `apps.media.MediaAsset` | Se suben desde el panel al publicar | `/media/…` (Caddy) |
+| Citas | `apps.appointments.Cita` | Bandeja `/admin/consultas` | — |
+| Consultas de vestidos | `apps.appointments.ConsultaVestido` | Bandeja `/admin/consultas-precio` | — |
+| Suscriptoras de la newsletter | `apps.appointments.Suscriptor` | `/admin/newsletter` (+ CSV) | — |
+
+`Frontend/src/datos/` **ya no existe**. Era el «sustituto provisional de la base de datos»
+de Miriam y su contenido es ahora la semilla, `backend/apps/content/seed/contenido.json`.
+Sigue disponible en su repo, commit `e556a76`.
 
 ## De dónde sale el frontend
 
 `Frontend/` es una **copia del repo de Miriam en el commit
-[`e556a76`](https://github.com/mreinab/felycampo/commit/e556a76)** (2026-11-07), la versión
-que dio por terminada para producción. Se importó el árbol, no el historial (su `.git`
-pesa 1,3 GB por las fotos). Su documentación sigue dentro y sigue valiendo:
+[`e556a76`](https://github.com/mreinab/felycampo/commit/e556a76)** (2026-11-07). Se trajo el
+árbol, no el historial. Su `Frontend/docs/ADMIN.md` sigue explicando cómo está hecho el
+panel; el «§4 Conectar la base de datos» ya está hecho como se describe aquí.
 
-- `Frontend/docs/ADMIN.md`: cómo está hecho el panel y **qué hay que hacer para
-  conectarlo**. Es la guía de este trabajo.
-- `Frontend/docs/PUBLICAR.md`: SEO, Search Console, redirecciones, variables.
+## Contenido: un documento JSON por sección
 
-Cambios sobre su copia, todos de infraestructura:
+19 documentos, cada uno con la forma exacta de lo que era su export de `src/datos/`:
 
-| Qué | Por qué |
-|---|---|
-| `Dockerfile`, `.dockerignore`, `output: 'standalone'` | Despliegue en Docker (ella usaba Netlify) |
-| Fuera `netlify.toml` | Netlify sigue en **su** repo, para enseñar a los clientes; aquí no aplica |
-| Rewrite `/media/*` → Django, **solo en desarrollo** (`next.config.mjs`) | En producción lo sirve Caddy |
-| Rutas de fotos en `src/datos/*.js`: `/img/…` → `/media/web/img/…` | Ver «Fotos» |
-| `src/app/api/revalidar/route.js` (nuevo) | El backend avisa de lo publicado |
-| `scripts/exportar-contenido.mjs` (nuevo) | Vuelca `src/datos/` a JSON para la base de datos |
-| `.env.prod.example` (nuevo) | Variables de servidor en producción |
-| `<Suspense>` en `app/admin/puntos-de-venta/page.js` | **Su `e556a76` no compila** (`next build` falla al prerenderizar esa página por `useSearchParams`); las páginas hermanas ya lo tenían |
-| 3 fotos `respaldo-*` del mapa a `public/` | Las construye `MapaPuntosVenta.jsx` en tiempo de ejecución; no aparecían literales en el código |
+`landing`, `piezas-comunes`, `seo-textos`, `sobre-fely`, `talleres`, `contacto`,
+`cabeceras`, `sedes`, `puntos-venta`, `vosotras`, `articulos`, `episodios`,
+`editorial-novias`, `editorial-fiesta`, `editorial-pret-a-porter`, `colecciones-fiesta`,
+`colecciones-novias`, `colecciones-runway`, `productos-pret-a-porter`.
 
-## Cómo se guarda el contenido
+La lista es cerrada: está en `backend/apps/content/registry.py`.
 
-**Un documento JSON por sección** (`apps.content.Document`), con exactamente la forma de su
-export de `Frontend/src/datos/`. 19 documentos, unos 520 KB en total:
-
-| Clave | Archivo de `src/datos/` | Export |
-|---|---|---|
-| `landing` | `landing.js` | `LANDING` |
-| `piezas-comunes` | `piezasComunes.js` | `PIEZAS_COMUNES` |
-| `seo-textos` | `seoTextos.js` | `SEO_TEXTOS` |
-| `sobre-fely` | `sobreFely.js` | `SOBRE_FELY` |
-| `talleres` | `talleres.js` | `TALLERES` |
-| `contacto` | `contacto.js` | `CONTACTO` |
-| `cabeceras` | `cabeceras.js` | `CABECERAS` |
-| `sedes` | `ateliers.js` | `SEDES` |
-| `puntos-venta` | `puntosVenta.js` | `PUNTOS_VENTA` |
-| `vosotras` | `vosotras.js` | `VOSOTRAS` |
-| `articulos` / `episodios` | `blog.js` | `ARTICULOS` / `EPISODIOS` |
-| `editorial-novias` / `-fiesta` / `-pret-a-porter` | `atelierEditorial.js` | `EDITORIAL_*` |
-| `colecciones-fiesta` | `atelierFiesta.js` | `COLECCIONES_FIESTA` |
-| `colecciones-novias` | `atelierNovias.js` | `COLECCIONES_NOVIAS` |
-| `colecciones-runway` | `runway.js` | `COLECCIONES_RUNWAY` |
-| `productos-pret-a-porter` | `pretAPorter.js` | `PRODUCTOS_PRET_A_PORTER` |
-
-**Por qué documentos y no tablas:** el panel de Miriam edita cada sección entera y la
-publica de una vez, y toda su lógica (orden, slugs, `slugsAnteriores`, visibilidad) está
-escrita sobre esa forma en `Frontend/src/lib/`. Pasarla a tablas obligaría a reescribirla
-sin ganar nada. Lo que **sí** son registros (citas, consultas, suscriptores) irá en
-tablas.
-
-**Varias personas editando:** cada documento tiene `version`. El panel manda la versión
-con la que empezó a editar y, si alguien publicó entretanto, recibe **409
-`version_conflict`** con quién y cuándo, en lugar de pisar su trabajo. Cada publicación
-guarda una revisión (las 50 últimas) para ver quién cambió qué y volver atrás.
+**Por qué documentos y no tablas:** el panel de Miriam edita cada sección entera y la publica
+de una vez, y toda su lógica (orden, slugs, `slugsAnteriores`, visibilidad) está escrita
+sobre esa forma en `Frontend/src/lib/`. Las citas, consultas y suscriptoras sí son
+registros y van en tablas.
 
 ### API
 
 | Método | Ruta | Quién | Qué |
 |---|---|---|---|
-| GET | `/api/v1/content/<clave>/` | público | `{key, data, version, updated_at}` |
-| GET | `/api/v1/admin/content/` | staff | Listado sin `data` |
-| GET | `/api/v1/admin/content/<clave>/` | staff | Documento con autora |
-| PUT | `/api/v1/admin/content/<clave>/` | staff | `{data, version}` → publica, o 409 |
-| GET | `/api/v1/admin/content/<clave>/revisions/` | staff | Historial |
-| GET | `/api/v1/admin/content/<clave>/revisions/<n>/` | staff | Una versión antigua, con `data` |
+| GET | `/api/v1/content/` | público | Los 19 documentos, `{clave: datos}` (lo usa la web) |
+| GET | `/api/v1/content/<clave>/` | público | Uno |
+| GET | `/api/v1/admin/content/?con_datos=1` | staff | Los 19 con versión (lo usa el panel al abrirse) |
+| PUT | `/api/v1/admin/content/<clave>/` | staff | `{data, version}` → publica, o **409 `version_conflict`** |
+| GET | `/api/v1/admin/content/<clave>/revisions/[<n>/]` | staff | Historial (50 últimas) |
 
-El documento público va **entero, con lo oculto incluido** (lo filtra la web en
-`src/lib/`): oculto significa «no se enseña», no «secreto». Si hiciera falta que fuera
-secreto, habría que filtrar en el backend o exigir un token de servidor.
+El documento público va **entero, con lo oculto incluido**: lo filtra la web. Oculto significa
+«no se enseña», no «secreto».
 
-El backend solo valida **la estructura**: clave conocida (`apps/content/registry.py`), tipo
-objeto o lista y como mucho 2 MB. La validación de campos (idiomas, longitudes, URLs) es de
-Miriam y vive en `src/lib/` (`campos…()`, `validarExtra…()`), compartida entre web y panel.
+## Cómo lee la web (`Frontend/src/lib/contenido*.js`)
+
+- **`src/lib/contenido.js`** es un almacén en memoria. Las funciones `obtener…()` de
+  `src/lib/` (las de Miriam) siguen siendo síncronas y leen de ahí. Así las ~40 pantallas
+  y componentes que las llaman no han cambiado.
+- **`cargarContenido()`** (`contenidoServidor.js`) pide `GET /api/v1/content/` **una vez
+  por petición** y lo guarda en la caché de datos de Next con la etiqueta `contenido`.
+  **Toda página, layout y `generateMetadata`** lo espera justo después de
+  `setRequestLocale(locale)`. También el sitemap y `/acceso`.
+- **`<ContenidoCliente claves={…}>`** pasa al navegador solo los documentos que necesitan
+  sus componentes de cliente:
+  - el layout: `piezas-comunes`, `contacto`, `cabeceras` y `sedes`;
+  - `/atelier/vosotras`: `vosotras`;
+  - el mapa de Visítanos y de Puntos de venta: `puntos-venta`.
+
+  Si un componente de cliente pide un documento que no le ha llegado, `contenido()` lanza
+  un error con la clave. Es la pista de qué añadir.
+- **Nada de leer contenido al importar un módulo.** El contenido llega después. Lo que antes
+  eran constantes (`tiendaProductos`, `fiestaProductos`, los submenús del Navbar,
+  `vosotrasFotos`…) son ahora funciones memorizadas con `derivado()`.
+- **Las páginas no se generan en el build**, porque en el build de Docker no hay API
+  (`generateStaticParams` devuelve `[]` en `app/[locale]/layout.js`). Cada una se genera en
+  su primera visita y queda **estática en caché** hasta que se publica algo.
+- Las que leen la URL (`?previa=`, `?coleccion=`) llevan `dynamic = 'force-dynamic'`:
+  `/atelier/fiesta`, las fichas de looks y prendas, los artículos y Runway. Sin eso fallan
+  en producción con `DYNAMIC_SERVER_USAGE`. Siguen siendo rápidas: el contenido sale de
+  la caché de datos.
 
 ### Publicar al momento
 
-La web leerá cada documento con `fetch(..., { next: { tags: ['contenido:<clave>'] } })`. Al
-publicar, Django llama (tras el commit, por la red interna) a
-`http://frontend:3000/api/revalidar` con `REVALIDATE_SECRET`, y Next caduca esa etiqueta.
-Si la llamada falla, la publicación **no** se deshace: se registra un aviso en el log.
+Django, tras guardar, llama por la red interna a `http://frontend:3000/api/revalidar` con
+`REVALIDATE_SECRET` y las etiquetas `contenido` y `contenido:<clave>`. Next caduca la caché,
+y la siguiente visita a cualquier página la regenera con lo nuevo. Si la llamada falla, la
+publicación no se deshace: queda un aviso en el log.
+
+Comprobado en un build de producción: la página en caché sigue sirviendo lo anterior hasta
+el aviso, y a partir de ahí sirve lo nuevo.
+
+## Cómo publica el panel (`components/admin/ContenidoAdmin.jsx`)
+
+- Al abrir el panel se cargan los 19 documentos con su versión. Hasta entonces se ve
+  «Cargando el contenido de la web…».
+- Cada proveedor de sección usa **`useDocumentoAdmin(clave)`**, que se usa igual que
+  `useState`: `const [datos, setDatos] = useDocumentoAdmin('articulos')`. Cada `setDatos`
+  hace lo siguiente:
+  1. aplica el cambio al momento en pantalla;
+  2. **sube las fotos y vídeos nuevos** (las URL `blob:` del navegador) a
+     `/api/v1/admin/media/` con nombre SEO (`fely-campo-<clave>-<8 hex>.webp`) y las
+     sustituye por su ruta `/media/library/…`;
+  3. hace un `PUT` con la versión cargada.
+
+  Los cambios de un documento van en cola, de uno en uno. Mientras hay alguno pendiente se
+  ve «Guardando…» y el navegador avisa si se intenta cerrar la pestaña.
+- **Si otra persona publicó entretanto (409)** o falla algo, se avisa, se descarta lo
+  pendiente de ese documento y se carga lo publicado. El editor conserva su borrador:
+  basta revisarlo y volver a publicar. Nadie pisa el trabajo de otra persona sin enterarse.
+- `Paginas.jsx` sitúa cada página del panel dentro de su documento. Las cabeceras y los
+  tres ateliers comparten documento (`cabeceras`, `sedes`), así que dos personas editando
+  ateliers distintos a la vez pueden recibir un aviso de conflicto aunque no se pisen.
+  Basta con volver a publicar.
 
 ## Fotos y vídeos
 
-En el repo de Miriam, `public/` ocupa 797 MB con 2.636 archivos. Comparando cada ruta con el
-código fuente:
-
-| Grupo | Archivos | Peso | Qué se ha hecho |
-|---|---|---|---|
-| Los usa el **código** (logos, banderas, fotos fijas de componentes, respaldos del mapa) | 100 | ~54 MB | Se quedan en `Frontend/public/`, versionados |
-| Los usa el **contenido editable** (`src/datos/`) | 1.494 | ~430 MB | Al almacén de medios del backend |
-| **No los usa nadie** (originales, colecciones y looks retirados, duplicados) | 1.076 | ~362 MB | No se traen. Siguen en el repo de Miriam |
-
-Las del contenido conservan **su ruta y su nombre SEO**, debajo de `web/`:
-
-```
-Frontend/public/img/landing/x.webp   →   MEDIA_ROOT/web/img/landing/x.webp
-                                          URL: /media/web/img/landing/x.webp
-```
-
-No se renombran ni se recomprimen (ya son WebP de ≤2560 px con nombres indexados). Cada una
-tiene su fila `MediaAsset` con miniatura, ancho y alto, así que salen en la biblioteca del
-panel y se pueden reutilizar. **Los archivos no van en git**: `backend/media/` está ignorado.
-Se traen del repo de Miriam con `importar_medios_web` (ver más abajo).
-
-Las subidas nuevas desde el panel irán a la misma biblioteca. La base de datos guarda la
-**URL** (dentro del JSON) y la fila `MediaAsset`; el archivo está en disco, en el volumen
-`media_data`. En la base de datos no se guarda nunca el binario.
-
-**No se puede borrar una foto que sale en la web:** `MediaAsset.usages()` busca su URL
-dentro de los documentos y el `DELETE` responde 409 diciendo en cuál está.
+- **Las del contenido** (1.494, ~430 MB) están en el almacén de medios con su ruta y su
+  nombre SEO de siempre: `/media/web/img/…`. **No van en git**: se traen del repo de Miriam
+  con `importar_medios_web`.
+- **Las que usa el código** (logos, banderas…; ~54 MB) siguen en `Frontend/public/`.
+- **Las subidas desde el panel** van a `/media/library/{image,video}/…`:
+  - imágenes: convertidas a WebP de ≤2560 px, sin EXIF y con miniatura;
+  - vídeos: tal cual, con un **máximo de 15 MB** en el servidor.
+- **Cada imagen tiene versiones de 480, 960 y 1600 px** (`foto.w960.webp`). La web
+  construye el `srcset` con `atributosImagen()` (`src/lib/imagenes.js`).
+- **No se puede borrar una foto que sale en la web:** la biblioteca responde 409 diciendo en
+  qué documento está.
 
 ### Cargarlo todo (desarrollo y servidor)
 
 ```bash
 # 1. Contenido: crea los 19 documentos desde apps/content/seed/contenido.json.
-#    Sin --sobrescribir no toca los que ya existen.
+#    Sin --sobrescribir no toca los que ya existen (lo editado en el panel se respeta).
 docker compose exec backend python manage.py cargar_contenido
 
-# 2. Fotos: copia desde el repo de Miriam las que falten y las registra.
+# 2. Fotos: copia desde el repo de Miriam las que falten, las registra y genera sus versiones.
 git clone https://github.com/mreinab/felycampo.git ../felycampo-miriam
 git -C ../felycampo-miriam checkout e556a76
 docker compose run --rm -v "$PWD/../felycampo-miriam/public:/origen:ro" \
@@ -135,83 +144,50 @@ docker compose run --rm -v "$PWD/../felycampo-miriam/public:/origen:ro" \
 ```
 
 Los dos son idempotentes. En el servidor se hace igual, con `-f docker-compose.prod.yml`.
-Ahí `MEDIA_ROOT` es el volumen `media_data`, así que las fotos quedan en el volumen.
 
-Si se cambia algo en `Frontend/src/datos/` antes de que la web lea de la API, hay que
-regenerar la semilla:
+## Formularios
 
-```bash
-cd Frontend && node scripts/exportar-contenido.mjs ../backend/apps/content/seed/contenido.json
-```
+| Formulario | Ruta de Next | Guarda en | Email (Resend) |
+|---|---|---|---|
+| Pedir cita | `/api/cita` | `Cita` | Al equipo y a la clienta |
+| Contacta con nosotros (fichas) | `/api/consulta-vestido` | `ConsultaVestido` | Al equipo y a la clienta |
+| Newsletter (pie y ventana) | `/api/newsletter` | `Suscriptor` | — |
 
-## Estado
+- **Next valida, guarda y después envía los emails.** Guarda llamando a Django por la red
+  interna (`/api/v1/formularios/…`) con `REVALIDATE_SECRET`, que hace de secreto compartido
+  entre los dos servicios, y la IP de la visitante (`src/lib/backendInterno.js`).
+- **El límite de ritmo es por visitante**: 10 envíos por hora en cita y consulta, 20 en
+  newsletter. Si se supera, no se envía nada (429).
+- **Si falla el email al equipo pero la solicitud está guardada**, la clienta ve el
+  «gracias» igualmente: el equipo la tiene en la bandeja.
+- **En las bandejas** el equipo cambia el estado (Pendiente → Contactada → Cita confirmada →
+  Cerrada), la asignación (citas) y las notas internas. Cada cambio de estado queda en el
+  historial con la fecha del servidor y quién lo hizo. Los datos de la clienta no se pueden
+  modificar.
+- La newsletter guarda la lista propia (CSV desde el panel). **Substack queda pendiente**:
+  se conectará dentro de `/api/newsletter`, después de guardar (`Frontend/docs/ADMIN.md` §5).
 
-**Hecho (2026-11-08):**
+## Estado (2026-11-09)
 
-- [x] Frontend de Miriam importado y funcionando en Docker: 250 páginas en español
-      revisadas, 1.152 fotos y vídeos distintos, ninguno roto.
-- [x] Fotos separadas (código / contenido / sin usar) y las del contenido en el almacén de
-      medios, con su `MediaAsset`.
-- [x] `apps.content`: modelo, API pública y de panel, versiones con 409, revisiones,
-      aviso de revalidación, `cargar_contenido`, `importar_medios_web`. 19 tests.
-- [x] Caddy: `/api/v1/*` a Django y el resto de `/api/*` a Next.
-- [x] Variables: `REVALIDATE_SECRET` una sola vez en el `.env` de la raíz; NEXT_PUBLIC_*
-      de Miriam como build args; `Frontend/.env.prod` para Resend.
+**Comprobado en el navegador, de punta a punta:**
+- **Página de inicio:** cambiar la frase y la foto en el panel → se guarda (v1 → v2), la
+  foto se sube con nombre SEO y versión de 480 px → la web pública lo enseña.
+- **Listados:** ocultar y volver a mostrar un artículo del Blog y una colección de Fiesta →
+  se guarda y la web deja de enseñarlo. Al recargar el panel, lo publicado sigue ahí.
+- **Formularios y bandejas:** una cita, una consulta y una suscripción enviadas desde la
+  web aparecen en sus bandejas; cambiar estado, asignación y notas se guarda con
+  historial, y la lista de la newsletter sale en CSV.
+- **Build de producción** sin API disponible (como en Docker): compila. En ejecución, 134
+  páginas sin errores de consola, de JS ni de red, y la caché se invalida al publicar.
+- **Backend:** 334 tests.
 
-**Hecho (2026-11-08, segunda parte):**
-
-- [x] **Login del panel y prelanzamiento**: `/acceso`, cookie de equipo firmada y proxy.
-      Detalle en `CLAUDE.md` («Acceso del equipo y prelanzamiento»).
-- [x] **Rendimiento** (Lighthouse móvil, réplica local de producción tras Caddy):
-
-      | Página | Peso antes → después | LCP antes → después |
-      |---|---|---|
-      | `/es` | 4,0 MB → 1,0 MB | 12,8 s → ~5 s |
-      | `/es/atelier/fiesta` | 18,3 MB → 0,9 MB | 15,6 s → 4,0 s |
-      | `/es/atelier/vosotras` | 12,0 MB → 2,1 MB | 11,6 s → 6,7 s |
-      | `/es/sobre-fely` | 3,2 MB → 0,8 MB | 10,1 s → 3,7 s |
-      | ficha de look | 7,6 MB → 1,1 MB | 13,4 s → 3,5 s |
-
-      Cómo: páginas estáticas (sin `headers()` en el layout + `setRequestLocale`),
-      versiones de 480/960/1600 px de cada foto con `srcset`, carga diferida de imágenes
-      y vídeos, fuentes con `next/font`, caché de `/media` e `/img`, y sin el carrito de
-      ejemplo de la tienda (descargaba ~700 KB en cada página).
-- [x] Errores: el build de Miriam no compilaba; zona horaria de next-intl; contraste de
-      Vosotras; orden de encabezados del pie. Recorrido con navegador real por 134 páginas
-      públicas: **0 errores de consola, JS o red**.
-
-**Pendiente, en este orden:**
-
-1. **La web lee de la API.** Las `obtener…()` de `src/lib/` pasan a ser `async` y hacen
-   `fetch` a `API_INTERNAL_URL` con su etiqueta. Hay que hacer dos cosas con cuidado:
-   - Los componentes de cliente que leen datos (Navbar, `NewsletterModal`,
-     `CabeceraPagina`, `MapaPuntosVenta`, `GaleriaVosotras`, `ListadoUbicaciones`,
-     `ModalSolicitudAtelier`, el formulario de cita) tienen que recibirlos por props desde
-     el servidor.
-   - Las peticiones del servidor tienen que llevar `X-Forwarded-Proto: https`. Sin esa
-     cabecera, `SECURE_SSL_REDIRECT` responde 301 a `https://backend:8000` y cada llamada
-     se queda colgada (ver `DESPLIEGUE.md`, «La home tardaba 20 segundos»). El cliente
-     antiguo que la ponía (`src/lib/api/client.js`) se fue con la tienda.
-   - En el build de Docker no hay backend: las páginas no pueden pedir datos en tiempo de
-     build. Tienen que renderizarse en la primera visita y quedarse en caché.
-2. **El panel publica.** Las acciones `guardar`, `alternar`, `borrar` y `reordenar` de
-   los proveedores (`Paginas.jsx`, `AtelierFiesta.jsx`, `Blog.jsx`…) hacen `PUT` con la
-   versión y tratan el 409.
-3. **Subida de fotos y vídeos.** Hoy el panel deja una URL `blob:`. Hay que subir el
-   archivo a `/api/v1/admin/media/` y guardar la URL definitiva. Además:
-   - nombres SEO en vez de UUID (`media_upload_path`);
-   - límite de vídeo en el servidor (15 MB en escritorio, 8 MB en móvil) y, si se puede,
-     recompresión con ffmpeg;
-   - normalizar la «ñ» a NFC.
-4. **Citas y consultas.** Modelos en `apps.appointments`. `/api/cita` y
-   `/api/consulta-vestido` siguen mandando el email con Resend y además las guardan.
-   Las bandejas `/admin/consultas` y `/admin/consultas-precio` dejan de usar los mocks.
-5. **Newsletter.** Primero se guarda en la base de datos y sale en `/admin/newsletter`.
-   Después se reenvía a Substack (`Frontend/docs/ADMIN.md` §5).
-6. **Retirar `Frontend/src/datos/`** cuando todo lea de la API: la semilla ya vive en
-   `backend/apps/content/seed/contenido.json`.
-7. **Prêt-à-porter** sigue con un LCP alto (~9 s en móvil simulado): la cinta de arriba
-   (`CarruselInfinito`) carga de golpe 26 recortes de pasarela (~2,7 MB). Necesita menos
-   fotos o un ancho reservado por foto, y eso es decisión de diseño.
-8. Las secciones ocultas de la tienda en el panel (`/admin/diseno`, `/admin/productos`,
-   `/admin/resenas`) piden fotos de ejemplo que no existen. No afecta a nada visible.
+**Pendiente:**
+1. **Substack** para la newsletter.
+2. **Vídeos:** se guardan tal cual (máx. 15 MB). Recomprimirlos en el servidor necesitaría
+   ffmpeg en la imagen del backend.
+3. **Vista previa entre dispositivos:** el borrador de la vista previa sigue en el
+   `localStorage` del navegador que edita (como lo dejó Miriam).
+4. **Prêt-à-porter** sigue con un LCP alto (~9 s en móvil simulado): la cinta de arriba
+   carga 26 recortes de pasarela. Es decisión de diseño.
+5. Las secciones ocultas de la tienda en el panel (pedidos, productos, reseñas, diseño…)
+   siguen con datos de ejemplo. Son de la tienda aparcada y no se conectan.

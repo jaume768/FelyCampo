@@ -14,5 +14,9 @@
 // comprobado look a look (199 looks, cero diferencias).
 
 import { productosFiesta } from '@/lib/catalogoFiesta';
+import { derivado } from '@/lib/contenido';
 
-export const fiestaProductos = productosFiesta();
+// Función y no constante: el contenido viene de la base de datos y no está
+// cargado al importar el módulo (ver src/lib/contenido.js). Memorizada: el
+// mismo array mientras el documento no cambie.
+export const fiestaProductos = derivado('colecciones-fiesta', () => productosFiesta());

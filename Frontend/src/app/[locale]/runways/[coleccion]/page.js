@@ -37,12 +37,21 @@ import { PARAMETRO_PREVIA } from '@/lib/previa';
 import { coleccionRunwayPorSlug, idPreviaRunway } from '@/lib/runway';
 import { metadataPagina, recortar } from '@/lib/seo';
 import RunwayContenido from './RunwayContenido';
+import { cargarContenido } from '@/lib/contenidoServidor';
+
+// Dinámica a propósito: lee la URL (?previa= de la vista previa del admin,
+// ?coleccion=…). Las páginas no se generan en el build (layout.js), así que
+// Next ya no lo descubre solo y, sin esto, fallaba en producción con
+// DYNAMIC_SERVER_USAGE. Sigue siendo rápida: el contenido sale de la caché
+// de datos (cargarContenido), solo se renderiza en cada visita.
+export const dynamic = 'force-dynamic';
 
 // Canonical = URL pública /runways-{slug} (la del rewrite de
 // next.config.mjs), no la interna /runways/{slug}.
 export async function generateMetadata({ params, searchParams }) {
   const { locale, coleccion: slug } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   if ((await searchParams)?.[PARAMETRO_PREVIA] === idPreviaRunway(slug)) {
     return { robots: { index: false, follow: false } };
   }
@@ -68,6 +77,7 @@ export async function generateMetadata({ params, searchParams }) {
 export default async function Coleccion({ params, searchParams }) {
   const { locale, coleccion: slug } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   const coleccion = coleccionRunwayPorSlug(slug);
   const enPrevia = (await searchParams)?.[PARAMETRO_PREVIA] === idPreviaRunway(slug);
   const volverHref = `/${locale}/colecciones-fely-campo`;

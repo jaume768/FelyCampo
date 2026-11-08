@@ -9,7 +9,7 @@
 // PARA EL PROGRAMADOR: al conectar la base de datos, solo hay que cambiar
 // obtenerColeccionesNovias(). Ver docs/ADMIN.md.
 
-import { COLECCIONES_NOVIAS } from '@/datos/atelierNovias';
+import { derivado } from './contenido';
 import { ordenarLooks, slugLook } from './catalogoFiesta';
 
 export const RUTA_FICHA_NOVIAS = '/atelier/novias';
@@ -17,13 +17,15 @@ export const RUTA_FICHA_NOVIAS = '/atelier/novias';
 // Vista previa de un look desde el admin: su ficha con ?previa=novias-look.
 export const ID_PREVIA_LOOK_NOVIAS = 'novias-look';
 
-const COLECCIONES_ORDENADAS = COLECCIONES_NOVIAS.map((coleccion) => ({
+// Los looks ordenados por número, recalculado solo cuando el documento
+// cambia (se publica desde el panel).
+const coleccionesOrdenadas = derivado('colecciones-novias', (colecciones) => colecciones.map((coleccion) => ({
   ...coleccion,
   looks: ordenarLooks(coleccion.looks),
-}));
+})));
 
 export function obtenerColeccionesNovias() {
-  return COLECCIONES_ORDENADAS;
+  return coleccionesOrdenadas();
 }
 
 // Nombre que se propone al crear un look: el mismo patrón que los demás

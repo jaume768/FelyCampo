@@ -16,6 +16,7 @@ import {
 import {
   obtenerArticulos, obtenerEpisodios, slugDesdeTitulo, SLUG_NUEVO,
 } from '@/lib/blog';
+import { useDocumentoAdmin } from './ContenidoAdmin';
 
 const BlogContext = createContext(null);
 
@@ -35,8 +36,8 @@ function guardarEn(lista, datos, slugAnterior, todosLosSlugs) {
 
 function BlogProvider({ children }) {
   // Copia profunda: el admin nunca muta los objetos que lee la web.
-  const [articulos, setArticulos] = useState(() => structuredClone(obtenerArticulos()));
-  const [episodios, setEpisodios] = useState(() => structuredClone(obtenerEpisodios()));
+  const [articulos, setArticulos] = useDocumentoAdmin('articulos');
+  const [episodios, setEpisodios] = useDocumentoAdmin('episodios');
 
   const slugs = useMemo(() => [...articulos, ...episodios].map((item) => item.slug), [articulos, episodios]);
 

@@ -36,7 +36,7 @@ export async function POST(request) {
   }
 
   const etiquetas = Array.isArray(cuerpo?.tags)
-    ? cuerpo.tags.filter((t) => typeof t === 'string' && t.startsWith(PREFIJO))
+    ? cuerpo.tags.filter((t) => typeof t === 'string' && (t === 'contenido' || t.startsWith(PREFIJO)))
     : [];
   if (!etiquetas.length) {
     return Response.json({ ok: false, error: 'Sin etiquetas de contenido' }, { status: 400 });

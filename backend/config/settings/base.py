@@ -185,6 +185,10 @@ REST_FRAMEWORK = {
         # Lectura del contenido de la web (apps.content): la hace el servidor de Next,
         # siempre desde la misma IP, y un arranque en frío pide muchos documentos a la vez.
         "content": env("THROTTLE_CONTENT", default="1200/min"),
+        # Formularios de la web (cita, consulta de vestido), por IP de la visitante
+        # (apps/appointments/internal.py).
+        "formulario": env("THROTTLE_FORMULARIO", default="10/hour"),
+        "newsletter": env("THROTTLE_NEWSLETTER", default="20/hour"),
     },
 }
 

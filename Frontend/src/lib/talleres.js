@@ -7,7 +7,7 @@
 // PARA EL PROGRAMADOR: al conectar la base de datos, solo hay que cambiar
 // obtenerTalleres() para que lea de ella. Ver docs/ADMIN.md.
 
-import { TALLERES } from '@/datos/talleres';
+import { contenido } from './contenido';
 import { validarCampos } from './camposPagina';
 
 export const ID_PAGINA_TALLERES = 'talleres';
@@ -21,14 +21,14 @@ export function nuevoTaller() {
 }
 
 export function obtenerTalleres() {
-  return TALLERES;
+  return contenido('talleres');
 }
 
 // Las fotos y los vídeos del carrusel son rutas; los vídeos se
 // distinguen por la extensión (o por ser un vídeo recién subido).
 export const esVideoTaller = (src) => /\.(mp4|webm|mov)(\?|#|$)/i.test(src) || /#video$/.test(src);
 
-export function opcionalesTalleres(datos = TALLERES) {
+export function opcionalesTalleres(datos = contenido('talleres')) {
   return datos.talleres.flatMap((_, indice) => [`talleres.${indice}.responsable.es`, `talleres.${indice}.responsable.en`]);
 }
 

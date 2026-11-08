@@ -154,3 +154,28 @@ def test_alta_genera_versiones_reducidas_y_el_borrado_las_quita(staff_client, se
 
     staff_client.delete(f"{LIST_URL}{asset.id}/")
     assert not any(default_storage.exists(n) for n in nombres)
+
+
+@pytest.mark.django_db
+def test_nombre_seo_sin_acentos_ni_espacios(staff_client, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    upload = SimpleUploadedFile("IMG_0001.jpg", _jpeg_bytes((800, 600)), content_type="image/jpeg")
+
+    response = staff_client.post(
+        LIST_URL,
+        {"file": upload, "nombre": "Fely Campo Colección Fiesta Ñandú"},
+        format="multipart",
+    )
+
+    nombre = MediaAsset.objects.get(pk=response.json()["id"]).file.name
+    assert nombre.startswith("library/image/fely-campo-coleccion-fiesta-nandu-")
+    assert nombre.endswith(".webp")
+
+
+@pytest.mark.django_db
+def test_video_de_mas_de_15_mb_se_rechaza(staff_client):
+    grande = SimpleUploadedFile("v.mp4", b"\0" * (15 * 1024 * 1024 + 1), content_type="video/mp4")
+
+    response = staff_client.post(LIST_URL, {"file": grande}, format="multipart")
+
+    assert response.status_code == 400

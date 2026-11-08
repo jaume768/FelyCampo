@@ -9,12 +9,12 @@
 // obtenerPiezasComunes() (ojo: el menú y la newsletter son componentes de
 // cliente). Ver docs/ADMIN.md.
 
-import { PIEZAS_COMUNES } from '@/datos/piezasComunes';
+import { contenido } from './contenido';
 
 export const ID_PAGINA_PIEZAS = 'piezas-comunes';
 
 export function obtenerPiezasComunes() {
-  return PIEZAS_COMUNES;
+  return contenido('piezas-comunes');
 }
 
 // Los desplegables del menú y sus enlaces, con el nombre con que salen en

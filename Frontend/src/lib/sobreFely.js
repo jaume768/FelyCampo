@@ -7,7 +7,7 @@
 // PARA EL PROGRAMADOR: al conectar la base de datos, solo hay que cambiar
 // obtenerSobreFely() para que lea de ella. Ver docs/ADMIN.md.
 
-import { SOBRE_FELY } from '@/datos/sobreFely';
+import { contenido } from './contenido';
 import { validarCampos } from './camposPagina';
 
 export const ID_PAGINA_SOBRE_FELY = 'sobre-fely';
@@ -26,7 +26,7 @@ export function nuevoCapitulo() {
 }
 
 export function obtenerSobreFely() {
-  return SOBRE_FELY;
+  return contenido('sobre-fely');
 }
 
 // Campos opcionales que pueden quedar vacíos a propósito (para que la

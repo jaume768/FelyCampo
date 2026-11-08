@@ -15,7 +15,7 @@ import { crearCatalogoAtelier } from './CatalogoAtelier';
 
 const { Provider, useCatalogo } = crearCatalogoAtelier({
   nombre: 'useAtelierNovias',
-  obtener: obtenerColeccionesNovias,
+  clave: 'colecciones-novias',
   categoriasAdmin: categoriasAdminNovias,
   tipoMenu: 'novia',
 });

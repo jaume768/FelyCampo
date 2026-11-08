@@ -7,7 +7,7 @@
 // obtenerArticulos() y obtenerEpisodios() para que lean de ella. Ver
 // docs/ADMIN.md.
 
-import { ARTICULOS, EPISODIOS } from '@/datos/blog';
+import { contenido } from './contenido';
 import { validarCampos } from './camposPagina';
 
 export const EDITOR_BLOG = '/admin/blog';
@@ -25,11 +25,11 @@ export const SLUG_NUEVO = 'nuevo';
 export const FOTOS_FILA = { minimo: 2, maximo: 4 };
 
 export function obtenerArticulos() {
-  return ARTICULOS;
+  return contenido('articulos');
 }
 
 export function obtenerEpisodios() {
-  return EPISODIOS;
+  return contenido('episodios');
 }
 
 // Lo que se ve en la web: artículos publicados, del más reciente al más

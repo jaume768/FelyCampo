@@ -26,10 +26,13 @@ import { obtenerCabecera } from '@/lib/cabeceras';
 import PresenciaInternacional from './PresenciaInternacional';
 import { metadataPagina } from '@/lib/seo';
 import { setRequestLocale } from 'next-intl/server';
+import { cargarContenido } from '@/lib/contenidoServidor';
+import ContenidoCliente from '@/components/layout/ContenidoCliente';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/puntos-de-venta-fely-campo' });
 }
 
@@ -45,7 +48,9 @@ export default async function Pagina() {
 
       <section className="seccion" id="mapa-puntos-venta">
         <div className="contenedor">
-          <MapaPuntosVenta />
+          <ContenidoCliente claves={['puntos-venta']}>
+            <MapaPuntosVenta />
+          </ContenidoCliente>
         </div>
       </section>
 

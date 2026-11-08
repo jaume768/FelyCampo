@@ -7,7 +7,7 @@
 // obtenerColeccionesRunway(). Ver docs/ADMIN.md.
 
 import { productosEjemplo } from '@/components/layout/productosEjemplo';
-import { COLECCIONES_RUNWAY } from '@/datos/runway';
+import { contenido } from './contenido';
 import { slugify } from './slugify';
 
 export const EDITOR_RUNWAY = '/admin/colecciones/runway';
@@ -16,7 +16,7 @@ export const SLUG_NUEVA_RUNWAY = 'nueva';
 export const idPreviaRunway = (slug) => `runway-${slug}`;
 
 export function obtenerColeccionesRunway() {
-  return COLECCIONES_RUNWAY;
+  return contenido('colecciones-runway');
 }
 
 // Las que salen en la web, en su orden.

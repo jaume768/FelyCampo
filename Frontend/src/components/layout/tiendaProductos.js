@@ -11,5 +11,9 @@
 // ya no los enseña (a petición).
 
 import { productosPretAPorter } from '@/lib/pretAPorter';
+import { derivado } from '@/lib/contenido';
 
-export const tiendaProductos = productosPretAPorter();
+// Función y no constante: el contenido viene de la base de datos y no está
+// cargado al importar el módulo (ver src/lib/contenido.js). Memorizada: el
+// mismo array mientras el documento no cambie.
+export const tiendaProductos = derivado('productos-pret-a-porter', () => productosPretAPorter());

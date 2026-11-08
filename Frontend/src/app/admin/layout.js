@@ -16,6 +16,7 @@ import {
   BlogProvider, VosotrasProvider, AtelierNoviasProvider, RunwayProvider, PretAPorterProvider, PuntosVentaProvider,
   SesionAdminProvider,
 } from '@/components/admin';
+import { ContenidoAdminProvider } from '@/components/admin/ContenidoAdmin';
 import styles from './layout.module.css';
 
 export const metadata = {
@@ -36,7 +37,7 @@ export default function AdminLayout({ children }) {
   return (
     // suppressHydrationWarning: el script de arriba puede añadir
     // data-admin-tema a <html> antes de que React hidrate.
-    <html lang="es" className={clasesFuentes} suppressHydrationWarning>
+    <html lang="es" className={clasesFuentes} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
       </head>
@@ -44,6 +45,10 @@ export default function AdminLayout({ children }) {
         {/* Sesión: quién ha entrado y cerrar sesión. El proxy ya exige la
             cookie de equipo para llegar aquí (src/proxy.js). */}
         <SesionAdminProvider>
+        <ToastProvider>
+        {/* El contenido de la web, de la base de datos: los proveedores de
+            abajo solo se montan cuando ya está cargado (ContenidoAdmin.jsx). */}
+        <ContenidoAdminProvider>
         <CategoriasProvider>
           {/* Dentro de CategoriasProvider: mantiene al día el submenú
               "Fiesta" del menú lateral (ver AtelierFiesta.jsx). */}
@@ -55,7 +60,6 @@ export default function AdminLayout({ children }) {
           <BlogProvider>
           <VosotrasProvider>
           <PuntosVentaProvider>
-          <ToastProvider>
             <div className={styles.shell}>
               <div className={styles.topRow}>
                 <AdminMarca />
@@ -68,7 +72,6 @@ export default function AdminLayout({ children }) {
                 <AdminContenido className={styles.contenido}>{children}</AdminContenido>
               </div>
             </div>
-          </ToastProvider>
           </PuntosVentaProvider>
           </VosotrasProvider>
           </BlogProvider>
@@ -78,6 +81,8 @@ export default function AdminLayout({ children }) {
           </AtelierNoviasProvider>
           </AtelierFiestaProvider>
         </CategoriasProvider>
+        </ContenidoAdminProvider>
+        </ToastProvider>
         </SesionAdminProvider>
       </body>
     </html>

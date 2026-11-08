@@ -6,7 +6,7 @@
 // PARA EL PROGRAMADOR: al conectar la base de datos, solo hay que cambiar
 // obtenerVosotras() para que lea de ella. Ver docs/ADMIN.md.
 
-import { VOSOTRAS } from '@/datos/vosotras';
+import { contenido } from './contenido';
 import { validarCampos } from './camposPagina';
 
 export const ID_PREVIA_VOSOTRAS = 'vosotras';
@@ -20,7 +20,7 @@ export const PESTANAS_VOSOTRAS = [
 ];
 
 export function obtenerVosotras() {
-  return VOSOTRAS;
+  return contenido('vosotras');
 }
 
 // Looks publicados de una pestaña, en su orden.

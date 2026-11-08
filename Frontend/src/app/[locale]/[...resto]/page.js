@@ -8,10 +8,12 @@
 
 import { permanentRedirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
+import { cargarContenido } from '@/lib/contenidoServidor';
 
 export default async function Resto({ params }) {
   const { locale, resto } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   const padre = resto.length > 1 ? `/${locale}/${resto.slice(0, -1).join('/')}` : `/${locale}`;
   permanentRedirect(padre);
 }

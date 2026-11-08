@@ -74,7 +74,7 @@ async function FichaProductoAtelier({ slug, seccion, locale }) {
 
   // Fiesta y Novias ya tienen catálogo real (ver CATALOGOS_REALES) — el
   // resto de Atelier sigue con el placeholder genérico.
-  const catalogo = CATALOGOS_REALES[seccion] || productosEjemplo;
+  const catalogo = CATALOGOS_REALES[seccion]?.() || productosEjemplo;
 
   // Fiesta: búsqueda con redirección — si el look se renombró desde el
   // admin, su URL antigua redirige (301) a la nueva (ver

@@ -10,21 +10,24 @@
    ============================================================ */
 
 import {
-  looksVisibles, obtenerVosotras, resenaDeLook, resenasCuadricula,
+  looksVisibles, resenaDeLook, resenasCuadricula,
 } from '@/lib/vosotras';
+import { derivado } from '@/lib/contenido';
 
-const datos = obtenerVosotras();
+// Funciones memorizadas y no constantes: el contenido viene de la base de
+// datos y no está cargado al importar (ver src/lib/contenido.js).
+const vista = derivado('vosotras', (datos) => ({
+  invitadas: looksVisibles(datos, 'invitadas').map((look) => look.fotos),
+  novias: looksVisibles(datos, 'novias').map((look) => look.fotos),
+  resenas: Object.fromEntries(
+    [...looksVisibles(datos, 'invitadas'), ...looksVisibles(datos, 'novias')]
+      .map((look) => [look.fotos[0], resenaDeLook(datos, look.id)])
+      .filter(([, resena]) => resena),
+  ),
+  intercaladas: resenasCuadricula(datos),
+}));
 
-// Grupos de fotos publicados de cada pestaña (la primera, la portada).
-export const FOTOS_INVITADAS = looksVisibles(datos, 'invitadas').map((look) => look.fotos);
-export const FOTOS_NOVIAS = looksVisibles(datos, 'novias').map((look) => look.fotos);
-
-// Reseña entera de cada look, por la foto de portada: { firma, parrafos }.
-export const RESENAS_VOSOTRAS = Object.fromEntries(
-  [...looksVisibles(datos, 'invitadas'), ...looksVisibles(datos, 'novias')]
-    .map((look) => [look.fotos[0], resenaDeLook(datos, look.id)])
-    .filter(([, resena]) => resena),
-);
-
-// Casillas de reseña de la cuadrícula de Invitadas: { portada, extracto, firma }.
-export const RESENAS_INTERCALADAS = resenasCuadricula(datos);
+export const fotosInvitadas = () => vista().invitadas;
+export const fotosNovias = () => vista().novias;
+export const resenasVosotras = () => vista().resenas;
+export const resenasIntercaladas = () => vista().intercaladas;

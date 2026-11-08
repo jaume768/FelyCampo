@@ -17,12 +17,21 @@ import { articuloBlog, migas } from '@/lib/datosEstructurados';
 import { PARAMETRO_PREVIA } from '@/lib/previa';
 import { metadataPagina, recortar } from '@/lib/seo';
 import ArticuloContenido from './ArticuloContenido';
+import { cargarContenido } from '@/lib/contenidoServidor';
+
+// Dinámica a propósito: lee la URL (?previa= de la vista previa del admin,
+// ?coleccion=…). Las páginas no se generan en el build (layout.js), así que
+// Next ya no lo descubre solo y, sin esto, fallaba en producción con
+// DYNAMIC_SERVER_USAGE. Sigue siendo rápida: el contenido sale de la caché
+// de datos (cargarContenido), solo se renderiza en cada visita.
+export const dynamic = 'force-dynamic';
 
 const articuloPublicado = (slug) => articuloPorSlug(slug, articulosVisibles());
 
 export async function generateMetadata({ params }) {
   const { locale, entrada: slug } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   const entrada = articuloPublicado(slug);
   if (!entrada) return {};
 
@@ -40,6 +49,7 @@ export async function generateMetadata({ params }) {
 export default async function Entrada({ params, searchParams }) {
   const { locale, entrada: slug } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   const consulta = await searchParams;
   const entrada = articuloPublicado(slug);
   const enPrevia = consulta?.[PARAMETRO_PREVIA] === idPreviaArticulo(slug);

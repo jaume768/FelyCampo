@@ -13,7 +13,8 @@
    privacidad; más el historial de estado y las notas internas.
    La cita empieza asignada al atelier que eligió la clienta; se puede
    pasar a otro atelier o a una boutique (puntoCercano.js).
-   Datos de EJEMPLO (citasMock): cambiar estado/asignación y guardar
+   De la base de datos: cambiar estado/asignación y guardar notas se
+   guarda al momento (antes, datos de ejemplo de citasMock).
    notas solo muestran el aviso "(demo)" hasta que haya base de datos.
    Sin «Responder por email» ni «Llamar»: los enlaces mailto:/tel: solo
    hacen algo si el ordenador tiene un programa de correo o de llamadas
@@ -25,13 +26,14 @@ import { notFound } from 'next/navigation';
 import { Copy, MessageCircle, Printer } from 'lucide-react';
 import { BotonVolver, useToast } from '@/components/admin';
 import { Boton } from '@/components/ui';
-import { citasMock, ESTADOS_CITA } from '@/components/admin/mockData';
+import { ESTADOS_CITA } from '@/components/admin/mockData';
+import { useSolicitud } from '@/components/admin/useBandeja';
 import { enlaceWhatsapp } from '@/lib/contacto';
 import {
   fechaHora, mesAnio, nombreAtelier, nombreIdioma,
 } from '../citasFormato';
 import {
-  ATELIERES_PROPIOS, boutiquesPorPais, puntoDeSede, puntoPorId,
+  ateliersPropios, boutiquesPorPais, puntoDeSede, puntoPorId,
 } from '../puntoCercano';
 import styles from './page.module.css';
 
@@ -46,35 +48,41 @@ function Dato({ etiqueta, children }) {
 
 export default function DetalleCitaPage({ params }) {
   const { id } = use(params);
-  const cita = citasMock.find((c) => c.id === id);
+  // De la base de datos (lib/solicitudesAdmin.js). Cada cambio se guarda al
+  // momento; el historial lo escribe el servidor, con su fecha.
+  const { item: cita, cargando, error, guardar } = useSolicitud('citas', id);
 
   const { mostrarToast } = useToast();
-  const [estado, setEstado] = useState(cita?.estado || 'Pendiente');
-  const [notas, setNotas] = useState('');
-  const [historial, setHistorial] = useState(
-    cita ? [{ estado: 'Pendiente', fecha: fechaHora(cita.recibida) }] : [],
-  );
-  // Empieza asignada al atelier que eligió la clienta.
-  const [asignado, setAsignado] = useState(() => (cita && puntoDeSede(cita.ubicacion)?.id) || '');
+  const [notas, setNotas] = useState(null); // null = sin tocar: las guardadas
 
-  if (!cita) notFound();
+  if (cargando) return <p role="status" style={{ padding: 32 }}>Cargando…</p>;
+  if (error === 'no-existe') notFound();
+  if (error || !cita) return <p role="alert" style={{ padding: 32 }}>No se ha podido cargar la cita: {error}</p>;
 
-  function ahoraLegible() {
-    const ahora = new Date();
-    return fechaHora(`${ahora.toISOString().slice(0, 10)}T${ahora.toTimeString().slice(0, 5)}`);
+  const estado = cita.estado;
+  const historial = cita.historial;
+  const textoNotas = notas ?? cita.notas ?? '';
+  // En la base de datos empieza asignada al atelier elegido (su id de sede:
+  // "salamanca"); el selector trabaja con ids de punto de venta.
+  const asignado = (cita.asignado && puntoPorId(cita.asignado) ? cita.asignado : puntoDeSede(cita.asignado || cita.ubicacion)?.id) || '';
+
+  async function cambiar(cambios, aviso) {
+    try {
+      await guardar(cambios);
+      mostrarToast(aviso);
+    } catch (e) {
+      mostrarToast(`No se ha podido guardar: ${e.message}`, 6000);
+    }
   }
 
   function cambiarEstado(nuevo) {
     if (nuevo === estado) return;
-    setEstado(nuevo);
-    setHistorial([...historial, { estado: nuevo, fecha: ahoraLegible() }]);
-    mostrarToast(`Estado actualizado a "${nuevo}" (demo)`);
+    cambiar({ estado: nuevo }, `Estado actualizado a "${nuevo}"`);
   }
 
   function cambiarAsignado(nuevoId) {
-    setAsignado(nuevoId);
     const punto = puntoPorId(nuevoId);
-    mostrarToast(punto ? `Asignada a ${punto.nombre} (demo)` : 'Sin asignar (demo)');
+    cambiar({ asignado: nuevoId }, punto ? `Asignada a ${punto.nombre}` : 'Sin asignar');
   }
 
   async function copiar(texto, que) {
@@ -136,7 +144,7 @@ export default function DetalleCitaPage({ params }) {
             <select id="cita-asignado" className={styles.selectInput} value={asignado} onChange={(e) => cambiarAsignado(e.target.value)}>
               <option value="">Sin asignar</option>
               <optgroup label="Ateliers Fely Campo">
-                {ATELIERES_PROPIOS.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                {ateliersPropios().map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
               </optgroup>
               {boutiquesPorPais().map(([pais, boutiques]) => (
                 <optgroup key={pais} label={`Boutiques · ${pais}`}>
@@ -191,7 +199,7 @@ export default function DetalleCitaPage({ params }) {
             <ul className={styles.historial}>
               {historial.map((h, i) => (
                 <li key={i} className={styles.historialFila}>
-                  <span>{h.fecha}</span>
+                  <span>{fechaHora(h.fecha)}</span>
                   <span>{h.estado}</span>
                 </li>
               ))}
@@ -201,10 +209,10 @@ export default function DetalleCitaPage({ params }) {
           <section className={styles.seccion}>
             <h2 className={styles.seccionTitulo}>Notas internas</h2>
             <div className={styles.soloPantalla}>
-              <textarea className={styles.notas} value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Solo las ve el equipo" />
-              <Boton variante="contorno" tamano="s" onClick={() => mostrarToast('Notas internas guardadas (demo)')}>Guardar notas</Boton>
+              <textarea className={styles.notas} value={textoNotas} onChange={(e) => setNotas(e.target.value)} placeholder="Solo las ve el equipo" />
+              <Boton variante="contorno" tamano="s" onClick={() => cambiar({ notas: textoNotas }, 'Notas internas guardadas')}>Guardar notas</Boton>
             </div>
-            <p className={`${styles.notasImpresas} ${styles.soloImpresion}`}>{notas || 'Sin notas.'}</p>
+            <p className={`${styles.notasImpresas} ${styles.soloImpresion}`}>{textoNotas || 'Sin notas.'}</p>
           </section>
         </article>
       </div>

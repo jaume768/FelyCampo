@@ -1,5 +1,3 @@
-import uuid
-
 from rest_framework import serializers
 
 from .models import MediaAsset, MediaKind
@@ -7,7 +5,9 @@ from .processing import process_image
 from .variants import generate_variants
 
 MAX_IMAGE_BYTES = 25 * 1024 * 1024
-MAX_VIDEO_BYTES = 100 * 1024 * 1024
+# 15 MB: el máximo de los vídeos de la web (`LIMITES_VIDEO` del frontend, el del hero de
+# escritorio). El panel ya avisa antes de subir, pero ese control se puede saltar.
+MAX_VIDEO_BYTES = 15 * 1024 * 1024
 
 IMAGE_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 VIDEO_CONTENT_TYPES = {"video/mp4", "video/webm", "video/quicktime"}
@@ -56,6 +56,8 @@ class MediaUploadSerializer(serializers.Serializer):
 
     file = serializers.FileField()
     alt_text = serializers.CharField(required=False, allow_blank=True, default="")
+    # Nombre descriptivo para el archivo (SEO): «fely-campo-coleccion-fiesta-opaline-look-3».
+    nombre = serializers.CharField(required=False, allow_blank=True, max_length=120, default="")
 
     def validate_file(self, value):
         content_type = value.content_type or ""
@@ -89,6 +91,7 @@ class MediaUploadSerializer(serializers.Serializer):
             alt_text=validated_data.get("alt_text", ""),
             uploaded_by=self.context["request"].user,
         )
+        asset.nombre_seo = validated_data.get("nombre", "")
 
         if kind == MediaKind.IMAGE:
             try:
@@ -97,9 +100,8 @@ class MediaUploadSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     {"file": "No se ha podido procesar la imagen. ¿Es un archivo válido?"}
                 ) from exc
-            filename = f"{uuid.uuid4().hex}.webp"
-            asset.file.save(filename, processed, save=False)
-            asset.thumbnail.save(filename, thumbnail, save=False)
+            asset.file.save(upload.name, processed, save=False)
+            asset.thumbnail.save(upload.name, thumbnail, save=False)
             asset.width = width
             asset.height = height
         else:

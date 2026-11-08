@@ -12,16 +12,19 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { obtenerTalleres } from '@/lib/talleres';
 import { metadataPagina } from '@/lib/seo';
 import TalleresContenido from './TalleresContenido';
+import { cargarContenido } from '@/lib/contenidoServidor';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/talleres-fely-campo' });
 }
 
 export default async function Pagina({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   const t = await getTranslations('talleres');
   return <TalleresContenido publicado={obtenerTalleres()} locale={locale} etiquetaTodo={t('filtroTodo')} />;
 }

@@ -12,7 +12,7 @@
 // colecciones y devuelven lo que pinta cada plantilla) y siguen valiendo.
 // Ver docs/ADMIN.md.
 
-import { COLECCIONES_FIESTA } from '@/datos/atelierFiesta';
+import { derivado } from './contenido';
 import { slugify } from './slugify';
 import { sinNumeroColeccion } from './nombreColeccion';
 
@@ -38,13 +38,15 @@ export function ordenarLooks(looks = []) {
     .map(({ look }) => look);
 }
 
-const COLECCIONES_ORDENADAS = COLECCIONES_FIESTA.map((coleccion) => ({
+// Los looks ordenados por número, recalculado solo cuando el documento
+// cambia (se publica desde el panel).
+const coleccionesOrdenadas = derivado('colecciones-fiesta', (colecciones) => colecciones.map((coleccion) => ({
   ...coleccion,
   looks: ordenarLooks(coleccion.looks),
-}));
+})));
 
 export function obtenerColeccionesFiesta() {
-  return COLECCIONES_ORDENADAS;
+  return coleccionesOrdenadas();
 }
 
 // "26_Opaline" (con temporada) o "En Madrid" (sin temporada): el nombre

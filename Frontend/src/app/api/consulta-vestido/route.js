@@ -11,6 +11,7 @@
 import {
   EMAIL_VALIDO, destinatariosEquipo, enviarEmail, escapar, faltaConfiguracion, tabla, texto,
 } from '@/lib/emailFormularios';
+import { guardarEnBackend } from '@/lib/backendInterno';
 
 const ORIGEN = 'api/consulta-vestido';
 const TIPOS = { novias: 'Novias', fiesta: 'Fiesta', pretaporter: 'Prêt-à-porter' };
@@ -67,6 +68,26 @@ export async function POST(request) {
   const valido = consulta.producto && consulta.nombre && EMAIL_VALIDO.test(consulta.email) && datos.aceptaLegal === true;
   if (!valido) return Response.json({ ok: false, error: 'datos' }, { status: 422 });
 
+  // Se guarda para la bandeja del panel (/admin/consultas-precio) ANTES de
+  // los emails: si hay demasiados envíos desde esta IP, no se manda nada.
+  const imagen = texto(datos.imagen, 300);
+  const colorHex = texto(datos.colorHex, 9);
+  const guardado = await guardarEnBackend('consultas', {
+    nombre: consulta.nombre,
+    email: consulta.email,
+    telefono: consulta.telefono,
+    mensaje: consulta.mensaje,
+    idioma: locale,
+    acepta_legal: true,
+    tipo: consulta.tipo || '',
+    producto: consulta.producto,
+    color: consulta.color,
+    color_hex: /^#[0-9a-f]{3,8}$/i.test(colorHex) ? colorHex : '',
+    ruta: consulta.ruta,
+    imagen: imagen.startsWith('/') && !imagen.startsWith('//') ? imagen : '',
+  }, request);
+  if (guardado.status === 429) return Response.json({ ok: false, error: 'ritmo' }, { status: 429 });
+
   const t = TEXTOS_CLIENTA[locale];
   const emailClienta = {
     to: [consulta.email],
@@ -108,7 +129,9 @@ export async function POST(request) {
     await enviarEmail(emailEquipo, ORIGEN);
   } catch (error) {
     console.error(`[${ORIGEN}] Error enviando el aviso al equipo:`, error);
-    return Response.json({ ok: false, error: 'envio' }, { status: 502 });
+    // Si está guardada, el equipo la verá en el panel: para la clienta,
+    // enviada. Solo es un error si no ha llegado por ninguno de los dos.
+    if (!guardado.ok) return Response.json({ ok: false, error: 'envio' }, { status: 502 });
   }
 
   try {

@@ -22,7 +22,8 @@ import {
 } from '@/components/admin';
 import { BotonFila } from '@/components/admin/ListadoAdmin';
 import { Input } from '@/components/ui';
-import { consultasPrecioMock, ESTADOS_CITA } from '@/components/admin/mockData';
+import { ESTADOS_CITA } from '@/components/admin/mockData';
+import { useBandeja } from '@/components/admin/useBandeja';
 import { CONFIG_ORIGEN_PRODUCTO } from '@/components/admin/OrigenProductoBadge';
 import { fechaCorta, IDIOMAS_CITA } from '../consultas/citasFormato';
 import BanderaIdioma from '../consultas/BanderaIdioma';
@@ -74,9 +75,12 @@ export default function ConsultasVestidosPage() {
   const [orden, setOrden] = useState('reciente');
   const [vista, setVista] = useState('tabla');
 
+  // De la base de datos (lib/solicitudesAdmin.js).
+  const { items: consultas, cargando, error } = useBandeja('consultas');
+
   const filtradas = useMemo(() => {
     const texto = query.trim().toLowerCase();
-    return consultasPrecioMock
+    return consultas
       .filter((c) => {
         if (filtroEstado !== TODOS && c.estado !== filtroEstado) return false;
         if (filtroTipo !== TODOS && c.tipo !== filtroTipo) return false;
@@ -85,9 +89,9 @@ export default function ConsultasVestidosPage() {
         return true;
       })
       .sort((a, b) => (orden === 'antigua' ? a.recibida.localeCompare(b.recibida) : b.recibida.localeCompare(a.recibida)));
-  }, [filtroEstado, filtroTipo, filtroIdioma, orden, query]);
+  }, [consultas, filtroEstado, filtroTipo, filtroIdioma, orden, query]);
 
-  const pendientes = consultasPrecioMock.filter((c) => c.estado === 'Pendiente').length;
+  const pendientes = consultas.filter((c) => c.estado === 'Pendiente').length;
   const hayFiltros = orden !== 'reciente' || filtroTipo !== TODOS || filtroIdioma !== TODOS || query !== '';
 
   function limpiarFiltros() {
@@ -101,7 +105,7 @@ export default function ConsultasVestidosPage() {
     <div>
       <PageHeader
         titulo="Consultas de vestidos"
-        subtitulo={`${filtradas.length} consultas · ${pendientes} pendientes · «Contacta con nosotros» de las fichas de Novias y Fiesta`}
+        subtitulo={cargando ? 'Cargando…' : error ? `No se han podido cargar: ${error}` : `${filtradas.length} consultas · ${pendientes} pendientes · «Contacta con nosotros» de las fichas de Novias y Fiesta`}
       >
         <div className={styles.vistaToggle} role="group" aria-label="Cambiar vista">
           <button

@@ -40,7 +40,8 @@ const BASE = EDITOR_RUNWAY;
 // Al entrar se abre la página (cabecera del listado de la web); las
 // colecciones están en la segunda pestaña.
 const LISTADO = `${BASE}?vista=colecciones`;
-const DEMO = ' (demo: se guardará de verdad al conectar la base de datos)';
+// Ya se guarda en la base de datos (ContenidoAdmin.jsx): sin coletilla «demo».
+const DEMO = '';
 const urlWeb = (coleccion) => `/es/runways-${coleccion.slug}`;
 
 // Campos que pueden quedar vacíos a propósito (ver RunwayContenido.jsx).

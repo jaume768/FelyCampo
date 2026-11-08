@@ -20,6 +20,8 @@ import { SITE_URL, SITIO_INDEXABLE } from '@/lib/seo';
 import { CarritoProvider } from '@/context/CarritoContext';
 import { MiCuentaProvider } from '@/context/MiCuentaContext';
 import { locales } from '@/i18n';
+import { cargarContenido } from '@/lib/contenidoServidor';
+import ContenidoCliente, { CLAVES_MARCO } from '@/components/layout/ContenidoCliente';
 
 // Qué cambia del marco según la página (Navbar transparente, bandas de
 // cita, newsletter de la home): en components/layout/MarcoRuta.jsx, con
@@ -65,8 +67,12 @@ export const metadata = {
   },
 };
 
+// Sin páginas generadas en el build: el contenido sale de la API, que en
+// el build de Docker no está. Cada página se genera en su primera visita y
+// queda en caché (estática) hasta que se publica algo desde el panel
+// (revalidateTag «contenido», ver src/lib/contenidoServidor.js).
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return [];
 }
 
 export default async function RootLayout({ children, params }) {
@@ -75,16 +81,18 @@ export default async function RootLayout({ children, params }) {
   // Sin esto next-intl lee el idioma de las cabeceras y la página deja de
   // poder ser estática. Va en este layout y en cada página.
   setRequestLocale(locale);
+  await cargarContenido();
 
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className={clasesFuentes}>
+    <html lang={locale} className={clasesFuentes} data-scroll-behavior="smooth">
       <body>
         <Analitica />
         {/* timeZone también aquí: los componentes de cliente que formatean
             fechas avisaban de ENVIRONMENT_FALLBACK al prerenderizar. */}
         <NextIntlClientProvider messages={messages} timeZone="Europe/Madrid">
+          <ContenidoCliente claves={CLAVES_MARCO}>
           <CarritoProvider>
             <MiCuentaProvider>
               <MarcoRuta
@@ -101,6 +109,7 @@ export default async function RootLayout({ children, params }) {
               <CookieConsent />
             </MiCuentaProvider>
           </CarritoProvider>
+          </ContenidoCliente>
         </NextIntlClientProvider>
       </body>
     </html>

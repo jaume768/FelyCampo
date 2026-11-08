@@ -20,18 +20,23 @@
 import Link from 'next/link';
 import { PageHeader, TablaAdmin, EstadoBadge } from '@/components/admin';
 import { Boton } from '@/components/ui';
-import { citasMock, consultasPrecioMock, newsletterMock } from '@/components/admin/mockData';
-import { FOTOS_INVITADAS, FOTOS_NOVIAS, RESENAS_INTERCALADAS } from '@/components/layout/vosotrasFotos';
+import { useBandeja } from '@/components/admin/useBandeja';
+import { fotosInvitadas, fotosNovias, resenasIntercaladas } from '@/components/layout/vosotrasFotos';
 import { fechaHora, mesAnio, nombreAtelier } from './consultas/citasFormato';
 import BanderaIdioma from './consultas/BanderaIdioma';
 import styles from './page.module.css';
 
 export default function AdminDashboard() {
-  const citasPendientes = citasMock.filter((c) => c.estado === 'Pendiente').length;
-  const solicitudesPendientes = consultasPrecioMock.filter((c) => c.estado === 'Pendiente').length;
-  const gruposVosotras = FOTOS_INVITADAS.length + FOTOS_NOVIAS.length;
+  // De la base de datos (lib/solicitudesAdmin.js).
+  const { items: citas } = useBandeja('citas');
+  const { items: consultas } = useBandeja('consultas');
+  const { items: suscriptores } = useBandeja('suscriptores');
 
-  const ultimasCitas = [...citasMock].sort((a, b) => b.recibida.localeCompare(a.recibida)).slice(0, 5);
+  const citasPendientes = citas.filter((c) => c.estado === 'Pendiente').length;
+  const solicitudesPendientes = consultas.filter((c) => c.estado === 'Pendiente').length;
+  const gruposVosotras = fotosInvitadas().length + fotosNovias().length;
+
+  const ultimasCitas = [...citas].sort((a, b) => b.recibida.localeCompare(a.recibida)).slice(0, 5);
 
   return (
     <div>
@@ -39,15 +44,15 @@ export default function AdminDashboard() {
 
       <div className={styles.widgets}>
         <div className={styles.widget}>
-          <p className={styles.widgetValor}>{citasMock.length}</p>
+          <p className={styles.widgetValor}>{citas.length}</p>
           <p className={styles.widgetLabel}>Solicitudes de cita</p>
         </div>
         <div className={styles.widget}>
-          <p className={styles.widgetValor}>{consultasPrecioMock.length}</p>
+          <p className={styles.widgetValor}>{consultas.length}</p>
           <p className={styles.widgetLabel}>Consultas de vestidos</p>
         </div>
         <div className={styles.widget}>
-          <p className={styles.widgetValor}>{newsletterMock.length}</p>
+          <p className={styles.widgetValor}>{suscriptores.filter((s) => s.activo).length}</p>
           <p className={styles.widgetLabel}>Suscriptoras newsletter</p>
         </div>
         <div className={styles.widget}>
@@ -68,7 +73,7 @@ export default function AdminDashboard() {
             <p className={styles.accesoLabel}>Consultas de vestidos pendientes</p>
           </Link>
           <Link href="/admin/vosotras" className={styles.acceso}>
-            <p className={styles.accesoValor}>{RESENAS_INTERCALADAS.length}</p>
+            <p className={styles.accesoValor}>{resenasIntercaladas().length}</p>
             <p className={styles.accesoLabel}>Reseñas en Vosotras</p>
           </Link>
         </div>

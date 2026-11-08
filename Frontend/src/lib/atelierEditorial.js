@@ -10,7 +10,7 @@
 // obtenerEditorialPretAPorter(). Ver
 // docs/ADMIN.md.
 
-import { EDITORIAL_FIESTA, EDITORIAL_NOVIAS, EDITORIAL_PRET_A_PORTER } from '@/datos/atelierEditorial';
+import { contenido } from './contenido';
 
 // Ids de página (Paginas.jsx) y de vista previa (?previa=<id>).
 export const ID_PAGINA_NOVIAS = 'atelier-novias';
@@ -18,15 +18,15 @@ export const ID_PAGINA_FIESTA = 'atelier-fiesta';
 export const ID_PAGINA_PRET_A_PORTER = 'pret-a-porter-pagina';
 
 export function obtenerEditorialNovias() {
-  return EDITORIAL_NOVIAS;
+  return contenido('editorial-novias');
 }
 
 export function obtenerEditorialFiesta() {
-  return EDITORIAL_FIESTA;
+  return contenido('editorial-fiesta');
 }
 
 export function obtenerEditorialPretAPorter() {
-  return EDITORIAL_PRET_A_PORTER;
+  return contenido('editorial-pret-a-porter');
 }
 
 // /pret-a-porter: el carrusel de la portada y la descripción.

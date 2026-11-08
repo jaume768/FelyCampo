@@ -16,6 +16,7 @@ import styles from './page.module.css';
 import { metadataPagina, textosSeo } from '@/lib/seo';
 import { obtenerLanding } from '@/lib/landing';
 import { setRequestLocale } from 'next-intl/server';
+import { cargarContenido } from '@/lib/contenidoServidor';
 
 // ---- Datos de las secciones comentadas más abajo — se quedan aquí
 // tal cual por si se reactivan (ver bloque comentado en el return). ----
@@ -68,17 +69,19 @@ import { setRequestLocale } from 'next-intl/server';
 
 // Fotos y vídeo del hero y del bloque Atelier: se editan en /admin/landing
 // (ver lib/landing.js y docs/ADMIN.md).
-const landing = obtenerLanding();
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/' });
 }
 
 export default async function Home({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
+  const landing = obtenerLanding();
   // const tVisitaAtelier = await getTranslations('visitaAtelier'); // BloqueSeccion comentado más abajo
 
   return (

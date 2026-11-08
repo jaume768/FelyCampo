@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from apps.adminapi.permissions import IsStaff
 from apps.core.throttling import FailOpenScopedRateThrottle
@@ -46,6 +47,24 @@ class PublicDocumentView(RetrieveAPIView):
     throttle_scope = "content"
 
 
+class PublicDocumentsView(APIView):
+    """
+    TODOS los documentos en una sola respuesta, `{clave: datos}` (~520 KB, ~70 KB con gzip).
+    Es lo que pide el servidor de Next para renderizar: una sola petición, cacheada con la
+    etiqueta `contenido` e invalidada al publicar (`revalidation.py`). Mismo criterio que
+    `PublicDocumentView` sobre lo oculto y el cupo.
+    """
+
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    throttle_classes = [FailOpenScopedRateThrottle]
+    throttle_scope = "content"
+
+    @extend_schema(responses={200: dict})
+    def get(self, request):
+        return Response(dict(Document.objects.values_list("key", "data")))
+
+
 class AdminDocumentViewSet(
     mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
 ):
@@ -64,7 +83,8 @@ class AdminDocumentViewSet(
     http_method_names = ["get", "put", "head", "options"]
 
     def get_serializer_class(self):
-        if self.action == "list":
+        # ?con_datos=1: el panel carga todo de una vez al abrirse (19 documentos).
+        if self.action == "list" and self.request.query_params.get("con_datos") != "1":
             return AdminDocumentSummarySerializer
         if self.action == "update":
             return PublishDocumentSerializer

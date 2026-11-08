@@ -39,6 +39,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { metadataPagina } from '@/lib/seo';
 import { obtenerEditorialNovias } from '@/lib/atelierEditorial';
 import NoviasContenido from './NoviasContenido';
+import { cargarContenido } from '@/lib/contenidoServidor';
 // Cuadrícula de looks comentada a petición (ver arriba):
 // import { CuadriculaProductos } from '@/components/layout';
 // import { noviaProductos } from '@/components/layout/noviaProductos';
@@ -46,12 +47,14 @@ import NoviasContenido from './NoviasContenido';
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/atelier/novias' });
 }
 
 export default async function Pagina({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   const t = await getTranslations();
 
   return (

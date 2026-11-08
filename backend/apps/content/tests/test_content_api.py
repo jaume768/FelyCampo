@@ -170,7 +170,7 @@ def test_publicar_avisa_al_frontend_tras_el_commit(staff_client, settings):
     request = urlopen.call_args.args[0]
     assert request.full_url == "http://frontend:3000/api/revalidar"
     assert request.get_header("X-revalidate-secret") == "s3cr3t"
-    assert request.data == b'{"tags": ["contenido:contacto"]}'
+    assert request.data == b'{"tags": ["contenido", "contenido:contacto"]}'
 
 
 @pytest.mark.django_db(transaction=True)
@@ -210,3 +210,21 @@ def test_semilla_apunta_las_fotos_al_almacen_de_medios():
 
     hero = Document.objects.get(key="landing").data["hero"]["imagen"]["escritorio"]
     assert hero.startswith("/media/web/img/")
+
+
+@pytest.mark.django_db
+def test_todos_los_documentos_en_una_peticion(landing):
+    publish_document("contacto", {"email": "a@b.c"}, expected_version=None, revalidate=False)
+
+    response = APIClient().get("/api/v1/content/")
+
+    assert response.status_code == 200
+    assert response.json() == {"landing": landing.data, "contacto": {"email": "a@b.c"}}
+
+
+@pytest.mark.django_db
+def test_panel_carga_todo_con_versiones(staff_client, landing):
+    response = staff_client.get(f"{ADMIN_URL}?con_datos=1")
+
+    assert response.json()[0]["data"] == landing.data
+    assert response.json()[0]["version"] == 1

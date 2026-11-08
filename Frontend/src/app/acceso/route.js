@@ -23,6 +23,7 @@ import { obtenerLanding } from '@/lib/landing';
 import {
   COOKIE_EQUIPO, destinoSeguro, enPrelanzamiento, fechaLanzamiento, verificarSesion,
 } from '@/lib/sesionEquipo';
+import { cargarContenido } from '@/lib/contenidoServidor';
 
 export const dynamic = 'force-dynamic';
 
@@ -110,8 +111,16 @@ export async function GET(request) {
     day: 'numeric', month: 'long', timeZone: 'Europe/Madrid',
   }).format(lanzamiento);
 
-  const contacto = obtenerContacto();
-  const landing = obtenerLanding();
+  // Si la API no responde, el login sigue funcionando (sin foto ni contacto).
+  let contacto = { redes: {} };
+  let landing = null;
+  try {
+    await cargarContenido();
+    contacto = obtenerContacto();
+    landing = obtenerLanding();
+  } catch (error) {
+    console.error('[acceso] Sin contenido de la API:', error.message);
+  }
   // La foto vertical de la portada (la de móvil) también en escritorio: la
   // columna de la foto es más alta que ancha, y la horizontal (dos caras en
   // espejo) recortada ahí solo enseñaba el fondo negro del centro.

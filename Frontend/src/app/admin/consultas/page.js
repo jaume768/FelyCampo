@@ -13,7 +13,7 @@
    Antes "Consultas / Citas" con consultasMock (consultas genéricas con
    producto relacionado, que el front no tiene) — sustituido a petición
    para adaptar el admin a lo que se usa de verdad.
-   Datos de EJEMPLO hasta que /api/cita guarde las solicitudes.
+   De la base de datos: /api/cita las guarda al enviarse (además del email).
    ============================================================ */
 
 import { Suspense, useMemo, useState } from 'react';
@@ -21,7 +21,8 @@ import { useSearchParams } from 'next/navigation';
 import { PageHeader, TablaAdmin, EstadoBadge, FiltroBar, FiltroSelector } from '@/components/admin';
 import { BotonFila } from '@/components/admin/ListadoAdmin';
 import { Input } from '@/components/ui';
-import { citasMock, ESTADOS_CITA } from '@/components/admin/mockData';
+import { ESTADOS_CITA } from '@/components/admin/mockData';
+import { useBandeja } from '@/components/admin/useBandeja';
 import { ATELIERES_CITA } from '@/lib/citaAtelier';
 import {
   fechaCorta, IDIOMAS_CITA, mesAnio, nombreAtelier,
@@ -31,6 +32,8 @@ import styles from './page.module.css';
 
 function CitasContenido() {
   const searchParams = useSearchParams();
+  // De la base de datos (lib/solicitudesAdmin.js).
+  const { items: citas, cargando, error } = useBandeja('citas');
   const [query, setQuery] = useState('');
   const [filtroEstado, setFiltroEstado] = useState(searchParams.get('estado') || 'Todos');
   const [filtroIdioma, setFiltroIdioma] = useState('Todos');
@@ -38,7 +41,7 @@ function CitasContenido() {
 
   const filtradas = useMemo(() => {
     const texto = query.trim().toLowerCase();
-    return citasMock
+    return citas
       .filter((c) => {
         if (filtroEstado !== 'Todos' && c.estado !== filtroEstado) return false;
         if (filtroIdioma !== 'Todos' && c.locale !== filtroIdioma) return false;
@@ -47,9 +50,9 @@ function CitasContenido() {
         return true;
       })
       .sort((a, b) => b.recibida.localeCompare(a.recibida));
-  }, [filtroEstado, filtroIdioma, filtroAtelier, query]);
+  }, [citas, filtroEstado, filtroIdioma, filtroAtelier, query]);
 
-  const pendientes = citasMock.filter((c) => c.estado === 'Pendiente').length;
+  const pendientes = citas.filter((c) => c.estado === 'Pendiente').length;
   const hayFiltros = filtroEstado !== 'Todos' || filtroIdioma !== 'Todos' || filtroAtelier !== 'Todos' || query !== '';
 
   function limpiarFiltros() {
@@ -61,7 +64,10 @@ function CitasContenido() {
 
   return (
     <div>
-      <PageHeader titulo="Citas" subtitulo={`${filtradas.length} solicitudes · ${pendientes} pendientes`} />
+      <PageHeader
+        titulo="Citas"
+        subtitulo={cargando ? 'Cargando…' : error ? `No se han podido cargar: ${error}` : `${filtradas.length} solicitudes · ${pendientes} pendientes`}
+      />
 
       <FiltroBar onLimpiar={hayFiltros ? limpiarFiltros : undefined}>
         <Input etiqueta="Buscar" placeholder="Nombre, teléfono o email" valor={query} onChange={(e) => setQuery(e.target.value)} />

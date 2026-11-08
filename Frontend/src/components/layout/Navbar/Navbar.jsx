@@ -16,12 +16,14 @@ import NavbarPanelLateralContent from './NavbarPanelLateralContent';
 import NavbarPanelLateralCards from './NavbarPanelLateralCards';
 import { obtenerPiezasComunes } from '@/lib/piezasComunes';
 import { atributosImagen } from '@/lib/imagenes';
+import { derivado } from '@/lib/contenido';
 
 // Las fotos del menú salen de lib/piezasComunes.js (editables en el admin:
 // «Menú, Pedir cita y newsletter»). "portada" es la de cards[0], la que se
 // ve al abrir el desplegable.
-const FOTOS_MENU = obtenerPiezasComunes().menu;
-const FOTOS_MENU_MOVIL = FOTOS_MENU.movil;
+// Se leen al renderizar (no al importar): el contenido llega de la base de
+// datos después (src/lib/contenido.js). submenus() se recalcula solo si
+// cambia el documento.
 
 // Enlaces con submenú — coinciden con las categorías reales del
 // sitemap. El resto son enlaces simples, sin panel (ver "pedirCita" en
@@ -44,7 +46,7 @@ const FOTOS_MENU_MOVIL = FOTOS_MENU.movil;
 // se queda con Historia/Podcast (antes "Blog")/Talleres, "Puntos de
 // Venta" separa tiendas propias de externas, y "Pedir cita" pasa a
 // ser un enlace de primer nivel sin desplegable (ver NAV_ITEMS).
-const SUBMENU_STRUCTURE = {
+const submenus = derivado('piezas-comunes', ({ menu: FOTOS_MENU }) => ({
   atelier: {
     items: [
       { key: 'salamanca', href: '/atelier-fiesta/salamanca', image: FOTOS_MENU.atelier.salamanca },
@@ -107,7 +109,7 @@ const SUBMENU_STRUCTURE = {
       { key: 'externos', href: '/puntos-de-venta-fely-campo', image: FOTOS_MENU.puntosDeVenta.externos },
     ],
   },
-};
+}));
 
 // Orden fijo por encargo: Sobre Fely, Atelier, Colecciones, Dónde
 // encontrar Fely Campo (clave "puntosDeVenta", solo cambió el label) y
@@ -129,7 +131,7 @@ const NAV_ITEMS = [
 // abajo) — el resto, "Puntos de Venta" incluido, a la izquierda.
 // Todos los destinos de los submenús (lista + tarjetas), sin repetir
 // href — para el <nav hidden> rastreable del header (auditoría SEO M1).
-const ENLACES_SUBMENUS = Object.entries(SUBMENU_STRUCTURE)
+const enlacesSubmenus = () => Object.entries(submenus())
   .flatMap(([submenu, { items = [], cards = [] }]) => [...items, ...cards]
     .map((enlace) => ({ submenu, key: enlace.labelKey || enlace.key, href: enlace.href })))
   .filter((enlace, indice, todos) => todos.findIndex((otro) => otro.href === enlace.href) === indice);
@@ -164,10 +166,10 @@ const MEDIA_NAV_MOBILE = '(max-width: 964px), (max-width: 1024px) and (orientati
 // Prêt-à-porter de siempre.
 function MobileMenuBanner({ locale, submenuKey, onNavegar }) {
   const t = useTranslations('nav');
-  const card = submenuKey && SUBMENU_STRUCTURE[submenuKey].cards[0];
+  const card = submenuKey && submenus()[submenuKey].cards[0];
   const portada = card
     ? { href: card.href, image: card.image, imagePosition: card.imagePosition, label: t(`submenus.${submenuKey}.${card.labelKey || card.key}`) }
-    : { href: '/pret-a-porter', image: FOTOS_MENU_MOVIL, label: t('links.tienda') };
+    : { href: '/pret-a-porter', image: obtenerPiezasComunes().menu.movil, label: t('links.tienda') };
 
   return (
     <a
@@ -350,7 +352,7 @@ function Navbar({ transparent = false, crecerLogo = false, textoOscuro = false }
     headerLeaveTimeout.current = setTimeout(() => setHeaderHovered(false), CLOSE_DELAY_MS);
   };
 
-  const displayedSubmenu = lastSubmenu && SUBMENU_STRUCTURE[lastSubmenu];
+  const displayedSubmenu = lastSubmenu && submenus()[lastSubmenu];
 
   // Todos los enlaces internos del Navbar llevan el locale activo por
   // delante (/es/atelier, /en/atelier...) para que navegar por el sitio
@@ -435,7 +437,7 @@ function Navbar({ transparent = false, crecerLogo = false, textoOscuro = false }
   // prefijo) y con "Colecciones" (/atelier/novias, en su submenú) — solo
   // debe subrayarse Colecciones.
   const hrefsDe = (item) => (item.submenu
-    ? [item.href, ...SUBMENU_STRUCTURE[item.submenu].items.map((sub) => sub.href)]
+    ? [item.href, ...submenus()[item.submenu].items.map((sub) => sub.href)]
     : [item.href]);
   const hrefMasEspecifico = NAV_ITEMS
     .flatMap(hrefsDe)
@@ -520,7 +522,7 @@ function Navbar({ transparent = false, crecerLogo = false, textoOscuro = false }
             lector de pantalla (que ya tiene el menú real), pero los href
             siguen en el DOM, igual que un mega-menú desplegable. */}
         <nav hidden aria-hidden="true">
-          {ENLACES_SUBMENUS.map(({ submenu, key, href }) => (
+          {enlacesSubmenus().map(({ submenu, key, href }) => (
             <a key={href} href={withLocale(href)} tabIndex={-1}>
               {t(`submenus.${submenu}.${key}`)}
             </a>
@@ -741,7 +743,7 @@ function Navbar({ transparent = false, crecerLogo = false, textoOscuro = false }
                       submenú, así la entrada escalonada de .mobileMenuSubLink
                       (--i, ver CSS) se repite cada vez. */}
                   <ul key={mobileSubmenu} className={styles.mobileMenuList}>
-                    {SUBMENU_STRUCTURE[mobileSubmenu].items.map((subItem, indice) => (
+                    {submenus()[mobileSubmenu].items.map((subItem, indice) => (
                       <li
                         key={subItem.href}
                         className={subItem.separador ? styles.mobileMenuSubItemSeparador : undefined}

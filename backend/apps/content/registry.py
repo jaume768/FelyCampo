@@ -45,6 +45,11 @@ MAX_DOCUMENT_BYTES = 2 * 1024 * 1024
 MAX_REVISIONS = 50
 
 
+# La web lee todos los documentos en una sola petición con esta etiqueta: publicar
+# cualquiera la invalida (Frontend/src/lib/contenidoServidor.js).
+TAG_CONTENIDO = "contenido"
+
+
 def cache_tag(key: str) -> str:
     """Etiqueta de caché de Next.js para un documento (`fetch(..., {next: {tags}})`)."""
     return f"contenido:{key}"

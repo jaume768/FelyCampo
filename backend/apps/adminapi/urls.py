@@ -19,4 +19,5 @@ urlpatterns = [
     path("stock/", include("apps.stock.urls")),
     path("", include("apps.orders.admin_urls")),
     path("", include("apps.content.admin_urls")),
+    path("", include("apps.appointments.admin_urls")),
 ]

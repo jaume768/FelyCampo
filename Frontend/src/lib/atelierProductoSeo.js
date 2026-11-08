@@ -30,7 +30,7 @@ export function metadataProductoAtelier({ locale, slug, seccion }) {
   // en el admin); la ficha redirige a la nueva.
   const producto = seccion === 'fiesta'
     ? buscarProductoFiesta(slug).producto
-    : CATALOGOS[seccion]?.find((candidato) => slugify(candidato.nombre) === slug);
+    : CATALOGOS[seccion]?.()?.find((candidato) => slugify(candidato.nombre) === slug);
   if (!producto) return {};
 
   // Sin el número de temporada ("Look 27 26_Opaline" -> "Look 27 Opaline").

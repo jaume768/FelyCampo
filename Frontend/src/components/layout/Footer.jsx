@@ -9,11 +9,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import Boton from '@/components/ui/Boton';
 import { redesConEnlace } from '@/lib/contacto';
 import styles from './Footer.module.css';
+import { suscribirNewsletter } from '@/lib/newsletter';
 
-// Simulación — sustituir por la llamada real al endpoint de newsletter
-// cuando exista backend. Deja el try/catch de handleSubmitNewsletter
-// listo para propagar un error real.
-const suscribirNewsletter = (correo) => new Promise((resolve) => setTimeout(resolve, 500));
 
 /**
  * Pie de página de toda la web pública. 4 columnas + newsletter.
@@ -28,7 +25,7 @@ function Footer() {
   const enviarNewsletter = async () => {
     setEstado('cargando');
     try {
-      await suscribirNewsletter(email);
+      await suscribirNewsletter(email, { locale, origen: 'pie' });
       setEstado('exito');
       setEmail('');
     } catch {

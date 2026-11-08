@@ -17,7 +17,7 @@ import urllib.request
 
 from django.conf import settings
 
-from .registry import cache_tag
+from .registry import TAG_CONTENIDO, cache_tag
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def revalidate_document(key: str) -> bool:
 
     request = urllib.request.Request(
         f"{base.rstrip('/')}/api/revalidar",
-        data=json.dumps({"tags": [cache_tag(key)]}).encode(),
+        data=json.dumps({"tags": [TAG_CONTENIDO, cache_tag(key)]}).encode(),
         headers={"Content-Type": "application/json", "X-Revalidate-Secret": secret},
         method="POST",
     )

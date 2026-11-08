@@ -24,7 +24,7 @@
 
    Cuadrícula de looks (CuadriculaProductos) al final, visible — a
    petición explícita (a diferencia de atelier/novias/page.js, aquí NO
-   se comenta). "Prêt-à-porter" se quita de COLECCIONES_FIESTA (no
+   se comenta). "Prêt-à-porter" se quita de coleccionesVisiblesFiesta() (no
    pertenece a este listado de colecciones de Fiesta) — fiestaProductos.js
    NO se toca (sigue con las 11 completas: catálogo real que también
    alimenta /admin/colecciones/fiesta), aquí solo se excluye de lo que
@@ -41,26 +41,34 @@ import { obtenerEditorialFiesta } from '@/lib/atelierEditorial';
 import { coleccionesVisiblesFiesta, productosListadoFiesta } from '@/lib/catalogoFiesta';
 import FiestaContenido from './FiestaContenido';
 import { metadataPagina } from '@/lib/seo';
+import { cargarContenido } from '@/lib/contenidoServidor';
+
+// Dinámica a propósito: lee la URL (?previa= de la vista previa del admin,
+// ?coleccion=…). Las páginas no se generan en el build (layout.js), así que
+// Next ya no lo descubre solo y, sin esto, fallaba en producción con
+// DYNAMIC_SERVER_USAGE. Sigue siendo rápida: el contenido sale de la caché
+// de datos (cargarContenido), solo se renderiza en cada visita.
+export const dynamic = 'force-dynamic';
 
 // Colecciones visibles (de la más reciente a la más antigua) y sus looks
 // publicados: salen de los datos que edita /admin/colecciones/fiesta
 // (ver src/lib/catalogoFiesta.js). Ocultas hoy: Eclat y Prêt-à-porter.
-const COLECCIONES_FIESTA = coleccionesVisiblesFiesta();
-const PRODUCTOS_FIESTA = productosListadoFiesta();
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/atelier/fiesta' });
 }
 
 export default async function Pagina({ params, searchParams }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   // "?coleccion=" (ver comentario de novias/page.js): solo se
   // preselecciona si coincide exacto con una de las colecciones reales.
   const { coleccion } = await searchParams;
-  const coleccionActiva = COLECCIONES_FIESTA.includes(coleccion) ? coleccion : null;
+  const coleccionActiva = coleccionesVisiblesFiesta().includes(coleccion) ? coleccion : null;
   const t = await getTranslations();
 
   return (
@@ -74,7 +82,7 @@ export default async function Pagina({ params, searchParams }) {
         colecciones={(
           // 2. Colección fiesta, justo debajo
           <CuadriculaProductos
-            productos={PRODUCTOS_FIESTA}
+            productos={productosListadoFiesta()}
             disposicion="grid"
             // Cabecera (CabeceraSeccion) comentada a petición, igual que en
             // pret-a-porter/page.js: sin "tituloKey" CuadriculaProductos no la
@@ -83,7 +91,7 @@ export default async function Pagina({ params, searchParams }) {
             // coleccionKey="nav.submenus.atelier.fiesta"
             // descriptionKey="cuadriculaTabs.descripcion"
             ocultarPrecio
-            colecciones={COLECCIONES_FIESTA}
+            colecciones={coleccionesVisiblesFiesta()}
             coleccionActiva={coleccionActiva}
             hrefBase="atelier/fiesta"
             estiloYSilueta

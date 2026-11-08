@@ -64,7 +64,8 @@ function PestanasSeccion({ activa, cuenta }) {
   );
 }
 const NUEVO = 'nuevo';
-const DEMO = ' (demo: se guardará de verdad al conectar la base de datos)';
+// Ya se guarda en la base de datos (ContenidoAdmin.jsx): sin coletilla «demo».
+const DEMO = '';
 const urlWeb = (producto) => `/es/pret-a-porter/${slugProducto(producto.nombre)}`;
 const fotos = (n) => `${n} ${n === 1 ? 'foto' : 'fotos'}`;
 

@@ -20,15 +20,16 @@ import {
 } from 'react';
 import { ordenarLooks, slugLook } from '@/lib/catalogoFiesta';
 import { useCategorias } from './Categorias';
+import { useDocumentoAdmin } from './ContenidoAdmin';
 
 // obtener(): las colecciones de la web. categoriasAdmin(colecciones): la
 // forma que espera el submenú del menú lateral (tipoMenu: 'fiesta' | 'novia').
-export function crearCatalogoAtelier({ nombre, obtener, categoriasAdmin, tipoMenu }) {
+export function crearCatalogoAtelier({ nombre, clave, categoriasAdmin, tipoMenu }) {
   const Contexto = createContext(null);
 
   function Provider({ children }) {
     // Copia profunda: el admin nunca muta el array que lee la web.
-    const [colecciones, setColecciones] = useState(() => structuredClone(obtener()));
+    const [colecciones, setColecciones] = useDocumentoAdmin(clave);
     const { reordenarCategorias } = useCategorias();
 
     // El submenú del menú lateral sigue a las colecciones.

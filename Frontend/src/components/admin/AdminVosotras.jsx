@@ -41,7 +41,8 @@ const BASE = '/admin/vosotras';
 const INVITADAS = `${BASE}?pestana=invitadas`;
 const WEB = `/es${RUTA_WEB_VOSOTRAS}`;
 const NUEVO = 'nuevo';
-const DEMO = ' (demo: se guardará de verdad al conectar la base de datos)';
+// Ya se guarda en la base de datos (ContenidoAdmin.jsx): sin coletilla «demo».
+const DEMO = '';
 
 const nombrePestana = (id) => PESTANAS_VOSOTRAS.find((p) => p.id === id)?.nombre || '';
 const fotos = (n) => `${n} ${n === 1 ? 'foto' : 'fotos'}`;

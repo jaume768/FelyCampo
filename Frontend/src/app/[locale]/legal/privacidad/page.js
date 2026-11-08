@@ -8,15 +8,18 @@ import { metadataPagina } from '@/lib/seo';
 import TextoLegal from '../TextoLegal';
 import { PRIVACIDAD } from '../textos/privacidad';
 import { setRequestLocale } from 'next-intl/server';
+import { cargarContenido } from '@/lib/contenidoServidor';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/legal/privacidad' });
 }
 
 export default async function Pagina({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return <TextoLegal texto={PRIVACIDAD} locale={locale} />;
 }

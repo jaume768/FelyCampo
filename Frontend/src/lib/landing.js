@@ -7,7 +7,7 @@
 // PARA EL PROGRAMADOR: al conectar la base de datos, solo hay que cambiar
 // obtenerLanding() para que lea de ella. Ver docs/ADMIN.md.
 
-import { LANDING } from '@/datos/landing';
+import { contenido } from './contenido';
 import { coleccionesVisiblesFiesta } from './catalogoFiesta';
 import { sinNumeroColeccion } from './nombreColeccion';
 import { clavePrevia, completarCon } from './previa';
@@ -26,7 +26,7 @@ export const LARGO_RECOMENDADO = {
 };
 
 export function obtenerLanding() {
-  return LANDING;
+  return contenido('landing');
 }
 
 // Páginas a las que puede llevar un botón de la landing: solo rutas que

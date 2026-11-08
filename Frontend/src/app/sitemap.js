@@ -15,6 +15,7 @@ import { noviaProductos } from '@/components/layout/noviaProductos';
 import { fiestaProductos } from '@/components/layout/fiestaProductos';
 import { coleccionesVisiblesRunway } from '@/lib/runway';
 import { articulosVisibles } from '@/lib/blog';
+import { cargarContenido } from '@/lib/contenidoServidor';
 
 // Prioridad orientativa: home y páginas de conversión (ateliers, cita)
 // arriba; legales abajo.
@@ -54,14 +55,19 @@ function entrada(ruta, prioridadRuta = prioridad(ruta), fecha = undefined, image
   }));
 }
 
-export default function sitemap() {
+// Dinámico: se genera en cada petición (con el contenido de la caché de
+// datos de Next, sin ir a la API salvo tras publicar). En el build no hay API.
+export const dynamic = 'force-dynamic';
+
+export default async function sitemap() {
+  await cargarContenido();
   const fijas = Object.keys(obtenerSeoTextos())
     .filter((ruta) => !ruta.includes('/cita/confirmacion'));
 
   const dinamicas = [
-    ...tiendaProductos.map((p) => [`/pret-a-porter/${slugify(p.nombre)}`, 0.6, undefined, fotos(p.imagenes || [p.imagen])]),
-    ...noviaProductos.map((p) => [`/atelier/novias/${slugify(p.nombre)}`, 0.5, undefined, fotos(p.imagenes || [p.imagen])]),
-    ...fiestaProductos.map((p) => [`/atelier/fiesta/${slugify(p.nombre)}`, 0.5, undefined, fotos(p.imagenes || [p.imagen])]),
+    ...tiendaProductos().map((p) => [`/pret-a-porter/${slugify(p.nombre)}`, 0.6, undefined, fotos(p.imagenes || [p.imagen])]),
+    ...noviaProductos().map((p) => [`/atelier/novias/${slugify(p.nombre)}`, 0.5, undefined, fotos(p.imagenes || [p.imagen])]),
+    ...fiestaProductos().map((p) => [`/atelier/fiesta/${slugify(p.nombre)}`, 0.5, undefined, fotos(p.imagenes || [p.imagen])]),
     ...coleccionesVisiblesRunway().map((c) => [`/runways-${c.slug}`, 0.6, undefined, fotos([c.portada, ...(c.looks || []).map((l) => l.src)])]),
     // Episodios de podcast: sin ficha propia (enlazan a YouTube).
     // Artículos del blog publicados (los ocultos no), con su fecha.

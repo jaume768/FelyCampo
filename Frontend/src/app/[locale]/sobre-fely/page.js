@@ -11,15 +11,18 @@ import { obtenerSobreFely } from '@/lib/sobreFely';
 import { metadataPagina } from '@/lib/seo';
 import SobreFelyContenido from './SobreFelyContenido';
 import { setRequestLocale } from 'next-intl/server';
+import { cargarContenido } from '@/lib/contenidoServidor';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/sobre-fely' });
 }
 
 export default async function Pagina({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return <SobreFelyContenido publicado={obtenerSobreFely()} locale={locale} />;
 }

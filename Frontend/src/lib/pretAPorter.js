@@ -9,7 +9,7 @@
 // obtenerProductosPretAPorter(). Ver docs/ADMIN.md.
 
 import { TALLAS_DISPONIBLES } from '@/components/ecommerce/guiaTallasData';
-import { PRODUCTOS_PRET_A_PORTER } from '@/datos/pretAPorter';
+import { contenido } from './contenido';
 import { slugify } from './slugify';
 
 export const EDITOR_PRET_A_PORTER = '/admin/productos/pret-a-porter';
@@ -28,7 +28,7 @@ export const nombreCategoria = (id) => CATEGORIAS_PRET_A_PORTER.find((c) => c.id
 export const slugProducto = (nombre) => slugify(nombre || '');
 
 export function obtenerProductosPretAPorter() {
-  return PRODUCTOS_PRET_A_PORTER;
+  return contenido('productos-pret-a-porter');
 }
 
 // Un producto → la forma que pintan la cuadrícula, la ficha, el carrito y

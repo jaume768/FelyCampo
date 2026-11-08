@@ -3,71 +3,72 @@
 /* ============================================================
    PÁGINAS EDITABLES — estado del admin — Fely Campo
    El contenido publicado de las páginas que se editan con EditorPagina
-   (inicio, Sobre Fely, Talleres, los ateliers…) mientras se trabaja en el admin. Parte
-   de los mismos datos que la web (lib/landing.js, lib/sobreFely.js,
-   lib/talleres.js) y vive en el layout del panel, así que lo publicado
-   se mantiene al moverse por el admin. Sin base de datos todavía: se
-   pierde al recargar.
-   PARA EL PROGRAMADOR: guardar(id, datos) es la acción que debe llamar a
-   la API (ver docs/ADMIN.md).
+   (inicio, Sobre Fely, Talleres, los ateliers…). Cada página es un
+   documento de la base de datos o una parte de uno (las cabeceras y los
+   ateliers comparten documento):
+
+     usePagina(id) → { publicado, guardar(datos) }
+
+   guardar() publica en la base de datos a través de ContenidoAdmin.jsx
+   (con su versión, subida de fotos y aviso de conflicto si otra persona
+   ha publicado entretanto). Antes vivía en memoria y se perdía al recargar.
    ============================================================ */
 
-import {
-  createContext, useCallback, useContext, useState,
-} from 'react';
-import { obtenerLanding, PARAMETRO_PREVIA_LANDING } from '@/lib/landing';
-import { ID_PAGINA_SOBRE_FELY, obtenerSobreFely } from '@/lib/sobreFely';
-import { ID_PAGINA_TALLERES, obtenerTalleres } from '@/lib/talleres';
-import {
-  ID_PAGINA_FIESTA, ID_PAGINA_NOVIAS, ID_PAGINA_PRET_A_PORTER, obtenerEditorialFiesta, obtenerEditorialNovias, obtenerEditorialPretAPorter,
-} from '@/lib/atelierEditorial';
-import { idPaginaSede, obtenerSedes } from '@/lib/ateliers';
-import { ID_PAGINA_CONTACTO, obtenerContacto } from '@/lib/contacto';
-import { idPaginaCabecera, obtenerCabeceras } from '@/lib/cabeceras';
-import { ID_PAGINA_PIEZAS, obtenerPiezasComunes } from '@/lib/piezasComunes';
-import { ID_PAGINA_SEO, obtenerSeoTextos } from '@/lib/seoTextos';
+import { useCallback } from 'react';
+import { PARAMETRO_PREVIA_LANDING } from '@/lib/landing';
+import { ID_PAGINA_SOBRE_FELY } from '@/lib/sobreFely';
+import { ID_PAGINA_TALLERES } from '@/lib/talleres';
+import { ID_PAGINA_FIESTA, ID_PAGINA_NOVIAS, ID_PAGINA_PRET_A_PORTER } from '@/lib/atelierEditorial';
+import { ID_PAGINA_CONTACTO } from '@/lib/contacto';
+import { ID_PAGINA_PIEZAS } from '@/lib/piezasComunes';
+import { ID_PAGINA_SEO } from '@/lib/seoTextos';
+import { useContenidoAdmin } from './ContenidoAdmin';
 
-const PaginasContext = createContext(null);
+// id de página del panel → documento de la base de datos.
+const DOCUMENTO_DE_PAGINA = {
+  [PARAMETRO_PREVIA_LANDING]: 'landing',
+  [ID_PAGINA_SOBRE_FELY]: 'sobre-fely',
+  [ID_PAGINA_TALLERES]: 'talleres',
+  [ID_PAGINA_NOVIAS]: 'editorial-novias',
+  [ID_PAGINA_FIESTA]: 'editorial-fiesta',
+  [ID_PAGINA_PRET_A_PORTER]: 'editorial-pret-a-porter',
+  [ID_PAGINA_CONTACTO]: 'contacto',
+  [ID_PAGINA_PIEZAS]: 'piezas-comunes',
+  [ID_PAGINA_SEO]: 'seo-textos',
+};
 
+// Las que son una parte de un documento: «cabecera-blog» es
+// cabeceras.blog; «sede-madrid», sedes.madrid.
+const PARTES = [
+  { prefijo: 'cabecera-', documento: 'cabeceras' },
+  { prefijo: 'sede-', documento: 'sedes' },
+];
+
+export function ubicacionPagina(id) {
+  if (DOCUMENTO_DE_PAGINA[id]) return { documento: DOCUMENTO_DE_PAGINA[id], parte: null };
+  const parte = PARTES.find(({ prefijo }) => id.startsWith(prefijo));
+  if (parte) return { documento: parte.documento, parte: id.slice(parte.prefijo.length) };
+  throw new Error(`Página desconocida en el panel: ${id}`);
+}
+
+// Se mantiene el nombre del proveedor (lo monta app/admin/layout.js), pero
+// el estado vive en ContenidoAdmin.
 function PaginasProvider({ children }) {
-  // Copia profunda: el admin nunca muta los objetos que lee la web.
-  const [paginas, setPaginas] = useState(() => structuredClone({
-    [PARAMETRO_PREVIA_LANDING]: obtenerLanding(),
-    [ID_PAGINA_SOBRE_FELY]: obtenerSobreFely(),
-    [ID_PAGINA_TALLERES]: obtenerTalleres(),
-    [ID_PAGINA_NOVIAS]: obtenerEditorialNovias(),
-    [ID_PAGINA_FIESTA]: obtenerEditorialFiesta(),
-    [ID_PAGINA_PRET_A_PORTER]: obtenerEditorialPretAPorter(),
-    // Los 3 ateliers (sede-salamanca, sede-madrid, sede-oviedo).
-    [ID_PAGINA_CONTACTO]: obtenerContacto(),
-    // Fotos del menú, banda «Pedir cita», tarjetas de los ateliers y newsletter.
-    [ID_PAGINA_PIEZAS]: obtenerPiezasComunes(),
-    // Título y descripción de las páginas fijas en Google.
-    [ID_PAGINA_SEO]: obtenerSeoTextos(),
-    // Cabeceras de Blog, Vosotras, Runway, Visítanos y Puntos de venta.
-    ...Object.fromEntries(Object.entries(obtenerCabeceras()).map(([id, datos]) => [idPaginaCabecera(id), datos])),
-    ...Object.fromEntries(obtenerSedes().map((sede) => [idPaginaSede(sede.id), sede])),
-  }));
-
-  const guardar = useCallback((id, datos) => {
-    setPaginas((actual) => ({ ...actual, [id]: structuredClone(datos) }));
-  }, []);
-
-  return (
-    <PaginasContext.Provider value={{ paginas, guardar }}>
-      {children}
-    </PaginasContext.Provider>
-  );
+  return children;
 }
 
 // Lo publicado de una página y cómo publicar cambios.
 function usePagina(id) {
-  const contexto = useContext(PaginasContext);
-  if (!contexto) throw new Error('usePagina debe usarse dentro de <PaginasProvider>');
-  return {
-    publicado: contexto.paginas[id],
-    guardar: (datos) => contexto.guardar(id, datos),
-  };
+  const { documentos, publicar } = useContenidoAdmin();
+  const { documento, parte } = ubicacionPagina(id);
+  const publicado = parte ? documentos[documento]?.[parte] : documentos[documento];
+  const guardar = useCallback(
+    (datos) => publicar(documento, parte
+      ? (actual) => ({ ...actual, [parte]: structuredClone(datos) })
+      : structuredClone(datos)),
+    [documento, parte, publicar],
+  );
+  return { publicado, guardar };
 }
 
 export { PaginasProvider, usePagina };

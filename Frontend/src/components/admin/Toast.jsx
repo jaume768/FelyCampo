@@ -12,7 +12,7 @@
      router.push('/admin/productos');
    ============================================================ */
 
-import { createContext, useCallback, useContext, useState } from 'react';
+import { createContext, useCallback, useContext, useState, useRef } from 'react';
 import styles from './Toast.module.css';
 
 const ToastContext = createContext(null);
@@ -23,10 +23,14 @@ function ToastProvider({ children }) {
   const [mensaje, setMensaje] = useState('');
   const [visible, setVisible] = useState(false);
 
-  const mostrarToast = useCallback((texto) => {
+  const temporizador = useRef(null);
+  // "duracion" opcional: los avisos largos (un conflicto al publicar) se
+  // quedan más tiempo. Cada aviso nuevo reinicia la cuenta.
+  const mostrarToast = useCallback((texto, duracion = DURACION_MS) => {
     setMensaje(texto);
     setVisible(true);
-    setTimeout(() => setVisible(false), DURACION_MS);
+    clearTimeout(temporizador.current);
+    temporizador.current = setTimeout(() => setVisible(false), duracion);
   }, []);
 
   return (

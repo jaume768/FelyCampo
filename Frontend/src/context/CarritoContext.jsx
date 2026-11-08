@@ -48,7 +48,7 @@ const SEMBRAR_EJEMPLO = false;
 
 function lineasEjemplo() {
   if (!SEMBRAR_EJEMPLO) return [];
-  const buscar = (nombre) => tiendaProductos.find((producto) => producto.nombre === nombre);
+  const buscar = (nombre) => tiendaProductos().find((producto) => producto.nombre === nombre);
   const falda = buscar('Falda Basilea');
   const vestido = buscar('Vestido Largo Chicago');
   const chaqueta = buscar('Chaqueta Aranjuez');

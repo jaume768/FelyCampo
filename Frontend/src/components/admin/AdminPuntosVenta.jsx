@@ -46,7 +46,8 @@ const LISTADO = `${BASE}?vista=puntos`;
 const WEB = `/es${RUTA_WEB_PUNTOS}`;
 const NUEVO = 'nuevo';
 const OTRO_PAIS = '__otro__';
-const DEMO = ' (demo: se guardará de verdad al conectar la base de datos)';
+// Ya se guarda en la base de datos (ContenidoAdmin.jsx): sin coletilla «demo».
+const DEMO = '';
 
 // Los ateliers propios toman la dirección y el teléfono de su página de
 // atelier: aquí, de lo publicado en el admin. (Siempre las 3 sedes, en el

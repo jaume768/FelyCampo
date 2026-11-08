@@ -17,12 +17,13 @@ import {
   categoriasAdminRunway, obtenerColeccionesRunway, slugRunway, SLUG_NUEVA_RUNWAY,
 } from '@/lib/runway';
 import { useCategorias } from './Categorias';
+import { useDocumentoAdmin } from './ContenidoAdmin';
 
 const RunwayContext = createContext(null);
 
 function RunwayProvider({ children }) {
   // Copia profunda: el admin nunca muta los objetos que lee la web.
-  const [colecciones, setColecciones] = useState(() => structuredClone(obtenerColeccionesRunway()));
+  const [colecciones, setColecciones] = useDocumentoAdmin('colecciones-runway');
   const { reordenarCategorias } = useCategorias();
 
   useEffect(() => {

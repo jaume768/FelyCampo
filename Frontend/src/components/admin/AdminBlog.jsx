@@ -41,7 +41,8 @@ const BASE = '/admin/blog';
 // Al entrar se abre la página (cabecera y textos); los artículos y el
 // podcast están en sus pestañas.
 const ARTICULOS = `${BASE}?tipo=articulos`;
-const DEMO = ' (demo: se guardará de verdad al conectar la base de datos)';
+// Ya se guarda en la base de datos (ContenidoAdmin.jsx): sin coletilla «demo».
+const DEMO = '';
 
 const formatoFecha = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
 const fechaLegible = (fecha) => (fecha ? formatoFecha.format(new Date(fecha)) : 'Sin fecha');

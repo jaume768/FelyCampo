@@ -18,7 +18,8 @@ import { notFound } from 'next/navigation';
 import { Printer } from 'lucide-react';
 import { BotonVolver, OrigenProductoBadge, useToast } from '@/components/admin';
 import { Boton } from '@/components/ui';
-import { consultasPrecioMock, ESTADOS_CITA } from '@/components/admin/mockData';
+import { ESTADOS_CITA } from '@/components/admin/mockData';
+import { useSolicitud } from '@/components/admin/useBandeja';
 import { fechaHora, nombreIdioma } from '../../consultas/citasFormato';
 import styles from '../../consultas/[id]/page.module.css';
 import propios from './page.module.css';
@@ -34,28 +35,37 @@ function Dato({ etiqueta, children }) {
 
 export default function DetalleConsultaVestidoPage({ params }) {
   const { id } = use(params);
-  const consulta = consultasPrecioMock.find((c) => c.id === id);
+  // De la base de datos (lib/solicitudesAdmin.js). El historial lo escribe
+  // el servidor, con su fecha.
+  const { item: consulta, cargando, error, guardar } = useSolicitud('consultas', id);
 
   const { mostrarToast } = useToast();
-  const [estado, setEstado] = useState(consulta?.estado || 'Pendiente');
-  const [notas, setNotas] = useState('');
-  const [historial, setHistorial] = useState(
-    consulta ? [{ estado: 'Pendiente', fecha: fechaHora(consulta.recibida) }] : []
-  );
+  const [notas, setNotas] = useState(null); // null = sin tocar: las guardadas
 
-  if (!consulta) notFound();
+  if (cargando) return <p role="status" style={{ padding: 32 }}>Cargando…</p>;
+  if (error === 'no-existe') notFound();
+  if (error || !consulta) return <p role="alert" style={{ padding: 32 }}>No se ha podido cargar la consulta: {error}</p>;
+
+  const estado = consulta.estado;
+  const historial = consulta.historial;
+  const textoNotas = notas ?? consulta.notas ?? '';
+
+  async function cambiar(cambios, aviso) {
+    try {
+      await guardar(cambios);
+      mostrarToast(aviso);
+    } catch (e) {
+      mostrarToast(`No se ha podido guardar: ${e.message}`, 6000);
+    }
+  }
 
   function cambiarEstado(nuevo) {
     if (nuevo === estado) return;
-    setEstado(nuevo);
-    const ahora = new Date();
-    const fecha = fechaHora(`${ahora.toISOString().slice(0, 10)}T${ahora.toTimeString().slice(0, 5)}`);
-    setHistorial([...historial, { estado: nuevo, fecha }]);
-    mostrarToast(`Estado actualizado a "${nuevo}" (demo)`);
+    cambiar({ estado: nuevo }, `Estado actualizado a "${nuevo}"`);
   }
 
   function guardarNotas() {
-    mostrarToast('Notas internas guardadas (demo)');
+    cambiar({ notas: textoNotas }, 'Notas internas guardadas');
   }
 
   const asuntoRespuesta = encodeURIComponent(`${consulta.producto} — Fely Campo`);
@@ -150,7 +160,7 @@ export default function DetalleConsultaVestidoPage({ params }) {
             <ul className={styles.historial}>
               {historial.map((h, i) => (
                 <li key={i} className={styles.historialFila}>
-                  <span>{h.fecha}</span>
+                  <span>{fechaHora(h.fecha)}</span>
                   <span>{h.estado}</span>
                 </li>
               ))}
@@ -160,10 +170,10 @@ export default function DetalleConsultaVestidoPage({ params }) {
           <section className={styles.seccion}>
             <h2 className={styles.seccionTitulo}>Notas internas</h2>
             <div className={styles.soloPantalla}>
-              <textarea className={styles.notas} value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Solo las ve el equipo — disponibilidad, presupuesto, llamadas…" />
+              <textarea className={styles.notas} value={textoNotas} onChange={(e) => setNotas(e.target.value)} placeholder="Solo las ve el equipo — disponibilidad, presupuesto, llamadas…" />
               <Boton variante="contorno" tamano="s" onClick={guardarNotas}>Guardar notas</Boton>
             </div>
-            <p className={`${styles.notasImpresas} ${styles.soloImpresion}`}>{notas || 'Sin notas.'}</p>
+            <p className={`${styles.notasImpresas} ${styles.soloImpresion}`}>{textoNotas || 'Sin notas.'}</p>
           </section>
         </article>
       </div>

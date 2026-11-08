@@ -16,16 +16,19 @@ import styles from './page.module.css';
 import { CabeceraPagina, HeroCabecera } from '@/components/layout/CabeceraPagina';
 import { obtenerCabecera } from '@/lib/cabeceras';
 import { metadataPagina } from '@/lib/seo';
+import { cargarContenido } from '@/lib/contenidoServidor';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   return metadataPagina({ locale, ruta: '/blog' });
 }
 
 export default async function Pagina({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await cargarContenido();
   const t = await getTranslations('blog');
 
   // Entradas ya preparadas para ListadoPodcastBlog (componente cliente):

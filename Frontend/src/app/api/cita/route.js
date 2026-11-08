@@ -14,6 +14,7 @@ import { ATELIERES_CITA, TIPOS_CITA } from '@/lib/citaAtelier';
 import {
   EMAIL_VALIDO, destinatariosEquipo, enviarEmail, escapar, faltaConfiguracion, tabla, texto,
 } from '@/lib/emailFormularios';
+import { guardarEnBackend } from '@/lib/backendInterno';
 
 const ORIGEN = 'api/cita';
 
@@ -83,6 +84,22 @@ export async function POST(request) {
     && solicitud.nombre && EMAIL_VALIDO.test(solicitud.email) && solicitud.telefono && datos.aceptaLegal === true;
   if (!valido) return Response.json({ ok: false, error: 'datos' }, { status: 422 });
 
+  // Se guarda para la bandeja del panel (/admin/consultas) ANTES de los
+  // emails: si el backend dice que hay demasiados envíos desde esta IP,
+  // no se manda nada.
+  const guardado = await guardarEnBackend('citas', {
+    nombre: solicitud.nombre,
+    email: solicitud.email,
+    telefono: solicitud.telefono,
+    mensaje: solicitud.mensaje,
+    idioma: locale,
+    acepta_legal: true,
+    tipo: solicitud.tipo || '',
+    atelier: datos.ubicacion,
+    fecha_evento: solicitud.fechaEvento,
+  }, request);
+  if (guardado.status === 429) return Response.json({ ok: false, error: 'ritmo' }, { status: 429 });
+
   const t = TEXTOS_CLIENTA[locale];
   const filasResumen = [
     ...(solicitud.tipo ? [[t.etiquetas.tipo, t.tipos[solicitud.tipo]]] : []),
@@ -128,7 +145,9 @@ export async function POST(request) {
     await enviarEmail(emailEquipo, ORIGEN);
   } catch (error) {
     console.error('[api/cita] Error enviando el aviso al equipo:', error);
-    return Response.json({ ok: false, error: 'envio' }, { status: 502 });
+    // Si está guardada, el equipo la verá en el panel: para la clienta,
+    // enviada. Solo es un error si no ha llegado por ninguno de los dos.
+    if (!guardado.ok) return Response.json({ ok: false, error: 'envio' }, { status: 502 });
   }
 
   try {

@@ -30,13 +30,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Plus, X } from 'lucide-react';
 import { CarruselFotos } from '../ui';
-import { FOTOS_INVITADAS, FOTOS_NOVIAS } from './vosotrasFotos';
+import { fotosInvitadas, fotosNovias } from './vosotrasFotos';
 import styles from './CarruselClientas.module.css';
 import { atributosImagen } from '@/lib/imagenes';
 
 // Mismos grupos de fotos que GaleriaVosotras.jsx — cada uno ya trae su
 // portada primera.
-const LOOKS = [...FOTOS_INVITADAS, ...FOTOS_NOVIAS];
+const looksCarrusel = () => [...fotosInvitadas(), ...fotosNovias()];
 
 function CarruselClientas() {
   const t = useTranslations();
@@ -49,7 +49,7 @@ function CarruselClientas() {
   const [indiceLook, setIndiceLook] = useState(0);
   const [indiceFoto, setIndiceFoto] = useState(0);
 
-  const fotosActivas = LOOKS[indiceLook];
+  const fotosActivas = looksCarrusel()[indiceLook];
 
   const abrir = (indice) => {
     setIndiceLook(indice);
@@ -123,7 +123,7 @@ function CarruselClientas() {
   return (
     <>
       <div className={styles.pista}>
-        {LOOKS.map((fotos, indice) => (
+        {looksCarrusel().map((fotos, indice) => (
           <div key={indice} className={styles.item} onClick={() => abrir(indice)}>
             <CarruselFotos fotos={fotos} />
             <button

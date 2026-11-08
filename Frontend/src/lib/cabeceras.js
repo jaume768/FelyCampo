@@ -8,17 +8,17 @@
 // PARA EL PROGRAMADOR: al conectar la base de datos, solo hay que cambiar
 // obtenerCabecera(). Ver docs/ADMIN.md.
 
-import { CABECERAS } from '@/datos/cabeceras';
+import { contenido } from './contenido';
 
 // Id de página (Paginas.jsx) y de vista previa (?previa=<id>).
 export const idPaginaCabecera = (id) => `cabecera-${id}`;
 
 export function obtenerCabecera(id) {
-  return CABECERAS[id];
+  return contenido('cabeceras')[id];
 }
 
 export function obtenerCabeceras() {
-  return CABECERAS;
+  return contenido('cabeceras');
 }
 
 // Cómo se edita cada una: sus bloques y, en cada bloque, sus campos.

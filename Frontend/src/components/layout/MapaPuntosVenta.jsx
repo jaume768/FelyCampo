@@ -120,7 +120,7 @@ const escapar = (texto) => String(texto).replace(/[&<>"']/g, (c) => ({
 
 // Lo publicado y, en la vista previa, el punto que se está editando
 // ("enfocar"), para abrirlo en el mapa.
-const PUBLICADO = { puntos: obtenerPuntosVenta(), enfocar: '' };
+// (Se lee al montar, no al importar: el contenido viene de la base de datos.)
 
 // Coordenadas aproximadas (capital) de cada país presente en
 // puntosVenta.js — usadas SOLO para ordenar los países por cercanía a
@@ -171,7 +171,8 @@ function MapaPuntosVenta({ className }) {
   // Título y texto de encima: lib/cabeceras.js (Puntos de venta), con
   // vista previa en su página.
   const textoCabecera = useTextoCabecera('puntos-de-venta');
-  const { datos, enPrevia } = usePrevia(ID_PREVIA_PUNTOS, PUBLICADO);
+  const publicado = useMemo(() => ({ puntos: obtenerPuntosVenta(), enfocar: '' }), []);
+  const { datos, enPrevia } = usePrevia(ID_PREVIA_PUNTOS, publicado);
   // Los ateliers propios, con la dirección y el teléfono de su página.
   const puntos = useMemo(() => puntosPublicados(datos.puntos.map((punto) => conDatosDeSede(punto))), [datos.puntos]);
   const contenedorRef = useRef(null);

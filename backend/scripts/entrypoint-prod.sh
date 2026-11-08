@@ -15,9 +15,12 @@ set -e
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput --clear
 
+# --timeout 120 y no 30: los workers son síncronos y Caddy no almacena el cuerpo de la
+# petición, así que una subida de vídeo (hasta 15 MB) por una conexión lenta ocupa el
+# worker mientras llega. Con 30 s gunicorn lo mataba a mitad de subida.
 exec gunicorn config.wsgi:application \
     --bind 0.0.0.0:8000 \
     --workers "${GUNICORN_WORKERS:-3}" \
-    --timeout "${GUNICORN_TIMEOUT:-30}" \
+    --timeout "${GUNICORN_TIMEOUT:-120}" \
     --access-logfile - \
     --error-logfile -

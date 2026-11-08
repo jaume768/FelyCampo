@@ -26,10 +26,8 @@ import { textoEn } from '@/lib/previa';
 import { Modal, Boton } from '../ui';
 import styles from './NewsletterModal.module.css';
 import { atributosImagen } from '@/lib/imagenes';
+import { suscribirNewsletter } from '@/lib/newsletter';
 
-// Misma simulación que Footer.jsx — sustituir por la llamada real al
-// endpoint de newsletter cuando exista backend.
-const suscribirNewsletter = (correo) => new Promise((resolve) => setTimeout(resolve, 500));
 
 // Foto, título y texto: lib/piezasComunes.js (editables en el admin).
 function NewsletterModal({ abierto, onCerrar, imagen = obtenerPiezasComunes().newsletter.imagen }) {
@@ -43,7 +41,7 @@ function NewsletterModal({ abierto, onCerrar, imagen = obtenerPiezasComunes().ne
   const enviarNewsletter = async () => {
     setEstado('cargando');
     try {
-      await suscribirNewsletter(email);
+      await suscribirNewsletter(email, { locale, origen: 'ventana' });
       setEstado('exito');
       setEmail('');
     } catch {

@@ -10,12 +10,12 @@
    Ver docs/ADMIN.md.
    ============================================================ */
 
-import { categoriasAdminFiesta, obtenerColeccionesFiesta } from '@/lib/catalogoFiesta';
+import { categoriasAdminFiesta } from '@/lib/catalogoFiesta';
 import { crearCatalogoAtelier } from './CatalogoAtelier';
 
 const { Provider, useCatalogo } = crearCatalogoAtelier({
   nombre: 'useAtelierFiesta',
-  obtener: obtenerColeccionesFiesta,
+  clave: 'colecciones-fiesta',
   categoriasAdmin: categoriasAdminFiesta,
   tipoMenu: 'fiesta',
 });

@@ -8,12 +8,12 @@
 // PARA EL PROGRAMADOR: al conectar la base de datos, solo hay que cambiar
 // obtenerSeoTextos(). Ver docs/ADMIN.md.
 
-import { SEO_TEXTOS } from '@/datos/seoTextos';
+import { contenido } from './contenido';
 
 export const ID_PAGINA_SEO = 'textos-google';
 
 export function obtenerSeoTextos() {
-  return SEO_TEXTOS;
+  return contenido('seo-textos');
 }
 
 // Largos recomendados: lo que Google suele mostrar antes de cortar con «…».
