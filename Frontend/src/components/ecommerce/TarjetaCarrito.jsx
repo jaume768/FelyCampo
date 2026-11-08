@@ -16,17 +16,17 @@ import { useLocale, useTranslations } from 'next-intl';
 import { SelectorCantidad } from '../ui';
 import { slugify } from '@/lib/slugify';
 import styles from './TarjetaCarrito.module.css';
+import useEnVista from '@/hooks/useEnVista';
 
 // Duración de la salida animada al bajar la cantidad a 0 (ver
 // manejarCantidad) — tiene que coincidir con la transición de
 // .saliendo en TarjetaCarrito.module.css.
 const DURACION_SALIDA_MS = 300;
 
-function TarjetaCarrito({ imagen, nombre, precio, talla, color, colorHex, cantidad, onCantidad, onQuitar, slug, disponibles, sinStock = false, error }) {
+function TarjetaCarrito({ imagen, nombre, precio, talla, tallasDisponibles = [], color, colorHex, cantidad, onCantidad, onTalla, onQuitar }) {
   const t = useTranslations('carrito');
   const locale = useLocale();
-  // El slug lo da la API; se cae a slugify(nombre) solo para los datos de ejemplo.
-  const hrefProducto = `/${locale}/tienda/${slug || slugify(nombre)}`;
+  const hrefProducto = `/${locale}/pret-a-porter/${slugify(nombre)}`;
 
   // Bajar a 0 no actualiza el contexto directamente (actualizarCantidad
   // ya la fuerza de vuelta a 1, ver CarritoContext) — en vez de eso se
@@ -34,6 +34,7 @@ function TarjetaCarrito({ imagen, nombre, precio, talla, color, colorHex, cantid
   // se quita la línea del carrito de verdad.
   const [eliminando, setEliminando] = useState(false);
   const [cantidadMostrada, setCantidadMostrada] = useState(cantidad);
+  const [ref, enVista] = useEnVista();
 
   useEffect(() => {
     if (!eliminando) setCantidadMostrada(cantidad);
@@ -55,10 +56,10 @@ function TarjetaCarrito({ imagen, nombre, precio, talla, color, colorHex, cantid
   };
 
   return (
-    <div className={`${styles.tarjeta} ${eliminando ? styles.saliendo : ''}`}>
+    <div ref={ref} className={`${styles.tarjeta} ${eliminando ? styles.saliendo : ''} al-scroll ${enVista ? 'en-vista' : ''}`}>
       <div className={styles.marco}>
         <a href={hrefProducto} className={styles.marcoEnlace}>
-          {imagen && <img src={imagen} alt={nombre} className={styles.imagen} />}
+          {imagen && <img src={imagen} alt={nombre} className={styles.imagen} loading="lazy" decoding="async" />}
         </a>
         <button type="button" onClick={onQuitar} className={styles.quitar} aria-label={t('quitar')}>
           <X size={18} strokeWidth={1.5} strokeLinecap="square" strokeLinejoin="miter" />
@@ -79,18 +80,19 @@ function TarjetaCarrito({ imagen, nombre, precio, talla, color, colorHex, cantid
       <div className={styles.controles}>
         <SelectorCantidad valor={cantidadMostrada} onChange={manejarCantidad} min={0} className={styles.controlFlexible} />
 
-        {/* La talla ya NO se cambia desde aquí: otra talla es OTRA variante, así que
-            editarla sería quitar la línea y añadir la nueva. Se muestra, no se edita. */}
-        {talla && <span className={styles.talla}>{talla}</span>}
+        {tallasDisponibles.length > 0 && (
+          <select
+            className={styles.selectTalla}
+            value={talla ?? ''}
+            onChange={(evento) => onTalla(evento.target.value)}
+            aria-label={t('talla')}
+          >
+            {tallasDisponibles.map((opcion) => (
+              <option key={opcion} value={opcion}>{opcion}</option>
+            ))}
+          </select>
+        )}
       </div>
-
-      {/* Errores de ESTA línea (sin stock, cantidad por encima del disponible), junto a
-          la línea que los provocó y no en un aviso global. */}
-      {sinStock && <p className={styles.errorLinea} role="alert">{t('lineaSinStock')}</p>}
-      {error && <p className={styles.errorLinea} role="alert">{error}</p>}
-      {!sinStock && typeof disponibles === 'number' && disponibles <= 3 && (
-        <p className={styles.avisoPocas}>{t('quedanPocas', { cantidad: disponibles })}</p>
-      )}
     </div>
   );
 }

@@ -1,32 +1,19 @@
 'use client';
 
-import ListaProductos from '@/components/admin/ListaProductos';
+/* /admin/colecciones/fiesta — colecciones y looks de Atelier Fiesta con
+   los mismos datos que enseña /atelier/fiesta (ver
+   components/admin/AdminAtelierFiesta.jsx y docs/ADMIN.md).
+   Antes usaba ListaProductos (vista genérica de Runway/Novia/Fiesta con
+   datos de ejemplo); Novia y Runway la siguen usando. */
 
-// cat26 Primavera Verano 2026 / cat27 Primavera Verano 2025 / cat28
-// Prêt-à-porter / cat29 En Madrid / cat30 A Walk / cat31 Bambú / cat32
-// Savia / cat33 Miscelanea / cat34 Essentielle / cat35 Furisode — ids
-// fijados en mockData.js categoriasMock.fiesta, portadas en
-// public/img/collections/fiesta.
-const IMAGENES_CATEGORIA = {
-  cat26: '/img/collections/fiesta/PrimaveraVerano-cover.webp',
-  cat27: '/img/collections/fiesta/PrimaveraVerano25-cover.webp',
-  cat28: '/img/collections/fiesta/pretaporter-cover.webp',
-  cat29: '/img/collections/fiesta/Madrid-cover.webp',
-  cat30: '/img/collections/fiesta/AWalk-cover.webp',
-  cat31: '/img/collections/fiesta/Bambu-cover.webp',
-  cat32: '/img/collections/fiesta/Savia-cover.webp',
-  cat33: '/img/collections/fiesta/Miscelania-cover.webp',
-  cat34: '/img/collections/fiesta/essentiele-cover.webp',
-  cat35: '/img/collections/fiesta/furisode-cover.webp',
-};
+import { Suspense } from 'react';
+import AdminAtelierFiesta from '@/components/admin/AdminAtelierFiesta';
 
 export default function ProductosFiestaPage() {
+  // Suspense: AdminAtelierFiesta lee la URL (useSearchParams).
   return (
-    <ListaProductos
-      tipoFijo="fiesta"
-      titulo="Fiesta"
-      agruparPorCategoria
-      imagenesCategoria={IMAGENES_CATEGORIA}
-    />
+    <Suspense fallback={null}>
+      <AdminAtelierFiesta />
+    </Suspense>
   );
 }

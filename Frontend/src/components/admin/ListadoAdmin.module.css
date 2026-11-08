@@ -1,0 +1,194 @@
+/* ============================================================
+   LISTADO DEL ADMIN — ver ListadoAdmin.jsx. Filas finas con miniatura,
+   estado y acciones a la derecha; pestañas subrayadas. Mismo lenguaje
+   que el resto del panel: bordes finos grises, esquinas rectas, rosa
+   solo para avisos.
+   ============================================================ */
+
+.pestanas {
+  display: flex;
+  gap: var(--spacing-5);
+  margin-bottom: var(--spacing-4);
+  border-bottom: var(--border-thin) solid var(--color-gris-200);
+}
+
+.pestana {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--spacing-2) 0;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  font-size: var(--text-label);
+  color: var(--color-gris-600);
+  text-decoration: none;
+}
+
+.pestana:hover {
+  color: var(--color-tinta);
+}
+
+.pestanaActiva {
+  border-bottom-color: var(--color-tinta);
+  color: var(--color-tinta);
+}
+
+.cuenta {
+  padding: 0 6px;
+  font-size: var(--text-nano);
+  background: var(--color-gris-100);
+  color: var(--color-gris-600);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--border-thin) solid var(--color-gris-200);
+  background: var(--color-fondo);
+}
+
+.numero {
+  min-width: 22px;
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-gris-500);
+  text-align: right;
+}
+
+.miniatura {
+  flex-shrink: 0;
+  width: 80px;
+  height: 45px;
+  object-fit: cover;
+  background: var(--color-details);
+}
+
+.miniaturaVertical {
+  width: 45px;
+  height: 60px;
+}
+
+.miniaturaVacia {
+  display: block;
+}
+
+.filaTexto {
+  flex: 1;
+  min-width: 0;
+}
+
+.filaTitulo {
+  display: block;
+  overflow: hidden;
+  font-size: var(--text-label);
+  color: var(--color-tinta);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filaTitulo:hover {
+  text-decoration: underline;
+}
+
+.filaDetalle {
+  margin-top: 2px;
+  overflow: hidden;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.etiqueta {
+  flex-shrink: 0;
+  padding: 2px var(--spacing-2);
+  font-size: var(--text-nano);
+  background: var(--color-gris-100);
+  color: var(--color-gris-600);
+}
+
+/* Acción principal de la fila, en texto («Ver looks»): más fácil de ver
+   que un icono. */
+.accion {
+  flex-shrink: 0;
+  display: inline-block;
+  padding: 7px 14px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  background: var(--color-fondo);
+  font-family: var(--font-base);
+  cursor: pointer;
+  font-size: var(--text-caption);
+  color: var(--color-tinta);
+  text-decoration: none;
+}
+
+.accion:hover {
+  border-color: var(--color-tinta);
+}
+
+.estado {
+  flex-shrink: 0;
+  min-width: 76px; /* «Publicado» y «Oculto» del mismo ancho: todo queda alineado */
+  text-align: center;
+  padding: 2px var(--spacing-2);
+  font-size: var(--text-nano);
+  font-weight: var(--font-weight-medium);
+}
+
+.estadoSi {
+  background: var(--color-verde-velo, #E6F4EA);
+  color: var(--color-verde-oscuro, #1E6B34);
+}
+
+.estadoNo {
+  background: var(--color-gris-100);
+  color: var(--color-gris-600);
+}
+
+.filaAcciones {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.icono,
+.iconoHueco {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+}
+
+.icono {
+  border: none;
+  background: none;
+  color: var(--color-gris-600);
+  cursor: pointer;
+}
+
+.icono:hover {
+  background: var(--color-gris-100);
+  color: var(--color-tinta);
+}
+
+.iconoBorrar:hover {
+  color: var(--color-rosa-oscuro);
+}
+
+.vacio {
+  padding: var(--spacing-8) 0;
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+}

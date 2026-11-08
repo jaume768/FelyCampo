@@ -4,6 +4,12 @@
    DASHBOARD — Fely Campo (admin)
    Solo lectura: resumen + accesos rápidos a listas ya filtradas.
    No hay edición posible desde aquí (spec sección 1).
+   Adaptado a lo que usa el front (2026-10-27): citas del formulario
+   de /visita-fely-campo/cita, consultas de vestidos ("Contacta con
+   nosotros" en las fichas de Novias/Fiesta), suscriptoras de la
+   newsletter y fotos/reseñas de /atelier/vosotras. El resumen de la
+   tienda (pedidos, productos, stock) queda oculto con ella — ver
+   GRUPOS_OCULTOS en AdminSidebar.jsx.
    'use client': TablaAdmin acepta props función (render/renderAcciones)
    y es Client Component (usa checkboxes con onChange) — esas props no
    pueden cruzar el límite servidor→cliente, así que quien la usa
@@ -14,39 +20,39 @@
 import Link from 'next/link';
 import { PageHeader, TablaAdmin, EstadoBadge } from '@/components/admin';
 import { Boton } from '@/components/ui';
-import {
-  pedidosMock, productosMock, consultasMock, filasStock, nivelStock,
-} from '@/components/admin/mockData';
+import { citasMock, consultasPrecioMock, newsletterMock } from '@/components/admin/mockData';
+import { FOTOS_INVITADAS, FOTOS_NOVIAS, RESENAS_INTERCALADAS } from '@/components/layout/vosotrasFotos';
+import { fechaHora, mesAnio, nombreAtelier } from './consultas/citasFormato';
+import BanderaIdioma from './consultas/BanderaIdioma';
 import styles from './page.module.css';
 
 export default function AdminDashboard() {
-  const pedidosPendientes = pedidosMock.filter((p) => p.estadoEnvio === 'Procesando').length;
-  const productosActivos = productosMock.filter((p) => p.estado === 'Activo').length;
-  const consultasPendientes = consultasMock.filter((c) => c.estado === 'Pendiente').length;
-  const stockBajo = filasStock().filter((f) => nivelStock(f.stock) === 'bajo').length;
+  const citasPendientes = citasMock.filter((c) => c.estado === 'Pendiente').length;
+  const solicitudesPendientes = consultasPrecioMock.filter((c) => c.estado === 'Pendiente').length;
+  const gruposVosotras = FOTOS_INVITADAS.length + FOTOS_NOVIAS.length;
 
-  const ultimosPedidos = pedidosMock.slice(0, 6);
+  const ultimasCitas = [...citasMock].sort((a, b) => b.recibida.localeCompare(a.recibida)).slice(0, 5);
 
   return (
     <div>
-      <PageHeader titulo="Dashboard" subtitulo="Resumen general de la tienda" />
+      <PageHeader titulo="Dashboard" subtitulo="Resumen de contactos y contenido de la web" />
 
       <div className={styles.widgets}>
         <div className={styles.widget}>
-          <p className={styles.widgetValor}>{pedidosMock.length}</p>
-          <p className={styles.widgetLabel}>Pedidos totales</p>
+          <p className={styles.widgetValor}>{citasMock.length}</p>
+          <p className={styles.widgetLabel}>Solicitudes de cita</p>
         </div>
         <div className={styles.widget}>
-          <p className={styles.widgetValor}>{pedidosPendientes}</p>
-          <p className={styles.widgetLabel}>Pedidos sin enviar</p>
+          <p className={styles.widgetValor}>{consultasPrecioMock.length}</p>
+          <p className={styles.widgetLabel}>Consultas de vestidos</p>
         </div>
         <div className={styles.widget}>
-          <p className={styles.widgetValor}>{productosActivos}</p>
-          <p className={styles.widgetLabel}>Productos activos</p>
+          <p className={styles.widgetValor}>{newsletterMock.length}</p>
+          <p className={styles.widgetLabel}>Suscriptoras newsletter</p>
         </div>
         <div className={styles.widget}>
-          <p className={styles.widgetValor}>{consultasPendientes}</p>
-          <p className={styles.widgetLabel}>Consultas sin responder</p>
+          <p className={styles.widgetValor}>{gruposVosotras}</p>
+          <p className={styles.widgetLabel}>Grupos de fotos en Vosotras</p>
         </div>
       </div>
 
@@ -54,33 +60,34 @@ export default function AdminDashboard() {
         <p className={styles.bloqueTitulo}>Accesos rápidos</p>
         <div className={styles.accesos}>
           <Link href="/admin/consultas?estado=Pendiente" className={styles.acceso}>
-            <p className={styles.accesoValor}>{consultasPendientes}</p>
-            <p className={styles.accesoLabel}>Consultas/citas pendientes</p>
+            <p className={styles.accesoValor}>{citasPendientes}</p>
+            <p className={styles.accesoLabel}>Citas pendientes</p>
           </Link>
-          <Link href="/admin/stock" className={styles.acceso}>
-            <p className={styles.accesoValor}>{stockBajo}</p>
-            <p className={styles.accesoLabel}>Referencias con stock bajo</p>
+          <Link href="/admin/consultas-precio" className={styles.acceso}>
+            <p className={styles.accesoValor}>{solicitudesPendientes}</p>
+            <p className={styles.accesoLabel}>Consultas de vestidos pendientes</p>
           </Link>
-          <Link href="/admin/pedidos?estadoEnvio=Procesando" className={styles.acceso}>
-            <p className={styles.accesoValor}>{pedidosPendientes}</p>
-            <p className={styles.accesoLabel}>Pedidos sin enviar</p>
+          <Link href="/admin/vosotras" className={styles.acceso}>
+            <p className={styles.accesoValor}>{RESENAS_INTERCALADAS.length}</p>
+            <p className={styles.accesoLabel}>Reseñas en Vosotras</p>
           </Link>
         </div>
       </div>
 
       <div className={styles.bloque}>
-        <p className={styles.bloqueTitulo}>Últimos pedidos</p>
+        <p className={styles.bloqueTitulo}>Últimas citas</p>
         <TablaAdmin
           columnas={[
-            { clave: 'id', etiqueta: 'Pedido' },
-            { clave: 'cliente', etiqueta: 'Cliente' },
-            { clave: 'fecha', etiqueta: 'Fecha' },
-            { clave: 'total', etiqueta: 'Total' },
-            { clave: 'estadoEnvio', etiqueta: 'Envío', render: (fila) => <EstadoBadge estado={fila.estadoEnvio} /> },
+            { clave: 'recibida', etiqueta: 'Recibida', render: (c) => fechaHora(c.recibida) },
+            { clave: 'nombre', etiqueta: 'Clienta' },
+            { clave: 'locale', etiqueta: 'Idioma', render: (c) => <BanderaIdioma locale={c.locale} /> },
+            { clave: 'ubicacion', etiqueta: 'Atelier', render: (c) => nombreAtelier(c.ubicacion) },
+            { clave: 'fechaEvento', etiqueta: 'Fecha del evento', render: (c) => mesAnio(c.fechaEvento) },
+            { clave: 'estado', etiqueta: 'Estado', render: (c) => <EstadoBadge estado={c.estado} /> },
           ]}
-          filas={ultimosPedidos}
-          hrefFila={(fila) => `/admin/pedidos/${fila.id}`}
-          renderAcciones={(fila) => <Boton variante="texto" href={`/admin/pedidos/${fila.id}`}>Ver</Boton>}
+          filas={ultimasCitas}
+          hrefFila={(c) => `/admin/consultas/${c.id}`}
+          renderAcciones={(c) => <Boton variante="texto" href={`/admin/consultas/${c.id}`}>Ver</Boton>}
         />
       </div>
     </div>

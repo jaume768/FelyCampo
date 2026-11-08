@@ -42,6 +42,13 @@
   background: var(--color-fondo);
 }
 
+/* Menú móvil abierto: el blanco entra de golpe, a la vez que el panel,
+   sin el fundido de 0.45s — si no, durante la transición se ve el Hero
+   entre header y panel. */
+.header.menuMovilAbierto {
+  transition: none;
+}
+
 /* .light: header transparente y aún sin fondo sólido (home, antes del
    primer scroll/hover) — texto e icono del hamburguesa en --color-fondo
    para leerse sobre el Hero. El logo cambia de imagen en el JSX, no aquí. */
@@ -62,13 +69,17 @@
   text-decoration-color: var(--color-fondo);
 }
 
+/* Escritorio por defecto: --nav-height-desktop (72px en global.css,
+   4px menos que mobile, ver .navLogo
+   más abajo) — la media query de mobile/tablet portrait al final del
+   archivo usa --nav-height. */
 .navRow {
-  min-height: var(--nav-height);
+  min-height: var(--nav-height-desktop);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-3) var(--spacing-7);
+  padding: var(--spacing-3) var(--padding-lateral-nav);
 }
 
 /* Logo: centrado en el ancho total de la barra, no en el hueco
@@ -78,18 +89,22 @@
    (50% - la mitad del alto por defecto, 64px/2). Mismo anclaje para
    los dos estados (normal y .navLogoGrande, ver más abajo) — al
    crecer se desplaza hacia abajo desde ese punto fijo, al encoger se
-   recoge hacia arriba hasta él, nunca simétrico desde el centro. */
+   recoge hacia arriba hasta él, nunca simétrico desde el centro.
+   "-24px": la mitad de un logo de 48px, sin margin-top (mismo valor
+   que mobile) — depende solo del tamaño del logo, no de la altura de
+   la fila, así que no hace falta tocarlo si --nav-height-desktop
+   cambia. */
 .navLogoLink {
   position: absolute;
   left: 50%;
-  top: calc(50% - 32px);
+  top: calc(50% - 24px);
   transform: translateX(-50%);
 }
 
 .navLogo {
-  height: 50px;
+  height: 48px;
   width: auto;
-  margin-top: var(--spacing-2);
+  margin-top: 0;
   transition: height 0.45s var(--ease-marca);
 }
 
@@ -98,8 +113,8 @@
    "opaco" (scroll o hover) vuelve al tamaño base con la misma
    transición, y si se sube de nuevo al top, vuelve a crecer. */
 .navLogoGrande {
-  margin-top: 0px;
-  height: 175px;
+  margin-top: 4px;
+  height: 115px;
 }
 
 /* Enlaces (compartido por desktop y móvil) — también "Mi cuenta"
@@ -111,11 +126,12 @@
    "anticipa" cómo se ve la sección ya activa. */
 .navLink {
   font-family: var(--font-base);
-  font-size: 0.95rem;
+  font-size: var(--text-nav);
+  line-height: 3rem;
   color: var(--color-tinta);
   background: none;
   border: none;
-  padding: var(--spacing-3) 0 0 0;
+  padding: 0;
   cursor: pointer;
   text-decoration: underline;
   text-decoration-color: transparent;
@@ -144,6 +160,25 @@
   gap: var(--spacing-5);
 }
 
+/* Selector de idioma (English | Español) junto a Pedir cita. El
+   divisor hereda el color del texto (también en .light). */
+.navIdiomas {
+  display: flex;
+  align-items: center;
+}
+.navIdiomasItem {
+  display: inline-flex;
+  align-items: center;
+}
+.navIdiomasDivider {
+  font-size: var(--text-nav);
+  color: var(--color-tinta);
+  margin: 0 var(--spacing-2);
+}
+.header.light .navIdiomasDivider {
+  color: var(--color-fondo);
+}
+
 /* Utilidades — móvil: solo el icono del carrito, oculto por defecto.
    min-width/min-height 24px: área táctil mínima aunque el icono sea más pequeño. */
 .navActionsMobile {
@@ -154,7 +189,7 @@
   transition: color 0.25s var(--ease-marca);
 }
 .navActionsMobile:hover {
-  color: var(--color-rosa);
+  color: var(--color-gris-500); /* nunca rosa al hover/clic */
 }
 
 .cartIcon {
@@ -200,9 +235,105 @@
   transform: rotate(-45deg);
 }
 
-/* Lista de enlaces dentro del panel móvil (el padding ya lo aporta
-   .contenido de PanelLateral) */
+/* Menú móvil (el padding ya lo aporta .contenido de PanelLateral) —
+   overflow:hidden recorta .mobileMenuTrack (200% de ancho, dos
+   "pantallas" lado a lado) al ancho real disponible, así cada pantalla
+   ocupa el 100% visible sin tener que calcular el padding a mano. */
 .mobileMenu {
+  overflow: hidden;
+}
+
+.mobileMenuTrack {
+  display: flex;
+  width: 200%;
+  transition: transform 0.25s var(--ease-marca);
+}
+
+/* Categoría tocada (ver "mobileSubmenu" en Navbar.jsx): desliza a la
+   segunda pantalla en vez de las dos mitades — un solo transform, no
+   dos elementos que aparecen/desaparecen. */
+.mobileMenuTrackSub {
+  transform: translateX(-50%);
+}
+
+.mobileMenuScreen {
+  flex: 0 0 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  transition: opacity 0.2s var(--ease-marca);
+}
+
+/* La pantalla que no se ve (inert, ver Navbar.jsx) se funde además de
+   deslizar — el cambio de paso se lee como un fundido encadenado, no
+   como un panel que empuja a otro. */
+.mobileMenuScreen[inert] {
+  opacity: 0;
+}
+
+/* ---------- Cabecera del paso 2 ----------
+   Solo el botón "← Menú" (sin indicador de paso). */
+.mobileMenuCabecera {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+}
+
+.mobileMenuEtiqueta {
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-gris-500);
+}
+
+
+.mobileMenuList {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Paso 1: categorías ----------
+   Nombre a --text-body, sin mayúsculas, peso normal (antes
+   --text-body-lg + 2px, demasiado grande) + chevron fino, sin índice ni
+   líneas separadoras — el aire entre filas hace de separación. Tocar
+   abre el paso 2 (drill-down), no navega directo. */
+.mobileMenuRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-4);
+  width: 100%;
+  padding-block: var(--spacing-4);
+  font-family: var(--font-base);
+  /* 15px (--text-titulo), no --text-body (13px): a 13px costaba leer
+     las filas del menú en mobile (a petición). */
+  font-size: var(--text-titulo);
+  font-weight: 400;
+  color: var(--color-tinta);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mobileMenuRowTexto {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobileMenuRow svg {
+  flex-shrink: 0;
+  align-self: center;
+  opacity: 0.85;
+  transition: transform 0.25s var(--ease-marca), opacity 0.25s var(--ease-marca);
+}
+
+.mobileMenuRow:active svg {
+  transform: translateX(3px);
+  opacity: 1;
+}
+
+.mobileMenuUtilities {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4);
@@ -222,7 +353,7 @@
   transition: color 0.25s var(--ease-marca);
 }
 .mobileMenuLink:hover {
-  color: var(--color-rosa);
+  color: var(--color-gris-500); /* nunca rosa al hover/clic */
 }
 
 .mobileMenuDivider {
@@ -230,11 +361,164 @@
   background: var(--color-hairline);
 }
 
+/* ---------- Paso 2: submenú abierto ---------- */
+/* "← Menú": mismo tratamiento que .mobileMenuEtiqueta del paso 1 (así
+   la cabecera no cambia de aspecto, solo gana la flecha), con área de
+   toque cómoda. */
+.mobileMenuBack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--spacing-1);
+  /* Solo flecha (26px, ver Navbar.jsx): área de toque de 40px, con
+     margen negativo para que el trazo quede alineado con el texto de
+     debajo (el icono trae su propio aire interior). */
+  min-width: 40px;
+  min-height: 40px;
+  margin-inline-start: calc(-1 * var(--spacing-2));
+  padding: 0;
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Flecha estática (a petición): sin el desplazamiento a la izquierda
+   en :hover/:active, que en mobile se quedaba puesto al tocar. */
+
+.mobileMenuTitulo {
+  font-family: var(--font-base);
+  font-size: var(--text-h3);
+  font-weight: 400;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+}
+
+/* Mayúsculas como las categorías del paso 1, pero un escalón más
+   pequeñas (--text-small frente a --text-body), sin tracking
+   — se leen como hijas de la categoría, no como pares.
+   Entrada escalonada: cada enlace aparece un poco después del
+   anterior (--i = su posición, ver Navbar.jsx) al terminar de
+   deslizar el paso. */
+.mobileMenuSubLink {
+  display: block;
+  padding-block: var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  font-weight: 400;
+  letter-spacing: normal;
+  color: var(--color-tinta);
+  opacity: 0;
+  animation: mobileMenuEntrada 0.25s var(--ease-marca) forwards;
+  animation-delay: calc(0.08s + var(--i, 0) * 0.025s);
+}
+
+@keyframes mobileMenuEntrada {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Mismo criterio que .itemSeparador en NavbarPanelLateralContent.module.css
+   (submenú de escritorio) — aquí para el drill-down móvil, ver
+   "separador" en SUBMENU_STRUCTURE (Navbar.jsx). */
+.mobileMenuSubItemSeparador {
+  margin-top: var(--spacing-6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobileMenuTrack,
+  .mobileMenuScreen {
+    transition: none;
+  }
+  .mobileMenuSubLink,
+  .mobileMenuBannerImagen {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ---------- Remate: foto editorial a todo el ancho ---------- */
+/* Mismo tratamiento imagen+velo+label que .card/.label en
+   MediaLink.module.css (submenú de escritorio) — coherencia visual
+   entre los dos menús, aunque aquí es una sola foto fija, sin hover
+   (pensada para dedo, ver MobileMenuBanner en Navbar.jsx). */
+/* Alto flexible en vez de un aspect-ratio fijo (antes 2.2/1): crece
+   (flex: 1) hasta ocupar TODO el hueco libre que deja la lista dentro
+   del panel, sin tope — así no queda ningún hueco en blanco ni entre
+   la lista y la foto ni debajo de ella (el panel ya no reparte el
+   espacio con space-between, ver .sobreNavbar en
+   PanelLateral.module.css). Nunca pasa por encima de las opciones del
+   menú: si no hay sitio, se queda en el alto de antes (min-height,
+   2.2/1) y el panel hace scroll como siempre. vw porque el panel móvil
+   va a todo el ancho de la pantalla. */
+.mobileMenuBanner {
+  position: relative;
+  display: block;
+  width: 100%;
+  flex: 1 1 0;
+  min-height: calc(100vw / 2.2);
+  overflow: hidden;
+}
+
+.mobileMenuBannerImagen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Entrada al terminar de cargar (ImagenBanner en Navbar.jsx): oculta
+     y un poco ampliada hasta entonces; luego fundido lento + zoom de
+     vuelta a su tamaño, a petición "suave y elegante". */
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity 0.9s var(--ease-marca),
+    transform 1.4s var(--ease-marca);
+}
+
+.mobileMenuBannerImagenCargada {
+  opacity: 1;
+  transform: none;
+}
+
+.mobileMenuBanner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+
 /* ---------- RESPONSIVE ---------- */
-/* Por debajo de 768px: se esconden los enlaces de escritorio y aparece la hamburguesa */
-@media (max-width: 767px) {
+/* Por debajo de 965px (cualquier orientación — antes 768px; subido a
+   petición para que entre 768 y 964px no se vea la fila de escritorio
+   apretada con "Dónde encontrarnos", sino directamente el menú de
+   mobile) o en tablet vertical
+   (hasta 1024px de ancho — cubre también el 12.9" de iPad en
+   portrait, un poco por encima del corte de 1023px que se usa en el
+   resto del sitio): se esconden los enlaces de escritorio y aparece
+   la hamburguesa. Sin esto, un tablet en portrait mostraba la fila de
+   escritorio completa (enlaces + logo centrado + utilidades) en un
+   ancho pensado para más espacio del que hay ahí, y o bien el texto
+   se comprimía o el logo centrado (posición absoluta, ver
+   .navLogoLink) acababa solapando enlaces/utilidades. En landscape
+   (tablet apaisado o laptop) sigue siendo el mismo ancho de siempre,
+   así que se queda con la fila de escritorio. */
+@media (max-width: 964px), (max-width: 1024px) and (orientation: portrait) {
 
   .navRow {
+    min-height: var(--nav-height);
     padding: var(--spacing-4);
   }
   .navLinks {
@@ -265,11 +549,19 @@
   }
 }
 
-/* El logo grande (.light, antes de scroll/hover) ya molesta a 175px
-   antes de que el navRow cambie a hamburguesa a los 767px — lo baja a
-   100px un poco antes, sin tocar el resto del layout de esa franja. */
-@media (max-width: 920px) and (min-width: 765px) {
-  .navLogoGrande {
-    height: 100px;
+/* Texto corto de "Dónde encontrar Fely Campo" → "Dónde encontrarnos"
+   por debajo de 1070px, último paso antes del menú compacto de mobile
+   (ver NAV_ITEMS_IZQUIERDA en Navbar.jsx). */
+.textoCorto {
+  display: none;
+}
+
+@media (max-width: 1069px) {
+  .textoLargo {
+    display: none;
+  }
+
+  .textoCorto {
+    display: inline;
   }
 }

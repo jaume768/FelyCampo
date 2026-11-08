@@ -12,7 +12,6 @@
   font-size: var(--text-h4);
   font-weight: var(--font-weight-medium);
   color: var(--color-tinta);
-  text-transform: uppercase;
 }
 
 .subtitulo {
@@ -75,6 +74,22 @@
   border: 1px solid var(--color-gris-300);
 }
 
+/* Inputs de texto (nombre, email, teléfono) solo con línea inferior,
+   igual que el formulario de cita (.form input de visita-fely-campo/
+   cita/page.module.css) — el comentario (textarea) mantiene su caja,
+   como el mensaje de allí. Solo en este modal: Input.module.css no se
+   toca. */
+.form input:not([type="checkbox"]):not([type="radio"]) {
+  border: none;
+  border-bottom: 1px solid var(--color-gris-300);
+  padding-inline: 0;
+  background: transparent;
+}
+
+.form input:not([type="checkbox"]):not([type="radio"]):focus {
+  border-bottom-color: var(--color-tinta);
+}
+
 .campo {
   display: flex;
   flex-direction: column;
@@ -84,16 +99,6 @@
 .etiqueta {
   font-size: var(--text-caption);
   color: var(--color-gris-500);
-}
-
-/* "Guía de tallas" — último elemento de .campo (talla), mismo
-   mecanismo que .filaTalla de FichaProductoAcciones.module.css
-   (Tienda), aquí dentro del propio campo en vez de en una fila aparte
-   tras el CTA. */
-.filaTalla {
-  display: flex;
-  justify-content: flex-start;
-  margin-top: var(--spacing-1);
 }
 
 /* Mismo aspecto que .input de Input.module.css — sin componente
@@ -118,6 +123,65 @@
 
 .textarea:focus {
   border-color: var(--color-tinta);
+}
+
+/* Casilla de privacidad/términos (obligatoria) y campo trampa para
+   bots: mismo diseño que en el formulario de cita (ver .legalFila…
+   .trampa de visita-fely-campo/cita/page.module.css). */
+.legalFila {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  cursor: pointer;
+}
+
+.form .legalCheckbox {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--color-gris-300);
+  border-radius: 0;
+  background: var(--color-fondo);
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease-marca), background-color 0.25s var(--ease-marca);
+}
+
+.form .legalCheckbox:focus-visible,
+.form .legalCheckbox:hover {
+  border-color: var(--color-tinta);
+}
+
+.form .legalCheckbox:checked {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  box-shadow: inset 0 0 0 3px var(--color-fondo);
+}
+
+.legalTexto {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  line-height: var(--leading-base);
+}
+
+.legalEnlace {
+  color: inherit;
+  text-decoration: underline;
+  transition: color 0.25s var(--ease-marca);
+}
+
+.legalEnlace:hover {
+  color: var(--color-tinta);
+}
+
+.trampa {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 .aviso {

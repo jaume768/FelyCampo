@@ -1,0 +1,306 @@
+/* ============================================================
+   HISTORIA DE CAMPAÑA — Fely Campo
+   Ritmo vertical: 200px entre bloques en escritorio, 100px en mobile
+   (valor literal, no un token de --spacing-* — mismo criterio que el
+   gap:200px de ../../app/[locale]/colecciones-fely-campo/page.module.css,
+   un valor editorial puntual de esta plantilla, no del sistema).
+   Breakpoint propio a 790px (no los 767px de siempre del resto del
+   sitio) — así lo pedía la referencia original de esta plantilla,
+   se respeta tal cual en vez de forzar el breakpoint estándar.
+   Radio 0 en todo (imágenes, panel de texto) — igual que el resto
+   del sistema, sin excepción.
+   ============================================================ */
+
+.pagina > * {
+  margin-bottom: 200px;
+}
+
+.pagina > *:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 790px) {
+  .pagina > * {
+    margin-bottom: 100px;
+  }
+}
+
+/* ---------- Volver al blog (fijo, arriba a la derecha) ---------- */
+
+/* top: debajo de la Navbar del sitio (--nav-height, sticky y sólida
+   en esta página — /blog/[entrada] no lleva Navbar transparente, ver
+   layout.js), nunca superpuesto a ella — la Navbar ya usa z-index:50
+   y un fondo blanco sólido propio que taparía este overlay si
+   coincidieran en la misma franja. */
+.volver {
+  position: fixed;
+  top: calc(var(--nav-height) + var(--spacing-4));
+  right: var(--spacing-6);
+  z-index: 40;
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  color: #fff;
+  mix-blend-mode: difference;
+}
+
+@media (max-width: 790px) {
+  .volver {
+    top: calc(var(--nav-height) + var(--spacing-2));
+    right: var(--spacing-4);
+  }
+}
+
+/* ---------- Overlay de créditos (fijo, todas las secciones) ---------- */
+
+.creditos {
+  position: fixed;
+  top: calc(var(--nav-height) + var(--spacing-4));
+  left: var(--spacing-6);
+  z-index: 40;
+  font-family: var(--font-editorial);
+  color: #fff;
+  mix-blend-mode: difference;
+  /* El overlay no debe robar clics al contenido de debajo — solo la
+     caption (enlace a producto) los recupera con pointer-events:auto. */
+  pointer-events: none;
+}
+
+.creditosColumnas {
+  display: flex;
+  gap: var(--spacing-6);
+}
+
+.creditosLista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-small);
+  line-height: var(--leading-tight);
+}
+
+.creditosRol {
+  letter-spacing: var(--tracking-label);
+  font-size: var(--text-micro);
+  opacity: 0.85;
+  margin-right: var(--spacing-1);
+}
+
+.creditosPie {
+  display: inline-block;
+  pointer-events: auto;
+  margin-top: var(--spacing-2);
+  font-size: var(--text-caption);
+  color: inherit;
+  border-bottom: var(--border-regular) solid currentColor;
+  padding-bottom: 2px;
+}
+
+@media (max-width: 790px) {
+  /* "Shifts up": mismo criterio que .volver — menos aire bajo la
+     Navbar que en escritorio (--spacing-2 en vez de --spacing-4), pero
+     sin subir por encima de ella (nav-height sigue siendo la base). */
+  .creditos {
+    top: calc(var(--nav-height) + var(--spacing-2));
+    left: var(--spacing-4);
+  }
+
+  .creditosColumnas {
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+}
+
+/* ---------- Bloque "split": producto + CTA | imagen a sangre ---------- */
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 95vh;
+}
+
+.splitProducto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-6);
+  padding: var(--spacing-7);
+}
+
+.splitImagenProducto {
+  max-width: 60%;
+  max-height: 65vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.splitImagen {
+  height: 100%;
+}
+
+.imagenCover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 790px) {
+  .split {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .splitProducto {
+    padding: var(--spacing-6) var(--spacing-5);
+  }
+
+  .splitImagen {
+    height: 70vh;
+  }
+}
+
+/* ---------- Bloque "hero": imagen ancha a sangre ---------- */
+
+.hero {
+  width: 100%;
+  aspect-ratio: 1.5 / 1;
+  overflow: hidden;
+}
+
+.heroImagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---------- Bloque "texto-sobre-imagen": imagen | panel + imagen secundaria ---------- */
+
+.textoSobreImagen {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.tsiImagen {
+  overflow: hidden;
+}
+
+.tsiColumna {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.tsiPanel {
+  position: absolute;
+  top: var(--spacing-7);
+  left: var(--spacing-7);
+  right: var(--spacing-7);
+  max-width: 40rem;
+  background: var(--color-fondo);
+  padding: var(--spacing-6);
+  font-family: var(--font-editorial);
+  z-index: 2;
+}
+
+.tsiPanel p {
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+}
+
+.tsiPanel p + p {
+  margin-top: var(--spacing-4);
+}
+
+.tsiPanel .shopHere {
+  margin-top: var(--spacing-5);
+}
+
+.tsiImagenSecundaria {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 790px) {
+  .textoSobreImagen {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tsiImagen {
+    height: 70vh;
+  }
+
+  .tsiPanel {
+    position: static;
+    max-width: none;
+    padding: var(--spacing-5);
+  }
+}
+
+/* ---------- Bloque "texto-centrado": columna estrecha + CTA ---------- */
+
+.textoCentrado {
+  display: flex;
+  justify-content: center;
+  padding-inline: var(--spacing-6);
+}
+
+.tcColumna {
+  max-width: var(--max-texto);
+  font-family: var(--font-editorial);
+}
+
+.tcColumna p {
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+  text-align: justify;
+}
+
+.tcColumna p + p {
+  margin-top: var(--spacing-4);
+}
+
+.tcColumna .shopHere {
+  margin-top: var(--spacing-6);
+}
+
+@media (max-width: 790px) {
+  .textoCentrado {
+    padding-inline: var(--spacing-4);
+  }
+}
+
+/* ---------- CTA "SHOP HERE" — enlace grande, no un Boton normal ---------- */
+
+.shopHere {
+  display: inline-block;
+  font-family: var(--font-base);
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-extrabold);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+  border-bottom: var(--border-thick) solid var(--color-tinta);
+  padding-bottom: var(--spacing-1);
+  transition: color 0.25s var(--ease-marca), border-color 0.25s var(--ease-marca);
+}
+
+.shopHere:hover {
+  color: var(--color-gris-500); /* nunca rosa al hover/clic */
+  border-color: var(--color-gris-500);
+}
+
+@media (max-width: 790px) {
+  .shopHere {
+    font-size: var(--text-h4);
+  }
+}

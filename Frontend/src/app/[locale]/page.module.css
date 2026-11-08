@@ -10,11 +10,168 @@
 .landing {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-6);
+  gap: 0;
 }
 
-@media (max-width: 1023px) {
-  .landing {
-    gap: var(--spacing-5);
+/* Nada en mayúsculas en la landing (a petición) — incluye componentes
+   compartidos que las traen de serie (Boton "texto"/"texto-crema",
+   .tituloLanding de SplitMedia), sin tocarlos en el resto del sitio.
+   !important porque esas reglas tienen la misma especificidad y el
+   orden de los CSS Modules entre sí no está garantizado. */
+.landing,
+.landing * {
+  text-transform: none !important;
+}
+
+/* ---------- "Descubre a Fely" (último bloque antes del footer) ----------
+   Sección partida texto + imagen sobre el grid de 24 columnas (ver
+   --grid-columnas-24 en global.css): en escritorio foto en las
+   columnas 1–12 y texto (título, cita y botón al final) en las 15–24,
+   dos columnas después de la foto como separación. En mobile/tablet
+   se apila: texto arriba, foto debajo (ver media query al final). */
+.descubreFely {
+  width: 100%;
+  padding-block: var(--spacing-10);
+  padding-inline: var(--spacing-6);
+  letter-spacing: var(--tracking-label);
+}
+
+.descubreFelyGaleria {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.descubreFelyImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* En mobile (3/2) Fely está a la derecha y el recorte la centra a ella. */
+  object-position: 70% center;
+}
+
+/* Columna de texto: el bloque título + cita + CTA (.descubreFelyBloque)
+   centrado en vertical en el alto de la foto. */
+.descubreFelyFila {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Texto y CTA juntos, --spacing-8 entre ellos. */
+.descubreFelyBloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+/* Escritorio: la sección mide 120vh (más de una pantalla) y la foto
+   llena todo el alto de sus 12 columnas (object-fit: cover recorta el
+   ancho), entre los márgenes laterales del header
+   (--padding-lateral-nav). */
+@media (min-width: 1024px) {
+  .descubreFely {
+    box-sizing: border-box;
+    height: 120vh;
+    /* Margen (no padding) arriba/abajo: la foto mantiene los 120vh y
+       la separación se suma fuera de la sección. */
+    margin-block: var(--spacing-10);
+    padding: 0 var(--padding-lateral-nav);
+  }
+  .descubreFelyTarjeta {
+    display: grid;
+    grid-template-columns: var(--grid-columnas-24);
+    column-gap: var(--grid-gap);
+    align-items: stretch;
+    height: 100%;
+  }
+  .descubreFelyGaleria {
+    grid-column: 1 / 13;
+    grid-row: 1;
+    height: 100%;
+  }
+  .descubreFelyFila {
+    grid-column: 15 / 25;
+    grid-row: 1;
   }
 }
+
+.descubreFelyInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-2);
+  min-width: 0;
+  max-width: 350px;
+  text-transform: none;
+}
+
+/* Título y texto de bloque (ver --text-bloque-* en global.css). */
+.descubreFelyTitulo {
+  font-size: var(--text-bloque-titulo);
+  font-weight: 400;
+  line-height: var(--leading-bloque);
+  letter-spacing: var(--tracking-bloque);
+  color: var(--color-tinta);
+  padding-bottom: var(--spacing-3);
+}
+
+.descubreFelyCita p {
+  font-size: var(--text-bloque-texto);
+  font-weight: 400;
+  line-height: var(--leading-bloque);
+  letter-spacing: 0;
+  text-wrap: pretty;
+  color: var(--color-tinta);
+}
+
+.descubreFelyAcciones {
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+/* Mobile/tablet: apilado, texto arriba y foto debajo a todo el ancho
+   (order:-1 en .descubreFelyFila, sin cambiar el orden del DOM). */
+@media (max-width: 1023px) {
+  /* Sin padding lateral en la sección: la foto llega a los bordes y
+     el margen lateral pasa solo al texto (.descubreFelyFila). */
+  .descubreFely {
+    margin-block: var(--spacing-7);
+    padding-block: 0;
+    padding-inline: 0;
+  }
+  /* Mínimo 80svh (alto visible en mobile, sin la barra del
+     navegador); el margin-block va aparte. Con la foto ya a 80vh (abajo)
+     el bloque siempre lo supera: el texto queda a su alto natural. */
+  .descubreFelyTarjeta {
+    display: flex;
+    flex-direction: column;
+    min-height: 80svh;
+  }
+  /* Apilada, la foto mide 80vh de alto a todo el ancho (object-fit:
+     cover recorta los lados). */
+  .descubreFelyGaleria {
+    width: 100%;
+    height: 80vh;
+    aspect-ratio: auto;
+    flex-shrink: 0;
+  }
+  /* El texto se estira al alto que deja la foto, con el bloque
+     texto + CTA centrado en vertical en ese alto. */
+  .descubreFelyFila {
+    order: -1;
+    flex: 1;
+    width: 100%;
+    align-items: stretch;
+    justify-content: center;
+    padding-block: var(--spacing-6);
+    padding-inline: var(--spacing-6);
+  }
+  .descubreFelyInfo {
+    max-width: none;
+  }
+}
+

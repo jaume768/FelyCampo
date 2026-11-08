@@ -31,29 +31,13 @@
   border-color: var(--color-tinta);
 }
 
-/* Agotada: aspa de esquina a esquina sobre todo el botón (no solo un
-   "line-through" del número) + opacidad reducida — ::before/::after son
-   dos líneas de 141% (~diagonal de un cuadrado, ver .talla: min-width =
-   height = 44px, siempre cuadrado en la práctica: todas las tallas son
-   de 2 cifras) rotadas ±45° desde el centro. */
+/* Agotada: ya no se tacha con un aspa — con stock bajo (no realmente
+   "sin existencias") tachar una talla que en realidad se puede seguir
+   pidiendo por aviso de disponibilidad daba una experiencia rara. Solo
+   se distingue del resto por una opacidad ligeramente reducida, sigue
+   siendo un botón normal (clicable: ver SelectorTalla.jsx, activa el
+   flujo de "Avísame cuando esté disponible" en vez de seleccionar
+   talla para comprar). */
 .agotada {
-  position: relative;
-  color: var(--color-gris-300);
-  border-color: var(--color-gris-400);
-  cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.55;
 }
-.agotada:hover { border-color: var(--color-gris-400); }
-
-.agotada::before,
-.agotada::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 141%;
-  height: 1px;
-  background: var(--color-gris-300);
-}
-.agotada::before { transform: translate(-50%, -50%) rotate(45deg); }
-.agotada::after { transform: translate(-50%, -50%) rotate(-45deg); }

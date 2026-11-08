@@ -1,0 +1,345 @@
+/* ============================================================
+   RESERVAR CITA — ATELIER — Fely Campo
+   Página normal: Navbar arriba (el sólido de siempre), fondo blanco y
+   solo el formulario, centrado — antes una capa fija a pantalla
+   completa por encima del Navbar con foto al 50% y una X (calcada de
+   MiCuentaModal), quitadas a petición. Esquinas rectas en todo
+   (--radius-botones/--radius-inputs a 0, igual que el resto del sitio).
+   ============================================================ */
+
+/* Ocupa al menos el alto de la pantalla bajo el Navbar, con el
+   formulario centrado en los dos ejes. "grid"/"place-items" (no flex):
+   si el formulario no cabe, el scroll llega hasta su principio. */
+.pagina {
+  min-height: calc(100vh - var(--nav-height-desktop));
+  display: grid;
+  place-items: center;
+  padding: var(--spacing-8) var(--spacing-6) var(--spacing-10);
+  background: var(--color-fondo);
+}
+
+/* margin-top: separa el formulario del Navbar (a petición, 5vh). */
+.formContenedor {
+  margin-top: 5vh;
+  width: 100%;
+  max-width: 400px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+  min-width: 0;
+}
+
+/* Título + subtítulo del formulario, centrados y juntos. */
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-bottom: 3vh;
+  text-align: center;
+}
+
+.titulo {
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  text-align: center;
+}
+
+.subtitulo {
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+}
+
+/* Inputs de texto (los <Input> de ui/: nombre, email, teléfono) solo
+   con línea inferior — atelier, fecha y mensaje mantienen su caja. Solo en esta página: Input.
+   module.css no se toca. Sin padding lateral, el texto arranca alineado
+   con la etiqueta de encima. */
+.form input:not([type="checkbox"]) {
+  border: none;
+  border-bottom: 1px solid var(--color-gris-300);
+  padding-inline: 0;
+  background: transparent;
+}
+.form input:not([type="checkbox"]):focus {
+  border-bottom-color: var(--color-tinta);
+}
+
+/* Campo propio (ubicación/mensaje) — mismo diseño que .campo/.etiqueta
+   de ModalSolicitudAtelier.module.css (Input, ui/, ya trae el suyo
+   para nombre/email/teléfono). */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+/* Solo para lectores de pantalla — el título del campo va como
+   placeholder (ver la etiqueta del mensaje en page.js). */
+.etiquetaOculta {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.etiqueta {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+/* Mismo aspecto que .input de Input.module.css — sin componente
+   Select propio todavía en ui/, así que se replica aquí a mano. */
+.select {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: 12px var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease-marca);
+}
+
+.select:focus {
+  border-color: var(--color-tinta);
+}
+
+/* Select nativo (atelier): sin la flecha del navegador, la misma "⌄"
+   dibujada que el selector de fecha de abajo, para que los dos campos
+   se vean iguales. */
+select.select,
+.mesAnioDisparador {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: calc(var(--spacing-1) + 20px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23111' stroke-width='1'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-1) center;
+}
+
+/* ---------- Fecha del evento: un solo campo mes/año ----------
+   (ver SelectorMesAnio.jsx). El disparador es un <button> con el mismo
+   aspecto que .select; el panel se abre debajo, encima del resto del
+   formulario: año arriba con flechas y los 12 meses en 3 columnas. */
+.mesAnio {
+  position: relative;
+}
+
+.mesAnioDisparador {
+  text-align: left;
+}
+
+/* Sin fecha elegida: el texto hace de placeholder, en gris como los de
+   los Input. */
+.mesAnioVacio {
+  color: var(--color-gris-400);
+}
+
+.mesAnioPanel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  background: var(--color-fondo);
+  border: 1px solid var(--color-tinta);
+}
+
+.mesAnioCabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mesAnioAnio {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.mesAnioFlecha {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--color-tinta);
+  cursor: pointer;
+}
+
+.mesAnioFlecha:disabled {
+  color: var(--color-gris-300);
+  cursor: default;
+}
+
+.mesAnioMeses {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-1);
+}
+
+.mesAnioMes {
+  padding: 10px 4px;
+  border: 1px solid transparent;
+  background: none;
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease-marca), background-color 0.25s var(--ease-marca);
+}
+
+.mesAnioMes:hover:not(:disabled),
+.mesAnioMes:focus-visible {
+  border-color: var(--color-gris-300);
+}
+
+.mesAnioMesElegido,
+.mesAnioMesElegido:hover:not(:disabled) {
+  background: var(--color-tinta);
+  border-color: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+/* Meses ya pasados del año actual — solo atenuados, no tachados. */
+.mesAnioMes:disabled {
+  color: var(--color-gris-300);
+  cursor: default;
+}
+
+/* Mismo aspecto que .input de Input.module.css — sin componente
+   Textarea propio todavía en ui/, así que se replica aquí a mano. */
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: 12px var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.25s var(--ease-marca);
+}
+
+.textarea::placeholder {
+  color: var(--color-gris-400);
+}
+
+.textarea:focus {
+  border-color: var(--color-tinta);
+}
+
+.aviso {
+  color: var(--color-rosa-oscuro);
+  font-size: var(--text-caption);
+}
+
+/* Casilla de privacidad/términos — obligatoria (ver "aceptaLegal" en
+   page.js). */
+.legalFila {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  cursor: pointer;
+}
+
+/* Mismo diseño que las cajas del formulario (selects/mensaje): borde
+   fino gris, esquinas rectas, sin el estilo nativo del navegador.
+   Marcada: cuadrado relleno en tinta, con un margen blanco interior. */
+.legalCheckbox {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--color-gris-300);
+  border-radius: 0;
+  background: var(--color-fondo);
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease-marca), background-color 0.25s var(--ease-marca);
+}
+
+.legalCheckbox:focus-visible,
+.legalCheckbox:hover {
+  border-color: var(--color-tinta);
+}
+
+.legalCheckbox:checked {
+  border-color: var(--color-tinta);
+  background: var(--color-tinta);
+  box-shadow: inset 0 0 0 3px var(--color-fondo);
+}
+
+.legalTexto {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  line-height: var(--leading-base);
+}
+
+/* Mismo color que el resto de la frase — solo el subrayado los marca
+   como enlace. */
+.legalEnlace {
+  color: inherit;
+  text-decoration: underline;
+  transition: color 0.25s var(--ease-marca);
+}
+
+.legalEnlace:hover {
+  color: var(--color-tinta);
+}
+
+/* ---------- Confirmación tras "Enviar solicitud" ---------- */
+.confirmacion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  text-align: center;
+}
+
+/* white-space:pre-line respeta saltos de párrafo reales si hiciera
+   falta en pedirCitaAtelier.confirmacionTexto. */
+.dondeIntro {
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+  text-align: center;
+  white-space: pre-line;
+}
+
+@media (max-width: 767px) {
+  .pagina {
+    min-height: calc(100vh - var(--nav-height));
+    padding: var(--spacing-6) var(--spacing-6) var(--spacing-8); /* laterales antes --spacing-4, más aire a petición */
+  }
+}
+
+/* Campo trampa para bots (ver "web" en page.js) — fuera de la vista y
+   del orden de tabulación, sin display:none (algunos bots lo detectan). */
+.trampa {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

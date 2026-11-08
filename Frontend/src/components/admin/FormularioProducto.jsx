@@ -29,9 +29,8 @@ import {
 } from '@/components/admin';
 import { Boton, Input } from '@/components/ui';
 import {
-  tiposProducto, coleccionesMock, coloresMock, familiasColorMock, categoriasCuidadoMock, cuidadosMock, resenasMock, tallasEstandar, ajustesTiendaMock, rutaTipoProducto,
+  tiposProducto, coleccionesMock, coloresMock, familiasColorMock, resenasMock, tallasEstandar, ajustesTiendaMock, rutaTipoProducto,
 } from '@/components/admin/mockData';
-import { useFamiliasAdmin } from './useFamiliasAdmin';
 import styles from './FormularioProducto.module.css';
 
 // Compresión de imágenes al subir — evitar que fotos de móvil (varios MB,
@@ -54,7 +53,7 @@ function extensionDeMime(mime) {
 // primer color elegido (si hay), y el tipo de producto en mayúsculas
 // haciendo de "categoría". Solo cambia el nombre del archivo (metadata),
 // no genera ni sube nada — ver aviso de imágenes 100% cliente en
-// docs/adminpanel.md sección 5.
+// docs/ADMIN.md sección 5.
 function nombreArchivoImagen({
   nombre, colorIds, tipo, posicion, total, mime,
 }) {
@@ -208,30 +207,17 @@ function FormularioProducto({
   const tipoFijado = Boolean(tipoInicial) && !productoExistente;
   const ocultarSeccionTipo = tipoFijado || Boolean(productoExistente) || Boolean(productoBase);
   const [tipo, setTipo] = useState(semilla?.tipo || tipoInicial || '');
-  // Va DESPUÉS de `tipo`, no antes: leerlo arriba daba «Cannot access 'tipo' before
-  // initialization» y el modal entero se caía al abrirse.
-  //
-  // `Product.family` es FK obligatoria (sin ella el alta da 400) y el formulario no tenía
-  // selector porque el mock no tenía familias. Acotadas por línea: en atelier no pintan
-  // nada «Faldas» ni «Zapatos».
-  const { familias, cargando: cargandoFamilias } = useFamiliasAdmin(tipo);
   const [categoriaId, setCategoriaId] = useState(semilla?.categoriaId || categoriaInicial || '');
   const [idioma, setIdioma] = useState('es');
   const [nombre, setNombre] = useState({ es: semilla?.nombre || '', en: '' });
   const [descripcion, setDescripcion] = useState({ es: semilla?.descripcionCorta || '', en: '' });
   const [estado, setEstado] = useState(semilla?.estado || 'Borrador');
-  const [familiaId, setFamiliaId] = useState(semilla?.familiaId || '');
-  // Fecha desde la que se publica un producto programado. El backend la exige (y futura)
-  // cuando el estado es 'Programado'.
-  const [publicadoEn, setPublicadoEn] = useState(
-    semilla?.publicadoEn ? String(semilla.publicadoEn).slice(0, 16) : ''
-  );
   const [precio, setPrecio] = useState(semilla?.precio || '');
   // Variantes de color — un producto puede subirse (o editarse) con varias
   // variantes de color a la vez, una pestaña por variante con SU PROPIA
   // Imágenes/Color o Estampado/Tallas y Stock (lo único que cambia entre
-  // colores); el resto del formulario (nombre, precio, composición,
-  // cuidados...) es compartido y se rellena una sola vez. Disponible al
+  // colores); el resto del formulario (nombre, precio, composición...)
+  // es compartido y se rellena una sola vez. Disponible al
   // dar de alta un producto nuevo de cero y también al editar uno ya
   // existente (así se puede añadir un color más sin salir del panel de
   // edición) — solo "Duplicar" (productoBase) sigue trabajando sobre una
@@ -334,15 +320,6 @@ function FormularioProducto({
   const [fabricadoEn, setFabricadoEn] = useState({ es: semilla?.fabricadoEn?.es || '', en: semilla?.fabricadoEn?.en || '' });
   const [tinturaEstampacion, setTinturaEstampacion] = useState({ es: semilla?.tinturaEstampacion?.es || '', en: semilla?.tinturaEstampacion?.en || '' });
   const [origenTejido, setOrigenTejido] = useState({ es: semilla?.origenTejido?.es || '', en: semilla?.origenTejido?.en || '' });
-  // Cuidados: selección múltiple — una prenda suele llevar
-  // varias instrucciones a la vez (lavado + planchado + secado...), no una
-  // sola. cuidadosMock trae ya las más comunes agrupadas por categoría
-  // (ver categoriasCuidadoMock); el admin puede añadir cualquier otra.
-  const [cuidadosDisponibles, setCuidadosDisponibles] = useState(cuidadosMock);
-  const [cuidadoIds, setCuidadoIds] = useState(semilla?.cuidadoIds || []);
-  const [nombreCuidadoNuevoEs, setNombreCuidadoNuevoEs] = useState('');
-  const [nombreCuidadoNuevoEn, setNombreCuidadoNuevoEn] = useState('');
-  const [categoriaCuidadoNueva, setCategoriaCuidadoNueva] = useState(categoriasCuidadoMock[0]?.id || '');
   // Vínculo con el look de Runway/Novia/Fiesta que enseña esta misma
   // pieza en pasarela — `categorias` viene de CategoriasProvider (mismo
   // Context que ListaProductos.jsx/FormularioLook.jsx), así que un look
@@ -373,9 +350,6 @@ function FormularioProducto({
   const [textoResenaNueva, setTextoResenaNueva] = useState({ es: '', en: '' });
   const [fotosResenaNueva, setFotosResenaNueva] = useState([]);
 
-  // blob URL -> File real de cada foto nueva, para poder subirla al guardar. Un ref y no
-  // estado: cambiarlo no tiene que repintar nada, y así no se pierde entre renders.
-  const archivosRef = useRef({});
   const inputArchivoRef = useRef(null);
   const inputImagenEstampadoRef = useRef(null);
   const inputFotosResenaRef = useRef(null);
@@ -413,10 +387,6 @@ function FormularioProducto({
       );
       const url = URL.createObjectURL(archivoNombrado);
       nombresNuevos[url] = archivoNombrado.name;
-      // El File se guarda aparte, no solo su blob URL: esa URL únicamente vale dentro de
-      // esta pestaña y muere al recargar. Para subir la foto al servidor hace falta el
-      // archivo de verdad.
-      archivosRef.current[url] = archivoNombrado;
       return url;
     }));
 
@@ -453,10 +423,10 @@ function FormularioProducto({
 
   // Numeración de secciones — Imágenes, Datos comunes y Prendas y SKU son
   // siempre 1, 2 y 3; el resto se calcula con un contador porque "Tipo de
-  // producto" es opcional (ocultarSeccionTipo) y "Colores"/"Composición y
-  // Cuidados" solo existen para los tipos que los usan (CAMPOS_TIPO) —
-  // evita reescribir ternarios a mano en cada FormSeccion cuando cambia
-  // qué va antes de qué. Colores y Estampados va antes que Tallas y Stock
+  // producto" es opcional (ocultarSeccionTipo) y "Colores"/"Composición"
+  // solo existen para los tipos que los usan (CAMPOS_TIPO) — evita
+  // reescribir ternarios a mano en cada FormSeccion cuando cambia qué va
+  // antes de qué. Colores y Estampados va antes que Tallas y Stock
   // (numeroColores se calcula antes que numeroTallas) a propósito.
   let contadorSeccion = 3;
   const numeroTipo = !ocultarSeccionTipo ? (contadorSeccion += 1) : null;
@@ -465,7 +435,6 @@ function FormularioProducto({
   const numeroColores = campos?.colores ? (contadorSeccion += 1) : null;
   const numeroTallas = campos?.tallas ? (contadorSeccion += 1) : null;
   const numeroComposicion = campos?.telas ? (contadorSeccion += 1) : null;
-  const numeroCuidados = campos?.telas ? (contadorSeccion += 1) : null;
   const numeroVinculo = esVendible ? (contadorSeccion += 1) : null;
   const numeroResenas = esVendible ? (contadorSeccion += 1) : null;
 
@@ -636,19 +605,6 @@ function FormularioProducto({
     setImagenEstampadoNueva('');
   }
 
-  function anadirCuidadoNuevo() {
-    if (!nombreCuidadoNuevoEs.trim() || !nombreCuidadoNuevoEn.trim() || !categoriaCuidadoNueva) return;
-    const nuevo = {
-      id: `cui${Date.now()}`,
-      categoria: categoriaCuidadoNueva,
-      texto: { es: nombreCuidadoNuevoEs.trim(), en: nombreCuidadoNuevoEn.trim() },
-    };
-    setCuidadosDisponibles((actual) => [...actual, nuevo]);
-    setCuidadoIds((actual) => [...actual, nuevo.id]);
-    setNombreCuidadoNuevoEs('');
-    setNombreCuidadoNuevoEn('');
-  }
-
   function anadirColeccionNueva() {
     const anio = parseInt(anioColeccionNuevo, 10);
     if (!anio || anio < 2000 || anio > 2099) {
@@ -721,20 +677,10 @@ function FormularioProducto({
           fabricadoEn: (fabricadoEn.es.trim() || fabricadoEn.en.trim()) ? fabricadoEn : undefined,
           tinturaEstampacion: (tinturaEstampacion.es.trim() || tinturaEstampacion.en.trim()) ? tinturaEstampacion : undefined,
           origenTejido: (origenTejido.es.trim() || origenTejido.en.trim()) ? origenTejido : undefined,
-          cuidadoIds,
         }),
         ...(campos.coleccion && { coleccion }),
         prendas: prendas.filter((p) => p.nombre.trim() || p.sku.trim()),
         estado: estadoFinal,
-        // Para poder guardar de verdad: familia (FK obligatoria) y, si se programa, la
-        // fecha desde la que se publica.
-        familiaId,
-        // Los File de las fotos nuevas, indexados por su blob URL. Sin esto solo viajaban
-        // blob URLs, que fuera de esta pestaña no significan nada y no se pueden subir.
-        archivosPorUrl: archivosRef.current,
-        publicadoEn: estadoFinal === 'Programado' && publicadoEn
-          ? new Date(publicadoEn).toISOString()
-          : undefined,
       };
 
       const idRaiz = semilla?.id || `p${Date.now()}`;
@@ -969,36 +915,6 @@ function FormularioProducto({
       {tipo && (
         <>
           <FormSeccion numero={numeroEspecificos} titulo="Precio de compra" descripcion={`Solo lo relevante para ${tiposProducto.find((t) => t.valor === tipo).etiqueta}.`}>
-            {/* Familia: FK obligatoria del modelo (`Product.family`). No existía en el
-                formulario porque el mock no tenía familias — sin ella el alta da 400. */}
-            <label className={styles.campoAncho}>
-              <span className={styles.etiquetaCampo}>Familia de producto *</span>
-              <select
-                className={styles.selectInput}
-                value={familiaId}
-                onChange={(e) => setFamiliaId(e.target.value)}
-                disabled={cargandoFamilias}
-              >
-                <option value="">{cargandoFamilias ? 'Cargando…' : 'Selecciona una familia'}</option>
-                {familias.map((f) => (
-                  <option key={f.id} value={f.id}>{f.code} · {f.nombre}</option>
-                ))}
-              </select>
-            </label>
-
-            {/* Solo cuando se programa: el backend exige fecha futura. */}
-            {estado === 'Programado' && (
-              <label className={styles.campoAncho}>
-                <span className={styles.etiquetaCampo}>Publicar a partir de *</span>
-                <input
-                  type="datetime-local"
-                  className={styles.selectInput}
-                  value={publicadoEn}
-                  onChange={(e) => setPublicadoEn(e.target.value)}
-                />
-              </label>
-            )}
-
             {campos.precio && (campos.precio.consulta ? (
               <p className={styles.precioConsulta}>Precios a consultar</p>
             ) : (
@@ -1313,67 +1229,6 @@ function FormularioProducto({
                     onChange={(e) => setOrigenTejido({ ...origenTejido, [idiomaComposicion]: e.target.value })}
                     placeholder="India"
                   />
-                </div>
-              </div>
-            </FormSeccion>
-          )}
-
-          {campos.telas && (
-            <FormSeccion
-              numero={numeroCuidados}
-              titulo="Cuidados"
-              descripcion={`Instrucciones de conservación del producto${campos.telas === 'opcional' ? ' (opcional)' : ''}.`}
-            >
-              <div className={styles.campoAncho}>
-                <div className={styles.cuidadosLista}>
-                  {categoriasCuidadoMock.map((cat) => {
-                    const items = cuidadosDisponibles.filter((c) => c.categoria === cat.id);
-                    if (!items.length) return null;
-                    return (
-                      <div key={cat.id} className={styles.cuidadoCategoria}>
-                        <span className={styles.cuidadoCategoriaTitulo}>{cat.etiqueta.es}</span>
-                        <div className={styles.telasGrid}>
-                          {items.map((c) => {
-                            const activo = cuidadoIds.includes(c.id);
-                            return (
-                              <button
-                                key={c.id}
-                                type="button"
-                                className={`${styles.telaChip} ${activo ? styles.telaChipActivo : ''}`}
-                                onClick={() => setCuidadoIds(activo ? cuidadoIds.filter((id) => id !== c.id) : [...cuidadoIds, c.id])}
-                              >
-                                <span className={styles.telaChipTexto}>
-                                  <span className={styles.telaChipNombre}>{c.texto.es}</span>
-                                  <span className={styles.telaChipComposicion}>{c.texto.en}</span>
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className={styles.anadirFila}>
-                  <Input etiqueta="Nueva instrucción (ES)" valor={nombreCuidadoNuevoEs} onChange={(e) => setNombreCuidadoNuevoEs(e.target.value)} placeholder="Secar a la sombra" />
-                  <Input etiqueta="New instruction (EN)" valor={nombreCuidadoNuevoEn} onChange={(e) => setNombreCuidadoNuevoEn(e.target.value)} placeholder="Dry in shade" />
-                  <label>
-                    <span className={styles.etiquetaCampo}>Categoría</span>
-                    <select className={styles.selectInput} value={categoriaCuidadoNueva} onChange={(e) => setCategoriaCuidadoNueva(e.target.value)}>
-                      {categoriasCuidadoMock.map((cat) => (
-                        <option key={cat.id} value={cat.id}>{cat.etiqueta.es}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <Boton
-                    variante="contorno"
-                    tamano="s"
-                    onClick={anadirCuidadoNuevo}
-                    desactivado={!nombreCuidadoNuevoEs.trim() || !nombreCuidadoNuevoEn.trim()}
-                  >
-                    <Plus size={14} />
-                    Añadir cuidado
-                  </Boton>
                 </div>
               </div>
             </FormSeccion>

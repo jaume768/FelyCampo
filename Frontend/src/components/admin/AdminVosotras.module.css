@@ -1,0 +1,152 @@
+/* ============================================================
+   ADMIN · VOSOTRAS — lo propio de AdminVosotras.jsx. El listado usa
+   las piezas comunes de ListadoAdmin.jsx y las fichas, el editor común
+   (EditorPagina.module.css).
+   ============================================================ */
+
+/* ---------- Invitadas | Novias (mismo aspecto que Español | English) ---------- */
+.segmentado {
+  display: inline-flex;
+  border: var(--border-thin) solid var(--color-gris-300);
+}
+
+.segmento {
+  min-width: 140px;
+  padding: 12px 20px;
+  border: none;
+  background: var(--color-fondo);
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  color: var(--color-gris-600);
+  cursor: pointer;
+}
+
+.segmento + .segmento {
+  border-left: var(--border-thin) solid var(--color-gris-300);
+}
+
+.segmento:hover {
+  color: var(--color-tinta);
+}
+
+.segmentoActivo,
+.segmentoActivo:hover {
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+}
+
+/* ---------- Reseña en la ficha del look ---------- */
+.resenasLook {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+.resenaLook {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 640px;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: var(--border-thin) solid var(--color-gris-200);
+}
+
+.resenaFirma {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.resenaTexto {
+  font-size: var(--text-caption);
+  color: var(--color-gris-600);
+}
+
+.enlace {
+  margin-top: 4px;
+  font-size: var(--text-caption);
+  color: var(--color-tinta);
+  text-decoration: underline;
+}
+
+/* ---------- Elegir las fotos de la clienta (ficha de reseña) ---------- */
+.fotosResena {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.elegirLook {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.grupoLooks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.grupoLooksTitulo {
+  font-size: var(--text-nano);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-gris-500);
+}
+
+.portadas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.portada {
+  position: relative;
+  width: 66px;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: var(--color-details);
+  cursor: pointer;
+}
+
+.portada img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portada:hover {
+  border-color: var(--color-gris-400);
+}
+
+.portadaNumero {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  min-width: 16px;
+  padding: 0 3px;
+  background: var(--color-fondo);
+  font-size: var(--text-nano);
+  color: var(--color-tinta);
+}
+
+.sinFotos {
+  align-self: flex-start;
+  padding: 10px 18px;
+  border: 2px solid var(--color-gris-300);
+  background: var(--color-fondo);
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  color: var(--color-tinta);
+  cursor: pointer;
+}
+
+.lookElegido,
+.lookElegido:hover {
+  border-color: var(--color-tinta);
+  box-shadow: 0 0 0 2px var(--color-fondo), 0 0 0 4px var(--color-tinta);
+}

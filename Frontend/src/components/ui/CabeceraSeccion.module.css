@@ -53,7 +53,9 @@
    de compartir línea base con el título. */
 .cabeceraInicio {
   align-items: start;
-  margin: var(--spacing-8) 0 var(--spacing-4) 0;
+  margin-top: var(--spacing-6);
+  margin-bottom: var(--spacing-6);
+  min-height: 110px;
 }
 
 /* Único caso que combina enCuadricula + alinear="start" (CuadriculaProductos
@@ -87,7 +89,6 @@
 .subtitle {
   font-size: var(--text-caption);
   font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
   color: var(--color-gris-700);
 }
 
@@ -118,11 +119,12 @@
    acotado en escritorio para que no estire la cabecera de lado a lado
    — en mobile no hace falta, ver media query abajo. */
 .descripcion {
-  max-width: 350px;
+  max-width: 550px;
   font-size: var(--text-small);
-  color: var(--color-gris-500);
+  color: var(--color-gris-600);
   line-height: var(--leading-base);
   text-align: center;
+  white-space: pre-line;
 }
 
 @media (max-width: 767px) {

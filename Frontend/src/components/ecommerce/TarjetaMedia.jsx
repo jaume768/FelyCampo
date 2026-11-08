@@ -7,21 +7,31 @@
    Uso:
      <TarjetaMedia src="/img/detalle.gif" />
      <TarjetaMedia src="/img/detalle.mp4" tipo="video" />
+     <TarjetaMedia src="/img/look.webp" href="/es/pret-a-porter/falda-jeju" />
+   "href" (opcional): toda la tarjeta enlaza ahí (ej. la foto de
+   pasarela de un producto, que lleva a la misma ficha que él — ver
+   "imagenEditorial" en CuadriculaProductos.jsx). Sin href, no enlaza.
    ============================================================ */
 
 import styles from './TarjetaMedia.module.css';
+import { atributosImagen } from '@/lib/imagenes';
+import VideoDiferido from '@/components/ui/VideoDiferido';
 
-function TarjetaMedia({ src, tipo = 'imagen', alt = '', variante }) {
+function TarjetaMedia({ src, tipo = 'imagen', alt = '', variante, href }) {
   const esCarrusel = variante === 'carrusel';
+  const Contenedor = href ? 'a' : 'div';
 
   return (
-    <div className={`${styles.tarjetaMedia} ${esCarrusel ? styles.tarjetaMediaCarrusel : ''}`}>
+    <Contenedor
+      href={href}
+      className={`${styles.tarjetaMedia} ${esCarrusel ? styles.tarjetaMediaCarrusel : ''} ${href ? styles.enlace : ''}`}
+    >
       {tipo === 'video' ? (
-        <video src={src} className={styles.media} autoPlay muted loop playsInline />
+        <VideoDiferido src={src} className={styles.media} />
       ) : (
-        <img src={src} alt={alt} className={styles.media} />
+        <img {...atributosImagen(src, { sizes: '(max-width: 768px) 50vw, 25vw' })} alt={alt} className={styles.media} />
       )}
-    </div>
+    </Contenedor>
   );
 }
 

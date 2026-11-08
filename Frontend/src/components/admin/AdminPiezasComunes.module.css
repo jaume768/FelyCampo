@@ -1,0 +1,37 @@
+/* Admin · Menú, Pedir cita y newsletter (AdminPiezasComunes.jsx). */
+
+/* Un grupo por apartado del menú, uno debajo de otro. */
+.grupos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.grupo + .grupo {
+  padding-top: var(--spacing-6);
+  border-top: var(--border-thin) solid var(--color-gris-100);
+}
+
+/* Fotos en fila, todas del mismo ancho: 5 columnas (el apartado con más
+   fotos, Atelier, tiene 5) para que cada apartado quepa en una fila. */
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--spacing-5);
+  align-items: start;
+  max-width: 1000px;
+}
+
+/* Las tres tarjetas de los ateliers. */
+.rejillaAteliers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 200px));
+  gap: var(--spacing-5);
+  align-items: start;
+}

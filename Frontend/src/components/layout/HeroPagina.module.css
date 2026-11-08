@@ -1,0 +1,119 @@
+/* ============================================================
+   HERO DE PÁGINA — Fely Campo (ver HeroPagina.jsx)
+   ============================================================ */
+
+/* position:relative para anclar .texto y el degradado inferior. */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 102vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* El fondo (RunwayMediaLateral o el children que se pase) llena todo
+   el alto — en mobile RunwayMediaLateral fija 60vh por su cuenta, aquí
+   se anula para que el hero sea 102vh también ahí. */
+.hero > :first-child {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+
+/* "hero-arriba" (clase global, ver ProductHero.jsx y AtelierDetalle.jsx): encuadre anclado
+   arriba en vez de centrado. */
+.hero:global(.hero-arriba) img,
+.hero:global(.hero-arriba) video {
+  object-position: top;
+}
+
+/* Degradado inferior: legibilidad del texto blanco sobre fotos claras.
+   Dos capas: una franja más oscura en los 20vh de abajo (negro al 50%
+   → transparente, donde va el título/subtítulo) encima del degradado
+   suave de siempre (35% → transparente al 40% del alto). tono="oscuro"
+   la sustituye por su degradado claro (ver .oscuro::after). */
+.hero::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgb(0 0 0 / 0.5) 0, rgb(0 0 0 / 0) 20vh),
+    linear-gradient(to top, rgb(0 0 0 / 0.35) 0%, rgb(0 0 0 / 0) 40%);
+  pointer-events: none;
+}
+
+/* Con "children" (ver HeroPagina.jsx): degradado superior para el
+   Navbar transparente, el mismo que pone RunwayMediaLateral. z-index:1
+   para quedar por encima del fondo aunque este vaya posicionado. */
+.fondoPropio::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(0 0 0 / 0.3) 0%, rgb(0 0 0 / 0) 35%);
+  pointer-events: none;
+}
+
+/* Abajo a la izquierda: título + subtítulo. */
+.texto {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  max-width: 36rem;
+  padding: var(--spacing-6);
+  margin-left: var(--spacing-2);
+}
+
+/* Las partes del título juntas en fila (ej. "ATELIER NOVIAS"). */
+.titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--spacing-3);
+  font-size: var(--text-hero); /* 28px, 21px en mobile */
+  font-weight: var(--font-weight-regular);
+}
+
+.tituloParte {
+  font-size: var(--text-hero); /* 28px, 21px en mobile */
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-crema);
+}
+
+.subtitulo {
+  font-size: var(--text-texto); /* 13px */
+  line-height: 1.3;
+  color: var(--color-crema);
+}
+
+/* tono="oscuro": fondo claro — texto en tinta, y el degradado pasa a
+   ser del color de fondo de la página (no negro): funde la parte baja
+   del fondo para que el texto oscuro se lea encima. */
+.oscuro::after {
+  background: linear-gradient(to top, var(--color-fondo) 0%, transparent 35%);
+}
+.oscuro .tituloParte,
+.oscuro .subtitulo {
+  color: var(--color-tinta);
+}
+
+@media (max-width: 767px) {
+  .texto {
+    padding: var(--spacing-6) var(--spacing-4);
+  }
+
+  /* Efecto "pin" (ver HeroPagina.jsx): z-index NEGATIVO para que el
+     contenido estático siguiente pinte por delante y la tape al subir. */
+  .fijarEnMobile {
+    position: sticky;
+    top: 0;
+    z-index: -1;
+  }
+}

@@ -125,10 +125,3 @@
 .inputArchivo {
   display: none;
 }
-
-.aviso {
-  padding: 16px 0;
-  margin: 0 0 8px;
-  font-size: 0.875rem;
-  color: var(--color-gris-500, #757575);
-}

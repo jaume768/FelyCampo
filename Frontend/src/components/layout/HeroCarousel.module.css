@@ -40,19 +40,64 @@
   background: var(--color-rosa);
 }
 
-/* Solo posicionamiento — el contenido (título + CTA) vive en el
-   componente ImageTitle (src/components/ui). */
-.contenido {
+/* Overlay oscuro sobre imagen/vídeo para que el texto claro se lea:
+   degradado de abajo arriba, ya transparente del todo a mitad de
+   altura. ::before (no ::after) a propósito: se pinta
+   encima del <img>/<video> pero debajo de .pie, que es
+   posicionado y va después en el DOM — sin necesidad de z-index.
+   pointer-events:none para no tapar el clic del CTA. */
+.slide::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(0 0 0 / 0.6) 0%, rgb(0 0 0 / 0) 50%);
+  pointer-events: none;
+}
+
+/* Abajo y centrado: la entradilla y el CTA debajo
+   (antes: descripción a la izquierda y CTA a la derecha, en fila). */
+.pie {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: var(--spacing-7) var(--spacing-4) var(--spacing-9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-5);
+  padding: var(--spacing-7) var(--spacing-7) var(--spacing-9);
 }
 
-/* La entrada de título + CTA (fundido + subida) vive en ImageTitle,
-   que es quien siempre renderiza el contenido real de cada slide —
-   ver ImageTitle.module.css. */
+.descripcion {
+  font-size: var(--text-titulo); /* 15px — título del hero ("El universo de Fely Campo") */
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: var(--color-crema);
+}
+
+/* Entrada de descripción y CTA (fundido + subida, mismo
+   movimiento que ImageTitle): se repite cada vez que un slide pasa a
+   activo, el CTA un poco después que el resto. */
+.pie > * {
+  opacity: 0;
+}
+.slide.activo .pie > * {
+  animation: entradaContenido 0.6s var(--ease-marca) forwards;
+}
+.slide.activo .pie > a {
+  animation-delay: 0.15s;
+}
+@keyframes entradaContenido {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile: mismo bloque centrado, con menos aire. */
+@media (max-width: 767px) {
+  .pie {
+    padding: var(--spacing-5) var(--spacing-4) var(--spacing-8);
+  }}
 
 /* ---------- Barra de progreso ---------- */
 
@@ -65,11 +110,14 @@
 }
 
 /* Pista y relleno son hermanos (no padre/hijo): así la opacidad de la
-   pista no se le pega también al relleno por composición. */
+   pista no se le pega también al relleno por composición. Colores
+   invertidos respecto al resto del sitio (pista oscura, relleno
+   claro) — sobre el hero (foto/vídeo oscuro) el hairline claro de
+   siempre casi no se veía. */
 .progresoPista {
   position: absolute;
   inset: 0;
-  background: var(--color-hairline);
+  background: var(--color-tinta);
   opacity: 0.4;
 }
 
@@ -77,8 +125,8 @@
   position: absolute;
   inset: 0;
   width: 0%;
-  background: var(--color-tinta);
-  animation: avanceProgreso 8s linear forwards;
+  background: var(--color-fondo);
+  animation: avanceProgreso 6s linear forwards;
 }
 
 @keyframes avanceProgreso {
@@ -93,18 +141,25 @@
   .slide {
     transition: none;
   }
+  .pie > *,
+  .slide.activo .pie > * {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 
 @media (max-width: 768px) {
   .hero {
-    /* height:auto es imprescindible: la regla base fija height:105dvh,
-       y con esa altura definida el aspect-ratio calculaba el ANCHO a
-       partir de ella (498px en un viewport de 390px) en vez de al
-       revés — de ahí el scroll horizontal en móvil. Sin una altura
-       definida propia, el ancho vuelve a ser el 100% normal del
-       bloque y es la altura la que se deriva de él vía aspect-ratio. */
-    height: auto;
-    aspect-ratio: 9 / 16;
+    /* Alto de la pantalla del móvil (antes aspect-ratio 9/16, que en
+       un teléfono de 390×844 daba solo 693px y dejaba ver la sección
+       siguiente). svh = alto visible con las barras del navegador
+       desplegadas: llena la pantalla al cargar y no salta al
+       esconderse la barra de direcciones (dvh sí saltaría). Sin
+       aspect-ratio: con altura fija y aspect-ratio a la vez el ancho
+       se calculaba desde la altura y había scroll horizontal. */
+    width: 100%;
+    height: 100svh;
+    aspect-ratio: auto;
   }
 }

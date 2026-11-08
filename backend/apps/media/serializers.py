@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from .models import MediaAsset, MediaKind
 from .processing import process_image
+from .variants import generate_variants
 
 MAX_IMAGE_BYTES = 25 * 1024 * 1024
 MAX_VIDEO_BYTES = 100 * 1024 * 1024
@@ -107,4 +108,7 @@ class MediaUploadSerializer(serializers.Serializer):
             asset.file.save(upload.name, upload, save=False)
 
         asset.save()
+        if kind == MediaKind.IMAGE:
+            # Versiones de 480/960/1600 px para el srcset de la web (variants.py).
+            generate_variants(asset.file.name)
         return asset

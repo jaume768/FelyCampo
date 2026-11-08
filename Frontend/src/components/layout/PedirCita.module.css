@@ -1,0 +1,110 @@
+/* PedirCita — banda con la foto del atelier de Madrid de fondo
+   (felycampo-atelier-madrid.webp, a sangre con background-size:cover)
+   y texto, botón y borde en blanco (--color-fondo), antes del footer,
+   en todas las páginas salvo el propio formulario de cita (ver
+   [locale]/layout.js). Un velo negro al 30% sobre la foto (mismo
+   criterio que los degradados del hero) mantiene legible el texto
+   blanco aunque la zona de la foto sea clara. La foto va en su propia
+   capa (.fondo, ver PedirCitaFondo.jsx) para el parallax de
+   escritorio; overflow:hidden recorta lo que sobresale de la sección. */
+
+.pedirCita {
+  position: relative;
+  overflow: hidden;
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-fondo);
+  padding-block: var(--spacing-9);
+  padding-inline: var(--spacing-6);
+  margin-top: 4rem; /* a petición: aire sobre la banda (3rem en mobile, ver abajo) */
+}
+
+/* Un 50% más alta que la sección por arriba y por abajo: margen para
+   que el desplazamiento del parallax nunca deje ver el borde de la
+   foto (PedirCitaFondo.jsx limita el movimiento a ese 50%). */
+.fondo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -50%;
+  bottom: -50%;
+  z-index: 0;
+  background:
+    linear-gradient(rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.3)),
+    var(--foto-pedir-cita) center / cover no-repeat;
+  will-change: transform;
+}
+
+/* Mobile/tablet: sin parallax, la capa se ajusta a la sección (sin el
+   50% extra, que solo serviría para recortar más la foto). */
+@media (max-width: 1023px) {
+  /* Banda más baja en mobile/tablet: 30vh en vez de 50vh. */
+  .pedirCita {
+    min-height: 30vh;
+    margin-top: 3rem;
+  }
+  .fondo {
+    top: 0;
+    bottom: 0;
+    will-change: auto;
+  }
+}
+
+.pedirCitaContenido {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-6);
+  width: 100%;
+  text-align: center;
+}
+
+/* Dos filas: el salto (\n) viene en la traducción, pre-line lo respeta. */
+.pedirCitaTitulo {
+  white-space: pre-line;
+  /* Título destacado (19px, ver --text-destacado), sin mayúsculas. */
+  font-size: var(--text-destacado); /* 19px */
+  font-weight: 400;
+  line-height: var(--leading-base);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--color-fondo);
+}
+
+/* Si el título lleva punto (o coma), se parte en dos filas tras él (escritorio y
+   mobile). */
+.pedirCitaTituloLinea {
+  display: block;
+}
+
+/* Boton "texto" (enlace subrayado, sin caja — el mismo CTA que el
+   resto del sitio) en blanco sobre la foto: texto y subrayado en
+   --color-fondo, sin mayúsculas. El hover (el trazo engrosa) ya lo trae
+   .texto de Boton.module.css. Doble clase para ganarle sin depender
+   del orden de carga de los módulos. */
+.pedirCita .pedirCitaCta {
+  /* Ancho del propio texto: el subrayado no pasa de las letras. */
+  width: fit-content;
+  align-self: center;
+  font-size: var(--text-cta); /* 13px */
+  text-transform: none;
+  color: var(--color-fondo);
+  border-bottom-color: var(--color-fondo);
+}
+
+/* "separado" (ver PedirCita.jsx — fichas /atelier-fiesta/[ciudad]):
+   margen en blanco encima de la banda para separarla de las fotos del
+   final de la página. Mismos valores que .separado de AteliersCita. */
+.separado {
+  margin-top: var(--spacing-10);
+}
+
+@media (max-width: 767px) {
+  .separado {
+    margin-top: var(--spacing-8);
+  }
+}

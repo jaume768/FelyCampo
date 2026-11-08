@@ -1,37 +1,49 @@
 /* ============================================================
    ESTADO BADGE — Fely Campo (admin)
-   Envuelve Etiqueta (texto plano, sin fondo ni pill) y solo decide
-   qué variante de color le corresponde a cada estado del panel.
-   Uso: <EstadoBadge estado="Activo" /> <EstadoBadge estado="Pendiente" />
+   La etiqueta de estado de todas las tablas del panel (citas,
+   consultas, pedidos, clientes, reseñas…): siempre una etiqueta de color
+   del mismo tamaño, con los mismos colores en todas partes (como
+   «Publicado / Oculto» de los listados y los estados de Pedidos):
+     verde     hecho / va bien       (Publicada, Pagado, Contactada…)
+     rosa      necesita atención     (Pendiente, Borrador…)
+     amarillo  en camino             (Enviado, Procesando)
+     gris      archivado / oculto    (Oculta, Cerrado, Inactivo…)
+     tachado   fallido / agotado
+   Uso: <EstadoBadge estado="Pendiente" />
    ============================================================ */
 
-import { Etiqueta } from '../ui';
+import styles from './EstadoBadge.module.css';
 
-const VARIANTE_POR_ESTADO = {
-  Activo: 'tinta',
-  Publicado: 'tinta',
-  Pagado: 'tinta',
-  Entregado: 'tinta',
-  Cerrado: 'tinta',
-  Publicada: 'tinta',
+const TONO_POR_ESTADO = {
+  Activo: 'verde',
+  Publicado: 'verde',
+  Publicada: 'verde',
+  Pagado: 'verde',
+  Entregado: 'verde',
+  Contactado: 'verde',
+  Contactada: 'verde',
+  'Cita confirmada': 'verde',
 
   Borrador: 'rosa',
   Pendiente: 'rosa',
-  Procesando: 'rosa',
-  Contactado: 'rosa',
 
-  Archivado: 'velo',
-  Enviado: 'velo',
-  Oculta: 'velo',
-  Oculto: 'velo',
-  Inactivo: 'velo',
+  Procesando: 'amarillo',
+  Enviado: 'amarillo',
 
-  Fallido: 'agotado',
-  Agotado: 'agotado',
+  Cerrado: 'gris',
+  Cerrada: 'gris',
+  Archivado: 'gris',
+  Oculta: 'gris',
+  Oculto: 'gris',
+  Inactivo: 'gris',
+
+  Fallido: 'tachado',
+  Agotado: 'tachado',
 };
 
 function EstadoBadge({ estado }) {
-  return <Etiqueta variante={VARIANTE_POR_ESTADO[estado] || 'tinta'}>{estado}</Etiqueta>;
+  const tono = TONO_POR_ESTADO[estado] || 'gris';
+  return <span className={`${styles.badge} ${styles[tono]}`}>{estado}</span>;
 }
 
 export default EstadoBadge;

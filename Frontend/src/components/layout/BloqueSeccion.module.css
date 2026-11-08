@@ -1,72 +1,140 @@
 /* ============================================================
    BLOQUE DE SECCIÓN (imagen + texto) — Fely Campo
+   Escritorio (desde 1024px): grid de 24 columnas (ver
+   --grid-columnas-24 en global.css) entre los márgenes del header
+   (--padding-lateral-nav) — imagen en las columnas 1–12 y texto en
+   las 15–24, dos columnas de separación; "invertido" lo refleja
+   (texto 1–10, imagen 13–24). Mobile y tablet: apilado, imagen arriba
+   y texto debajo, alineado a la izquierda.
    ============================================================ */
 
 .seccion {
-  display: grid;
-  grid-template-columns: 1fr;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
 }
 
-@media (min-width: 768px) {
-  .seccion { 
-    height: 105dvh;
-    grid-template-columns: 1fr 1fr; 
+/* min-height, no height: con texto largo + el padding de
+   .contenidoTexto, una altura fija desbordaba la caja sin overflow:hidden — el texto se
+   salía por debajo y quedaba tapado por la siguiente sección al
+   pintarse encima (orden natural del DOM). min-height mantiene el
+   alto "editorial" cuando el contenido cabe, y crece si no. */
+@media (min-width: 1024px) {
+  .seccion {
+    display: grid;
+    grid-template-columns: var(--grid-columnas-24);
+    column-gap: var(--grid-gap);
+    align-items: center;
+    min-height: 38vh;
+    padding-inline: var(--padding-lateral-nav);
+  }
+
+  .marco {
+    grid-column: 1 / 13;
+    grid-row: 1;
+  }
+
+  .contenidoTexto {
+    grid-column: 15 / 25;
+    grid-row: 1;
+  }
+
+  .invertido {
+    grid-column: 13 / 25;
+  }
+
+  .textoInvertido {
+    grid-column: 1 / 11;
   }
 }
 
-/* align-self:stretch invalida el align-items:center de .seccion solo
-   para .marco: sin esto, al no tener una altura definida, img
-   height:100% se resuelve a auto (tamaño natural de la imagen) y
-   object-fit:cover no tiene nada que recortar. */
+/* aspect-ratio en vez de height:100% (ver historial): con solo
+   min-height en .seccion (no height), la fila del grid no tiene una
+   altura definida — un height:100% ahí no tiene contra qué resolverse
+   y el navegador termina usando el tamaño natural de la imagen. Con
+   fotos en vertical (frecuente en Novias, ver noviaEditorial.js) esto
+   disparaba la fila entera a ~850-1000px de alto, muy por encima del
+   38vh pensado como alto "editorial". aspect-ratio fija el alto de
+   .marco desde su propio ancho (columna, no fila), así ya no depende
+   de qué tan alta sea la imagen de origen ni de qué altura acabe
+   teniendo la fila. 3/4 (retrato, en vez de 20/21 casi cuadrado) a
+   petición explícita — mucho de lo que ilustra este bloque son fotos
+   verticales (Novias/Fiesta, ver noviaEditorial.js/
+   fiestaEditorial.js). */
 .marco {
-  height: 100%;
-  align-self: stretch;
+  aspect-ratio: 3 / 4;
   background: var(--color-crema);
   border-radius: var(--radius-imagenes);
   overflow: hidden;
 }
 
-.imagen { 
-  object-fit: cover; 
-}
-
-/* En mobile la imagen mide 70dvh: altura explícita en .marco (en vez
-   del 100%/stretch de arriba) para que .imagen (height:100%) la herede.
-   .seccion pasa a height:auto: apilada (imagen + texto) suma más de
-   95vh, y con height fijo el texto desbordaba la caja y el Footer
-   (siguiente en el DOM) se pintaba encima. */
-@media (max-width: 767px) {
-  .seccion { height: auto; }
-  .marco { height: 70dvh; }
-}
-
-.invertido { order: 2; }
-@media (min-width: 768px) {
-  .invertido { order: 2; }
-  .textoInvertido { order: 1; }
+.imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .contenidoTexto {
-  padding: var(--spacing-6) var(--spacing-4) var(--spacing-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-6);
+}
+
+@media (min-width: 1024px) {
+  /* Solo vertical — el lateral lo dan las columnas del grid. */
+  .contenidoTexto {
+    padding: var(--spacing-10) 0;
+  }
+}
+
+/* Mobile y tablet: imagen arriba y texto debajo (orden del DOM, a
+   petición — antes el texto iba arriba con order:-1), alineado a la
+   izquierda (antes centrado). */
+@media (max-width: 1023px) {
+  /* Mismos márgenes laterales que el header (--padding-lateral-nav)
+     para imagen y texto; .contenidoTexto solo separa el texto de la
+     imagen (padding-top), el lateral ya lo pone .seccion. */
+  .seccion {
+    padding-block: var(--spacing-6);
+    padding-inline: var(--padding-lateral-nav);
+  }
+  .contenidoTexto {
+    align-items: flex-start;
+    padding: var(--spacing-6) 0 0;
+  }
+  .texto {
+    text-align: left;
+  }
 }
 
 .titulo {
-  font-size: var(--text-body-lg);
-  margin-bottom: var(--spacing-1);
+  font-size: var(--text-h3);
 }
 
 .texto {
   font-size: var(--text-small);
-  color: var(--color-gris-500);
+  color: var(--color-tinta);
   line-height: var(--leading-base);
   max-width: var(--max-texto);
-  margin-bottom: var(--spacing-5);
+  white-space: pre-line;
+  margin-bottom: var(--spacing-2);
 }
 
 /* Referencia: styleguide.html .sg-boutique-texto .sg-btn-texto —
    el enlace de este bloque es más pequeño que el resto de Boton
-   variante="texto" (--text-small por defecto). */
+   variante="texto" (--text-small por defecto). display:inline-flex
+   sobrescribe el display:flex (block-level) de .contorno en
+   Boton.module.css — sin esto el botón se estira al ancho completo de
+   .contenidoTexto en vez de ajustarse a su contenido.
+   Color/fondo igual que Boton variante="solido" (relleno oscuro, texto
+   claro) en vez del contorno vacío que trae "contorno" de fábrica — el
+   propio componente sigue recibiendo variante="contorno" (mismo hover
+   que ya invierte a estos colores, ver Boton.module.css), esto solo
+   iguala el estado base al de "solido". */
 .contenidoTexto .enlace {
-  font-size: var(--text-label);
+  display: inline-flex;
+  width: fit-content;
+  font-size: var(--text-cta);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
 }

@@ -34,7 +34,6 @@
 
 .etiqueta {
   font-size: var(--text-small);
-  text-transform: uppercase;
   color: var(--color-fondo);
 }
 
@@ -58,10 +57,10 @@
 }
 .contenido.enVista p,
 .contenido.enVista span {
-  animation: entradaContenido 0.9s var(--ease-marca) forwards;
+  animation: entradaContenido 0.6s var(--ease-marca) forwards;
 }
 .contenido.enVista span {
-  animation-delay: 0.3s;
+  animation-delay: 0.15s;
 }
 
 @keyframes entradaContenido {

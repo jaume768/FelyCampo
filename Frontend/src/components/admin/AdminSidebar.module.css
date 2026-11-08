@@ -10,11 +10,14 @@
   scrollbar-color: transparent transparent;
   transition: scrollbar-color 0.2s ease;
   font-weight: var(--font-weight-medium);
-  background: var(--color-details);
+  /* Menú oscuro, un punto más claro que la barra negra de arriba
+     (--color-negro, ver app/admin/layout.module.css), con iconos y
+     textos claros — a petición. El espacio de trabajo sigue en blanco. */
+  background: var(--admin-menu-fondo);
 }
 
 .sidebar:hover {
-  scrollbar-color: var(--color-gris-300) transparent;
+  scrollbar-color: var(--admin-linea) transparent;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -38,7 +41,7 @@
 }
 
 .sidebar:hover::-webkit-scrollbar-thumb {
-  background: var(--color-gris-300);
+  background: var(--admin-linea);
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
@@ -54,13 +57,6 @@
   padding: var(--spacing-4) var(--spacing-6);
 }
 
-.marcaLogo {
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  object-fit: cover;
-}
-
 .marcaTexto {
   display: flex;
   flex-direction: column;
@@ -71,14 +67,14 @@
   font-family: var(--font-base);
   font-size: var(--text-h3);
   font-weight: var(--font-weight-medium);
-  color: var(--color-fondo);
+  color: var(--admin-texto);
   letter-spacing: -0.04rem;
 }
 
 .marcaSubtitulo {
   font-family: var(--font-base);
   font-size: var(--text-caption);
-  color: var(--color-rosa-velo);
+  color: var(--admin-texto-suave);
   text-transform: none;
   letter-spacing: normal;
 }
@@ -100,9 +96,17 @@
   padding: 0 var(--spacing-3);
   font-size: var(--text-nano);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-gris-400);
+  color: var(--admin-texto-tenue);
   text-transform: uppercase;
   margin-bottom: var(--spacing-1);
+}
+
+/* Rótulo de un subgrupo dentro de "Páginas de la web" (Sobre Fely,
+   Atelier, Colecciones): alineado a la izquierda con el título del grupo. */
+.subgrupo {
+  padding: var(--spacing-3) var(--spacing-3) var(--spacing-1);
+  font-size: var(--text-nano);
+  color: var(--admin-texto-tenue);
 }
 
 .grupoLista {
@@ -120,7 +124,7 @@
   padding: var(--spacing-2) var(--spacing-3);
   font-family: var(--font-base);
   font-size: var(--text-label);
-  color: var(--color-gris-700);
+  color: var(--admin-menu-texto);
   background: none;
   border: none;
   cursor: pointer;
@@ -136,26 +140,17 @@
   color: inherit;
 }
 
+/* Hover: fondo apenas más claro y texto en blanco (sobre el menú
+   oscuro, el antiguo fondo rosa-velo con texto oscuro chocaba). */
 .item:hover {
-  color: var(--color-tinta);
-  background: var(--color-rosa-velo);
+  color: var(--admin-texto);
+  background: var(--admin-hover);
 }
 
-.item:hover .icono,
-.item:hover .label,
-.item:hover .chevron {
-  color: var(--color-rosa-oscuro);
-}
-
+/* Activo: rosa oscuro de marca, con el texto en blanco. */
 .item.activo {
-  color: var(--color-tinta);
+  color: var(--color-fondo);
   background: var(--color-rosa-oscuro);
-}
-
-.item.activo .icono,
-.item.activo .label,
-.item.activo .chevron {
-  color: var(--color-rosa-velo);
 }
 
 .contador {
@@ -238,7 +233,7 @@
   bottom: 15px;
   left: calc(var(--spacing-7) / 2);
   width: var(--border-thin);
-  background: var(--color-gris-200);
+  background: var(--admin-linea);
 }
 
 .sublista li {
@@ -252,7 +247,7 @@
   left: calc(-1 * var(--spacing-7) / 2);
   width: calc(var(--spacing-6) / 2);
   height: var(--border-thin);
-  background: var(--color-gris-200);
+  background: var(--admin-linea);
 }
 
 .subitem {
@@ -263,7 +258,7 @@
   padding: var(--spacing-2) var(--spacing-3);
   font-family: var(--font-base);
   font-size: var(--text-caption);
-  color: var(--color-gris-500);
+  color: var(--admin-menu-texto-suave);
   background: none;
   border: none;
   cursor: pointer;
@@ -300,31 +295,23 @@
 }
 
 .subitem:hover {
-  color: var(--color-rosa-oscuro);
-  background: var(--color-rosa-velo);
-}
-
-.subitem:hover .chevron {
-  color: var(--color-rosa-oscuro);
+  color: var(--admin-texto);
+  background: var(--admin-hover);
 }
 
 .subitem.activo {
-  color: var(--color-rosa-velo);
+  color: var(--color-fondo);
   background: var(--color-rosa-oscuro);
-}
-
-.subitem.activo .chevron {
-  color: var(--color-rosa-velo);
 }
 
 .verWeb {
   font-size: var(--text-caption);
-  color: var(--color-gris-500);
+  color: var(--admin-texto-suave);
   padding: var(--spacing-3);
-  border-top: var(--border-thin) solid var(--color-gris-200);
+  border-top: var(--border-thin) solid var(--admin-linea);
   margin-top: var(--spacing-4);
 }
 
 .verWeb:hover {
-  color: var(--color-tinta);
+  color: var(--admin-texto);
 }

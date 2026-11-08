@@ -3,8 +3,7 @@
 // Tabla de medidas Fely Campo (cm) — solo los números y el orden de
 // las columnas; las etiquetas/textos ("Pecho", "Rodea el busto...")
 // viven en messages/{locale}.json bajo "guiaTallas.medidas.<clave>"
-// (mismo criterio que clientsReview.resenas: contenido de la app,
-// traducido, no datos). Un único valor por medida (ya no "real"/
+// (contenido de la app, traducido, no datos). Un único valor por medida (ya no "real"/
 // "patrón" — la tabla mostraba siempre "patrón", así que se simplifica
 // a un solo número por talla/medida).
 

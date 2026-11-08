@@ -1,4 +1,12 @@
-.clienteEmail {
+.secundario {
   color: var(--color-gris-500);
   font-size: var(--text-micro);
+}
+
+/* Recibida: fecha y hora en dos líneas, columna estrecha. */
+.recibida {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--text-caption);
+  white-space: nowrap;
 }

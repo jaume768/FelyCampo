@@ -25,7 +25,7 @@ import styles from './Boton.module.css';
  * a relleno sólido, texto/icono en --color-fondo). 'texto' = enlaces.
  * 'texto-crema' = mismo enlace, en --color-crema (fondos oscuros/imágenes,
  * ej. HeroCarousel).
- * 'flecha' = nuevo diseño de CTA en mayúsculas, subrayado
+ * 'flecha' = nuevo diseño de CTA, subrayado
  * (ej. cabecera de CuadriculaProductos) — candidato a sustituir a
  * solido/contorno/rosa en el resto del sistema, todavía sin extender.
  * Esquinas siempre rectas (radio 0).
@@ -41,7 +41,11 @@ function Boton({
   mayusculas = false,
   tabIndex,
   className,
+  // Con href: abre el enlace en una pestaña nueva (p. ej. «Ver en la web»
+  // desde el admin, para no perder lo que se está editando).
+  nuevaPestana = false,
 }) {
+  const destino = nuevaPestana ? { target: '_blank', rel: 'noopener noreferrer' } : {};
   if (variante === 'texto' || variante === 'texto-crema' || variante === 'flecha') {
     const clases = [
       variante === 'flecha' ? styles.flecha : styles.texto,
@@ -53,7 +57,7 @@ function Boton({
     // Con href, es un enlace real; sin él, un <span> que solo dispara onClick.
     if (href && !desactivado) {
       return (
-        <a href={href} onClick={onClick} className={clases} tabIndex={tabIndex}>
+        <a href={href} onClick={onClick} className={clases} tabIndex={tabIndex} {...destino}>
           {children}
         </a>
       );
@@ -81,7 +85,7 @@ function Boton({
   // ningún sitio pese a tener href.
   if (href && !desactivado) {
     return (
-      <a href={href} onClick={onClick} className={clase} tabIndex={tabIndex}>
+      <a href={href} onClick={onClick} className={clase} tabIndex={tabIndex} {...destino}>
         {children}
       </a>
     );

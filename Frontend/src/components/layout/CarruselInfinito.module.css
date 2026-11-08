@@ -1,0 +1,54 @@
+/* ============================================================
+   CARRUSEL INFINITO — Fely Campo (ver CarruselInfinito.jsx)
+   ============================================================ */
+
+/* Ocupa el alto que le dé su contenedor (ej. .hero de /pret-a-porter,
+   80vh) — overflow:hidden recorta la pista, que siempre es más ancha
+   que la pantalla. */
+.carrusel {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.pista {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  animation: desplazamiento var(--duracion, 40s) linear infinite;
+}
+
+.copia {
+  display: flex;
+  height: 100%;
+}
+
+/* Hueco entre looks como padding (no "gap", ver comentario en el JSX):
+   así cada copia mide exactamente lo mismo, hueco final incluido. */
+.item {
+  height: 100%;
+  padding-right: var(--spacing-5);
+  flex-shrink: 0;
+}
+
+.imagen {
+  display: block;
+  height: 100%;
+  width: auto;
+  user-select: none;
+}
+
+@keyframes desplazamiento {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Movimiento reducido: la fila se queda quieta (sigue siendo una fila
+   de looks, solo sin desplazarse sola). */
+@media (prefers-reduced-motion: reduce) {
+  .pista {
+    animation: none;
+  }
+}

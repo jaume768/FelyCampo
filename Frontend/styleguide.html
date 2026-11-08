@@ -205,7 +205,7 @@
   .sg-tallas { display:flex; gap:8px; }
   .sg-talla { min-width:44px; height:44px; padding:0 var(--space-3); font-size:var(--text-label); border:1px solid var(--g300); background:var(--fondo); cursor:pointer; font-family:inherit; }
   .sg-talla.sg-activa { background:var(--tinta); color:var(--fondo); border-color:var(--tinta); }
-  .sg-talla.sg-agotada { color:var(--g300); border-color:var(--g200); text-decoration:line-through; cursor:not-allowed; }
+  .sg-talla.sg-agotada { opacity:.55; }
   .sg-cantidad { display:inline-flex; align-items:center; border:1px solid var(--g300); }
   .sg-cantidad button { width:40px; height:40px; background:none; border:none; cursor:pointer; font-size:var(--text-body); font-family:inherit; }
   .sg-cantidad button:hover { background:var(--g100); }
@@ -275,7 +275,7 @@
 <div class="sg-layout">
 
   <aside class="sg-nav">
-    <img class="sg-logo" src="public/img/logo/logo-felycampo.png" alt="Fely Campo">
+    <img class="sg-logo" src="public/img/logo/fely-campo-logo.webp" alt="Fely Campo">
     <details open>
       <summary>Styleguide<svg class="ac-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter"><path d="m6 9 6 6 6-6"/></svg></summary>
       <a href="#color">Color</a>
@@ -539,7 +539,7 @@
           <div class="pantalla-proporcion" style="width:100%">
             <div class="pantalla-prop-contenido" style="flex-grow:1"></div>
           </div>
-          <div class="pantalla-tokens"><code>--max-sitio</code> · 1920px &nbsp;·&nbsp; sin margen propio, contenido 100%</div>
+          <div class="pantalla-tokens"><code>--max-sitio</code> · 2100px &nbsp;·&nbsp; sin margen propio, contenido 100%</div>
         </div>
       </div>
       <p class="sg-nota">Breakpoints en <code>min-width</code>. Las barras están a escala proporcional entre sí (referencia: <code>--max-sitio</code> = 100%). El tono rosa-velo asomando a los lados de cada bloque tinta es, literalmente, el margen lateral (mismo patrón visual que en Margin/Padding/Gap); el bloque tinta central es el ancho máximo de contenido. Debajo de cada barra, la tira fina desglosa a escala real cuánto de esa pantalla es margen (rosa) frente a contenido útil (gris), con el % de cada uno. El texto legible se limita a <code>--max-texto</code> (700px) en cualquier tamaño de pantalla.</p>

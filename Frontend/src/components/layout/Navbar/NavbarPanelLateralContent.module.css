@@ -6,12 +6,23 @@
 .submenuList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
+  gap: var(--spacing-4);
   list-style: none;
+  margin-top: var(--spacing-3);
+}
+
+/* Separa un enlace del resto de la lista dejando el hueco de una fila
+   vacía por encima (ver "separador" en SUBMENU_STRUCTURE, Navbar.jsx —
+   ej. "Vosotras" en Atelier, para que no se lea como una sede más
+   junto a Salamanca/Madrid/Oviedo). --spacing-6 de margen, sumado al
+   --spacing-4 de gap que ya trae cada item, para que se note como una
+   fila en blanco, no solo un poco más de aire. */
+.itemSeparador {
+  margin-top: var(--spacing-6);
 }
 
 .submenuLink {
-  font-size: var(--text-small);
+  font-size: var(--text-titulo);
   color: var(--color-tinta);
   text-decoration: underline;
   text-decoration-color: transparent;
@@ -26,7 +37,7 @@
    frente a las categorías para que se lea como acción, no como una más.
    Mismo criterio de subrayado que .submenuLink (solo al hover). */
 .submenuLinkTodos {
-  font-size: var(--text-small);
+  font-size: var(--text-titulo);
   font-weight: var(--font-weight-medium);
   color: var(--color-tinta);
   text-decoration: underline;
@@ -46,12 +57,49 @@
   text-decoration-color: var(--color-tinta);
 }
 
-/* Fila con los dos MediaLink (cada uno se reparte el ancho a partes
-   iguales, ver .card en MediaLink.module.css) — fuera de .contenido,
-   a todo el ancho del panel, con su propio padding en vez del lateral
-   heredado del resto del contenido. */
+/* Columna derecha del submenú (ver .panel.debajoHeader en
+   PanelLateral.module.css, 80vh de alto): una sola imagen cuadrada, sin
+   texto encima (ver NavbarPanelLateralCards.jsx). Fuera de .contenido,
+   con su propio padding. Mismo colchón superior que la lista
+   (".debajoHeader .contenido") más --spacing-4, que compensa el
+   interlineado del texto: así el borde de la imagen cae en la misma
+   línea visual que la primera palabra. Si cambia uno, revisar el otro. */
 .submenuCards {
   display: flex;
-  gap: var(--spacing-2);
-  padding: var(--spacing-2);
+  height: 100%;
+  padding: calc(var(--nav-height-desktop) + var(--spacing-4)) var(--spacing-7) var(--spacing-6) 0;
+}
+
+/* Ocupa el 100% del alto de la columna y, de ancho, el 50% del panel
+   (50vw) — pero nunca menos que cuadrada: el mínimo es su propio alto
+   (80vh del panel menos el padding vertical de .submenuCards). En
+   pantallas estrechas/altas se queda cuadrada; en anchas se alarga
+   hasta la mitad del panel. La foto rellena con object-fit:cover. */
+.submenuImagen {
+  --alto-imagen: calc(80vh - var(--nav-height-desktop) - var(--spacing-4) - var(--spacing-6));
+  display: block;
+  flex: none;
+  height: 100%;
+  width: max(50vw, var(--alto-imagen));
+  overflow: hidden;
+}
+
+.submenuImagen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: submenuImagenEntrada 0.35s var(--ease-marca);
+}
+
+/* Fundido al cambiar de imagen (hover sobre otro enlace de la lista). */
+@keyframes submenuImagenEntrada {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submenuImagen img {
+    animation: none;
+  }
 }

@@ -59,17 +59,3 @@
   flex: 0 0 28px;
   text-align: right;
 }
-
-/* Pedido que salió de la secuencia (cancelado, reembolsado): la línea se corta donde se
-   quedó, no se pinta como un paso más. */
-.detenido {
-  background: var(--color-rosa-velo, #fce4ee);
-  color: var(--color-rosa-oscuro, #c2185f);
-  border-color: var(--color-rosa-oscuro, #c2185f);
-}
-
-.interrumpido {
-  margin: 12px 0 0;
-  font-size: 0.8125rem;
-  color: var(--color-rosa-oscuro, #c2185f);
-}

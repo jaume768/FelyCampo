@@ -1,42 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { PageHeader, TablaAdmin, EstadoBadge, useToast } from '@/components/admin';
-import { Boton } from '@/components/ui';
-import { blogMock } from '@/components/admin/mockData';
+/* /admin/blog — artículos del blog y episodios del podcast de /blog, con
+   los mismos datos que enseña la web (ver components/admin/AdminBlog.jsx
+   y docs/ADMIN.md). Sustituye a la maqueta anterior (blogMock). */
+
+import { Suspense } from 'react';
+import AdminBlog from '@/components/admin/AdminBlog';
 
 export default function BlogPage() {
-  const { mostrarToast } = useToast();
-  const [entradas, setEntradas] = useState(blogMock);
-
-  function alternarPublicado(id) {
-    setEntradas((actual) => actual.map((e) => (e.id === id ? { ...e, estado: e.estado === 'Publicado' ? 'Borrador' : 'Publicado' } : e)));
-    mostrarToast('Estado actualizado (demo)');
-  }
-
+  // Suspense: AdminBlog lee la URL (useSearchParams).
   return (
-    <div>
-      <PageHeader titulo="Blog" subtitulo={`${entradas.length} entradas`}>
-        <Boton variante="solido" href="/admin/blog/nueva"><Plus size={14} /> Nueva entrada</Boton>
-      </PageHeader>
-
-      <TablaAdmin
-        columnas={[
-          { clave: 'titulo', etiqueta: 'Título' },
-          { clave: 'categoria', etiqueta: 'Categoría' },
-          { clave: 'fecha', etiqueta: 'Fecha' },
-          { clave: 'estado', etiqueta: 'Estado', render: (e) => <EstadoBadge estado={e.estado} /> },
-        ]}
-        filas={entradas}
-        hrefFila={(e) => `/admin/blog/${e.id}/editar`}
-        renderAcciones={(e) => (
-          <>
-            <Boton variante="texto" href={`/admin/blog/${e.id}/editar`}>Editar</Boton>{' '}
-            <Boton variante="texto" onClick={() => alternarPublicado(e.id)}>{e.estado === 'Publicado' ? 'Despublicar' : 'Publicar'}</Boton>
-          </>
-        )}
-      />
-    </div>
+    <Suspense fallback={null}>
+      <AdminBlog />
+    </Suspense>
   );
 }

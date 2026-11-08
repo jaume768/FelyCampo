@@ -50,6 +50,49 @@
   grid-column: 1;
 }
 
+/* Fila del verso poético (ver "poema" en RunwayBackstage.jsx):
+   .poemaImagenes (1 o 2 fotos, apiladas si son dos) en la columna
+   izquierda + .poema (texto, un verso por línea) en la derecha, misma
+   fila — tratado como una imagen más de la cuadrícula, no como un
+   bloque suelto a todo el ancho. Ambas reglas van DESPUÉS de la
+   cascada de nth-child de arriba y pesan igual (dos clases sobre
+   .grid > cada una) para que el orden en la hoja de estilos decida:
+   ganan siempre estas dos, sin importar en qué posición numérica caiga
+   la pareja dentro de la cuadrícula. */
+.grid > .poemaImagenes {
+  grid-column: 1;
+}
+
+.grid > .poema {
+  grid-column: 2;
+}
+
+.poemaImagenes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.poemaImagenes img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.poema {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-3);
+}
+
+.poema p {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+}
+
 @media (max-width: 767px) {
   .envoltorio {
     padding-block: var(--spacing-6);
@@ -59,11 +102,25 @@
     width: 100%;
     grid-template-columns: 1fr;
     gap: var(--spacing-6);
+    /* Sin esto las fotos llegan a tocar el borde de la pantalla — a
+       diferencia del 80% + margin-inline:auto de desktop, aquí no hay
+       nada que las separe del viewport. Mismo valor que .biografia de
+       /sobre-fely en mobile (page.module.css). */
+    padding-inline: var(--spacing-4);
   }
 
   /* En una sola columna el patrón de cascada no aplica — todas las
-     fotos apiladas, cada una a todo el ancho. */
-  .grid > * {
+     fotos apiladas, cada una a todo el ancho. ".grid > *" no basta:
+     pesa menos (una clase) que las reglas de arriba que fuerzan
+     columna 2 (".grid > *:nth-child(4n+3)", ".grid > .poema" — dos
+     "clases" cada una, incluido el pseudo-clase) así que en mobile se
+     quedaban ganando ellas — el grid creaba una segunda columna
+     implícita que le robaba el ancho a la columna 1fr real, dejando
+     esas piezas a 0×0px. ".grid.grid" (misma clase repetida) iguala
+     esa especificidad a propósito; al ir después en la hoja de
+     estilos, gana siempre aquí, sin tener que enumerar cada regla de
+     la cascada de arriba una por una. */
+  .grid.grid > * {
     grid-column: 1;
   }
 }

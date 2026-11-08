@@ -14,6 +14,12 @@
   border-radius: var(--radius-imagenes);
 }
 
+/* Con "href" (ver TarjetaMedia.jsx) el contenedor es un <a>: display
+   block para que el aspect-ratio funcione igual que en el <div>. */
+.enlace {
+  display: block;
+}
+
 .media {
   position: absolute;
   inset: 0;
@@ -21,6 +27,8 @@
   height: 100%;
   object-fit: cover;
 }
+/* Sin zoom al hover (a petición) — las fotos de looks de /pret-a-porter
+   se quedan quietas. */
 
 /* Variante "carrusel" (ver TarjetaMedia.jsx) — usada por
    CuadriculaProductos en modo banda horizontal, misma proporción

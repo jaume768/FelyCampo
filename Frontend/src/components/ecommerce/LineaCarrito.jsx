@@ -22,7 +22,7 @@ const DURACION_SALIDA_MS = 300;
  * Fila de producto dentro del carrito, con selector de
  * cantidad integrado y opción de quitar.
  */
-function LineaCarrito({ imagen, nombre, talla, color, colorHex, precio, cantidad, onCantidad, onQuitar, sinStock = false, error }) {
+function LineaCarrito({ imagen, nombre, talla, color, colorHex, precio, cantidad, onCantidad, onQuitar }) {
   const t = useTranslations('carrito');
 
   // Bajar a 0 no actualiza el contexto directamente (actualizarCantidad
@@ -71,7 +71,7 @@ function LineaCarrito({ imagen, nombre, talla, color, colorHex, precio, cantidad
       </div>
 
       <div className={styles.marco}>
-        {imagen && <img src={imagen} alt={nombre} className={styles.imagen} />}
+        {imagen && <img src={imagen} alt={nombre} className={styles.imagen} loading="lazy" decoding="async" />}
       </div>
 
       <div className={styles.filaInferior}>

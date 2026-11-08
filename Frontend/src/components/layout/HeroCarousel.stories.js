@@ -20,7 +20,7 @@ const slidesEjemplo = [
     tipo: 'imagen',
     titulo: 'Prêt-à-porter',
     ctaTexto: 'Explorar',
-    ctaHref: '/tienda',
+    ctaHref: '/pret-a-porter',
   },
 ];
 

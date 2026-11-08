@@ -2,18 +2,16 @@
 
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { useRouter, usePathname } from 'next/navigation';
 import { LayoutGrid, Square, SlidersHorizontal } from 'lucide-react';
 import TarjetaProducto from '../ecommerce/TarjetaProducto';
 import TarjetaMedia from '../ecommerce/TarjetaMedia';
 import { Boton, CabeceraSeccion } from '../ui';
 import PanelFiltros from './PanelFiltros';
-import { familiasColorMock, coloresMock } from '@/components/admin/mockData';
+import { familiasColorMock, coloresMock } from '@/lib/paletaColores'; // no desde admin/mockData: arrastraría los datos de prueba al JS público
 import { TALLAS_DISPONIBLES } from '@/components/ecommerce/guiaTallasData';
-import { ListadoVacio } from './EstadoListado';
-import { urlDesdeEstadoFiltros } from '@/lib/api/filtrosTienda';
+import { slugify } from '@/lib/slugify';
 import styles from './CuadriculaProductos.module.css';
 
 const LOTE_INICIAL = 8;
@@ -72,6 +70,13 @@ function familiaDeHex(hex) {
  * Fiesta), no por Tienda. En PanelFiltros, esta misma prop también
  * oculta "ordenar por" y el rango de precio (no tiene sentido filtrar/
  * ordenar por un dato que no se enseña).
+ * "ocultarSubtitulo" (opcional, false por defecto): no pasa "subtitleKey"
+ * a CabeceraSeccion (el texto pequeño en mayúsculas encima del título) —
+ * usado por Tienda, no por Atelier. Sin efecto si "categoriaActiva" ya
+ * sustituye el subtítulo por una miga de pan.
+ * "ocultarControles" (opcional, false por defecto): pinta la cabecera
+ * (título, miga de pan, descripción) pero sin el botón de filtros ni el
+ * cambio de columnas — usado por /atelier/fiesta/categoria/[categoria].
  * "hrefBase" (opcional, se le pasa tal cual a TarjetaProducto): primer
  * segmento de la ficha de cada producto ('tienda' por defecto) — Atelier
  * (Novias/Fiesta) pasa 'atelier/novias'/'atelier/fiesta', su propia
@@ -79,10 +84,15 @@ function familiaDeHex(hex) {
  * "colecciones" (opcional, array de nombres): activa un desplegable
  * más en PanelFiltros ("Colección") — lista de nombres, selección
  * única (clicar el ya activo lo quita), mismo patrón que "ordenar por".
- * Usado por Atelier (Novias/Fiesta), no por Tienda. De momento es solo
- * selección visual: productosEjemplo no tiene todavía un campo
- * "colección" con el que cruzarla, así que no filtra la cuadrícula de
- * verdad (ver coleccionSeleccionada más abajo).
+ * Usado por Atelier (Novias/Fiesta), no por Tienda. Filtra la
+ * cuadrícula de verdad contra "producto.coleccion" (ver noviaProductos.js/
+ * fiestaProductos.js — productosEjemplo no tiene ese campo, pero
+ * tampoco le llega nunca esta prop). "coleccionActiva" (opcional,
+ * nombre exacto): preselecciona el filtro al montar — la pasan
+ * atelier/{novias,fiesta}/page.js leyendo "?coleccion=" de la URL
+ * (searchParams, Server Component), mismo mecanismo que
+ * "categoriaActiva" para el query de ese propio segmento. Enlazado
+ * desde los tags de colección de FichaProductoAtelier.jsx.
  * "estiloYSilueta" (opcional): activa el bloque "Estilo y silueta" en
  * PanelFiltros (Silueta/Volumen/Largo/Estilo/Detalles, y "Ocasión" si
  * además "esFiesta"). Usado por Atelier (Novias/Fiesta) — mismo caso
@@ -108,7 +118,8 @@ function familiaDeHex(hex) {
  *
  * "tituloKey" (opcional): activa la cabecera (CabeceraSeccion) —
  * subtítulo pequeño "tituloKey", título grande "coleccionKey" (si
- * falta, reusa tituloKey) y descripción opcional "descriptionKey". Sin
+ * falta, reusa tituloKey) y descripción opcional "descriptionKey" (o
+ * "description", el texto ya escrito: el editable desde el admin). Sin
  * tituloKey no se pinta cabecera — pensado para sitios que ya traen su
  * propio título encima. "verMasHref" es el destino del botón "flecha"
  * en la accion (y no pinta el botón si
@@ -127,7 +138,7 @@ function familiaDeHex(hex) {
  * carga 8 más, con tarjetas-esqueleto (.skeleton) mientras "llega"
  * (simulado con un timeout — aquí no hay backend real todavía).
  */
-function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, descriptionKey, botonTextKey = 'cuadriculaProductos.shopNow', disposicion = 'fila', ocultarPrecio = false, colecciones = [], hrefBase, estiloYSilueta = false, esFiesta = false, categoriaActiva = null, modoServidor = null }) {
+function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, descriptionKey, description, botonTextKey = 'cuadriculaProductos.shopNow', disposicion = 'fila', ocultarPrecio = false, colecciones = [], hrefBase, estiloYSilueta = false, esFiesta = false, categoriaActiva = null, coleccionActiva = null, ocultarSubtitulo = false, ocultarControles = false }) {
   const t = useTranslations();
   const locale = useLocale();
 
@@ -137,18 +148,14 @@ function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, d
 
   // ---------- Filtros / orden (solo "grid") ----------
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
-  // Con `modoServidor`, los filtros los manda la URL (que ya viene resuelta del Server
-  // Component): el estado local solo refleja lo que dice la URL, nunca es la verdad.
-  // Compartir el enlace tiene que reproducir el mismo listado.
-  const router = useRouter();
-  const pathname = usePathname();
-  const [navegando, iniciarNavegacion] = useTransition();
-  const filtrosUrl = modoServidor?.filtros ?? null;
-
-  const [orden, setOrden] = useState(filtrosUrl?.orden ?? 'recomendados');
-  const [tallasSeleccionadas, setTallasSeleccionadas] = useState(filtrosUrl?.tallas ?? []);
+  const [orden, setOrden] = useState('recomendados');
+  const [tallasSeleccionadas, setTallasSeleccionadas] = useState([]);
   const [familiasSeleccionadas, setFamiliasSeleccionadas] = useState([]);
-  const [coleccionSeleccionada, setColeccionSeleccionada] = useState(null);
+  // Preseleccionada desde "coleccionActiva" (prop, resuelta en el Server
+  // Component de la página a partir de "?coleccion=" en la URL) cuando
+  // se llega desde un tag de colección de FichaProductoAtelier.jsx —
+  // mismo mecanismo que "categoriaActiva" con estiloSiluetaSeleccionados.
+  const [coleccionSeleccionada, setColeccionSeleccionada] = useState(coleccionActiva || null);
   // Preseleccionado desde "categoriaActiva" (prop, resuelta en el
   // Server Component de la página) cuando se llega a una URL de
   // categoría — ver comentario de "categoriaActiva" arriba.
@@ -212,36 +219,7 @@ function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, d
 
   // Lista filtrada + ordenada — base de la paginación por scroll de
   // más abajo.
-  // Con servidor, la URL manda: si cambia (atrás/adelante, enlace compartido), el estado
-  // local se realinea. Sin esto, volver atrás enseñaría filtros marcados que ya no aplican.
-  useEffect(() => {
-    if (!filtrosUrl) return;
-    setOrden(filtrosUrl.orden);
-    setTallasSeleccionadas(filtrosUrl.tallas);
-  }, [filtrosUrl?.orden, filtrosUrl?.tallas?.join(','), filtrosUrl]);
-
-  // Empuja los filtros a la URL. El servidor vuelve a consultar y devuelve la página ya
-  // filtrada: no se recorta nada en el cliente.
-  const navegarConFiltros = (cambios) => {
-    if (!modoServidor) return;
-    const siguiente = {
-      tallas: tallasSeleccionadas,
-      colores: filtrosUrl?.colores ?? [],
-      precioMax: filtrosUrl?.precioMax ?? null,
-      orden,
-      soloRebajas: filtrosUrl?.soloRebajas ?? false,
-      soloDisponibles: filtrosUrl?.soloDisponibles ?? false,
-      pagina: 1,
-      ...cambios,
-    };
-    // `scroll: false`: al filtrar, el usuario está mirando la cuadrícula, no la cabecera.
-    iniciarNavegacion(() => router.replace(`${pathname}${urlDesdeEstadoFiltros(siguiente)}`, { scroll: false }));
-  };
-
   const productosOrdenados = useMemo(() => {
-    // En modo servidor la lista YA viene filtrada, ordenada y paginada por el backend:
-    // volver a filtrar aquí descartaría resultados legítimos de otras páginas.
-    if (modoServidor) return productos;
     if (!esGrid) return productos;
 
     const filtrados = productos.filter((producto) => {
@@ -251,13 +229,14 @@ function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, d
       const pasaColor = familiasSeleccionadas.length === 0
         || (producto.colores || []).some(({ hex }) => familiasSeleccionadas.includes(familiaDeHex(hex)));
       const pasaPrecio = parsearPrecio(producto.precio) <= precioMax;
-      return pasaTalla && pasaColor && pasaPrecio;
+      const pasaColeccion = !coleccionSeleccionada || producto.coleccion === coleccionSeleccionada;
+      return pasaTalla && pasaColor && pasaPrecio && pasaColeccion;
     });
 
     if (orden === 'precioAsc') return [...filtrados].sort((a, b) => parsearPrecio(a.precio) - parsearPrecio(b.precio));
     if (orden === 'precioDesc') return [...filtrados].sort((a, b) => parsearPrecio(b.precio) - parsearPrecio(a.precio));
     return filtrados;
-  }, [productos, esGrid, tallasSeleccionadas, familiasSeleccionadas, precioMax, orden]);
+  }, [productos, esGrid, tallasSeleccionadas, familiasSeleccionadas, precioMax, orden, coleccionSeleccionada]);
 
   // ---------- Paginación por scroll (solo "grid") ----------
   const [visibles, setVisibles] = useState(LOTE_INICIAL);
@@ -268,13 +247,13 @@ function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, d
   // estricto podría dejar "visibles" apuntando más allá del final.
   useEffect(() => {
     setVisibles(LOTE_INICIAL);
-  }, [tallasSeleccionadas, familiasSeleccionadas, precioMax, orden]);
-  // "estiloSiluetaSeleccionados"/"coleccionSeleccionada" no filtran la
-  // cuadrícula de verdad (ver comentario de "estiloYSilueta"/
-  // "colecciones" más arriba), así que no reinician "visibles".
+  }, [tallasSeleccionadas, familiasSeleccionadas, precioMax, orden, coleccionSeleccionada]);
+  // "estiloSiluetaSeleccionados" no filtra la cuadrícula de verdad (ver
+  // comentario de "estiloYSilueta" más arriba), así que no reinicia
+  // "visibles" — a diferencia de "coleccionSeleccionada", que ya sí
+  // filtra de verdad (ver "colecciones" arriba).
 
   useEffect(() => {
-    if (modoServidor) return undefined; // la paginación la lleva el servidor
     if (!esGrid || cargandoMas || visibles >= productosOrdenados.length) return undefined;
     const nodo = centinelaRef.current;
     if (!nodo || typeof IntersectionObserver === 'undefined') return undefined;
@@ -301,12 +280,8 @@ function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, d
   // "fila" está pensada para 4 productos (ver arriba), recortados aquí
   // si llegan más; "grid" pagina por scroll sobre la lista ya filtrada/
   // ordenada.
-  const productosVisibles = modoServidor
-    ? productos
-    : esGrid
-      ? productosOrdenados.slice(0, visibles)
-      : productos.slice(0, 4);
-  const quedanMas = modoServidor ? false : esGrid && visibles < productosOrdenados.length;
+  const productosVisibles = esGrid ? productosOrdenados.slice(0, visibles) : productos.slice(0, 4);
+  const quedanMas = esGrid && visibles < productosOrdenados.length;
   const loteCargando = Math.min(LOTE_INCREMENTO, productosOrdenados.length - visibles);
 
   const claseCuadricula = esGrid
@@ -362,7 +337,7 @@ function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, d
           tiene una página real en ese segmento (ver atelier/page.js). */}
       {tituloKey && (
         <CabeceraSeccion
-          subtitleKey={tituloKey}
+          subtitleKey={ocultarSubtitulo ? undefined : tituloKey}
           titleKey={categoriaActiva
             ? `filtros.estiloYSilueta.grupos.${categoriaActiva.grupo}.opciones.${categoriaActiva.opcion}`
             : (coleccionKey || tituloKey)}
@@ -371,24 +346,51 @@ function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, d
             { key: coleccionKey || tituloKey, href: `/${locale}/${hrefBase}` },
           ] : undefined}
           descriptionKey={descriptionKey}
+          description={description}
           alinear={esGrid ? 'start' : 'end'}
           enCuadricula
-          before={filtrosBoton}
+          before={ocultarControles ? undefined : filtrosBoton}
         >
-          {(verMasHref || esGrid) && accion}
+          {!ocultarControles && (verMasHref || esGrid) && accion}
         </CabeceraSeccion>
       )}
 
       <div className={claseCuadricula}>
-        {productosVisibles.map((producto) => (
-          <div key={producto.nombre || producto.src} className={claseItem}>
-            {producto.media ? (
-              <TarjetaMedia {...producto} />
-            ) : (
-              <TarjetaProducto {...producto} coloresSiempreVisibles={esGrid} ocultarPrecio={ocultarPrecio} hrefBase={hrefBase} />
-            )}
-          </div>
-        ))}
+        {/* "imagenEditorial" (opcional, en el objeto del producto): una
+            foto de pasarela/campaña que se pinta JUSTO DESPUÉS de su
+            producto, en su propia celda (TarjetaMedia, mismo marco 3/4
+            que la foto del producto) y enlaza a la misma ficha —
+            rompe el ritmo de la cuadrícula sin salirse de ella. Va
+            pegada a su producto, así que si un filtro lo oculta, la
+            foto también desaparece con él. */}
+        {productosVisibles.map((producto) => {
+          // "imagenEditorialAntes": la foto va delante del producto en vez
+          // de detrás (para variar en qué columna cae, ver /pret-a-porter).
+          const celdaEditorial = producto.imagenEditorial && !producto.media && (
+            <div className={`${claseItem} ${styles.itemEditorial}`}>
+              <TarjetaMedia
+                src={producto.imagenEditorial}
+                alt={producto.nombre}
+                // Mismo destino que la propia TarjetaProducto (hrefBase por
+                // defecto "pret-a-porter" allí también).
+                href={`/${locale}/${hrefBase || 'pret-a-porter'}/${slugify(producto.nombre)}`}
+              />
+            </div>
+          );
+          return (
+            <Fragment key={producto.nombre || producto.src}>
+              {producto.imagenEditorialAntes && celdaEditorial}
+              <div className={claseItem}>
+                {producto.media ? (
+                  <TarjetaMedia {...producto} />
+                ) : (
+                  <TarjetaProducto {...producto} coloresSiempreVisibles={esGrid} ocultarPrecio={ocultarPrecio} hrefBase={hrefBase} />
+                )}
+              </div>
+              {!producto.imagenEditorialAntes && celdaEditorial}
+            </Fragment>
+          );
+        })}
 
         {cargandoMas && Array.from({ length: loteCargando }, (_, indice) => (
           <div key={`skeleton-${indice}`} className={claseItem}>
@@ -396,33 +398,6 @@ function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, d
           </div>
         ))}
       </div>
-
-      {modoServidor && productos.length === 0 && (
-        <ListadoVacio
-          titulo={t('cuadriculaProductos.sinResultadosTitulo')}
-          mensaje={t('cuadriculaProductos.sinResultadosTexto')}
-          accion={
-            hayFiltrosActivos ? (
-              <button type="button" className={styles.filtrosBoton} onClick={limpiarFiltros}>
-                {t('cuadriculaProductos.limpiarFiltros')}
-              </button>
-            ) : null
-          }
-        />
-      )}
-
-      {/* Paginación de SERVIDOR: cada página es una URL propia, compartible e indexable
-          — no un scroll infinito que el buscador no puede recorrer. */}
-      {modoServidor?.hayMas && (
-        <div className={styles.centinela}>
-          <Boton
-            variante="solido"
-            href={`${pathname}${urlDesdeEstadoFiltros({ ...filtrosUrl, pagina: (filtrosUrl?.pagina ?? 1) + 1 }, true)}`}
-          >
-            {t('cuadriculaProductos.cargarMas')}
-          </Boton>
-        </div>
-      )}
 
       {quedanMas && (
         <div ref={centinelaRef} className={styles.centinela} aria-hidden="true" />
@@ -436,17 +411,10 @@ function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, d
           abierto={filtrosAbiertos}
           onCerrar={() => setFiltrosAbiertos(false)}
           orden={orden}
-          onCambiarOrden={(valor) => {
-            setOrden(valor);
-            navegarConFiltros({ orden: valor });
-          }}
+          onCambiarOrden={setOrden}
           tallas={tallasDisponibles}
           tallasSeleccionadas={tallasSeleccionadas}
-          onToggleTalla={(talla) => {
-            const siguientes = alternarEnLista(tallasSeleccionadas, talla);
-            setTallasSeleccionadas(siguientes);
-            navegarConFiltros({ tallas: siguientes });
-          }}
+          onToggleTalla={(talla) => setTallasSeleccionadas((actual) => alternarEnLista(actual, talla))}
           familias={familiasDisponibles}
           familiasSeleccionadas={familiasSeleccionadas}
           onToggleFamilia={(id) => setFamiliasSeleccionadas((actual) => alternarEnLista(actual, id))}
@@ -462,11 +430,7 @@ function CuadriculaProductos({ productos, verMasHref, tituloKey, coleccionKey, d
           precioMax={precioMax}
           precioMaximo={precioMaximoDisponible}
           onCambiarPrecioMax={setPrecioMax}
-          onLimpiar={() => {
-            limpiarFiltros();
-            navegarConFiltros({ tallas: [], colores: [], precioMax: null, orden: 'recomendados', soloRebajas: false, soloDisponibles: false });
-          }}
-          cargando={navegando}
+          onLimpiar={limpiarFiltros}
         />
       )}
     </section>

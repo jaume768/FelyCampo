@@ -24,15 +24,16 @@
 
 /* Flotante sobre las imágenes (no reserva alto propio) — así .pista
    ocupa la pantalla entera y las imágenes hacen de fondo. Misma altura
-   de fila que .navRow del Navbar real (76px) y mismo sitio (arriba,
-   ancho completo): el logo queda visualmente donde estaba, aunque esto
-   no sea el Navbar. */
+   de fila que .navRow del Navbar real en escritorio (72px, ver
+   --nav-height-desktop en global.css) y mismo sitio (arriba, ancho
+   completo): el logo queda visualmente donde estaba, aunque esto no
+   sea el Navbar. En mobile vuelve a 76px, ver media query al final. */
 .cabecera {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 76px;
+  height: var(--nav-height-desktop);
   z-index: 1;
   display: flex;
   align-items: center;
@@ -44,7 +45,7 @@
 }
 
 .logo {
-  height: 50px;
+  height: 56px;
   width: auto;
 }
 
@@ -144,6 +145,12 @@
   .miniaturas {
     display: none;
   }
+  .cabecera {
+    height: var(--nav-height);
+  }
+  .logo {
+    height: 50px;
+  }
 }
 
 /* Panel de compra rápida — flotante sobre la imagen, esquina inferior
@@ -172,11 +179,6 @@
 
 .panelNombre {
   font-size: var(--text-h4);
-}
-
-.panelPrecio {
-  font-size: var(--text-small);
-  color: var(--color-tinta);
 }
 
 /* "esAtelier": mismo aviso que .avisoColor en FichaProductoAtelier.module.css

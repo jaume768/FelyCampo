@@ -1,57 +1,244 @@
-.resumen {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-6);
-  margin-bottom: var(--spacing-7);
-  padding-bottom: var(--spacing-6);
-  border-bottom: var(--border-thin) solid var(--color-gris-200);
+/* ============================================================
+   CITA — detalle como folio A4 (210 × 297 mm) sobre una "mesa" gris.
+   En pantalla se ve el folio con sombra; al imprimir, solo el folio,
+   sin la barra de acciones (ver @media print abajo y el de
+   app/admin/layout.module.css, que oculta el menú y la barra).
+   ============================================================ */
+
+.barra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
 }
 
-.resumenLabel {
-  font-size: var(--text-caption);
-  text-transform: uppercase;
-  color: var(--color-gris-500);
-  margin-bottom: var(--spacing-1);
+/* Arriba, fuera del documento: las acciones (barra) y la gestión de la
+   cita (estado y atelier asignado), siempre a mano sin bajar por el folio. */
+.panel {
+  margin-bottom: var(--spacing-5);
 }
 
-.resumenValor {
-  font-size: var(--text-small);
+.panel .barra {
+  margin-bottom: var(--spacing-4);
+}
+
+/* «Volver» a la misma altura que los demás botones. */
+.panel .barra > a:first-child {
+  margin: 0;
+}
+
+.gestion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--spacing-4) var(--spacing-7);
+  padding: var(--spacing-4) var(--spacing-5);
+  border: var(--border-thin) solid var(--color-gris-200);
+  background: #fff;
+}
+
+.gestionCampo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.gestion .selectInput {
+  min-width: 320px;
+  max-width: 100%;
+}
+
+.barraAcciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.botonIcono {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.mesa {
+  background: var(--color-gris-100);
+  padding: var(--spacing-7) var(--spacing-4);
+  display: flex;
+  justify-content: center;
+}
+
+.folio {
+  width: 210mm;
+  max-width: 100%;
+  min-height: 297mm;
+  padding: 18mm 16mm;
+  background: #fff;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.08);
   color: var(--color-tinta);
 }
 
-.bloque {
-  margin-bottom: var(--spacing-7);
+.cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--spacing-4);
+  padding-bottom: var(--spacing-4);
+  border-bottom: var(--border-thin) solid var(--color-tinta);
 }
 
-.bloqueTitulo {
-  font-size: var(--text-h4);
+.logo {
+  height: 28px;
+  width: auto;
+  display: block;
+}
+
+.cabeceraTexto {
+  text-align: right;
+}
+
+.tipoDocumento {
+  font-size: var(--text-small);
+  text-transform: uppercase;
+}
+
+.recibida {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-top: var(--spacing-1);
+}
+
+.nombre {
+  font-size: var(--text-h3);
   font-weight: var(--font-weight-medium);
-  margin-bottom: var(--spacing-4);
+  margin: var(--spacing-6) 0 var(--spacing-5);
+}
+
+.seccion {
+  padding: var(--spacing-4) 0;
+  border-bottom: var(--border-thin) solid var(--color-gris-200);
+  break-inside: avoid;
+}
+
+.seccion:last-child {
+  border-bottom: none;
+}
+
+.seccionTitulo {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  color: var(--color-gris-500);
+  margin-bottom: var(--spacing-3);
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-4) var(--spacing-5);
+}
+
+.datoEtiqueta {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-bottom: 2px;
+}
+
+.datoValor {
+  font-size: var(--text-small);
+  overflow-wrap: anywhere;
+}
+
+.datoValor a {
+  color: inherit;
 }
 
 .mensaje {
   font-size: var(--text-small);
   line-height: var(--leading-base);
-  max-width: 600px;
+  white-space: pre-wrap;
+}
+
+.sugerencia {
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-crema);
+}
+
+.sugerenciaNombre {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+}
+
+.sugerenciaDetalle {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  margin-top: 2px;
+}
+
+.sugerenciaAviso {
+  font-size: var(--text-small);
+  color: var(--color-gris-500);
+}
+
+.selectInput {
+  border: 1px solid var(--color-gris-300);
+  border-radius: var(--radius-inputs);
+  padding: var(--spacing-2) var(--spacing-1);
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  width: 100%;
+  max-width: 100%;
+  background: #fff;
+}
+
+.estadoBloque {
+  margin-bottom: var(--spacing-4);
+}
+
+.estados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-1);
+}
+
+.estadoBoton {
+  padding: var(--spacing-2) var(--spacing-4);
+  border: var(--border-thin) solid var(--color-gris-300);
+  background: #fff;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+  color: var(--color-tinta);
+  cursor: pointer;
+}
+
+.estadoBoton:hover {
+  border-color: var(--color-tinta);
+}
+
+.estadoActivo,
+.estadoActivo:hover {
+  background: var(--color-tinta);
+  border-color: var(--color-tinta);
+  color: #fff;
 }
 
 .historial {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
+  gap: var(--spacing-1);
 }
 
 .historialFila {
   display: flex;
-  gap: var(--spacing-3);
+  gap: var(--spacing-4);
   font-size: var(--text-caption);
-  color: var(--color-gris-500);
 }
 
 .notas {
   width: 100%;
-  max-width: 500px;
   border: 1px solid var(--color-gris-300);
   border-radius: var(--radius-inputs);
   padding: var(--spacing-3);
@@ -61,25 +248,57 @@
   margin-bottom: var(--spacing-3);
 }
 
-.accionesFila {
-  display: flex;
-  align-items: flex-end;
-  gap: var(--spacing-4);
-  flex-wrap: wrap;
-}
-
-.selectInput {
-  border: 1px solid var(--color-gris-300);
-  border-radius: var(--radius-inputs);
-  padding: 12px var(--spacing-1);
-  font-family: var(--font-base);
+.notasImpresas {
   font-size: var(--text-small);
-  min-width: 180px;
+  line-height: var(--leading-base);
+  white-space: pre-wrap;
 }
 
-.etiquetaCampo {
-  display: block;
-  font-size: var(--text-caption);
-  color: var(--color-gris-500);
-  margin-bottom: var(--spacing-2);
+.soloImpresion {
+  display: none;
+}
+
+/* En móvil el folio ocupa todo el ancho, con menos margen interior. */
+@media (max-width: 767px) {
+  .mesa {
+    padding: var(--spacing-3) 0;
+  }
+
+  .folio {
+    min-height: 0;
+    padding: var(--spacing-6) var(--spacing-4);
+  }
+
+  .datos {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  .panel,
+  .barra,
+  .soloPantalla {
+    display: none !important;
+  }
+
+  .soloImpresion {
+    display: block;
+  }
+
+  .mesa {
+    background: none;
+    padding: 0;
+    display: block;
+  }
+
+  .folio {
+    width: auto;
+    min-height: 0;
+    box-shadow: none;
+  }
 }

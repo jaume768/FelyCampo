@@ -71,11 +71,36 @@
 .cuadriculaGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px 0.04rem;
+  gap: 0.04rem;
 }
 
 .itemGrid {
   min-width: 0;
+}
+
+/* Foto de pasarela junto a su producto ("imagenEditorial", ver
+   CuadriculaProductos.jsx): ocupa la celda ENTERA, alto incluido —
+   no solo el marco 3/4 de la foto del producto, sino también el hueco
+   de nombre/colores de debajo. La celda ya mide el alto de la fila
+   (align-items: stretch por defecto del grid); aquí la TarjetaMedia de
+   dentro deja su aspect-ratio y se estira a ese alto. */
+.itemEditorial > * {
+  height: 100%;
+  aspect-ratio: auto;
+  /* Sin el fondo crema de TarjetaMedia: los recortes PNG quedan sobre el
+     fondo de la página, sin caja detrás. */
+  background: transparent;
+}
+
+/* Recortes con fondo transparente (figura alta y estrecha): con el
+   "cover" de siempre se cortarían cabeza y pies y la figura se vería
+   ampliada. Aquí la figura llena el ALTO de la celda (no el ancho),
+   entera y centrada. Se reconocen por el nombre ("-recorte."), no por
+   la extensión: antes eran .png y la regla miraba src$=".png", así que
+   al pasarlos a WebP (2026-10-25) dejó de aplicarse. Las fotos de
+   pasarela completas siguen llenando la celda. */
+.itemEditorial img[src*="-recorte."] {
+  object-fit: contain;
 }
 
 @media (max-width: 767px) {
@@ -90,7 +115,7 @@
 .cuadriculaGridCompacta {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px 0.04rem;
+  gap: 16px;
   width: 60%;
   margin-inline: auto;
 }
@@ -108,6 +133,8 @@
 .toggleVista {
   display: flex;
   gap: var(--spacing-2);
+  width: 90px;
+  flex-shrink: 0;
 }
 
 /* Sin toggle en mobile: la fila de 3 de .cabeceraProductos.cabeceraInicio
@@ -168,13 +195,14 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
+  width: 90px;
+  flex-shrink: 0;
   background: none;
   border: none;
   border-radius: 0;
   padding: 0;
   font-family: var(--font-base);
   font-size: var(--text-label);
-  text-transform: uppercase;
   letter-spacing: var(--tracking-label);
   color: var(--color-tinta);
   cursor: pointer;

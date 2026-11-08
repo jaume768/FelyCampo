@@ -4,16 +4,43 @@
    (galería a la izquierda, info sticky a la derecha), sin precio.
    ============================================================ */
 
+/* Mismo motivo que .debajoNavbar en tienda/[producto]/page.module.css:
+   contiene el apilamiento de toda la ficha por debajo del Navbar
+   (z-index:50, transparent+fixed en esta página — ver layout.js
+   "esFichaProducto"), así ningún hijo (.galeria, .info en mobile...)
+   puede pintar por encima suyo pese a compartir z-index:auto/orden de
+   DOM con él. */
+.debajoNavbar {
+  position: relative;
+  z-index: 1;
+}
+
 .ficha {
   display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: var(--spacing-8);
+  /* 1fr 1fr (antes 3fr 2fr): galería más estrecha, a petición. */
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-9);
+  /* Aire antes de lo que viene debajo (relacionados), que si no
+     quedaba pegado al final de la galería. */
+  margin-bottom: var(--spacing-10);
 }
 
 @media (max-width: 767px) {
   .ficha {
-    grid-template-columns: 1fr;
+    /* block y no grid de una columna: GaleriaProducto .galeria va
+       sticky en mobile, y dentro de un grid su límite sería su propia
+       celda (no se pegaría nunca) — en block el límite es .ficha. */
+    display: block;
+    margin-bottom: 0; /* mobile se queda como estaba */
+    /* padding-bottom compensa el margin-top:-60px de .info (ver más
+       abajo): un margin negativo resta de lo que el item aporta al
+       alto de la fila del grid, así que sin esto .ficha terminaba
+       calculando su propio alto ~60px más corto de lo que .info ocupa
+       de verdad en pantalla — y .debajoFicha (justo debajo, ver
+       FichaProductoAtelier.jsx) empezaba a solaparse con el borde
+       inferior real de .info, quedando tapado por su z-index más alto. */
     gap: 0;
+    padding-bottom: 60px;
   }
 }
 
@@ -42,6 +69,24 @@
     z-index: 10;
   }
 
+  /* Fondo blanco de lado a lado bajo .info (a petición): .info lleva
+     margin-inline, y por esas franjas laterales se veía la foto fija
+     de la galería al hacer scroll. Empieza 60px por debajo de su borde
+     superior (lo que .info se monta sobre la foto con margin-top:-60px),
+     así la entrada "tarjeta sobre la foto" se mantiene igual. z-index
+     -1 dentro del contexto de .info (z-index:10): por debajo de su
+     contenido, por encima de la galería. */
+  .info::before {
+    content: '';
+    position: absolute;
+    top: 60px;
+    bottom: -60px; /* + el padding-bottom de .ficha, hasta .debajoFicha */
+    left: calc(-1 * var(--spacing-3));
+    right: calc(-1 * var(--spacing-3));
+    background: var(--color-fondo);
+    z-index: -1;
+  }
+
   /* Todo lo que va después de .ficha (recomendados, "sigue explorando")
      necesita el mismo tapado que .info arriba — .pista de
      GaleriaProducto sigue fija (ver GaleriaProducto.module.css) durante
@@ -50,6 +95,11 @@
     position: relative;
     z-index: 1;
     background: var(--color-fondo);
+    /* Aire con .info encima: sin esto asomaba por debajo de su borde
+       inferior (a petición). */
+    /* padding (no margin): el hueco lleva el fondo blanco de la
+       sección en vez de ser transparente. */
+    padding-top: var(--spacing-10);
   }
 }
 
@@ -63,28 +113,20 @@
   font-size: var(--text-h3);
 }
 
+/* "Ref. N0028" entre el nombre y la descripción (ver InfoAtelier.jsx) —
+   tono apagado (metadato secundario), no el color de .descripcion. */
+.sku {
+  font-size: var(--text-caption);
+  font-weight: 400;
+  color: var(--color-gris-600);
+  margin-top: var(--spacing-1);
+}
+
 .descripcion {
   font-size: var(--text-small);
   font-weight: 400;
   color: var(--color-tinta);
   margin-top: var(--spacing-4);
-}
-
-/* "Categorías: Corte A, Clásico..." debajo del Acordeon (ver
-   FichaProductoAtelier.jsx) — mismo tamaño que .descripcion de arriba,
-   no el .titulo en mayúsculas del Acordeon, pero más apagado
-   (--color-gris-600): es metadato secundario, cada tag ya se distingue
-   solo por el subrayado de .categoriaTag. Cada tag enlaza de verdad a
-   su página de categoría (ver .categoriaTag más abajo). */
-.categorias {
-  font-size: var(--text-small);
-  font-weight: 400;
-  color: var(--color-gris-600);
-}
-
-.categoriaTag {
-  text-decoration: underline;
-  cursor: pointer;
 }
 
 /* SelectorColor, último elemento de .cabecera (ver InfoAtelier.jsx) —

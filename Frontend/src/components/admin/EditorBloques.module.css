@@ -1,0 +1,276 @@
+/* ============================================================
+   EDITOR DE BLOQUES — ver EditorBloques.jsx
+   Una columna de tarjetas finas (una por bloque) con su cabecera gris
+   (asa, número, tipo y acciones), el «+» para insertar entre dos
+   bloques y los botones de "¿Qué más añadimos?" (al final).
+   ============================================================ */
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  max-width: 1100px; /* más ancho no se lee bien al escribir */
+}
+
+.vacio {
+  padding: var(--spacing-5) 0;
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+}
+
+/* ---------- Bloque ---------- */
+.bloque {
+  border: var(--border-thin) solid var(--color-gris-200);
+  background: var(--color-fondo);
+  transition: border-color 0.15s ease, opacity 0.15s ease, box-shadow 0.3s ease;
+}
+
+.bloque:focus-within {
+  border-color: var(--color-gris-400);
+}
+
+.bloqueFalta {
+  border-left: 2px solid var(--color-rosa);
+}
+
+.arrastrando {
+  opacity: 0.4;
+}
+
+.encima {
+  border-color: var(--color-tinta);
+  box-shadow: 0 -3px 0 var(--color-tinta);
+}
+
+/* El bloque recién añadido se marca un momento. */
+.nuevo {
+  animation: aparecer 1.2s ease;
+}
+
+@keyframes aparecer {
+  from { box-shadow: 0 0 0 3px var(--color-gris-300); }
+  to { box-shadow: 0 0 0 0 transparent; }
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: 6px var(--spacing-3) 6px var(--spacing-1);
+  border-bottom: var(--border-thin) solid var(--color-gris-200);
+  background: var(--color-gris-100);
+}
+
+.asa {
+  display: flex;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--color-gris-400);
+  cursor: grab;
+}
+
+.asa:hover {
+  color: var(--color-tinta);
+}
+
+.asa:active {
+  cursor: grabbing;
+}
+
+.numero {
+  min-width: 18px;
+  font-size: var(--text-nano);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-gris-500);
+}
+
+.nombre {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.chipFalta {
+  padding: 1px 6px;
+  font-size: var(--text-nano);
+  color: var(--color-rosa-oscuro);
+  background: var(--color-rosa-velo, rgb(232 160 180 / 18%));
+}
+
+.acciones {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.accion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: none;
+  color: var(--color-gris-600);
+  cursor: pointer;
+}
+
+.accion:hover:not(:disabled) {
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+}
+
+.accion:disabled {
+  color: var(--color-gris-300);
+  cursor: default;
+}
+
+.accionQuitar:hover:not(:disabled) {
+  color: var(--color-rosa-oscuro);
+}
+
+.cuerpo {
+  padding: var(--spacing-4);
+}
+
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.foto {
+  display: grid;
+  grid-template-columns: minmax(180px, 280px) minmax(0, 1fr);
+  gap: var(--spacing-5);
+  align-items: start;
+}
+
+.nota {
+  font-size: var(--text-nano);
+  color: var(--color-gris-500);
+}
+
+/* ---------- Insertar entre dos bloques ---------- */
+.insertador {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  height: var(--spacing-5);
+}
+
+.insertador::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  border-top: var(--border-thin) dashed transparent;
+  transition: border-color 0.15s ease;
+}
+
+.insertador:hover::before {
+  border-color: var(--color-gris-300);
+}
+
+.insertar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  border-radius: 50%;
+  background: var(--color-fondo);
+  color: var(--color-gris-500);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.insertador:hover .insertar,
+.insertar:focus-visible {
+  opacity: 1;
+}
+
+.insertar:hover {
+  border-color: var(--color-tinta);
+  color: var(--color-tinta);
+}
+
+.insertadorAbierto {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin: var(--spacing-2) 0;
+  padding: var(--spacing-2);
+  border: var(--border-thin) dashed var(--color-gris-300);
+}
+
+.cancelar {
+  margin-left: auto;
+  border: none;
+  background: none;
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-gris-600);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- Tipos de bloque ---------- */
+.tipos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  background: var(--color-fondo);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-tinta);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.tipo:hover {
+  border-color: var(--color-tinta);
+}
+
+.tiposCompactos .tipo {
+  padding: 5px 10px;
+}
+
+.final {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-5);
+  padding: var(--spacing-4);
+  border: var(--border-thin) dashed var(--color-gris-300);
+}
+
+.finalTitulo {
+  font-size: var(--text-nano);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-gris-500);
+}
+
+@media (max-width: 1100px) {
+  .foto {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -7,8 +7,12 @@
    Parte interactiva de FichaProductoAtelier.jsx (cabecera + color +
    CTA) — aparte porque page.js/FichaProductoAtelier.jsx es un Server
    Component y esto necesita useState, mismo motivo que
-   FichaProductoAcciones.jsx en /tienda/[producto].
+   FichaProductoAcciones.jsx en /pret-a-porter/[producto].
 
+   "sku": referencia real del look (ver noviaProductos.js) — se pinta
+   debajo del nombre, encima de la descripción, solo si llega (Bride 27
+   no trae sku, ver comentario de excepción en noviaProductos.js; el
+   resto de Atelier con el catálogo de ejemplo tampoco).
    "colores": mismo SelectorColor que la ficha de Tienda, pero aquí NO
    cambia la foto de la galería al elegir uno (estas piezas no tienen
    variantes de imagen por color todavía) — es solo para que el equipo
@@ -16,9 +20,8 @@
    obligatorio: sin color elegido, "Contacta con nosotros" no abre el
    modal, solo avisa (mismo patrón que avisoTalla en
    FichaProductoAcciones.jsx).
-   ".fila" (Boton + BotonGuardar): mismo patrón que .fila de
-   FichaProductoAcciones.jsx en Tienda — el CTA principal reparte el
-   ancho con el botón de wishlist, en vez de ir solo a todo el ancho.
+   ".fila": solo el CTA a todo el ancho — sin BotonGuardar (wishlist),
+   quitado a petición: en los looks de Atelier no hace falta guardar.
    "Contacta con nosotros" abre ModalSolicitudAtelier.jsx (talla +
    datos de contacto + comentario) en vez de navegar directamente.
    Uso:
@@ -28,11 +31,11 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Boton, SelectorColor, BotonGuardar } from '../ui';
+import { Boton, SelectorColor } from '../ui';
 import ModalSolicitudAtelier from './ModalSolicitudAtelier';
 import styles from './FichaProductoAtelier.module.css';
 
-function InfoAtelier({ imagen, nombre, descripcion, colores = [], tallas = [], productoSlug }) {
+function InfoAtelier({ imagen, nombre, sku, descripcion, colores = [], tallas = [] }) {
   const t = useTranslations('producto');
   const [color, setColor] = useState(null);
   const [avisoColor, setAvisoColor] = useState(false);
@@ -50,6 +53,7 @@ function InfoAtelier({ imagen, nombre, descripcion, colores = [], tallas = [], p
     <>
       <div className={styles.cabecera}>
         <h1 className={styles.nombre}>{nombre}</h1>
+        {sku && <p className={styles.sku}>{t('sku')}: {sku}</p>}
         <p className={styles.descripcion}>{descripcion}</p>
 
         {colores.length > 0 && (
@@ -68,7 +72,6 @@ function InfoAtelier({ imagen, nombre, descripcion, colores = [], tallas = [], p
           <Boton variante="solido" tamano="full" onClick={alContactar}>
             {t('contactar')}
           </Boton>
-          <BotonGuardar variante="solido" />
         </div>
         {avisoColor && <p className={styles.avisoColor}>{t('avisoColor')}</p>}
       </div>
@@ -78,7 +81,6 @@ function InfoAtelier({ imagen, nombre, descripcion, colores = [], tallas = [], p
         onCerrar={() => setModalAbierto(false)}
         imagen={imagen}
         producto={nombre}
-        productoSlug={productoSlug}
         color={color}
         colorHex={colores.find((candidato) => candidato.nombre === color)?.hex}
         tallas={tallas}

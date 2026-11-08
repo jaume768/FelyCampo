@@ -1,24 +1,38 @@
 /* ============================================================
    FOOTER — Fely Campo
    Rediseño minimalista: firma (logo pequeño) → newsletter, sola y
-   destacada → columnas de enlaces, discretas → barra legal. Cada
+   destacada → columnas de enlaces, discretas (sin barra legal). Cada
    tramo separado por un hairline, sin cajas ni fondos de por medio.
    ============================================================ */
 
+/* position:relative + z-index: sin esto, el footer (estático, sin
+   apilamiento propio) pierde SIEMPRE frente a cualquier z-index usado
+   en el resto de la página, por tarde que venga en el DOM — ver
+   .debajoNavbar en tienda/[producto]/page.js/FichaProductoAtelier.jsx
+   (contiene la ficha por debajo del Navbar transparente): su
+   z-index:1 "se escapaba" y tapaba el footer entero en mobile, donde
+   GaleriaProducto va con position:fixed. Con esto el footer compite de
+   verdad y gana (2 > 1). */
 .footer {
+  position: relative;
+  z-index: 2;
   width: 100%;
-  background: var(--color-fondo);
+  padding-bottom: var(--spacing-9);
+  background: var(--color-details);
 }
 
-/* Escritorio: el footer ocupa exactamente una pantalla — los 4 tramos
-   (logo, newsletter, columnas, legal) se reparten con space-between
-   en vez de apilarse con su alto natural, que se quedaba corto y
-   dejaba hueco vacío debajo. En mobile se deja en su alto natural: a
-   este ancho el contenido ya no cabe cómodo en 100vh. */
+/* Escritorio: el footer ocupa al menos el 60% de la pantalla — los 4
+   tramos (logo, columnas + newsletter) se reparten con
+   space-between en vez de apilarse con su alto natural, que se
+   quedaba corto y dejaba hueco vacío debajo. min-height (no
+   height+max-height) para que si el contenido real supera ese 60vh
+   el footer crezca con él, en vez de desbordar por debajo de su
+   propio fondo (var(--color-details) se quedaba corto). En mobile se
+   deja en su alto natural: a este ancho el contenido ya no cabe
+   cómodo en 100vh. */
 @media (min-width: 768px) {
   .footer {
-    height: 100vh;
-    max-height: 60vh;
+    min-height: 60vh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -37,7 +51,9 @@
 
 .newsletter {
   order: -1;
-  padding: 0 var(--spacing-7) var(--spacing-8);
+  /* Sin padding lateral en mobile (antes --spacing-7 a cada lado) y
+     un padding-bottom corto (antes --spacing-8). */
+  padding: 0 0 var(--spacing-4);
   text-align: center;
 }
 @media (min-width: 768px) {
@@ -49,29 +65,25 @@
   }
 }
 
-.parrafo {
-  font-size: var(--text-small);
-  color: var(--color-gris-600);
-  font-weight: 400;
-  line-height: var(--leading-base);
-  margin-bottom: var(--spacing-2);
-}
-
-/* Fila que aloja el form (input) y el Boton por fuera de él, uno al
-   lado del otro — el Boton no es hijo de .formNewsletter. */
+/* Columna: el input arriba y el Boton debajo, a todo el ancho (el
+   Boton no es hijo de .formNewsletter). */
 .filaNewsletter {
   display: flex;
+  flex-direction: column;
   align-items: stretch;
-  gap: var(--spacing-2);
+  gap: var(--spacing-5);
 }
 
+/* Input y botón con el mismo alto (40px). flex:none: en la columna de
+   .filaNewsletter, "flex:1" (flex-basis 0) anulaba el height. */
 .formNewsletter {
-  flex: 1;
+  flex: none;
   min-width: 0;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--color-hairline);
-  padding: var(--spacing-2);
+  height: 40px;
+  border-bottom: 1px solid var(--color-gris-600);
+  padding: 0;
   transition: border-color 0.25s var(--ease-marca);
 }
 .formNewsletter:focus-within {
@@ -82,7 +94,7 @@
   flex: 1;
   min-width: 0;
   border: none;
-  padding: 8px 4px;
+  padding: 0;
   font-family: var(--font-base);
   font-size: var(--text-small);
   background: none;
@@ -90,7 +102,7 @@
   outline: none;
 }
 .input::placeholder {
-  color: var(--color-gris-500);
+  color: var(--color-gris-600);
 }
 
 /* Aparece solo cuando hay texto en el input — ver email.trim() en
@@ -100,6 +112,21 @@
   flex-shrink: 0;
 }
 
+/* .filaNewsletter delante para ganarle a .full (padding de 16px) de
+   Boton.module.css, sin depender del orden de carga de los módulos. */
+.filaNewsletter .botonEnviar {
+  height: 40px;
+  padding-block: 0;
+}
+
+/* Sin el hover relleno en negro de "contorno": se queda sin fondo,
+   solo el borde engrosa un punto. */
+.botonEnviar:hover:not(:disabled) {
+  background: transparent;
+  color: var(--color-tinta);
+  box-shadow: inset 0 0 0 1px var(--color-tinta);
+}
+
 .estado {
   font-size: var(--text-caption);
   margin-top: var(--spacing-3);
@@ -107,23 +134,7 @@
 .estadoExito { color: var(--color-verde); }
 .estadoError { color: var(--color-rojo); }
 
-.consentimiento {
-  font-size: var(--text-caption);
-  color: var(--color-gris-600);
-  line-height: var(--leading-base);
-  margin-top: var(--spacing-2);
-}
-
-.consentimientoEnlace {
-  color: var(--color-gris-500);
-  text-decoration: underline;
-  transition: color 0.25s var(--ease-marca);
-}
-.consentimientoEnlace:hover {
-  color: var(--color-tinta);
-}
-
-/* Envuelve grid + legal: en escritorio se reparte el resto del alto
+/* Envuelve el grid: en escritorio se reparte el resto del alto
    de .footer entre los dos (space-between) como antes. */
 @media (min-width: 768px) {
   .contenido {
@@ -134,6 +145,8 @@
   }
 }
 
+/* padding lateral amplio en escritorio (ver media query más abajo):
+   el footer queda más recogido en el centro, con más aire a los lados. */
 .grid {
   width: 100%;
   max-width: var(--max-sitio);
@@ -144,7 +157,11 @@
   gap: var(--spacing-6);
 }
 @media (min-width: 768px) {
-  .grid { flex-direction: row; }
+  .grid {
+    flex-direction: row;
+    gap: var(--spacing-8);
+    padding-inline: max(var(--spacing-7), 12vw);
+  }
 }
 
 .columnas {
@@ -159,73 +176,38 @@
   }
 }
 
-/* Mismo tratamiento de "etiqueta" pequeña en mayúsculas que el resto
+/* Mismo tratamiento de "etiqueta" pequeña que el resto
    del sistema (ej. CollectionTitle) en vez del cuerpo de texto medio
    que tenía antes — menos peso visual, más discreto. */
 .titulo {
-  color: var(--color-gris-600);
-  margin-bottom: var(--spacing-3);
-  font-size: 1rem;
+  color: var(--color-gris-700);
+  margin-bottom: var(--spacing-5);
+  font-size: var(--text-titulo); /* 15px — títulos de columna y "Newsletter" */
   font-weight: 400;
 }
 
-.lista { list-style: none; display: flex; flex-direction: column; gap: var(--spacing-2); }
+/* "Newsletter": alineado a la izquierda también en mobile, aunque el
+   bloque .newsletter vaya centrado (text-align: center) ahí. */
+.newsletter .titulo {
+  text-align: left;
+}
+
+.lista { list-style: none; display: flex; flex-direction: column; gap: var(--spacing-3); }
 
 .enlace {
   font-size: var(--text-small);
-  color: var(--color-gris-600);
+  color: var(--color-gris-700);
   font-weight: 400;
   transition: color 0.25s var(--ease-marca);
 }
 .enlace:hover { color: var(--color-tinta); }
 
-.legal {
-  width: 100%;
-  max-width: var(--max-sitio);
-  margin-inline: auto;
-  padding: var(--spacing-4) var(--spacing-7);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--spacing-1);
-}
-
-.copy { font-size: var(--text-caption); color: var(--color-gris-500); }
-
-.legalLista { display: flex; gap: var(--spacing-5); }
-.legalEnlace {
-  font-size: var(--text-caption);
-  color: var(--color-gris-500);
-  transition: color 0.25s var(--ease-marca);
-}
-.legalEnlace:hover { color: var(--color-tinta); }
-
-/* ES | EN — botón por idioma; el activo va marcado y sin acción,
-   el otro navega al hacer clic (ver switchLocale en Footer.jsx). */
-.languageSelector {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-1);
-}
-
-.languageOption {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: var(--text-caption);
-  color: var(--color-gris-500);
-  cursor: pointer;
-  transition: color 0.25s var(--ease-marca);
-}
-.languageOption:hover:not(:disabled) { color: var(--color-tinta); }
-.languageOption:disabled { cursor: default; }
-
-.languageOptionActivo {
-  color: var(--color-tinta);
-  font-weight: var(--font-weight-medium);
-}
-
-.languageDivider {
-  font-size: var(--text-caption);
-  color: var(--color-gris-300);
+/* Nada en mayúsculas en el footer (a petición) — incluye el Boton
+   "Suscribirse" (contorno, en mayúsculas de serie en
+   Boton.module.css). !important por el mismo motivo que .landing en
+   [locale]/page.module.css: misma especificidad y orden de carga de
+   los CSS Modules no garantizado. */
+.footer,
+.footer * {
+  text-transform: none !important;
 }

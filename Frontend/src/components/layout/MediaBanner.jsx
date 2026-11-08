@@ -7,6 +7,8 @@ import { useTranslations } from 'next-intl';
 import useEnVista from '@/hooks/useEnVista';
 import { Boton, ImageTitle } from '../ui';
 import styles from './MediaBanner.module.css';
+import { atributosImagen } from '@/lib/imagenes';
+import VideoDiferido from '@/components/ui/VideoDiferido';
 
 /**
  * Pieza editorial estática: una única imagen o vídeo a ancho completo
@@ -37,9 +39,9 @@ function MediaBanner({ src, tipo = 'imagen', labelKey, tituloKey, ctaKey, href, 
       className={styles.banner}
     >
       {tipo === 'video' ? (
-        <video src={src} className={styles.media} autoPlay muted loop playsInline />
+        <VideoDiferido src={src} className={styles.media} />
       ) : (
-        <img src={src} alt="" className={styles.media} />
+        <img {...atributosImagen(src, { sizes: '100vw' })} alt="" className={styles.media} />
       )}
 
       <div

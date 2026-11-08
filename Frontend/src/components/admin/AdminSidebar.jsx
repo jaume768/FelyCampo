@@ -12,77 +12,129 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCategorias } from './Categorias';
-import { codigoTemporada } from '@/components/admin/mockData';
+import { codigoTemporada, citasMock, consultasPrecioMock } from '@/components/admin/mockData';
 import {
   Home,
-  Palette,
-  Star,
-  Package,
-  MessageCircle,
-  Tag,
-  Shirt,
-  Layers,
   Newspaper,
-  Boxes,
   ChevronDown,
-  Scissors,
   Archive,
   Heart,
   PartyPopper,
-  Users,
-  BarChart3,
-  Settings,
   Mail,
   MessageCircleQuestionMark,
-  SwatchBook,
+  CalendarDays,
+  Images,
+  LayoutTemplate,
+  BookOpen,
+  Spool,
+  Shirt,
+  Store,
+  MapPin,
+  Phone,
+  PanelTop,
+  Search,
+  // Iconos de las secciones ocultas (GRUPOS_OCULTOS), para cuando vuelvan:
+  // Palette, Star, Package, Layers, Boxes, Users, BarChart3,
+  // Settings, SwatchBook,
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
+// Menú adaptado a lo que usa de verdad el front (2026-10-27): los
+// formularios reales (cita, solicitud de atelier, newsletter), las
+// fotos/reseñas de /atelier/vosotras y el contenido que se ve en la web
+// (colecciones de pasarela, Novia, Fiesta, productos de Atelier y
+// Podcast) y los productos de Prêt-à-porter. Lo de la tienda online
+// (Pedidos, Stock, Materiales, Métricas, Clientes, Reseñas de producto) y
+// Diseño/Settings quedan ocultos de momento (no se usan, a petición): ver GRUPOS_OCULTOS más abajo, comentado —
+// para recuperar uno, mover su item de vuelta aquí. Las páginas siguen
+// existiendo en /admin/..., solo no salen en el menú.
 const grupos = [
   {
     titulo: null,
     items: [
-      {
-        href: '/admin', label: 'Home', icono: Home, porHacer: true,
-      },
+      { href: '/admin', label: 'Home', icono: Home },
     ],
   },
   {
-    titulo: 'Ventas',
+    titulo: 'Contactos',
     items: [
       {
-        href: '/admin/pedidos', label: 'Pedidos', icono: Package, nuevos: 3,
+        href: '/admin/consultas', label: 'Citas', icono: CalendarDays, nuevos: citasMock.filter((c) => c.estado === 'Pendiente').length,
       },
       {
-        href: '/admin/consultas-precio', label: 'Consultas', icono: MessageCircleQuestionMark, nuevos: 2,
+        href: '/admin/consultas-precio', label: 'Consultas de vestidos', icono: MessageCircleQuestionMark, nuevos: consultasPrecioMock.filter((c) => c.estado === 'Pendiente').length,
       },
+      { href: '/admin/newsletter', label: 'Newsletter', icono: Mail },
+    ],
+  },
+  {
+    // Mismo orden y mismos grupos que el menú de la web (Navbar.jsx):
+    // Sobre Fely › Atelier › Colecciones › Dónde encontrarnos. "subgrupo"
+    // es solo un rótulo.
+    titulo: 'Páginas de la web',
+    items: [
+      { href: '/admin/landing', label: 'Página de inicio', icono: LayoutTemplate },
+      // Lo que sale en todas las páginas: menú, «Pedir cita», newsletter.
+      { href: '/admin/paginas/piezas-comunes', label: 'Menú, Pedir cita y newsletter', icono: PanelTop },
+      { href: '/admin/paginas/textos-google', label: 'Textos de Google', icono: Search },
+      { subgrupo: 'Sobre Fely' },
+      { href: '/admin/paginas/sobre-fely', label: 'Historia de Fely', icono: BookOpen },
+      {
+        href: '/admin/blog', label: 'Blog & Podcast', icono: Newspaper,
+      },
+      { href: '/admin/paginas/talleres', label: 'Nuestros talleres', icono: Spool },
+      { subgrupo: 'Atelier' },
+      { href: '/admin/vosotras', label: 'Vosotras', icono: Images },
+      { subgrupo: 'Colecciones' },
+      // Sin desplegable con el nombre de cada colección (a petición): ya
+      // están en la pestaña de colecciones de cada sección.
+      {
+        href: '/admin/colecciones/fiesta', label: 'Colección Fiesta', icono: PartyPopper,
+      },
+      {
+        href: '/admin/colecciones/novia', label: 'Colección Novias', icono: Heart,
+      },
+      // Prêt-à-porter: los productos de la tienda (sin venta online), en el
+      // mismo sitio que en la navegación de la web.
+      {
+        href: '/admin/productos/pret-a-porter', label: 'Prêt-à-porter', icono: Shirt,
+      },
+      {
+        href: '/admin/colecciones/runway', label: 'Runway', icono: Archive,
+      },
+      // Como «Dónde encontrar Fely Campo» en el menú de la web: los ateliers
+      // propios (su página y su contacto) y el mapa de puntos de venta.
+      { subgrupo: 'Dónde encontrarnos' },
+      { href: '/admin/contacto', label: 'Contacto y redes', icono: Phone },
+      { href: '/admin/paginas/visitanos', label: 'Página Visítanos', icono: LayoutTemplate },
+      { href: '/admin/ateliers/salamanca', label: 'Atelier Salamanca', icono: Store },
+      { href: '/admin/ateliers/madrid', label: 'Showroom Madrid', icono: Store },
+      { href: '/admin/ateliers/oviedo', label: 'Atelier Oviedo', icono: Store },
+      { href: '/admin/puntos-de-venta', label: 'Puntos de venta', icono: MapPin },
+    ],
+  },
+];
+
+/* Ocultos de momento (ver comentario de "grupos" arriba):
+const GRUPOS_OCULTOS = [
+  {
+    titulo: 'Ventas',
+    items: [
+      { href: '/admin/pedidos', label: 'Pedidos', icono: Package, nuevos: 3 },
       { href: '/admin/metricas', label: 'Métricas', icono: BarChart3 },
     ],
   },
   {
     titulo: 'Productos',
     items: [
-      {
-        href: '/admin/productos/pret-a-porter', label: 'Prêt-à-porter', icono: Shirt, tipo: 'pret-a-porter',
-      },
-      {
-        href: '/admin/productos/atelier', label: 'Atelier', icono: Scissors, tipo: 'atelier',
-      },
-      { href: '/admin/categorias', label: 'Categorías', icono: Tag },
+      // Prêt-à-porter ya sale arriba, en «Páginas de la web › Colecciones».
       { href: '/admin/stock', label: 'Stock', icono: Boxes },
       {
         href: '/admin/materiales/colores',
         label: 'Tus Materiales',
         icono: Layers,
-        // Submenú estático (a diferencia de los `tipo` de arriba, cuyo
-        // desplegable sale de categoriasMock vía CategoriasProvider) —
-        // antes era una sola página con pestañas Colores/Telas/
-        // Colecciones, confusa por mezclar los tres; "Colecciones" no se
-        // migró, la temporada de un producto ya se gestiona desde su
-        // propio formulario (ver GestorColores.jsx).
         children: [
           { href: '/admin/materiales/colores', label: 'Colores', icono: Palette },
           { href: '/admin/materiales/tejidos', label: 'Tejidos y Composición', icono: SwatchBook },
@@ -91,52 +143,26 @@ const grupos = [
     ],
   },
   {
-    titulo: 'Colecciones',
-    items: [
-      {
-        href: '/admin/colecciones/runway', label: 'Runway', icono: Archive, tipo: 'archivo',
-      },
-      {
-        href: '/admin/colecciones/novia', label: 'Novia', icono: Heart, tipo: 'novia',
-      },
-      {
-        href: '/admin/colecciones/fiesta', label: 'Fiesta', icono: PartyPopper, tipo: 'fiesta',
-      },
-    ],
-  },
-  {
     titulo: 'Clientes',
     items: [
       { href: '/admin/clientes', label: 'Clientes', icono: Users },
-      { href: '/admin/newsletter', label: 'Newsletter', icono: Mail },
-      {
-        href: '/admin/resenas', label: 'Reseñas', icono: Star, nuevos: 2,
-      },
-      {
-        href: '/admin/consultas', label: 'Consultas/Citas', icono: MessageCircle, porHacer: true,
-      },
+      { href: '/admin/resenas', label: 'Reseñas', icono: Star, nuevos: 2 },
     ],
   },
   {
-    titulo: 'Contenido',
+    titulo: 'Páginas de la web',
     items: [
-      {
-        href: '/admin/diseno', label: 'Diseño', icono: Palette, porHacer: true,
-      },
-      {
-        href: '/admin/blog', label: 'Blog', icono: Newspaper, porHacer: true,
-      },
+      { href: '/admin/diseno', label: 'Diseño', icono: Palette, porHacer: true },
     ],
   },
   {
     titulo: 'Sistema',
     items: [
-      {
-        href: '/admin/settings', label: 'Settings', icono: Settings, porHacer: true,
-      },
+      { href: '/admin/settings', label: 'Settings', icono: Settings, porHacer: true },
     ],
   },
 ];
+*/
 
 // Items con submenú desplegable — dinámico (item.tipo, vía
 // CategoriasProvider) o estático (item.children, ver "Tus Materiales").
@@ -151,15 +177,9 @@ function itemContieneRuta(item, pathname) {
 
 export function AdminMarca() {
   return (
+    // Sin el icono (logo) a la izquierda — quitado a petición: solo el
+    // texto "Admin Panel" y debajo "Fely Campo".
     <Link href="/admin" className={styles.marca}>
-      <Image
-        src="/img/logo/felycampo-admin-logo.jpg"
-        alt="Fely Campo"
-        width={44}
-        height={44}
-        className={styles.marcaLogo}
-        priority
-      />
       <div className={styles.marcaTexto}>
         <p className={styles.marcaNombre}>Admin Panel</p>
         <p className={styles.marcaSubtitulo}>Fely Campo</p>
@@ -184,6 +204,13 @@ function AdminSidebar() {
   }, [pathname]);
 
   function renderEnlace(item) {
+    if (item.subgrupo) {
+      return (
+        <li key={`subgrupo-${item.subgrupo}`} className={styles.subgrupo} aria-hidden="true">
+          {item.subgrupo}
+        </li>
+      );
+    }
     if (item.tipo) {
       const Icono = item.icono;
       // Los archivos de colecciones (fija: true) ordenan por `orden`

@@ -19,18 +19,20 @@ import { X } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { slugify } from '@/lib/slugify';
 import styles from './TarjetaWishlist.module.css';
+import useEnVista from '@/hooks/useEnVista';
 
 function TarjetaWishlist({ imagen, nombre, precio, colores = [], onQuitar }) {
   const t = useTranslations('carrito');
   const locale = useLocale();
-  const hrefProducto = `/${locale}/tienda/${slugify(nombre)}`;
+  const hrefProducto = `/${locale}/pret-a-porter/${slugify(nombre)}`;
   const color = colores[0];
+  const [ref, enVista] = useEnVista();
 
   return (
-    <div className={styles.tarjeta}>
+    <div ref={ref} className={`${styles.tarjeta} al-scroll ${enVista ? 'en-vista' : ''}`}>
       <div className={styles.marco}>
         <a href={hrefProducto} className={styles.marcoEnlace}>
-          {imagen && <img src={imagen} alt={nombre} className={styles.imagen} />}
+          {imagen && <img src={imagen} alt={nombre} className={styles.imagen} loading="lazy" decoding="async" />}
         </a>
         <button type="button" onClick={onQuitar} className={styles.quitar} aria-label={t('quitar')}>
           <X size={18} strokeWidth={1.5} strokeLinecap="square" strokeLinejoin="miter" />

@@ -12,7 +12,7 @@
    recargar (no hay backend detrás todavía).
    ============================================================ */
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -23,28 +23,13 @@ import {
 } from '@/components/admin';
 import { Boton, Input } from '@/components/ui';
 import {
-  tiposProducto, coleccionesMock, coloresMock, codigoTemporada, rutaTipoProducto,
+  productosMock, tiposProducto, coleccionesMock, coloresMock, codigoTemporada, rutaTipoProducto,
 } from '@/components/admin/mockData';
-import { useProductosAdmin, useAccionesProductoAdmin } from './useProductosAdmin';
-import { STATUS_POR_ESTADO } from '@/lib/api/adminCatalog';
-import { guardarProducto } from './guardarProducto';
-import { useFamiliasAdmin } from './useFamiliasAdmin';
-import { formatearImporte } from '@/lib/precio';
 import { calcularEstadoPublicacion, CONFIG_ESTADO_PUBLICACION } from './EstadoPublicacionBadge';
 import FormularioProducto from './FormularioProducto';
 import FormularioColeccion from './FormularioColeccion';
 import FormularioLook from './FormularioLook';
 import styles from './ListaProductos.module.css';
-
-// TabsFiltro trabaja con las claves del badge ('publicado', 'borrador'…); la API con
-// `status`. `ETIQUETA_A_ESTADO` cierra ese hueco. Los cuatro estados son reales, incluido
-// 'programado' (`scheduled`): publicación programada añadida al modelo.
-const ETIQUETA_A_ESTADO = {
-  publicado: 'Activo',
-  borrador: 'Borrador',
-  archivado: 'Archivado',
-  programado: 'Programado',
-};
 
 const OPCIONES_PUBLICACION = [
   { valor: 'Todos', etiqueta: 'Todos' },
@@ -184,7 +169,7 @@ function ListaProductosContenido({
 }) {
   // La URL de la ruta puede diferir del valor interno de `tipo` (p.ej.
   // Runway vive en /admin/colecciones/runway pero tipoFijo sigue siendo
-  // "archivo", ver docs/adminpanel.md sección 5) — rutaTipoProducto()
+  // "archivo", ver docs/ADMIN.md sección 5) — rutaTipoProducto()
   // sabe ese mapeo, único sitio que lo sabe.
   const rutaBase = rutaTipoProducto(tipoFijo);
   const { mostrarToast } = useToast();
@@ -193,8 +178,8 @@ function ListaProductosContenido({
   } = useCategorias();
   const searchParams = useSearchParams();
   const categoriaFija = searchParams.get('categoria') || '';
+  const [productos, setProductos] = useState(productosMock);
   const [query, setQuery] = useState('');
-  const [pagina, setPagina] = useState(1);
   const [filtroTipo, setFiltroTipo] = useState(tipoFijo || 'Todos');
   const [filtroPublicacion, setFiltroPublicacion] = useState('Todos');
   const [filtroColeccion, setFiltroColeccion] = useState('Todas');
@@ -213,30 +198,6 @@ function ListaProductosContenido({
   const [nuevaColeccionAbierta, setNuevaColeccionAbierta] = useState(false);
   const [coleccionEnEdicion, setColeccionEnEdicion] = useState(null);
   const [coleccionABorrar, setColeccionABorrar] = useState(null);
-
-  // DATOS REALES: /api/v1/admin/products/. Búsqueda, filtros y paginación los resuelve
-  // el SERVIDOR — antes era un Array.filter sobre el mock entero, que con un catálogo de
-  // verdad significaría traérselo completo en cada visita.
-  const {
-    productos, total, paginas, cargando: cargandoProductos, error: errorProductos, recargar,
-  } = useProductosAdmin({
-    busqueda: query,
-    tipo: tipoFijo || filtroTipo,
-    estado: filtroPublicacion === 'Todos' ? undefined : ETIQUETA_A_ESTADO[filtroPublicacion],
-    categoriaSlug: categoriaFija || undefined,
-    pagina,
-  });
-  const { guardando, aplicarEnBloque: aplicarEnBloqueApi, archivar } = useAccionesProductoAdmin(recargar);
-  // Respaldo para los borradores que se guardan sin elegir familia: la primera de esta
-  // línea. `family` es FK obligatoria, así que sin esto un borrador a medias no se podría
-  // guardar (que es justo lo que se quiere permitir).
-  const { familias: familiasDeLaLinea } = useFamiliasAdmin(tipoFijo || filtroTipo);
-
-  // Cualquier cambio de filtro vuelve a la página 1: seguir en la 4 tras estrechar el
-  // filtro deja al usuario mirando una página que ya no existe.
-  useEffect(() => {
-    setPagina(1);
-  }, [query, filtroTipo, filtroPublicacion, filtroColeccion, categoriaFija]);
 
   function crearColeccion(datos) {
     // La colección nueva es, por definición, la más reciente del archivo
@@ -350,9 +311,17 @@ function ListaProductosContenido({
     return categorias[tipo]?.find((c) => c.id === categoriaId)?.nombre || '—';
   }
 
-  // Ya vienen filtrados y paginados por el servidor: volver a filtrar aquí descartaría
-  // resultados legítimos de otras páginas.
-  const filtrados = productos;
+  const filtrados = useMemo(() => {
+    return productos.filter((p) => {
+      if (tipoFijo && p.tipo !== tipoFijo) return false;
+      if (!tipoFijo && filtroTipo !== 'Todos' && p.tipo !== filtroTipo) return false;
+      if (categoriaFija && p.categoriaId !== categoriaFija) return false;
+      if (filtroPublicacion !== 'Todos' && calcularEstadoPublicacion(p.estado) !== filtroPublicacion) return false;
+      if (filtroColeccion !== 'Todas' && p.coleccion !== filtroColeccion) return false;
+      if (query && !`${p.nombre} ${p.sku}`.toLowerCase().includes(query.toLowerCase())) return false;
+      return true;
+    });
+  }, [productos, tipoFijo, categoriaFija, filtroTipo, filtroPublicacion, filtroColeccion, query]);
 
   function alternarSeleccion(id) {
     setSeleccionadas((actual) => (actual.includes(id) ? actual.filter((s) => s !== id) : [...actual, id]));
@@ -362,21 +331,16 @@ function ListaProductosContenido({
     setSeleccionadas(marcar ? filtrados.map((p) => p.id) : []);
   }
 
-  // Contra la API, nunca sobre estado local: lo que se ve es lo que dice el servidor.
-  async function aplicarEnBloque(cambio) {
-    const status = STATUS_POR_ESTADO[cambio.estado];
-    const resultado = await aplicarEnBloqueApi(seleccionadas, { status });
-    mostrarToast(resultado.ok ? 'Cambios aplicados' : `No se pudo guardar: ${resultado.mensaje}`);
-    if (resultado.ok) setSeleccionadas([]);
+  function aplicarEnBloque(cambio) {
+    setProductos((actual) => actual.map((p) => (seleccionadas.includes(p.id) ? { ...p, ...cambio } : p)));
+    mostrarToast('Cambios aplicados (demo)');
+    setSeleccionadas([]);
   }
 
-  async function confirmarBorrarEnBloque() {
-    // El DELETE del backend ARCHIVA, no elimina: el histórico de pedidos referencia el
-    // producto (Product.archive(), ADMIN_API_PLAN.md D8). Comprobado: tras el DELETE el
-    // producto sigue existiendo con status "archived".
-    const resultado = await archivar(seleccionadas);
-    mostrarToast(resultado.ok ? 'Productos archivados' : `No se pudo archivar: ${resultado.mensaje}`);
-    if (resultado.ok) setSeleccionadas([]);
+  function confirmarBorrarEnBloque() {
+    setProductos((actual) => actual.filter((p) => !seleccionadas.includes(p.id)));
+    mostrarToast('Productos eliminados (demo)');
+    setSeleccionadas([]);
     setConfirmarBorradoBloqueAbierto(false);
   }
 
@@ -384,92 +348,28 @@ function ListaProductosContenido({
     setProductoParaDuplicar(producto);
   }
 
-  // ALTA REAL contra POST /admin/products/.
-  //
-  // `FormularioProducto` puede emitir un array (varias "variantes de color"). Eso en el
-  // modelo real NO son productos distintos: son `Colorway` de un mismo `Product`. Aquí
-  // solo se guarda la raíz y se avisa; el flujo de colorways es otra pantalla.
-  async function crearProducto(productoOProductos) {
-    const lista = Array.isArray(productoOProductos) ? productoOProductos : [productoOProductos];
-    const [raiz, ...variantes] = lista;
-
-    const resultado = await guardarProducto(raiz, {
-      familiaId: raiz.familiaId,
-      publicadoEn: raiz.publicadoEn,
-      // Respaldo solo para borradores: `family` es FK obligatoria y sin ella no se
-      // podría guardar un borrador a medias.
-      familiaPorDefecto: familiasDeLaLinea[0]?.id,
-    });
-
-    if (!resultado.ok) {
-      mostrarToast(`No se ha guardado: ${resultado.mensaje}`);
-      return;
-    }
-
-    avisarDeLoQueNoSeGuarda(resultado.perdidos, variantes.length);
-    // Se dice qué se ha rellenado solo: inventar datos en silencio es peor que bloquear.
-    if (resultado.rellenado?.length) {
-      mostrarToast(`Hemos rellenado por ti: ${resultado.rellenado.join(', ')} — cámbialo antes de publicar.`);
-    }
-    avisarDeLasFotos(resultado.fotos);
-    mostrarToast(raiz.estado === 'Activo' ? 'Producto publicado' : 'Producto guardado');
+  function crearProducto(productoOProductos) {
+    // FormularioProducto.jsx puede crear varias variantes de color a la
+    // vez ("Nueva variante" en Colores y Estampados) — llega un array
+    // cuando el alta trae más de una, un único objeto si no.
+    const nuevos = Array.isArray(productoOProductos) ? productoOProductos : [productoOProductos];
+    setProductos((actual) => [...nuevos, ...actual]);
     setNuevoAbierto(false);
     setProductoParaDuplicar(null);
-    recargar();
-  }
-
-  /** Dice qué se ha quedado fuera en vez de callarlo. */
-  /**
-   * Las fotos se suben DESPUÉS de guardar el producto (necesitan su id), así que pueden
-   * fallar por separado: se dice cuántas entraron y por qué falló cada una, en vez de dar
-   * el guardado por bueno sin más.
-   */
-  function avisarDeLasFotos(fotos) {
-    if (!fotos) return;
-    if (fotos.subidas > 0) {
-      mostrarToast(`${fotos.subidas} foto${fotos.subidas === 1 ? '' : 's'} subida${fotos.subidas === 1 ? '' : 's'}.`);
-    }
-    fotos.fallidas?.forEach((motivo) => mostrarToast(`Foto no subida — ${motivo}`));
-  }
-
-  /** Dice qué se ha quedado fuera en vez de callarlo. */
-  function avisarDeLoQueNoSeGuarda(perdidos, numeroVariantes) {
-    if (numeroVariantes > 0) {
-      mostrarToast(
-        `Las ${numeroVariantes} variantes de color no se han creado: en el catálogo real son colorways de un mismo producto, no productos aparte.`
-      );
-    }
-    if (perdidos?.length) {
-      mostrarToast(`Sin guardar (no existen en el catálogo): ${perdidos.join(', ')}.`);
-    }
   }
 
   function abrirEdicion(producto) {
     setProductoEnEdicion(producto);
   }
 
-  // EDICIÓN REAL contra PATCH /admin/products/{id}/.
-  async function guardarEdicion(productoOProductos) {
-    const lista = Array.isArray(productoOProductos) ? productoOProductos : [productoOProductos];
-    const [raiz, ...variantes] = lista;
-    const id = productoEnEdicion?.id;
-
-    const resultado = await guardarProducto(raiz, {
-      id,
-      familiaId: raiz.familiaId,
-      publicadoEn: raiz.publicadoEn,
-    });
-
-    if (!resultado.ok) {
-      mostrarToast(`No se ha guardado: ${resultado.mensaje}`);
-      return;
-    }
-
-    avisarDeLoQueNoSeGuarda(resultado.perdidos, variantes.length);
-    avisarDeLasFotos(resultado.fotos);
-    mostrarToast('Cambios guardados');
+  function guardarEdicion(productoOProductos) {
+    // FormularioProducto.jsx permite añadir "Variante de color" nuevas
+    // también en edición — si se añadió alguna, llega un array (la raíz
+    // editada primero, las variantes nuevas detrás); si no, un único
+    // objeto como siempre.
+    const [raiz, ...nuevasVariantes] = Array.isArray(productoOProductos) ? productoOProductos : [productoOProductos];
+    setProductos((actual) => [...nuevasVariantes, ...actual.map((p) => (p.id === raiz.id ? raiz : p))]);
     setProductoEnEdicion(null);
-    recargar();
   }
 
   if (categoriaActual?.numeroLooks) {
@@ -734,7 +634,7 @@ function ListaProductosContenido({
       </div>
       <PageHeader
         titulo={categoriaActual ? `${titulo} — ${categoriaActual.nombre}` : titulo}
-        subtitulo={cargandoProductos ? 'Cargando…' : `${total} producto${total === 1 ? '' : 's'}`}
+        subtitulo={`${filtrados.length} producto${filtrados.length === 1 ? '' : 's'}`}
       >
         <Boton variante="solido" onClick={() => setNuevoAbierto(true)}>
           <Plus size={14} className={styles.iconoAnadir} />
@@ -774,30 +674,6 @@ function ListaProductosContenido({
         </div>
       )}
 
-      {/* Sin sesión de staff o backend caído: se dice, no se enseña una tabla vacía. */}
-      {errorProductos && (
-        <div className={styles.estadoAviso} role="alert">
-          <p>
-            {errorProductos.isNetworkError
-              ? 'No hemos podido conectar con el servidor.'
-              : errorProductos.status === 401 || errorProductos.status === 403
-                ? 'Tu sesión no tiene acceso al panel. Vuelve a entrar.'
-                : errorProductos.message}
-          </p>
-          <Boton variante="contorno" tamano="s" onClick={recargar}>Reintentar</Boton>
-        </div>
-      )}
-
-      {!errorProductos && cargandoProductos && (
-        <p className={styles.estadoCargando} role="status">Cargando productos…</p>
-      )}
-
-      {!errorProductos && !cargandoProductos && filtrados.length === 0 && (
-        <p className={styles.estadoVacio}>
-          No hay productos que coincidan con los filtros.
-        </p>
-      )}
-
       {vistaProductos === 'tabla' ? (
         <TablaAdmin
           seleccionables
@@ -827,9 +703,7 @@ function ListaProductosContenido({
             !tipoFijo && { clave: 'tipo', etiqueta: 'Tipo', render: (p) => etiquetaTipo(p.tipo) },
             !categoriaFija && { clave: 'categoria', etiqueta: 'Categoría', render: (p) => etiquetaCategoria(p.tipo, p.categoriaId) },
             { clave: 'coleccion', etiqueta: 'Colección', render: (p) => etiquetaColeccion(p.coleccion) },
-            // El dato es un decimal tipado; el formato se aplica AQUÍ, en la vista, no
-            // se guarda dentro del dato (era lo que rompía los céntimos).
-            { clave: 'precio', etiqueta: 'Precio', render: (p) => (p.precio ? formatearImporte(p.precio) : '—') },
+            { clave: 'precio', etiqueta: 'Precio', render: (p) => p.precio || '—' },
             { clave: 'stock', etiqueta: 'Stock', render: (p) => stockTotal(p) },
             { clave: 'estado', etiqueta: 'Estado', render: (p) => <EstadoPublicacionBadge estado={p.estado} /> },
           ].filter(Boolean)}
@@ -844,31 +718,6 @@ function ListaProductosContenido({
         />
       ) : (
         <GridProductos filas={filtrados} onClickFila={abrirEdicion} onDuplicar={duplicar} porPagina={12} />
-      )}
-
-      {/* Paginación de SERVIDOR: cada página es una petición, no un recorte del array. */}
-      {paginas > 1 && (
-        <div className={styles.paginacion}>
-          <button
-            type="button"
-            className={styles.paginaBoton}
-            onClick={() => setPagina((n) => Math.max(1, n - 1))}
-            disabled={pagina <= 1 || cargandoProductos}
-            aria-label="Página anterior"
-          >
-            <ChevronLeft size={16} aria-hidden="true" />
-          </button>
-          <span className={styles.paginaTexto}>Página {pagina} de {paginas}</span>
-          <button
-            type="button"
-            className={styles.paginaBoton}
-            onClick={() => setPagina((n) => Math.min(paginas, n + 1))}
-            disabled={pagina >= paginas || cargandoProductos}
-            aria-label="Página siguiente"
-          >
-            <ChevronRight size={16} aria-hidden="true" />
-          </button>
-        </div>
       )}
 
       <ModalOverlay abierto={nuevoAbierto} onCerrar={() => setNuevoAbierto(false)}>

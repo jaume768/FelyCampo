@@ -1,17 +1,17 @@
 // productosEjemplo.js
 //
 // Catálogo de ejemplo compartido por TODAS las páginas "pendientes de
-// maquetar" del Navbar (submenús Tienda y Atelier) — pensado para
-// previsualizar la cuadrícula de producto (CuadriculaProductos,
+// maquetar" del Navbar (submenús Prêt-à-porter y Atelier) — pensado
+// para previsualizar la cuadrícula de producto (CuadriculaProductos,
 // disposicion="grid"): su paginación por scroll y el panel de filtros
 // (talla/color/precio + ordenar por) necesitan más de 12 productos y
 // variedad real de datos para poder probarse, así que "tallas"/
 // "colores"/"precio" no son solo decorativos aquí, PanelFiltros los
 // usa de verdad. Es también la fuente de datos de la ficha de
-// producto (/tienda/[producto]/page.js, que busca por el slug del
-// nombre — ver src/lib/slugify.js) — TarjetaProducto enlaza a esa
+// producto (/pret-a-porter/[producto]/page.js, que busca por el slug
+// del nombre — ver src/lib/slugify.js) — TarjetaProducto enlaza a esa
 // ficha con el mismo slug, así que los dos lados tienen que leer de
-// aquí, no de copias sueltas por página (antes /tienda/chaquetas-y-
+// aquí, no de copias sueltas por página (antes /pret-a-porter/chaquetas-y-
 // abrigos tenía su propio array separado; ya no).
 
 import { TALLAS_DISPONIBLES } from '@/components/ecommerce/guiaTallasData';

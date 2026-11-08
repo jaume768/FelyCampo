@@ -12,9 +12,9 @@ Levanta el sitio en un servidor con HTTPS, detrás de Caddy. Probado contra
                          │
         ┌────────────────┼──────────────────┐
         │                │                  │
-   /api/*          /media/*            todo lo demás
-   /static/*     (desde el volumen)     incluido /admin
-   /panel-django/*                     (panel del frontend)
+   /api/v1/*       /media/*            todo lo demás, incluido
+   /static/*     (desde el volumen)     /admin (panel) y /api/cita,
+   /panel-django/*                     /api/consulta-vestido, /api/revalidar
         │                                   │
    ┌────▼────┐                        ┌─────▼────┐
    │ backend │  gunicorn              │ frontend │  Next standalone
@@ -79,6 +79,13 @@ Y en **`backend/.env.prod`**:
 
 Las demás ya vienen con el valor correcto para websjfs.com.
 
+Y por último **`Frontend/.env.prod`** (`cp Frontend/.env.prod.example Frontend/.env.prod`),
+con la clave de Resend para los formularios de cita y de consulta.
+
+En el `.env` de la raíz están además `REVALIDATE_SECRET` (obligatorio: con él el backend
+avisa al frontend de que hay algo publicado, y compose lo pasa a los dos), `SITE_URL`,
+`SITIO_INDEXABLE` (**`true` solo en felycampo.com**), `GTM_ID` y `META_PIXEL_ID`.
+
 ### 3. Levantar
 
 ```bash
@@ -105,6 +112,27 @@ que en producción normalmente NO se usa):
 docker compose -f docker-compose.prod.yml exec backend python manage.py seed_demo
 ```
 
+### 4 bis. Contenido y fotos
+
+La primera vez, con la base de datos vacía (ver [`CONTENIDO.md`](CONTENIDO.md)):
+
+```bash
+docker compose -f docker-compose.prod.yml exec backend python manage.py cargar_contenido
+
+git clone https://github.com/mreinab/felycampo.git ~/felycampo-miriam
+git -C ~/felycampo-miriam checkout e556a76
+docker compose -f docker-compose.prod.yml run --rm   -v ~/felycampo-miriam/public:/origen:ro   backend python manage.py importar_medios_web --origen /origen
+rm -rf ~/felycampo-miriam   # ya están en el volumen media_data
+```
+
+Las fotos importadas traen ya sus versiones de 480/960/1600 px (`importar_medios_web`
+las genera). Si algún día cambian los anchos de `apps/media/variants.py`:
+`… exec backend python manage.py generar_variantes --rehacer`.
+
+**No vuelvas a ejecutar `cargar_contenido --sobrescribir` en producción** una vez que
+se haya editado algo desde el panel: pisaría lo publicado (queda en las revisiones, pero
+hay que restaurarlo a mano). Sin la opción no toca lo que ya existe.
+
 ### 5. Comprobar
 
 ```bash
@@ -115,7 +143,7 @@ curl -sI https://www.websjfs.com | head -1                # 301 al apex
 
 | | URL |
 |---|---|
-| Tienda | https://websjfs.com |
+| Web | https://websjfs.com |
 | Panel de administración | https://websjfs.com/admin |
 | API | https://websjfs.com/api/v1/ |
 | Admin de Django | https://websjfs.com/panel-django/ |
@@ -162,6 +190,26 @@ el stock y devuelve `payment: null`; el pedido queda pendiente de pago. Es inten
 
 **Postgres y Redis no publican puertos.** Solo se llegan por la red interna de Docker.
 Publicarlos dejaría la base de datos accesible desde internet.
+
+## Prelanzamiento y apertura (día 15)
+
+Con `PRELANZAMIENTO=true` en el `.env` (el valor por defecto), **todo el público ve, en
+cualquier URL, el anuncio «la nueva web estará disponible el PRELANZAMIENTO_FECHA»**,
+con un **503** + `Retry-After` + `noindex`: Google entiende que la web está cerrada
+temporalmente y vuelve, sin indexar el anuncio ni dar por buenas las redirecciones.
+
+El equipo entra en `https://<dominio>/acceso` con su cuenta de staff y ve la web y el
+panel como serán.
+
+Para **abrir la web**: `PRELANZAMIENTO=false` en el `.env` y
+
+```bash
+docker compose -f docker-compose.prod.yml up -d frontend   # sin --build: se lee al arrancar
+curl -sI https://felycampo.com/es | head -1                # 200, ya no 503
+```
+
+Cuentas del equipo: `createsuperuser`, o desde el admin de Django (`is_staff`). Una cuenta
+sin `is_staff` no entra («Esta cuenta no tiene acceso de equipo»).
 
 ## Actualizar
 

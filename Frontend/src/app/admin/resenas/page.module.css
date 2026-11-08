@@ -49,3 +49,9 @@
 .vistaBotonActiva:hover {
   color: var(--color-fondo);
 }
+
+/* Editar + Publicar/Ocultar, uno al lado del otro. */
+.accionesFila {
+  display: inline-flex;
+  gap: var(--spacing-2);
+}

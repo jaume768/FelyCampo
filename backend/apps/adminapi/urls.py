@@ -1,5 +1,4 @@
 from django.urls import include, path
-
 from rest_framework.routers import DefaultRouter
 
 from .customers import AdminCustomerViewSet
@@ -19,4 +18,5 @@ urlpatterns = [
     path("", include("apps.catalog.admin_urls")),
     path("stock/", include("apps.stock.urls")),
     path("", include("apps.orders.admin_urls")),
+    path("", include("apps.content.admin_urls")),
 ]

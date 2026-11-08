@@ -15,8 +15,9 @@
 import { useMemo, useState } from 'react';
 import { List, LayoutGrid, Plus } from 'lucide-react';
 import {
-  PageHeader, TablaAdmin, GridResenas, FiltroBar, FiltroSelector, ModalOverlay, useToast,
+  PageHeader, TablaAdmin, GridResenas, FiltroBar, FiltroSelector, ModalOverlay, useToast, EstadoBadge,
 } from '@/components/admin';
+import { BotonFila } from '@/components/admin/ListadoAdmin';
 import { Boton, Input } from '@/components/ui';
 import { resenasMock, productosMock } from '@/components/admin/mockData';
 import FormularioResena from '@/components/admin/FormularioResena';
@@ -130,15 +131,16 @@ export default function ResenasPage() {
               render: (r) => <span className={styles.textoExtracto}>{typeof r.texto === 'string' ? r.texto : r.texto.es}</span>,
             },
             { clave: 'fecha', etiqueta: 'Fecha' },
+            { clave: 'estado', etiqueta: 'Estado', render: (r) => <EstadoBadge estado={r.estado} /> },
           ]}
           filas={filtradas}
           filaNueva={(r) => Boolean(r.nuevo)}
           onClickFila={(r) => setResenaEnEdicion(r)}
           renderAcciones={(r) => (
-            <>
-              <Boton variante="texto" onClick={() => setResenaEnEdicion(r)}>Editar</Boton>{' '}
-              <Boton variante="texto" onClick={() => alternarEstado(r.id)}>{r.estado === 'Publicada' ? 'Ocultar' : 'Publicar'}</Boton>
-            </>
+            <span className={styles.accionesFila}>
+              <BotonFila onClick={() => setResenaEnEdicion(r)}>Editar</BotonFila>
+              <BotonFila onClick={() => alternarEstado(r.id)}>{r.estado === 'Publicada' ? 'Ocultar' : 'Publicar'}</BotonFila>
+            </span>
           )}
         />
       ) : (

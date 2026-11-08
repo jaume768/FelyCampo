@@ -133,3 +133,24 @@ def test_borrado_en_uso_409(staff_client, monkeypatch):
     assert response.json()["error"]["code"] == "media_in_use"
     assert "Vestido Aria" in response.json()["error"]["message"]
     assert MediaAsset.objects.filter(pk=asset_id).exists()  # no se borró
+
+
+@pytest.mark.django_db
+def test_alta_genera_versiones_reducidas_y_el_borrado_las_quita(staff_client, settings, tmp_path):
+    from django.core.files.storage import default_storage
+
+    from apps.media.variants import WIDTHS, variant_name
+
+    settings.MEDIA_ROOT = tmp_path
+    upload = SimpleUploadedFile("foto.jpg", _jpeg_bytes((3000, 2000)), content_type="image/jpeg")
+
+    response = staff_client.post(LIST_URL, {"file": upload}, format="multipart")
+    asset = MediaAsset.objects.get(pk=response.json()["id"])
+
+    nombres = [variant_name(asset.file.name, w) for w in WIDTHS]
+    assert all(default_storage.exists(n) for n in nombres)
+    with default_storage.open(nombres[0]) as f:
+        assert Image.open(f).size == (480, 320)
+
+    staff_client.delete(f"{LIST_URL}{asset.id}/")
+    assert not any(default_storage.exists(n) for n in nombres)

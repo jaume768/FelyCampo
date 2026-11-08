@@ -1,0 +1,242 @@
+/* ============================================================
+   GALERÍA EDITABLE — ver GaleriaEditable.jsx
+   Fila de fotos (3:4) con su número, su papel y su pie debajo, y la
+   caja de "Añadir" al final. Si no caben, la fila se desplaza en
+   horizontal dentro del bloque.
+   ============================================================ */
+
+.galeria {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.recuento {
+  font-size: var(--text-nano);
+  color: var(--color-gris-500);
+}
+
+.recuentoDeMas {
+  color: var(--color-rosa-oscuro);
+}
+
+.anadirTexto {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.anadirTexto:disabled {
+  color: var(--color-gris-400);
+  text-decoration: none;
+  cursor: default;
+}
+
+.fila {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-2);
+}
+
+/* Con máximo de fotos: varias filas en vez de desplazarse, para que la
+   caja de «Añadir» se vea siempre. La lista de DragList se "disuelve" y
+   sus fotos pasan a ser hijas directas de la fila. */
+.filaEnVarias {
+  flex-wrap: wrap;
+  overflow-x: visible;
+}
+
+.filaEnVarias > div {
+  display: contents;
+}
+
+/* Rejilla de N columnas ("columnas"): todas las fotos a la vista; la caja
+   de «Añadir» es una casilla más. Las fotos llenan su columna. */
+.filaRejilla {
+  display: grid;
+  grid-template-columns: repeat(var(--columnas, 4), minmax(0, 1fr));
+  gap: var(--spacing-4);
+  overflow-x: visible;
+}
+
+.filaRejilla > div {
+  display: contents;
+}
+
+/* Cada casilla de DragList (y su contenido) llena su columna. */
+.filaRejilla > div > div,
+.filaRejilla > div > div > div,
+.filaRejilla .foto,
+.filaRejilla .marco,
+.filaRejilla .anadir {
+  width: 100%;
+  min-width: 0;
+}
+
+.foto {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 150px;
+  margin: 0;
+}
+
+.marco {
+  position: relative;
+  width: 150px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: var(--border-thin) solid var(--color-gris-200);
+  background: var(--color-details);
+}
+
+.medio {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.numero {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  min-width: 20px;
+  padding: 1px 5px;
+  background: var(--color-fondo);
+  font-size: var(--text-nano);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  color: var(--color-tinta);
+}
+
+.etiquetaVideo {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  padding: 1px 6px;
+  background: rgb(16 16 16 / 78%);
+  font-size: var(--text-nano);
+  color: var(--color-blanco, #fff);
+}
+
+.acciones {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.foto:hover .acciones,
+.foto:focus-within .acciones {
+  opacity: 1;
+}
+
+.accion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  cursor: pointer;
+}
+
+.accion:disabled {
+  color: var(--color-gris-300);
+  cursor: default;
+}
+
+.papel {
+  font-size: var(--text-nano);
+  color: var(--color-gris-500);
+}
+
+.pie {
+  width: 100%;
+  border: var(--border-thin) solid var(--color-gris-200);
+  padding: 6px 8px;
+  font-family: var(--font-base);
+  font-size: var(--text-nano);
+  color: var(--color-tinta);
+  background: var(--color-fondo);
+}
+
+.pie::placeholder {
+  color: var(--color-gris-400);
+}
+
+.pie:focus {
+  outline: none;
+  border-color: var(--color-tinta);
+}
+
+.pieFalta {
+  border-style: dashed;
+  border-color: var(--color-rosa);
+}
+
+.anadir {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1);
+  width: 150px;
+  aspect-ratio: 3 / 4;
+  padding: var(--spacing-3);
+  border: var(--border-regular) dashed var(--color-gris-300);
+  background: var(--color-fondo);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-gris-600);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.anadir:hover,
+.encima {
+  border-color: var(--color-tinta);
+  color: var(--color-tinta);
+}
+
+.anadirAyuda {
+  font-size: var(--text-nano);
+  color: var(--color-gris-500);
+}
+
+.nota {
+  font-size: var(--text-nano);
+  color: var(--color-gris-500);
+}
+
+.error {
+  font-size: var(--text-nano);
+  color: var(--color-rosa-oscuro);
+}

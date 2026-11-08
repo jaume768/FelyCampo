@@ -1,0 +1,17 @@
+/* ============================================================
+   ATELIER NOVIAS — Fely Campo. Ruta: /atelier/novias
+   Hero en HeroPagina (compartido) — antes mismo patrón que la ficha de colección de Runway (ver
+   /runways/[coleccion]/page.module.css: .hero a 80vh con
+   RunwayMediaLateral + .textoDescripcion/.textoRow con dos textos a
+   tamaño h1 en fila) — aquí "nombre"/"temporada" son "Atelier"/"Novias"
+   en vez de nombre de colección/temporada, reutilizando el mismo par
+   que ya usa CuadriculaProductos como subtítulo/título antes de la
+   cuadrícula (tituloKey/coleccionKey en page.js).
+   ============================================================ */
+
+/* El hero (foto + "Atelier Novias" encima) vive en HeroPagina, común a
+   todas las páginas interiores — ver src/components/layout/HeroPagina. */
+
+.textoDescripcion {
+  width: 100%;
+}

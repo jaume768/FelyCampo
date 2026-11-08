@@ -32,6 +32,7 @@ debug-storybook.log
 .env*.local
 .env.development
 .env.production
+.env.prod
 .env.test
 
 # Logs
@@ -63,3 +64,10 @@ Desktop.ini
 # configurado) — pendientes de comprimir/alojar aparte.
 public/img/talleres/47b6fec2c28b443da5029a46864b8d25.mp4
 public/img/talleres/bd148c1010b54dcdbe924f9ab3f947af.mp4
+
+# Copia local de las imágenes originales (antes de pasarlas a WebP con nombres SEO) — no se publica ni se sube.
+/_originales-imagenes/
+
+# Vídeos originales de Madrid (~100 MB, con audio): no se usan en la web y no se suben
+/public/video/fely_campo_atelier_madrid.mp4
+/public/video/fely_campo_atelier_madrid-horizontal.mp4

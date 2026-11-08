@@ -1,0 +1,197 @@
+/* ============================================================
+   CAMPO MEDIO — ver CampoMedio.jsx
+   Etiqueta y formato arriba, la foto o el vídeo en su proporción real,
+   y debajo el archivo con "Reemplazar" / "Quitar" siempre visibles.
+   ============================================================ */
+
+.campo {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.etiqueta {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.detalle {
+  font-size: var(--text-nano);
+  color: var(--color-gris-500);
+  white-space: nowrap;
+}
+
+.marco {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: var(--border-thin) solid var(--color-gris-200);
+  background: var(--color-details);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.marco:hover {
+  border-color: var(--color-gris-400);
+}
+
+.marco:focus-visible {
+  outline: none;
+  border-color: var(--color-tinta);
+}
+
+.vacio {
+  border-style: dashed;
+  border-color: var(--color-gris-300);
+  background: var(--color-fondo);
+}
+
+.encima {
+  border-color: var(--color-tinta);
+  box-shadow: inset 0 0 0 1px var(--color-tinta);
+}
+
+.medio {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Versión de móvil que usa la de ordenador: etiqueta encima. */
+.heredado {
+  position: absolute;
+  top: var(--spacing-2);
+  left: var(--spacing-2);
+  right: var(--spacing-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: rgb(16 16 16 / 78%);
+  color: var(--color-blanco, #fff);
+  font-family: var(--font-base);
+  font-size: var(--text-nano);
+  line-height: 1.3;
+  text-align: center;
+}
+
+.capa {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-caption);
+  color: var(--color-gris-600);
+  text-align: center;
+}
+
+.encima .capa {
+  background: rgb(255 255 255 / 85%);
+  color: var(--color-tinta);
+}
+
+.pie {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.archivo {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-nano);
+  color: var(--color-gris-500);
+}
+
+.nuevo {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  background: var(--color-rosa-velo);
+  color: var(--color-rosa-oscuro);
+  font-weight: var(--font-weight-medium);
+}
+
+.acciones {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--spacing-3);
+}
+
+.accion {
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: var(--font-base);
+  font-size: var(--text-nano);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.quitar {
+  color: var(--color-gris-500);
+}
+
+.info {
+  font-size: var(--text-nano);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-tinta);
+}
+
+.infoLimite {
+  color: var(--color-gris-400);
+}
+
+.aviso {
+  padding: var(--spacing-2) var(--spacing-3);
+  border-left: 2px solid var(--color-rosa);
+  background: var(--color-rosa-velo);
+  font-size: var(--text-nano);
+  color: var(--color-tinta);
+}
+
+.error {
+  font-size: var(--text-nano);
+  color: var(--color-rosa-oscuro);
+}
+
+/* Foto estrecha: sin nombre de archivo (no cabe y saldría cortado);
+   queda en el título al pasar el ratón. */
+@container (max-width: 230px) {
+  .archivo {
+    display: none;
+  }
+
+  .pie {
+    justify-content: flex-start;
+  }
+}

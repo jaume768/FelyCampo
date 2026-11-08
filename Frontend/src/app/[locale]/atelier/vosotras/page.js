@@ -12,25 +12,35 @@
    RUTAS_CON_PRODUCT_HERO, ver layout.js), así que el Navbar se queda
    con su aspecto normal (logo oscuro) desde el principio.
 
-   PRIMER PASO nada más, a petición: solo la cuadrícula de fotos
-   placeholder todavía (ver GaleriaVosotras.jsx) — ni clicables ni con
-   reseña debajo. Al clicar una foto se abrirá más adelante algo
-   parecido a GaleriaProductoLightbox.jsx, pero ese comportamiento se
-   implementa en un paso aparte, pendiente de describir. */
+   La CabeceraSeccion (subtítulo/título/descripción) y el toggle
+   "Invitadas"/"Novias" que filtra la cuadrícula viven dentro de
+   GaleriaVosotras.jsx, no aquí — mismo criterio que CuadriculaProductos,
+   que también resuelve su propia cabecera a partir de props en vez de
+   que la página la monte aparte. */
 
 import { GaleriaVosotras } from '@/components/layout';
-import { CabeceraSeccion } from '@/components/ui';
+import { CabeceraPagina } from '@/components/layout/CabeceraPagina';
+import { obtenerCabecera } from '@/lib/cabeceras';
+import { metadataPagina, textosSeo } from '@/lib/seo';
+import { setRequestLocale } from 'next-intl/server';
 
-export default function Pagina() {
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  return metadataPagina({ locale, ruta: '/atelier/vosotras' });
+}
+
+export default async function Pagina({ params }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return (
     <section className="seccion">
-      <CabeceraSeccion
-        subtitleKey="nav.links.atelier"
-        titleKey="nav.submenus.atelier.vosotras"
-        descriptionKey="vosotras.descripcion"
-        margenSuperiorAmplio
-      />
-      <GaleriaVosotras />
+      <h1 className="sr-only">{textosSeo('/atelier/vosotras', locale).h1}</h1>
+      {/* Título y texto de entrada: lib/cabeceras.js (editables en el
+          admin, Vosotras › Página de la web, con vista previa). */}
+      <CabeceraPagina id="vosotras" publicado={obtenerCabecera('vosotras')}>
+        <GaleriaVosotras cabecera="vosotras" margenSuperiorAmplio />
+      </CabeceraPagina>
     </section>
   );
 }

@@ -3,6 +3,10 @@
 /* ============================================================
    TARJETA DE PRODUCTO — Fely Campo (e-commerce)
    Referente: styleguide.html #producto (.sg-prod).
+   Aparece con fundido+subida al entrar en el viewport (useEnVista,
+   ver .al-scroll/.en-vista en global.css) — no de golpe al cargar la
+   cuadrícula entera: cada tarjeta anima la primera vez que el scroll
+   la alcanza.
    Uso:
      <TarjetaProducto imagen="/img/aurora.jpg" imagenHover="/img/aurora-2.jpg"
         nombre="Vestido Aurora" precio="890 €" badge="Novia"
@@ -20,8 +24,11 @@
 import { useState } from 'react';
 import { useLocale } from 'next-intl';
 import styles from './TarjetaProducto.module.css';
-import { Etiqueta, BotonGuardar, Boton } from '../ui';
+import { Etiqueta, /* BotonGuardar, */ Boton } from '../ui';
 import { slugify } from '@/lib/slugify';
+import useEnVista from '@/hooks/useEnVista';
+import { atributosImagen } from '@/lib/imagenes';
+import VideoDiferido from '@/components/ui/VideoDiferido';
 
 /**
  * Tarjeta de producto de e-commerce. Sin badge = producto
@@ -47,18 +54,16 @@ import { slugify } from '@/lib/slugify';
  *
  * "ocultarPrecio" (opcional): no pinta el precio en absoluto — usado
  * por Atelier (Novias/Fiesta, precio bajo cita/presupuesto, no de
- * catálogo), no por Tienda.
- * "hrefBase" ('tienda' por defecto): primer segmento de la ficha a la
- * que enlaza la tarjeta (`/${locale}/${hrefBase}/${slug}`) — Atelier
- * (Novias/Fiesta) pasa 'atelier/novias'/'atelier/fiesta' en vez de
- * 'tienda': esas piezas no se compran online (sin precio de catálogo,
- * sin carrito) así que necesitan su propia ficha, no la de Tienda (ver
- * FichaProductoAtelier.jsx).
+ * catálogo), no por Prêt-à-porter.
+ * "hrefBase" ('pret-a-porter' por defecto): primer segmento de la
+ * ficha a la que enlaza la tarjeta (`/${locale}/${hrefBase}/${slug}`)
+ * — Atelier (Novias/Fiesta) pasa 'atelier/novias'/'atelier/fiesta' en
+ * vez de 'pret-a-porter': esas piezas no se compran online (sin precio
+ * de catálogo, sin carrito) así que necesitan su propia ficha, no la
+ * de Prêt-à-porter (ver FichaProductoAtelier.jsx).
  *
  * Imagen + nombre/precio enlazan a la ficha de producto
- * (/tienda/[producto]). Con datos reales llega "slug" desde la API y
- * es el que manda; sin él (datos de ejemplo) se deriva del nombre con
- * src/lib/slugify.js;
+ * (/pret-a-porter/[producto], slug de "nombre" — ver src/lib/slugify.js);
  * ".enlace" usa display:contents para no romper el layout en flex/
  * grid de quien la use. El botón de wishlist y los puntos de color
  * (dentro de ese enlace cuando "coloresSiempreVisibles") paran la
@@ -70,6 +75,8 @@ function TarjetaProducto({
   tipo = 'imagen',
   tipoHover = 'imagen',
   nombre,
+  titulo,
+  subtitulo,
   precio,
   precioRebajado,
   badge,
@@ -80,14 +87,15 @@ function TarjetaProducto({
   variante,
   coloresSiempreVisibles = false,
   ocultarPrecio = false,
-  hrefBase = 'tienda',
-  slug,
+  hrefBase = 'pret-a-porter',
 }) {
   const locale = useLocale();
-  // "slug": el que da la API, que NO es slugify(nombre) — lleva familia y código de
-  // diseño detrás (`vestido-aria-ve-770`). Sin él el enlace apunta a una ficha que no
-  // existe. Se cae a slugify(nombre) para los datos de ejemplo, que no tienen slug.
-  const hrefProducto = `/${locale}/${hrefBase}/${slug || slugify(nombre)}`;
+  const hrefProducto = `/${locale}/${hrefBase}/${slugify(nombre)}`;
+  // Aparece con un fundido+subida la primera vez que la tarjeta entra
+  // en el viewport al hacer scroll (ver .al-scroll/.en-vista en
+  // global.css) — mismo patrón que SplitMedia/MediaBanner, aquí en la
+  // cuadrícula de producto en vez de en un banner editorial.
+  const [ref, enVista] = useEnVista();
 
   const coloresVisibles = colores.slice(0, 3);
   const coloresRestantes = colores.length - coloresVisibles.length;
@@ -104,7 +112,7 @@ function TarjetaProducto({
   const tipoHoverActual = colorSeleccionado?.imagenHover ? colorSeleccionado.tipoHover || 'imagen' : tipoHover;
 
   const preciosBloque = !ocultarPrecio && (
-    <div className={`${styles.precios} ${esCarrusel ? styles.preciosCarrusel : ''}`}>
+    <div className={[styles.precios, esCarrusel && styles.preciosCarrusel].filter(Boolean).join(' ')}>
       {precioRebajado ? (
         <>
           <span className={styles.antes}>{precio}</span>
@@ -138,7 +146,7 @@ function TarjetaProducto({
   );
 
   return (
-    <article className={styles.tarjeta}>
+    <article ref={ref} className={`${styles.tarjeta} al-scroll ${enVista ? 'en-vista' : ''}`}>
       <a href={hrefProducto} className={styles.enlace}>
         <div className={`${styles.marco} ${esCarrusel ? styles.marcoCarrusel : ''}`}>
           {badge && (
@@ -147,24 +155,23 @@ function TarjetaProducto({
             </span>
           )}
 
+          {/* Wishlist (BotonGuardar) oculto a petición (2026-11-04): ya no
+              hace nada. Para recuperarlo, descomentar.
           <span className={styles.wishlist} onClick={(evento) => evento.stopPropagation()}>
             <BotonGuardar />
           </span>
+          */}
 
           <div className={styles.recorte}>
             {imagenActual && (
               tipoActual === 'video' ? (
-                <video
+                <VideoDiferido
                   src={imagenActual}
                   className={`${styles.imagen} ${styles.imagenBase}`}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
                 />
               ) : (
                 <img
-                  src={imagenActual}
+                  {...atributosImagen(imagenActual, { sizes: '(max-width: 768px) 50vw, 25vw' })}
                   alt={alt || nombre}
                   className={`${styles.imagen} ${styles.imagenBase}`}
                 />
@@ -172,17 +179,13 @@ function TarjetaProducto({
             )}
             {imagenHoverActual && (
               tipoHoverActual === 'video' ? (
-                <video
+                <VideoDiferido
                   src={imagenHoverActual}
                   className={`${styles.imagen} ${styles.imagenHover}`}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
                 />
               ) : (
                 <img
-                  src={imagenHoverActual}
+                  {...atributosImagen(imagenHoverActual, { sizes: '(max-width: 768px) 50vw, 25vw' })}
                   alt=""
                   className={`${styles.imagen} ${styles.imagenHover}`}
                 />
@@ -192,7 +195,12 @@ function TarjetaProducto({
         </div>
 
         <div className={styles.encabezado}>
-          <p className={`${styles.nombre} ${esCarrusel ? styles.nombreCarrusel : ''}`}>{nombre}</p>
+          {/* "titulo"/"subtitulo" (opcionales): texto visible en vez de
+              "nombre" — que sigue dando el slug del href (ver
+              hrefProducto) — más una segunda línea más pequeña debajo
+              (ej. Atelier > Fiesta: "Look 3" + "27_Eclat"). */}
+          <p className={[styles.nombre, esCarrusel && styles.nombreCarrusel].filter(Boolean).join(' ')}>{titulo || nombre}</p>
+          {subtitulo && <p className={styles.subtitulo}>{subtitulo}</p>}
 
           {preciosBloque}
 

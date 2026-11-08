@@ -1,0 +1,356 @@
+/* ============================================================
+   FICHA DE ATELIER — Fely Campo
+   Esquinas rectas en todo (--radius-imagenes/--radius-botones a 0,
+   igual que el resto del sitio). Ver AtelierDetalle.jsx para el orden
+   de los bloques de abajo.
+   ============================================================ */
+
+/* .hero/.textoDescripcion/.textoRow — mismo patrón (y mismos valores)
+   que .hero/.textoDescripcion/.textoRow de
+   colecciones-fely-campo/[coleccion]/page.module.css, copiado tal cual
+   aquí en vez de compartir el CSS module de esa ruta (mismo criterio
+   de duplicación que .imagenes/.marco/.imagen más abajo). El propio
+   medio (RunwayMediaLateral) y el texto editorial (RunwayDescripcion)
+   sí son componentes compartidos de verdad — ver AtelierDetalle.jsx —
+   solo esta fila de dos textos grandes es de aquí, no hay componente
+   para eso en Runway tampoco (vive suelto en su page.js). */
+.hero {
+  width: 100%;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.textoDescripcion {
+  width: 100%;
+}
+
+.textoRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-inline: auto;
+  padding-inline: var(--spacing-6);
+  padding-block: var(--spacing-6);
+}
+
+.eyebrowGrande,
+.ciudad {
+  font-size: var(--text-h1);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+}
+
+@media (max-width: 767px) {
+  .hero {
+    height: auto;
+  }
+
+  .textoRow {
+    flex-direction: column;
+    gap: var(--spacing-2);
+    padding-inline: var(--spacing-4);
+    padding-block: var(--spacing-4);
+  }
+
+  .eyebrowGrande,
+  .ciudad {
+    font-size: var(--text-h2);
+  }
+}
+
+/* Elemento a sangre parcial, no a todo el ancho del .contenedor —
+   <video> o <img>, según datos.medioSuperior.tipo (ver AtelierDetalle.jsx),
+   mismo nombre de clase para los dos. Alto fijo (90vh) y aspect-ratio
+   16/9 (apaisado): el ancho sale solo del aspect-ratio en vez de un
+   porcentaje de viewport aparte, así los dos (alto y ancho) quedan
+   ligados y no pueden desencajarse entre sí. max-width:100% de red de
+   seguridad — a 90vh, 16/9 puede pedir más ancho del que cabe en el
+   .contenedor en viewports bajos/anchos — 70% en vez de 100%, mismo
+   ancho que el resto del contenido de la ficha (ver .textoRow/.seccion
+   y .texto en RunwayDescripcion.module.css), así el vídeo/imagen no
+   queda más ancho que el párrafo de encima. object-fit:cover para que
+   ocupe la caja entera sin franjas, igual criterio que
+   .bloqueImagen/.marco de más abajo. Centrado con margin:auto. */
+.video {
+  display: block;
+  height: 90vh;
+  aspect-ratio: 16 / 9;
+  max-width: 90%;
+  object-fit: cover;
+  margin: 0 auto var(--spacing-8);
+}
+
+/* Variante opt-in (medioSuperior.ajustarAlto en atelieres.js, hoy solo
+   Madrid): se ajusta al alto (90vh) en vez de al ancho — sin
+   aspect-ratio 16/9 ni recorte, el ancho sale de la propia foto. */
+.videoAjusteAlto {
+  width: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+/* Imagen del bloque (ver .seccion más abajo — único bloque de cuerpo de
+   la ficha, en zigzag). 45/55, mismo reparto que .info/.acciones de
+   visita-fely-campo/page.module.css. */
+/* Ancho completo de su columna (mitad de .seccion en escritorio, todo
+   el ancho en mobile) y alto natural de la foto — se ajusta al ancho,
+   no al alto disponible: sin aspect-ratio ni recorte. */
+.bloqueImagen {
+  width: 100%;
+  background: var(--color-details);
+  border-radius: var(--radius-imagenes);
+  overflow: hidden;
+}
+
+.bloqueImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Imagen + texto corrido (título + uno o más párrafos, ver "secciones"
+   en atelieres.js) sobre el grid de 24 columnas (ver
+   --grid-columnas-24 en global.css), a todo el ancho entre los
+   márgenes del header (--padding-lateral-nav): imagen en las columnas
+   1–12 y texto en las 15–24, dos columnas de separación.
+   .seccionInvertida (secciones en índice impar, ver AtelierDetalle.jsx)
+   lo refleja — texto 1–10, imagen 13–24 — así se lee en zigzag bajando
+   la página. En mobile/tablet se apila (ver media query más abajo).
+   Mismo esquema y separaciones que los capítulos de /sobre-fely
+   (sobre-fely/page.module.css): 200px entre secciones, foto a su
+   proporción natural y texto centrado en vertical frente a ella. */
+.seccion {
+  display: grid;
+  grid-template-columns: var(--grid-columnas-24);
+  align-items: center;
+  column-gap: var(--grid-gap);
+  padding-inline: var(--padding-lateral-nav);
+  margin-bottom: var(--spacing-11);
+}
+
+.seccion .bloqueImagen {
+  grid-column: 1 / 13;
+  grid-row: 1;
+}
+
+.seccion .seccionTexto {
+  grid-column: 15 / 25;
+  grid-row: 1;
+}
+
+.seccionInvertida .bloqueImagen {
+  grid-column: 13 / 25;
+}
+
+.seccionInvertida .seccionTexto {
+  grid-column: 1 / 11;
+}
+
+.seccionTexto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+/* Título y párrafos = .titulo/.parrafo de /sobre-fely: 15px medium
+   sin mayúsculas, y 13px con el interlineado de párrafo del sitio, todo
+   en tinta. El título también es un <p>: selector más específico que
+   .seccionTexto p para que el 13px de los párrafos no pise sus 15px. */
+.seccionTexto p.seccionTitulo {
+  margin: 0;
+  font-size: var(--text-titulo);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: normal;
+  color: var(--color-tinta);
+}
+
+.seccionTexto p {
+  margin: 0;
+  font-size: var(--text-texto);
+  line-height: var(--leading-base);
+  letter-spacing: 0;
+  text-wrap: pretty;
+  color: var(--color-tinta);
+}
+
+/* ---------- Cuadrícula de imágenes (último elemento de la página) ----------
+   Escritorio: cuadrícula de 5 fotos que caben enteras sin scroll (ver
+   imagenesTira en AtelierDetalle.jsx — antes eran 6 en carrusel). Solo
+   en mobile/tablet (ver media query) vuelve a ser el carrusel
+   horizontal con scroll por rueda del ratón (mismo elemento
+   .imagenes/.marco/.imagen que talleres-fely-campo/page.module.css,
+   vía @/components/ui/CarruselImagenes.jsx compartido) — copiado tal
+   cual aquí en vez de importar el CSS module de esa ruta, mismo
+   criterio que .chips/.chip en
+   MapaPuntosVenta.module.css/PanelFiltros.module.css. */
+/* grid-auto-flow:column + grid-auto-columns:1fr (no un
+   grid-template-columns:repeat(5,...) fijo): columnas iguales que se
+   adaptan al número real de fotos de "imagenesTira" — Salamanca/Oviedo
+   tienen 5, Madrid se quedó en 4 al quitar una (ver atelieres.js), y
+   con 5 fijas de por sí dejaba un hueco en blanco. */
+.imagenes {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0;
+}
+
+/* Más de 5 (se pueden añadir desde el admin, hasta 10): en filas, con las
+   columnas que dejan las filas lo más llenas posible — 6 → 3+3, 7-8 → 4+…,
+   9-10 → 5+…. En mobile/tablet sigue siendo el carrusel (display:flex,
+   ver la media query de abajo). */
+.imagenes:has(> :nth-child(6)) {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.imagenes:has(> :nth-child(7)) {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.imagenes:has(> :nth-child(9)) {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.marco {
+  aspect-ratio: 3 / 4;
+  background: var(--color-details);
+  border-radius: var(--radius-imagenes);
+  overflow: hidden;
+}
+
+.imagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- Dirección + teléfono + WhatsApp + "Pedir cita" ----------
+   Cierre de la ficha, ANTES de .imagenes (ver AtelierDetalle.jsx) —
+   dirección/teléfono/WhatsApp reales de la sede (ver "ubicacion" ahí,
+   resuelta desde visita-fely-campo/ubicaciones.js) + Boton "Pedir
+   cita" — mismo componente que el resto del sitio, no un botón hecho a
+   mano como .accionBtn en visita-fely-campo/page.module.css. Mismo
+   criterio que .info ahí: dirección y WhatsApp con subrayado siempre
+   visible (son enlaces), teléfono en texto plano (no lo es). */
+.cita {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  max-width: 70%;
+  margin: var(--spacing-10) auto;
+  text-align: center;
+}
+
+/* Solo el propio Boton "Pedir cita" — no .cita entero, ni Boton en
+   general (className aparte, ver AtelierDetalle.jsx, no toca
+   Boton.module.css) — separación extra respecto a la línea de
+   WhatsApp de encima, más que el gap de .cita. margin (no padding):
+   Boton.module.css no trae ningún margin propio que pueda pisar esto,
+   a diferencia de su padding (por eso no hace falta !important aquí,
+   sí lo llevaría si tocara padding). */
+.botonCita {
+  margin-top: var(--spacing-4);
+}
+
+.direccionCita,
+.whatsappCita {
+  font-style: normal;
+  font-size: var(--text-body);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+  text-decoration: underline;
+  text-decoration-color: var(--color-tinta);
+  text-underline-offset: var(--spacing-1);
+}
+
+.telefonoCita {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+  white-space: pre-line;
+}
+
+/* Mobile y tablet (hasta 1023px, ver convención de breakpoints en
+   ProductosRecomendados.module.css): el 70% de ancho de escritorio (ver
+   .textoRow/.video/.seccion/.cita arriba) se queda demasiado angosto
+   en pantallas pequeñas — todos vuelven a 100%. .seccion apilada
+   (texto arriba, imagen debajo). .imagenes pasa de cuadrícula de 5 a
+   carrusel horizontal, ver más abajo. */
+@media (max-width: 1023px) {
+  .textoRow,
+  .video,
+  .seccion,
+  .seccionInvertida,
+  .cita {
+    max-width: 100%;
+  }
+
+  .video {
+    width: 100%;
+    margin: var(--spacing-6) 0;
+  }
+
+  /* En mobile 90vh de alto con su ancho natural se saldría de pantalla
+     — a todo el ancho y alto natural. */
+  .videoAjusteAlto {
+    height: auto;
+  }
+
+  /* Igual que /sobre-fely en mobile: 16px de margen lateral (texto y
+     foto), 32px entre texto y foto y 80px entre secciones. */
+  .seccion,
+  .seccionInvertida {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-6);
+    padding-inline: var(--spacing-4);
+    margin-bottom: var(--spacing-9);
+  }
+
+  /* Apilado: texto siempre arriba e imagen debajo, también en las
+     invertidas. */
+  .seccion .seccionTexto {
+    order: -1;
+  }
+
+
+  /* Cuadrícula de 5 columnas → carrusel horizontal con scroll snap
+     (mismo mecanismo de scroll por rueda del ratón que
+     @/components/ui/CarruselImagenes.jsx ya trae) — 5 columnas fijas a
+     este ancho dejarían cada foto minúscula. */
+  .imagenes {
+    display: flex;
+    overflow-x: auto;
+    /* Solo el gesto horizontal es del carrusel: sin scroll vertical propio,
+       un deslizamiento vertical en mobile mueve la página. */
+    overflow-y: hidden;
+    touch-action: pan-x pan-y;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .imagenes::-webkit-scrollbar {
+    display: none;
+  }
+
+  .marco {
+    flex: 0 0 80%;
+    scroll-snap-align: start;
+  }
+}
+
+/* Teléfonos como enlace tel: (auditoría SEO M10): mismo aspecto que el
+   texto plano de antes, sin color ni subrayado de enlace. */
+.tel {
+  color: inherit;
+  text-decoration: none;
+}

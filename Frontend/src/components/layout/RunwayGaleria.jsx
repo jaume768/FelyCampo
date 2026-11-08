@@ -2,7 +2,7 @@
 
 /* ============================================================
    GALERÍA DE RUNWAY — Fely Campo
-   Cuadrícula de looks de una colección (ver /archivo/runway/[coleccion]/
+   Cuadrícula de looks de una colección (ver /colecciones-fely-campo/[coleccion]/
    page.js) + lightbox a pantalla completa al clicar uno — mismo
    mecanismo que GaleriaProductoLightbox.jsx (banda con scroll-snap +
    franja de miniaturas a la izquierda para saltar entre looks sin
@@ -17,10 +17,13 @@
    ============================================================ */
 
 import { useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocale, useTranslations } from 'next-intl';
 import { X, Plus } from 'lucide-react';
 import { slugify } from '@/lib/slugify';
+import { EnVista } from '../ui';
 import styles from './RunwayGaleria.module.css';
+import { atributosImagen } from '@/lib/imagenes';
 
 function RunwayGaleria({ looks = [], alt }) {
   const t = useTranslations('producto');
@@ -39,6 +42,14 @@ function RunwayGaleria({ looks = [], alt }) {
   // resetea en GaleriaProductoLightbox.
   const [detalleAbierto, setDetalleAbierto] = useState(false);
   const detalleId = useId();
+  // Portal a document.body (igual que GaleriaProductoLightbox.jsx, mismo
+  // motivo): esta galería cuelga de .seccion/.contenedor dentro de la
+  // página de la colección, y sin portal ese ancestro atraparía el
+  // z-index:100 de .lightbox, que nunca podría ganarle al Navbar
+  // transparente (z-index:50, vive fuera de <main> como hermano) — solo
+  // existe en cliente, así que se espera a montar antes de renderizarlo.
+  const [montado, setMontado] = useState(false);
+  useEffect(() => setMontado(true), []);
 
   const abrir = (indice) => {
     setIndiceActivo(indice);
@@ -145,16 +156,23 @@ function RunwayGaleria({ looks = [], alt }) {
     <>
       <div className={styles.grid}>
         {looks.map((look, indice) => (
-          <button key={look.imagen} type="button" className={styles.item} onClick={() => abrir(indice)}>
-            <img src={look.imagen} alt="" className={styles.itemImagen} />
-          </button>
+          <EnVista
+            key={look.imagen}
+            as="button"
+            type="button"
+            className={styles.item}
+            onClick={() => abrir(indice)}
+          >
+            <img {...atributosImagen(look.imagen, { sizes: '(max-width: 768px) 50vw, 25vw' })} alt="" className={styles.itemImagen} />
+          </EnVista>
         ))}
       </div>
 
+      {montado && createPortal(
       <div className={`${styles.lightbox} ${abierta ? styles.abierta : ''}`} aria-hidden={!abierta}>
         <div className={styles.cabecera}>
           <a href={`/${locale}`} className={styles.logoLink} tabIndex={tabIndexInteractivo}>
-            <img src="/img/logo/logo-felycampo.png" alt="Fely Campo" className={styles.logo} />
+            <img src="/img/logo/fely-campo-logo.webp" alt="Fely Campo" className={styles.logo} />
           </a>
           <button
             ref={cerrarRef}
@@ -171,7 +189,7 @@ function RunwayGaleria({ looks = [], alt }) {
         <div ref={pistaRef} className={styles.pista} onScroll={alScroll} onWheel={alRueda}>
           {looks.map((look) => (
             <div key={look.imagen} className={styles.pistaItem}>
-              <img src={look.imagen} alt={alt} className={styles.pistaImagen} />
+              <img {...atributosImagen(look.imagen, { sizes: '100vw' })} alt={alt} className={styles.pistaImagen} />
             </div>
           ))}
         </div>
@@ -188,7 +206,7 @@ function RunwayGaleria({ looks = [], alt }) {
                 aria-current={indice === indiceActivo}
                 tabIndex={tabIndexInteractivo}
               >
-                <img src={look.imagen} alt="" className={styles.miniaturaImagen} />
+                <img {...atributosImagen(look.imagen, { sizes: '96px' })} alt="" className={styles.miniaturaImagen} />
               </button>
             ))}
           </div>
@@ -226,12 +244,12 @@ function RunwayGaleria({ looks = [], alt }) {
                         {productosDelLook.map((producto) => (
                           <a
                             key={producto.nombre}
-                            href={`/${locale}/tienda/${slugify(producto.nombre)}`}
+                            href={`/${locale}/pret-a-porter/${slugify(producto.nombre)}`}
                             className={styles.panelProducto}
                             tabIndex={tabIndexInteractivo}
                           >
                             <span className={styles.panelProductoImagenWrap}>
-                              <img src={producto.imagen} alt="" className={styles.panelProductoImagen} />
+                              <img {...atributosImagen(producto.imagen, { sizes: '(max-width: 768px) 50vw, 25vw' })} alt="" className={styles.panelProductoImagen} />
                               <button
                                 type="button"
                                 className={styles.panelProductoAnadir}
@@ -253,7 +271,9 @@ function RunwayGaleria({ looks = [], alt }) {
             </div>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body,
+      )}
     </>
   );
 }

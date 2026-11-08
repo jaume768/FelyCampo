@@ -1,0 +1,56 @@
+/* Selector de ubicación (ver SelectorUbicacion.jsx) */
+
+.selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3) var(--spacing-5);
+}
+
+.estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.estadoSi {
+  color: #2e7d32;
+}
+
+.estadoNo {
+  color: var(--color-rosa-oscuro);
+}
+
+.mapa {
+  width: 100%;
+  height: 420px;
+  border: var(--border-thin) solid var(--color-gris-200);
+  /* Leaflet pone z-index altos: que no tape la barra fija del editor. */
+  position: relative;
+  z-index: 0;
+  cursor: crosshair;
+}
+
+/* El marcador: un círculo rosa con borde blanco, fácil de ver y de coger. */
+.marcador {
+  background: #e91e63;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 35%), 0 2px 6px rgb(0 0 0 / 35%);
+  cursor: grab;
+}
+
+@media (max-width: 700px) {
+  .mapa {
+    height: 320px;
+  }
+}

@@ -15,7 +15,6 @@
   font-size: var(--text-h4);
   font-weight: var(--font-weight-medium);
   color: var(--color-tinta);
-  text-transform: uppercase;
 }
 
 .subtitulo {

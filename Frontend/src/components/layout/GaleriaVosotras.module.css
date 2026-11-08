@@ -1,6 +1,6 @@
 /* ============================================================
    GALERÍA DE VOSOTRAS — Fely Campo
-   Cuadrícula: 4 columnas escritorio, 2 en mobile, a sangre entre sí
+   Cuadrícula: 4 columnas escritorio, 1 en mobile, a sangre entre sí
    (gap mínimo, mismo criterio que .pista de
    ProductosRecomendados.module.css). Cada .item aloja CarruselFotos
    (ui/) + el botón "+" (.abrirBtn) que abre el lightbox de abajo —
@@ -10,11 +10,62 @@
    "Look X" + productos de RunwayGaleria.
    ============================================================ */
 
+/* Título de la cabecera ("Vosotras") sin mayúsculas, solo en esta
+   página (CollectionTitle .titulo las trae para Novias/Fiesta). Clase
+   + elemento para ganarle sin depender del orden de carga. */
+.cabeceraSeccion h2 {
+  text-transform: none;
+}
+
+/* Toggle "Invitadas"/"Novias" — children de CabeceraSeccion, mismo
+   lenguaje visual que .toggleBoton/.toggleBotonActivo de
+   CuadriculaProductos.module.css (opacidad baja + subrayado solo en el
+   activo/hover), aquí con texto en vez de iconos. */
+.toggleCategoria {
+  display: flex;
+  gap: var(--spacing-5);
+}
+
+.toggleCategoriaBoton {
+  background: none;
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid transparent;
+  /* Subrayado pegado al texto (2px) y sin tracking, a petición. */
+  padding: 0 0 2px;
+  font-size: var(--text-label);
+  letter-spacing: normal;
+  color: var(--color-tinta);
+  /* 0.65 y no 0.5: con 0.5 la tinta queda en #909090 sobre blanco (3,19:1)
+     y no llega al 4,5:1 de WCAG AA; con 0.65, #6E6E6E (5,1:1). */
+  opacity: 0.65;
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-marca), border-color 0.25s var(--ease-marca);
+  font-family: var(--font-base);
+}
+
+.toggleCategoriaBoton:hover,
+.toggleCategoriaBotonActivo {
+  opacity: 1;
+  border-bottom-color: var(--color-tinta);
+}
+
+/* Mobile: más grande y más fácil de tocar (a petición) — 15px en vez
+   de 12px y más separación entre "Invitadas" y "Novias". */
+@media (max-width: 767px) {
+  .toggleCategoria {
+    gap: var(--spacing-6);
+  }
+
+  .toggleCategoriaBoton {
+    font-size: var(--text-titulo); /* 15px */
+  }
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0.04rem;
-  margin-bottom: var(--spacing-8);
 }
 
 .item {
@@ -25,9 +76,75 @@
   cursor: pointer;
 }
 
+/* Mobile: una sola columna (a petición; antes 2). */
 @media (max-width: 767px) {
   .grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Casilla de reseña intercalada (TileResena en GaleriaVosotras.jsx):
+   mismo 3/4 y fondo crema que una foto, texto centrado en vertical.
+   Extracto a --text-titulo (15px), firma a
+   --text-texto (13px), mismo color tinta. */
+.resenaTile {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: none;
+  padding: var(--spacing-7);
+  text-align: left;
+  font: inherit;
+  color: var(--color-tinta);
+}
+
+div.resenaTile {
+  cursor: default;
+}
+
+/* Que el texto nunca quede recortado (a petición): la casilla de
+   reseña no lleva el 3/4 fijo ni el overflow:hidden de .item, así que
+   crece con su texto. En la cuadrícula la fila la sigue marcando la
+   foto de al lado (3/4) y la casilla se estira a ese alto. Si un
+   extracto fuera más largo, es la fila la que crece, nunca se corta el
+   texto. Doble clase para ganarle a .item. */
+.item.resenaTile {
+  aspect-ratio: auto;
+  overflow: visible;
+}
+
+.resenaTileCita {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin: 0;
+}
+
+.resenaTileTexto {
+  font-size: var(--text-titulo); /* 15px */
+  line-height: var(--leading-base);
+  font-style: italic;
+  color: var(--color-tinta);
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.resenaTileFirma {
+  font-size: var(--text-texto); /* 13px */
+  color: var(--color-tinta);
+  text-align: center;
+}
+
+button.resenaTile:hover .resenaTileTexto {
+  opacity: 0.7;
+}
+
+@media (max-width: 767px) {
+  /* A una columna la casilla va a todo el ancho y toma el alto natural
+     de su texto (sin la caja 3/4, que dejaba un hueco enorme o
+     recortaba), con aire arriba y abajo. Texto a 15px como en
+     escritorio: con todo el ancho ya no hace falta bajarlo a 13px. */
+  .resenaTile {
+    padding: var(--spacing-7) var(--spacing-5);
   }
 }
 
@@ -87,12 +204,15 @@
   transition: opacity 0.35s var(--ease-marca);
 }
 
+/* Misma altura de fila que .navRow del Navbar real en escritorio
+   (72px, ver --nav-height-desktop en global.css) — en mobile vuelve a
+   76px, ver media query al final. */
 .cabecera {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 76px;
+  height: var(--nav-height-desktop);
   z-index: 1;
   display: flex;
   align-items: center;
@@ -104,7 +224,7 @@
 }
 
 .logo {
-  height: 50px;
+  height: 56px;
   width: auto;
 }
 
@@ -135,6 +255,10 @@
   inset: 0;
   display: flex;
   overflow-x: auto;
+  /* Solo el gesto horizontal es del carrusel: sin scroll vertical propio,
+     un deslizamiento vertical en mobile mueve la página. */
+  overflow-y: hidden;
+  touch-action: pan-x pan-y;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
 }
@@ -211,6 +335,13 @@
     display: none;
   }
 
+  .cabecera {
+    height: var(--nav-height);
+  }
+  .logo {
+    height: 50px;
+  }
+
   .pistaImagen {
     width: 100%;
     height: 100%;
@@ -220,128 +351,118 @@
   }
 }
 
-/* Panel inferior: nombre + comentario de la clienta (no "Look X") y,
-   debajo, "Consigue el look" — contenido siempre del mismo tamaño (a
-   diferencia de RunwayGaleria, donde descripción/productos son
-   opcionales según el look y hacen falta un alto animado con
-   ResizeObserver): aquí un alto fijo basta. Nombre/comentario con la
-   misma tipografía que .pie/.texto/.nombre de
-   ResenasClientes.module.css; "Consigue el look" es una copia 1:1 de
-   .panelProductosBloque y siguientes en RunwayGaleria.module.css. */
-.panelInfo {
+/* Panel inferior (nombre/comentario de la clienta + "Consigue el
+   look") quitado a petición — era placeholder puro (ver comentario de
+   cabecera del .jsx). Sin ".panelInfo"/".panelInfoInterior" y
+   siguientes: el lightbox se queda solo en fotos + miniaturas. */
+
+/* Looks con reseña real de la clienta (RESENAS_VOSOTRAS en
+   vosotrasFotos.js): las fotos ocupan el 60% izquierdo y el texto, el
+   40% derecho, centrado en vertical — mismo tamaño/color de texto que
+   las columnas de texto del resto del sitio. En mobile las fotos van
+   arriba (60% del alto) y el texto debajo, con su propio scroll. */
+.conResena .pista {
+  right: 40%;
+}
+
+.resena {
   position: absolute;
-  bottom: 24px;
-  right: 24px;
-  z-index: 2;
-  width: min(320px, calc(100% - 48px));
-  background: var(--color-fondo);
-}
-
-.panelInfoInterior {
-  padding: var(--spacing-5);
+  top: var(--nav-height-desktop);
+  right: 0;
+  bottom: 0;
+  width: 40%;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
-}
-
-/* Agrupa .panelTexto + .panelNombre con su propio gap, más ajustado
-   (spacing-2) que el gap-4 de .panelInfoInterior que las separa del
-   bloque "Consigue el look". */
-.panelResena {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.panelTexto {
-  font-size: var(--text-small);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-tinta);
-}
-
-.panelNombre {
-  font-size: var(--text-small);
-  color: var(--color-tinta);
-  letter-spacing: var(--tracking-label);
-}
-
-.panelProductosBloque {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-/* Mismo font-size que .subtitle de CabeceraSeccion.module.css. */
-.panelProductosTitulo {
-  font-size: var(--text-caption);
-  text-transform: uppercase;
-}
-
-.panelProductos {
-  flex-wrap: wrap;
-  display: flex;
-  justify-content: space-between;
-  gap: var(--spacing-3);
-}
-
-.panelProducto {
-  width: fit-content;
-  max-width: 110px;
-  color: inherit;
-  flex-direction: column;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  text-align: center;
-  gap: var(--spacing-2);
-}
-
-.panelProductoImagenWrap {
-  position: relative;
-}
-
-.panelProductoImagen {
-  width: 90px;
-  height: auto;
-  aspect-ratio: 3 / 4.5;
-  object-fit: cover;
-  flex-shrink: 0;
-  background: var(--color-crema);
-}
-
-/* Botón "añadir" flotante, esquina inferior derecha de la foto — mismo
-   criterio que .wishlist de TarjetaProducto.module.css. Sin backend
-   real todavía (ver FichaProductoAcciones). */
-.panelProductoAnadir {
-  position: absolute;
-  bottom: var(--spacing-1);
-  right: var(--spacing-1);
-  z-index: 1;
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 0;
-  background: var(--color-tinta);
-  color: var(--color-fondo);
-  border: none;
-  border-radius: var(--radius-botones);
-  cursor: pointer;
-  transition: opacity 0.25s var(--ease-marca);
+  gap: var(--spacing-4);
+  margin: 0;
+  padding: var(--spacing-7) var(--spacing-9) var(--spacing-7) var(--spacing-7);
+  overflow-y: auto;
 }
 
-.panelProductoAnadir:hover {
-  opacity: 0.7;
-}
-
-.panelProductoNombre {
-  font-size: var(--text-small);
+.resenaTexto {
+  font-size: var(--text-body);
+  line-height: var(--leading-base);
   color: var(--color-tinta);
 }
 
 @media (max-width: 767px) {
-  .panelInfo {
-    width: calc(100% - 48px);
+  .conResena .pista {
+    right: 0;
+    bottom: 40%;
+  }
+
+  .resena {
+    top: 60%;
+    width: 100%;
+    justify-content: flex-start;
+    padding: var(--spacing-5) var(--spacing-4);
+  }
+
+  .resenaTexto {
+    font-size: var(--text-small);
+  }
+}
+
+/* ---------- Puntos del lightbox ---------- */
+/* Uno por foto del look, abajo en el centro de la zona de fotos (a
+   petición): cuántas hay y cuál se está viendo. Blancos y sin borde,
+   juntos (8px entre uno y otro); el activo pleno, el resto al 50%.
+   Botón de 14×24px (área de toque) con el punto de 6px en ::before. */
+.puntos {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--spacing-4);
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  pointer-events: none;
+}
+
+.punto {
+  width: 14px; /* puntos juntos (a petición): 8px entre uno y otro */
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.punto::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-fondo); /* blanco, sin borde (a petición) */
+  opacity: 0.5;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.punto:hover::before {
+  opacity: 0.75;
+}
+
+.puntoActivo::before,
+.puntoActivo:hover::before {
+  opacity: 1;
+}
+
+/* Con reseña, los puntos se centran bajo las fotos, no bajo la página
+   entera: escritorio, fotos en el 60% izquierdo; mobile, fotos en el
+   60% de arriba (ver .conResena .pista). */
+.conResena .puntos {
+  right: 40%;
+}
+
+@media (max-width: 767px) {
+  .conResena .puntos {
+    right: 0;
+    bottom: calc(40% + var(--spacing-2));
   }
 }

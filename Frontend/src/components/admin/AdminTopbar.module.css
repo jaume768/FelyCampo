@@ -11,7 +11,7 @@
   align-items: center;
   gap: var(--spacing-2);
   font-size: var(--text-caption);
-  color: var(--color-fondo);
+  color: var(--admin-texto);
 }
 
 .usuarioInfo {
@@ -22,17 +22,60 @@
 }
 
 .usuarioRol {
-  color: var(--color-rosa-velo);
+  color: var(--admin-texto-suave);
   font-size: var(--text-nano);
 }
 
-.avatar {
+/* Botón de tema (sol/luna) — en el sitio del antiguo cuadrado "FC",
+   con el mismo marco cuadrado. */
+.tema {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: var(--border-regular) solid var(--color-fondo);
-  font-size: var(--text-micro);
-  font-weight: var(--font-weight-medium);
+  margin-left: var(--spacing-2);
+  border: var(--border-regular) solid var(--admin-texto);
+  background: none;
+  color: var(--admin-texto);
+  cursor: pointer;
+  transition: opacity 0.2s var(--ease-marca);
+}
+
+.tema:hover {
+  opacity: 0.6;
+}
+
+.temaIcono {
+  width: 15px;
+  height: 15px;
+}
+
+/* "Cerrar sesión" — a la derecha del todo, separado del usuario por una
+   línea fina. Mismo color que el texto de la barra (claro en el tema
+   oscuro, oscuro en el claro), se apaga un poco al pasar el ratón. */
+.cerrarSesion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-left: var(--spacing-4);
+  padding-left: var(--spacing-4);
+  box-sizing: content-box;
+  border: none;
+  border-left: var(--border-thin) solid var(--admin-linea);
+  background: none;
+  color: var(--admin-texto);
+  cursor: pointer;
+  transition: opacity 0.2s var(--ease-marca);
+}
+
+.cerrarSesion:hover {
+  opacity: 0.6;
+}
+
+.cerrarSesionIcono {
+  width: 18px;
+  height: 18px;
 }

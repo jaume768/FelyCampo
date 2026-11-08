@@ -19,7 +19,7 @@ import styles from './CarritoPanel.module.css';
 function CarritoPanel() {
   const t = useTranslations('carrito');
   const locale = useLocale();
-  const { lineas, panelAbierto, cerrarPanel, quitar, actualizarCantidad, cargando, erroresLinea, totales, vacio } = useCarrito();
+  const { lineas, panelAbierto, cerrarPanel, quitar, actualizarCantidad } = useCarrito();
 
   return (
     <PanelLateral abierto={panelAbierto} onCerrar={cerrarPanel} lado="derecha" atraparFoco claseContenido={styles.contenido} ancho="380px">
@@ -30,9 +30,7 @@ function CarritoPanel() {
         </button>
       </div>
 
-      {cargando ? (
-        <p className={styles.vacio} role="status">{t('cargando')}</p>
-      ) : vacio ? (
+      {lineas.length === 0 ? (
         <p className={styles.vacio}>{t('vacio')}</p>
       ) : (
         <>
@@ -54,23 +52,16 @@ function CarritoPanel() {
                 cantidad={linea.cantidad}
                 onCantidad={(cantidad) => actualizarCantidad(linea.id, cantidad)}
                 onQuitar={() => quitar(linea.id)}
-                sinStock={linea.hayStock === false}
-                error={erroresLinea[linea.id]}
               />
             ))}
           </div>
 
           <div className={styles.acciones}>
-            {/* Total del backend, con IVA ya aplicado. */}
-            <p className={styles.total}>
-              <span>{t('total')}</span>
-              <span>{totales.total}</span>
-            </p>
             <Boton variante="contorno" tamano="full" href={`/${locale}/carrito`} onClick={cerrarPanel}>
               <ShoppingBag size={16} strokeWidth={1.5} strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true" />
               {t('verCarrito')}
             </Boton>
-            <Boton variante="solido" tamano="full" href={`/${locale}/checkout`} onClick={cerrarPanel}>{t('pagar')}</Boton>
+            <Boton variante="solido" tamano="full">{t('pagar')}</Boton>
           </div>
         </>
       )}

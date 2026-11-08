@@ -38,9 +38,7 @@ function colorHex(nombre) {
 
 function Tarjeta({ pedido, href }) {
   const [indice, setIndice] = useState(0);
-  // Datos reales: las líneas vienen en `lineas` y ya traen su propia imagen y color,
-  // resueltos por el backend. Antes se buscaban en productosMock POR NOMBRE.
-  const items = pedido.lineas || pedido.items || [];
+  const items = pedido.items || [];
   const item = items[indice];
 
   function irAnterior(e) {
@@ -55,9 +53,7 @@ function Tarjeta({ pedido, href }) {
     setIndice((i) => (i === items.length - 1 ? 0 : i + 1));
   }
 
-  // La imagen viene en la propia línea del pedido; `imagenProducto` era el rebusque por
-  // nombre sobre el mock, que se queda solo como respaldo para las pantallas sin migrar.
-  const imagen = item && (item.imagen || imagenProducto(item.producto || item.nombre));
+  const imagen = item && imagenProducto(item.producto);
 
   return (
     <Link href={href} className={styles.tarjeta}>
@@ -77,19 +73,19 @@ function Tarjeta({ pedido, href }) {
             </button>
             <div className={styles.puntos}>
               {items.map((it, i) => (
-                <span key={it.id ?? `${it.producto}-${it.talla}-${it.color}`} className={`${styles.punto} ${i === indice ? styles.puntoActivo : ''}`} />
+                <span key={`${it.producto}-${it.talla}-${it.color}`} className={`${styles.punto} ${i === indice ? styles.puntoActivo : ''}`} />
               ))}
             </div>
           </>
         )}
-        <span className={styles.estadoEsquina}><EstadoPedidoBadge status={pedido.status} estado={pedido.estadoEnvio} /></span>
+        <span className={styles.estadoEsquina}><EstadoPedidoBadge estado={pedido.estadoEnvio} /></span>
         {items.length > 1 && <span className={styles.contadorEsquina}>{`+${items.length - 1}`}</span>}
       </div>
       <div className={styles.info}>
-        <p className={styles.idCliente}>{pedido.referencia || pedido.id} · {pedido.cliente}</p>
+        <p className={styles.idCliente}>{pedido.id} · {pedido.cliente}</p>
         {item && (
           <>
-            <p className={styles.producto}>{item.nombre || item.producto}</p>
+            <p className={styles.producto}>{item.producto}</p>
             <p className={styles.talla}>Talla {item.talla}</p>
             <div className={styles.colorFila}>
               {colorHex(item.color) && <span className={styles.colorPunto} style={{ background: colorHex(item.color) }} aria-hidden="true" />}

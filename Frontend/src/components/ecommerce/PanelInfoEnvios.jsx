@@ -65,7 +65,7 @@ function PanelInfoEnvios({ abierto, onCerrar }) {
         <p className={styles.notaFinal}>
           {t.rich('notaFinal', {
             ayuda: (chunks) => (
-              <a href={`/${locale}/ayuda/atencion-cliente`} className="enlace-texto">{chunks}</a>
+              <a href={`/${locale}/visita-fely-campo`} className="enlace-texto">{chunks}</a>
             ),
           })}
         </p>

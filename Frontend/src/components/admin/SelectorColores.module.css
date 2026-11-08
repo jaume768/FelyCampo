@@ -1,0 +1,127 @@
+/* SELECTOR DE COLORES — ver SelectorColores.jsx */
+
+.selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.elegidos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding-bottom: var(--spacing-3);
+  border-bottom: var(--border-thin) solid var(--color-gris-200);
+}
+
+.etiqueta {
+  margin-right: var(--spacing-2);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.falta {
+  font-size: var(--text-nano);
+  color: var(--color-rosa-oscuro);
+}
+
+.lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.elegido {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 8px;
+  border: var(--border-thin) solid var(--color-gris-300);
+  font-size: var(--text-caption);
+  color: var(--color-tinta);
+}
+
+.punto {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: var(--border-thin) solid var(--color-gris-300);
+}
+
+.quitar {
+  display: flex;
+  padding: 2px;
+  border: none;
+  background: none;
+  color: var(--color-gris-500);
+  cursor: pointer;
+}
+
+.quitar:hover {
+  color: var(--color-tinta);
+}
+
+.familia {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.familiaNombre {
+  font-size: var(--text-nano);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-gris-500);
+}
+
+.muestras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.muestra {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 76px;
+  padding: 6px 2px;
+  border: var(--border-thin) solid transparent;
+  background: none;
+  font-family: var(--font-base);
+  cursor: pointer;
+}
+
+.muestra:hover {
+  border-color: var(--color-gris-300);
+}
+
+.muestraActiva,
+.muestraActiva:hover {
+  border-color: var(--color-tinta);
+}
+
+.circulo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: var(--border-thin) solid var(--color-gris-300);
+}
+
+.check {
+  color: #fff;
+  filter: drop-shadow(0 0 1px rgb(0 0 0 / 80%));
+}
+
+.nombre {
+  font-size: var(--text-nano);
+  line-height: 1.2;
+  text-align: center;
+  color: var(--color-tinta);
+}

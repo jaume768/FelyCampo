@@ -1,0 +1,190 @@
+/* ============================================================
+   NUESTROS TALLERES — Fely Campo
+   Esquinas rectas en todo (--radius-imagenes/--radius-botones a 0,
+   igual que el resto del sitio).
+   ============================================================ */
+
+/* Un taller debajo de otro, en columna (ver comentario en page.js) —
+   cada <li>.taller es ahora una fila completa, no una celda de
+   cuadrícula. */
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-10);
+  list-style: none;
+  padding-top: var(--spacing-4);
+  padding-bottom: var(--spacing-10);
+}
+
+/* Cada taller: cuadrícula de imágenes arriba, .info abajo, apilados
+   en columna (ver .imagenes y .info más abajo). */
+.taller {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* Carrusel horizontal en todos los tamaños (ver page.js — 6 copias de
+   la misma imagen en bucle, sin gap entre .marco, se leen como una
+   sola tira). En escritorio se ven 5 "columnas" de ancho normal
+   (20%), pero la 4ª y 5ª se achican (ver .marco:nth-child) para que
+   asome el borde de la 6ª y quede claro que se puede seguir
+   scrolleando; en mobile/tablet el ancho de .marco cambia a 80% (ver
+   media query) y ya no hace falta ese achicado. */
+.imagenes {
+  display: flex;
+  overflow-x: auto;
+  /* Solo el gesto horizontal es del carrusel: sin scroll vertical propio,
+     un deslizamiento vertical en mobile mueve la página. */
+  overflow-y: hidden;
+  touch-action: pan-x pan-y;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  gap: 0;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Edge/IE legacy */
+}
+
+.imagenes::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* flex-grow 1: con 5 medios o menos (ej. "Taller propio": 20+20+20+
+   16+16 = 92%) la tira no llenaba el ancho y quedaba un hueco a la
+   derecha — ahora se reparten ese sobrante y ocupan el 100%. Con más
+   medios la suma ya pasa del 100% y el grow no tiene efecto (sigue
+   asomando el borde de la siguiente, ver .marco:nth-child). */
+.marco {
+  flex: 1 0 20%;
+  scroll-snap-align: start;
+  aspect-ratio: 3 / 4;
+  background: var(--color-details);
+  border-radius: var(--radius-imagenes);
+  overflow: hidden;
+}
+
+.marco:nth-child(4),
+.marco:nth-child(5) {
+  flex-basis: 16%;
+}
+
+.imagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Sin fotos todavía (ver taller.medios en talleres.js/page.js) — un
+   único bloque a todo el ancho en vez de la tira de 5 columnas de
+   .marco, en gris claro para que se lea como placeholder a propósito,
+   no como una imagen que tarda en cargar (--color-details, que sí usa
+   .marco, es demasiado sutil para eso). */
+.marcoVacio {
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  background: var(--color-gris-200);
+  border-radius: var(--radius-imagenes);
+}
+
+@media (max-width: 1023px) {
+  .marcoVacio {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Mismas 5 columnas que .imagenes, para que .infoContenido (columnas
+   2-4, centrado, ver más abajo) quede alineado con la tira de
+   imágenes de arriba — las columnas 1 y 5 quedan vacías a los lados
+   a propósito. */
+.info {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+/* Sub-cuadrícula de 3 columnas (ancho de las columnas 2-4 de .info):
+   .meta ocupa la 1ª y .texto las 2 restantes (ver más abajo). */
+.infoContenido {
+  grid-column: 2 / 5;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  padding-left: var(--spacing-2);
+}
+
+/* Mismo criterio tipográfico que .info en
+   visita-fely-campo/page.module.css (texto pequeño, mismo color/interlineado
+   en todas las líneas) — aquí en dos bloques: los 4 datos rápidos
+   (.meta, apretados) y los párrafos (.texto, más aire entre sí porque
+   cada uno es un tema distinto, ver encargo del usuario). */
+.meta {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+/* Toda la página en un solo color (tinta) y dos tamaños: 15px para
+   títulos y 13px para el resto, sin mayúsculas (a petición). */
+.meta p,
+.texto p {
+  margin: 0;
+  white-space: pre-wrap; /* respeta los saltos de línea escritos en el admin */
+  font-size: var(--text-texto); /* 13px */
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+}
+
+/* Nombre del taller ("Taller propio", "Taller I"…): título, 15px. */
+.meta p:first-child {
+  font-size: var(--text-titulo);
+}
+
+.texto {
+  grid-column: 2 / 4;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* Intro de esta página (IntroSeccion, ver ListadoTalleres.jsx):
+   título a 15px en vez de los 19px de /blog, y filtros sin las
+   mayúsculas de Boton "texto". Clase + elemento para ganar a las
+   reglas de IntroSeccion.module.css sin depender del orden de carga. */
+.intro h2 {
+  font-size: var(--text-titulo);
+}
+
+.intro button {
+  text-transform: none;
+}
+
+/* Mobile y tablet (hasta 1023px, ver convención de breakpoints en
+   ProductosRecomendados.module.css): en vez de las 5 "columnas" de
+   20%/16% de escritorio (ver .marco), cada .marco ocupa el 80% del
+   ancho, así se ve 1 imagen entera + 1/4 de la siguiente — el
+   achicado de la 4ª/5ª ya no aplica (nth-child con la misma
+   especificidad, pisa la regla base). .info deja de ser cuadrícula:
+   .infoContenido, .meta y .texto se apilan en columna a ancho
+   completo. */
+@media (max-width: 1023px) {
+  .grid {
+    gap: var(--spacing-8);
+  }
+
+  .marco,
+  .marco:nth-child(4),
+  .marco:nth-child(5) {
+    flex-basis: 80%;
+  }
+
+  .info {
+    display: block;
+  }
+
+  .infoContenido {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-2);
+  }
+}

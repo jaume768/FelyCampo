@@ -1,0 +1,98 @@
+/* ============================================================
+   ADMIN · COLECCIÓN FIESTA — lo propio de AdminAtelierFiesta.jsx. Los
+   listados usan las piezas comunes (ListadoAdmin.module.css) y las
+   fichas, el editor común (EditorPagina.module.css,
+   CamposEditor.module.css).
+   ============================================================ */
+
+/* Dirección del look / nombre en la web, bajo el nombre. */
+.ayuda {
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
+  overflow-wrap: anywhere;
+}
+
+.ayuda strong {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+/* Avisos (cambiar el nombre de algo ya publicado). */
+.aviso {
+  padding: var(--spacing-2) var(--spacing-3);
+  border-left: 2px solid var(--color-rosa);
+  background: var(--color-rosa-velo);
+  font-size: var(--text-caption);
+  color: var(--color-tinta);
+}
+
+.portadaColeccion {
+  max-width: 260px;
+}
+
+/* Portada horizontal (colecciones de Runway). */
+.portadaHorizontal {
+  max-width: 640px;
+}
+
+/* Runway · vídeo propio: segunda opción, más discreta que el enlace. */
+.videoPropio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.videoPropioTitulo {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gris-600);
+}
+
+/* Recuadro de explicación sobre el listado (config.aviso). */
+.avisoListado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  max-width: 900px;
+  margin-bottom: var(--spacing-5);
+  padding: var(--spacing-4) var(--spacing-5);
+  border-left: 3px solid var(--color-tinta);
+  background: var(--color-gris-100);
+  font-size: var(--text-small);
+  line-height: 1.5;
+  color: var(--color-tinta);
+}
+
+/* Bloque de foto (o vídeo) vertical + textos (Página de Novias / Fiesta):
+   la columna de la foto mide lo que necesita y la de los textos se lleva
+   el resto, sin pasar de un ancho cómodo de leer. */
+.bloqueEditorial {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: var(--spacing-6);
+  align-items: start;
+}
+
+.columnaTextos {
+  max-width: 760px;
+}
+
+@media (max-width: 900px) {
+  .bloqueEditorial {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Página de un atelier (AdminAtelierSede.jsx): la fila de «Atelier» +
+   ciudad (los botones de cada sección están en ControlesLista.module.css). */
+.filaCiudad {
+  margin-bottom: var(--spacing-6);
+}
+
+
+/* Prêt-à-porter › Páginas de categoría: una foto por categoría, en rejilla. */
+.fotosCategorias {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-5);
+}

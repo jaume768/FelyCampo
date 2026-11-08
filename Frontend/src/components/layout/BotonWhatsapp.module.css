@@ -1,0 +1,54 @@
+/* ============================================================
+   BOTÓN FLOTANTE DE WHATSAPP — Fely Campo (ver BotonWhatsapp.jsx)
+   Cuadrado con las esquinas un poco redondeadas, fondo
+   negro suave e icono blanco; sin borde ni sombra. Al hover se aclara
+   un punto. z-index:45 — por debajo del Navbar (50), de PanelLateral
+   y del aviso de cookies (60) y de los Modal (99/100): todos ellos lo
+   tapan cuando están abiertos.
+   ============================================================ */
+
+.boton {
+  position: fixed;
+  right: var(--spacing-5);
+  bottom: var(--spacing-5);
+  z-index: 45;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--color-tinta);
+  color: #fff;
+  transition: background 0.3s var(--ease-marca);
+}
+
+.boton:hover,
+.boton:focus-visible {
+  background: var(--color-gris-700);
+}
+
+/* El viewBox del SVG va recortado al trazo (ver BotonWhatsapp.jsx),
+   así que el tamaño aquí es el del dibujo en sí. */
+.icono {
+  width: 60%;
+  height: 60%;
+}
+
+@media (max-width: 767px) {
+  .boton {
+    right: var(--spacing-4);
+    bottom: var(--spacing-4);
+    /* Más grande en mobile (a petición; antes 40px, más pequeño que en
+       escritorio): mejor objetivo para el dedo. */
+    width: 52px;
+    height: 52px;
+  }
+}
+
+/* Se esconde con el lightbox de Vosotras abierto (misma clase en
+   <body> que ya usa global.css para esconder el Navbar, ver
+   GaleriaVosotras.jsx). */
+:global(body.vosotras-lightbox-abierta) .boton {
+  display: none;
+}

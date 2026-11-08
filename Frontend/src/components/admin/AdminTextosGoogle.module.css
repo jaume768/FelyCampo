@@ -1,0 +1,123 @@
+/* Admin · Textos de Google (AdminTextosGoogle.jsx). */
+
+/* Una página debajo de otra, separadas por una línea. */
+.paginas {
+  display: flex;
+  flex-direction: column;
+}
+
+.pagina {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6) 0;
+}
+
+.pagina:first-child {
+  padding-top: 0;
+}
+
+.pagina:last-child {
+  padding-bottom: 0;
+}
+
+.pagina + .pagina {
+  border-top: var(--border-thin) solid var(--color-gris-100);
+}
+
+.paginaCabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  max-width: 1160px;
+}
+
+.paginaNombre {
+  font-size: var(--text-texto);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-negro);
+}
+
+/* Campos a la izquierda y el resultado de Google a la derecha. */
+.paginaCuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  gap: var(--spacing-6);
+  align-items: start;
+  max-width: 1160px;
+}
+
+/* ---------- Resultado de Google ----------
+   Colores y letra de Google a propósito (no los de la marca): es una
+   imitación del resultado, para que se reconozca. */
+.google {
+  padding: var(--spacing-4);
+  border: var(--border-thin) solid var(--color-gris-100);
+  background: #fff;
+  font-family: Arial, sans-serif;
+}
+
+.googleEtiqueta {
+  margin-bottom: var(--spacing-3);
+  font-family: var(--font-base);
+  font-size: var(--text-nano);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-gris-500);
+}
+
+.googleSitio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.googleIcono {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #dadce0;
+  border-radius: 50%;
+  font-size: 12px;
+  color: #202124;
+}
+
+.googleNombre {
+  display: block;
+  font-size: 14px;
+  line-height: 20px;
+  color: #202124;
+}
+
+.googleUrl {
+  display: block;
+  font-size: 12px;
+  line-height: 18px;
+  color: #4d5156;
+  overflow-wrap: anywhere;
+}
+
+/* Google corta el título a una línea (~600px) y la descripción a dos. */
+.googleTitulo {
+  overflow: hidden;
+  font-size: 20px;
+  line-height: 26px;
+  color: #1a0dab;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.googleDescripcion {
+  display: -webkit-box;
+  margin-top: 4px;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 22px;
+  color: #4d5156;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}

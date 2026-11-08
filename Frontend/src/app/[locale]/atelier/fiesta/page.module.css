@@ -1,0 +1,56 @@
+/* ============================================================
+   ATELIER FIESTA — Fely Campo. Ruta: /atelier/fiesta
+   Hero + título, mismo patrón que la ficha de colección de Runway (ver
+   /runways/[coleccion]/page.module.css: .hero a 80vh con
+   RunwayMediaLateral + .textoDescripcion/.textoRow con dos textos a
+   tamaño h1 en fila) — aquí "nombre"/"temporada" son "Atelier"/"Fiesta"
+   en vez de nombre de colección/temporada, reutilizando el mismo par
+   que ya usa CuadriculaProductos como subtítulo/título antes de la
+   cuadrícula (tituloKey/coleccionKey en page.js). Mismas reglas que
+   atelier/novias/page.module.css (ver ahí el detalle completo).
+   ============================================================ */
+
+.hero {
+  width: 100%;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.textoDescripcion {
+  width: 100%;
+}
+
+.textoRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-inline: var(--spacing-6);
+  padding-block: var(--spacing-6);
+}
+
+.nombre,
+.temporada {
+  font-size: var(--text-h1);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+}
+
+@media (max-width: 767px) {
+  .hero {
+    height: auto;
+  }
+
+  .textoRow {
+    flex-direction: column;
+    gap: var(--spacing-2);
+    padding-inline: var(--spacing-4);
+    padding-block: var(--spacing-4);
+  }
+
+  .nombre,
+  .temporada {
+    font-size: var(--text-h2);
+  }
+}

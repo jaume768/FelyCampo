@@ -1,0 +1,105 @@
+/* ============================================================
+   PODCAST & BLOG — Fely Campo (ver page.js y ListadoPodcastBlog.jsx)
+   La introducción (título, texto, filtros) es IntroSeccion.
+   .gridPodcast/.podcastDestacado: los episodios de podcast;
+   .gridBlog: los artículos (BlogTarjeta). Los filtros muestran u
+   ocultan cada bloque.
+   ============================================================ */
+
+/* Hero en mobile: foto apaisada con Fely en el tercio derecho — el
+   recorte vertical centrado por defecto enseñaba la puerta y las
+   flores y la dejaba cortada. 75% en horizontal lleva el encuadre a la
+   derecha, centrado en ella (mismo criterio que /sobre-fely). */
+@media (max-width: 767px) {
+  .heroEncuadre img {
+    object-position: 75% center;
+  }
+}
+
+.pagina {
+  padding-inline: var(--spacing-7);
+  padding-block: var(--spacing-8) var(--spacing-10);
+}
+
+/* Escritorio (mismo corte de 768px que el resto del archivo): la
+   sección de episodios mide al menos 120vh, padding incluido. */
+@media (min-width: 768px) {
+  .pagina {
+    min-height: 120vh;
+  }
+}
+
+/* Rejilla de 2 columnas desde 1024px: cada episodio ocupa una (50% del
+   ancho). Por debajo, una por fila (ver media query más abajo). */
+.gridPodcast {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-6);
+  margin-top: var(--spacing-4);
+}
+
+/* min-height = el mismo suelo de 320px de .tarjeta
+   (BlogTarjetaPodcastDestacado.module.css): sin él, en pantallas
+   estrechas el aspect-ratio dejaba la caja más baja que la tarjeta y
+   esta se salía por abajo, montándose sobre la siguiente. Con los dos,
+   la caja mide lo que sea mayor y la tarjeta (height:100%) cabe.
+   OJO: con aspect-ratio, ese min-height se traslada a un ancho mínimo
+   (320px × 4/3 ≈ 427px en mobile) que desbordaba la pantalla — por eso
+   min-width:0 aquí y columnas minmax(0, 1fr) en .gridPodcast: el ancho
+   nunca pasa del de la columna y la foto (cover) se recorta. */
+.podcastDestacado {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 320px;
+  min-width: 0;
+}
+
+/* Tablet y mobile: una tarjeta por fila — a dos columnas, por debajo
+   de 1024px cada tarjeta quedaba demasiado estrecha para su texto. */
+@media (max-width: 1023px) {
+  .gridPodcast {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .pagina {
+    padding-inline: 0;
+  }
+
+  .gridPodcast {
+    margin-top: 0;
+  }
+
+  .podcastDestacado {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+
+/* ---------- Artículos de blog ---------- */
+.gridBlog {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-9) var(--spacing-6);
+}
+
+/* Con el podcast visible encima ("Ver todo"), separación entre bloques. */
+.gridPodcast + .gridBlog {
+  margin-top: var(--spacing-9);
+}
+
+@media (max-width: 1023px) {
+  .gridBlog {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--spacing-8);
+  }
+}
+
+/* Mobile: los artículos sin padding lateral en .pagina (las tarjetas de
+   podcast van a sangre) — el texto de BlogTarjeta lo necesita. */
+@media (max-width: 767px) {
+  .gridBlog {
+    padding-inline: var(--spacing-4);
+  }
+}

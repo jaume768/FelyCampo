@@ -26,7 +26,6 @@
 .titulo {
   font-size: var(--text-caption);
   line-height: var(--leading-base);
-  text-transform: uppercase;
 }
 
 .icono {

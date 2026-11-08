@@ -57,14 +57,16 @@
 
 /* Flotante sobre las imágenes (no reserva alto propio) — mismo criterio
    que .cabecera de GaleriaProductoLightbox.module.css: misma altura de
-   fila que .navRow del Navbar real (76px) y mismo sitio, para que el
-   logo quede visualmente donde estaba aunque esto no sea el Navbar. */
+   fila que .navRow del Navbar real en escritorio (72px, ver
+   --nav-height-desktop en global.css) y mismo sitio, para que el logo
+   quede visualmente donde estaba aunque esto no sea el Navbar. En
+   mobile vuelve a 76px, ver media query al final. */
 .cabecera {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 76px;
+  height: var(--nav-height-desktop);
   z-index: 1;
   display: flex;
   align-items: center;
@@ -76,7 +78,7 @@
 }
 
 .logo {
-  height: 50px;
+  height: 56px;
   width: auto;
 }
 
@@ -107,6 +109,10 @@
   inset: 0;
   display: flex;
   overflow-x: auto;
+  /* Solo el gesto horizontal es del carrusel: sin scroll vertical propio,
+     un deslizamiento vertical en mobile mueve la página. */
+  overflow-y: hidden;
+  touch-action: pan-x pan-y;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
 }
@@ -181,6 +187,13 @@
 @media (max-width: 767px) {
   .miniaturas {
     display: none;
+  }
+
+  .cabecera {
+    height: var(--nav-height);
+  }
+  .logo {
+    height: 50px;
   }
 
   /* A pantalla completa de verdad en mobile — sin miniaturas que
@@ -279,7 +292,6 @@
 /* Mismo font-size que .subtitle de CabeceraSeccion.module.css. */
 .panelProductosTitulo {
   font-size: var(--text-caption);
-  text-transform: uppercase;
 }
 
 .panelProductos {
@@ -400,6 +412,10 @@
   .panelProductosScroll {
     flex-wrap: nowrap;
     overflow-x: auto;
+    /* Solo el gesto horizontal es del carrusel: sin scroll vertical propio,
+       un deslizamiento vertical en mobile mueve la página. */
+    overflow-y: hidden;
+    touch-action: pan-x pan-y;
     scroll-snap-type: x proximity;
     scrollbar-width: none;
   }

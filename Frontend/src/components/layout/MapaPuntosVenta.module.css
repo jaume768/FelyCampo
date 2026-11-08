@@ -1,0 +1,335 @@
+/* ============================================================
+   MAPA DE PUNTOS DE VENTA — Fely Campo
+   Mismo criterio de "esquinas rectas en todo" que el resto del sitio
+   (--radius-botones a 0) — se le pisa el redondeo por defecto a los
+   controles/popups de Leaflet, ver overrides :global() al final.
+   ============================================================ */
+
+.seccion {
+  padding-bottom: var(--spacing-10);
+  background: var(--color-fondo);
+}
+
+/* Buscador "más cercano por código postal" (ver buscarPorCp en
+   MapaPuntosVenta.jsx) — entre la intro y el mapa. Sin "etiqueta"
+   propia en el Input (ver comentario en MapaPuntosVenta.jsx), así que
+   input y botón quedan a la misma altura de por sí — align-items:center
+   en vez del flex-end que hacía falta antes con la etiqueta encima. */
+/* Mismo ancho que .descripcion de CabeceraSeccion (550px) — el
+   padding lateral se suma para que el campo + botón midan justo eso. */
+.buscarCp {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  max-width: calc(550px + 2 * var(--spacing-7));
+  margin: 0 auto var(--spacing-7);
+  padding-inline: var(--spacing-7);
+}
+
+.buscarCp > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Pasada a Input (ui/) como "className" (ver MapaPuntosVenta.jsx) —
+   solo borde inferior en vez del borde completo de .input de
+   Input.module.css, únicamente en este buscador. Selector duplicado
+   (mismo criterio que .descripcionTexto.descripcionTexto en
+   atelier/page.module.css): gana especificidad sobre .input sin
+   depender del orden de carga entre los dos módulos CSS. */
+.buscarCpInput.buscarCpInput {
+  border: none;
+  border-bottom: 1px solid var(--color-gris-300);
+  border-radius: 0;
+}
+
+.buscarCpInput.buscarCpInput:focus {
+  border-bottom-color: var(--color-tinta);
+}
+
+.buscarCpAviso {
+  max-width: calc(550px + 2 * var(--spacing-7));
+  margin: calc(var(--spacing-3) * -1) auto var(--spacing-5);
+  padding-inline: var(--spacing-7);
+  font-size: var(--text-caption);
+  text-align: center;
+  color: var(--color-rosa-oscuro);
+}
+
+@media (max-width: 767px) {
+  .buscarCp,
+  .buscarCpAviso {
+    max-width: none;
+    padding-inline: var(--spacing-4);
+  }
+}
+
+/* Mapa (65%) + listado accesible (35%) lado a lado — mismo criterio
+   50/50-ish que .tarjeta en visita-fely-campo/page.module.css, aquí
+   con reparto desigual porque el mapa necesita más aire. */
+.layout {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-4);
+  padding-inline: var(--spacing-7);
+}
+
+/* position+z-index explícitos: Leaflet trae sus propios z-index
+   internos (panes hasta 400, controles/popups hasta 1000, ver
+   leaflet.css) que si no, escaparían a comparar directamente contra el
+   resto del sitio en vez de quedar contenidos aquí dentro — sin esto,
+   los controles del mapa o un popup abierto podían asomar por encima
+   de cualquier PanelLateral (Filtros, carrito, menú móvil...) aunque
+   ese panel estuviera abierto tapando la página (z-index: 60/59, ver
+   PanelLateral.module.css). Con esta capa el mapa entero pasa a
+   apilarse como un solo bloque a z-index: 1 — por debajo de los
+   paneles/overlay (60/59) y de todo lo demás del sitio, así ningún
+   control ni popup del mapa puede quedar por encima. */
+.mapa {
+  position: relative;
+  z-index: 1;
+  flex: 2;
+  min-width: 0;
+  height: 60vh;
+  min-height: 420px;
+  background: var(--color-details);
+  border: 1px solid var(--color-hairline);
+}
+
+/* El mapa lleva aria-hidden (ver MapaPuntosVenta.jsx) — este listado
+   es el camino real por teclado/lector de pantalla a cada punto:
+   botones reales, uno por sede, que mueven el mapa al clicarlos.
+   Agrupado por país (ver "gruposVisibles" en MapaPuntosVenta.jsx, un
+   <section> con su título por país en vez del <ul> plano de antes) —
+   España primero y el resto en orden de cercanía real. */
+.lista {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 220px;
+  max-height: 60vh;
+  min-height: 420px;
+  overflow-y: auto;
+}
+
+.listaGrupo + .listaGrupo {
+  margin-top: var(--spacing-3);
+}
+
+/* "Pequeño título" al cambiar de país dentro del listado — sticky
+   dentro de .lista (que es quien hace scroll) para que se quede fijo
+   arriba mientras se recorren las sedes de ese país, igual que un
+   separador de sección. 13px en tinta, sin tracking (mismo criterio
+   que el resto de textos), fondo propio para no dejar ver el texto
+   por debajo al quedarse fijo. */
+.listaGrupoTitulo {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--text-texto);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+  background: var(--color-fondo);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+/* Banderín cuadrado junto al nombre del país — SVG 1x1 (ver
+   CODIGO_PAIS en MapaPuntosVenta.jsx), sin recorte, mismo radio 0 que
+   el resto del sitio (--radius-botones). object-fit:cover por si algún
+   país cae de vuelta al respaldo 4x3 (no lo tenemos aquí, pero evita
+   que se deforme si algún día lo hace). */
+.listaGrupoBandera {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  object-fit: cover;
+}
+
+.listaGrupoItems {
+  list-style: none;
+}
+
+/* Fila: .puntoImagen a la izquierda + .puntoTextos a la derecha (ver
+   más abajo) — align-items:stretch para que la imagen (aspect-ratio,
+   sin alto propio) tome el alto real del botón, que lo marca el texto. */
+.puntoBtn {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: var(--spacing-2);
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-fondo);
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.25s var(--ease-marca);
+}
+
+.puntoBtn:hover,
+.puntoBtn:focus-visible {
+  background: var(--color-details);
+}
+
+/* Foto real por punto de venta cuando existe, si no cae en un ciclo de
+   3 fotos de atelier de respaldo (ver IMAGEN_POR_ID/IMAGENES_FALLBACK
+   en MapaPuntosVenta.jsx). Ancho fijo + aspect-ratio (no al revés): un ancho
+   fijo con alto derivado del aspect-ratio es el único de los dos
+   sentidos que los navegadores resuelven de forma fiable dentro de un
+   flex item — derivar el ancho desde el alto real del botón (variable,
+   según el texto) no está soportado de forma consistente, así que se
+   centra en vertical en vez de estirarse. */
+.puntoImagen {
+  display: block;
+  flex: none;
+  align-self: center;
+  width: var(--spacing-9);
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: var(--color-details);
+}
+
+/* Sin "gap": .puntoNombre y cada .puntoTexto ya llevan varias líneas
+   propias separadas por line-height (white-space:pre-line, ver más
+   abajo) — un gap aquí sumaría un salto extra SOLO entre bloques,
+   distinto del que separa las líneas dentro de cada uno. Sin gap, el
+   line-height es lo único que marca el ritmo vertical, igual entre
+   bloques que dentro de ellos. */
+.puntoTextos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* Mismo criterio que .nombre/.direccion/.telefono en .info de
+   visita-fely-campo/page.module.css — título y texto de debajo al
+   mismo tamaño y color, sin distinción de peso entre ellos. */
+.puntoNombre,
+.puntoTexto {
+  font-size: var(--text-small);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+  white-space: pre-line;
+}
+
+/* Nombre del punto de venta, sin mayúsculas (como .puntoTexto arriba,
+   sin transformar). */
+/* Interlínea más cerrada que el texto de debajo, a petición: los
+   nombres que ocupan dos líneas quedan como un solo bloque. */
+.puntoNombre {
+  line-height: 1.3;
+}
+
+/* Líneas del texto de debajo (dirección, teléfono, email) más juntas
+   que el leading-base, a petición. */
+.puntoTexto {
+  line-height: 1.4;
+}
+
+/* Separación título → texto, más amplia a petición. */
+.puntoNombre + .puntoTexto {
+  margin-top: var(--spacing-2);
+}
+
+@media (max-width: 767px) {
+  .layout {
+    flex-direction: column;
+    padding-inline: var(--spacing-5);
+  }
+
+  .mapa {
+    height: 40vh;
+    min-height: 320px;
+  }
+
+  /* En mobile, lista normal que sigue hacia abajo con la página — sin
+     altura fija ni scroll propio (antes max-height:320px con scroll
+     dentro del div, como en escritorio; quitado a petición). */
+  .lista {
+    min-width: 0;
+    max-height: none;
+    min-height: 0;
+    overflow-y: visible;
+  }
+
+  /* El título de cada país deja de ser sticky: sin scroll propio en
+     .lista se pegaría arriba de la pantalla, debajo del Navbar. */
+  .listaGrupoTitulo {
+    position: static;
+  }
+}
+
+/* Marcador de cada punto — cuadrado, no círculo (ver icono divIcon en
+   MapaPuntosVenta.jsx: L.circleMarker no dibuja cuadrados). Borde más
+   fino que el weight:2 que llevaba el circleMarker anterior. */
+.marcador {
+  width: 9px;
+  height: 9px;
+  background: var(--color-rosa);
+  border: 1px solid var(--color-fondo);
+  box-sizing: border-box;
+}
+
+/* ---------- Overrides Leaflet (:global — clases del propio Leaflet,
+   fuera del scope de CSS Modules) ---------- */
+
+/* Desatura las teselas OSM (por defecto vienen con mucho color/etiqueta)
+   para acercarlas al resto del sitio, monocromo + rosa como único
+   acento (ver --color-rosa en los marcadores, JS). */
+.mapa :global(.leaflet-tile-pane) {
+  filter: grayscale(0.85) contrast(0.95) brightness(1.05);
+}
+
+.mapa :global(.leaflet-control-zoom a) {
+  border-radius: 0;
+  color: var(--color-tinta);
+  border-color: var(--color-gris-300);
+}
+
+.mapa :global(.leaflet-popup-content-wrapper),
+.mapa :global(.leaflet-popup-tip) {
+  border-radius: 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.mapa :global(.leaflet-popup-content) {
+  margin: var(--spacing-3);
+  font-family: var(--font-base);
+}
+
+.popupNombre {
+  margin: 0 0 var(--spacing-1) 0;
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-tinta);
+}
+
+.popupTexto {
+  margin: 0 0 var(--spacing-1) 0;
+  font-size: var(--text-caption);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+}
+
+.popupTexto a {
+  color: var(--color-tinta);
+}
+
+.popupEnlace {
+  display: inline-block;
+  margin-top: var(--spacing-1);
+  /* Como el resto de CTAs subrayados (Boton "texto"): 13px, en tinta. */
+  font-size: var(--text-cta);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+  text-decoration: underline;
+  font-family: var(--font-base);
+}

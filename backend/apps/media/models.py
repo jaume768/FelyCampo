@@ -13,6 +13,8 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.db.models import TextField
+from django.db.models.functions import Cast
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import UUIDTimeStampedModel
@@ -46,9 +48,12 @@ class MediaAsset(UUIDTimeStampedModel):
     """
 
     kind = models.CharField(_("tipo"), max_length=8, choices=MediaKind.choices)
-    file = models.FileField(_("archivo"), upload_to=media_upload_path)
+    # 255 y no los 100 por defecto: las fotos de la web conservan sus nombres SEO
+    # (`web/img/collections/fiesta/<coleccion>/fely-campo-coleccion-fiesta-…webp`), que
+    # pasan de 100 caracteres. Ver apps/content/management/commands/importar_medios_web.py.
+    file = models.FileField(_("archivo"), upload_to=media_upload_path, max_length=255)
     thumbnail = models.ImageField(
-        _("miniatura"), upload_to=thumbnail_upload_path, null=True, blank=True
+        _("miniatura"), upload_to=thumbnail_upload_path, null=True, blank=True, max_length=255
     )
     original_filename = models.CharField(_("nombre original"), max_length=255, blank=True)
     content_type = models.CharField(_("tipo de contenido"), max_length=100, blank=True)
@@ -85,8 +90,22 @@ class MediaAsset(UUIDTimeStampedModel):
         revés, así que importar `ProductImage` arriba crearía un ciclo entre las dos apps.
         """
         from apps.catalog.models import ProductImage
+        from apps.content.models import Document
 
-        return [
+        usages = [
             {"type": "product_image", "label": image.product.name}
             for image in ProductImage.objects.filter(asset=self).select_related("product")
         ]
+        # El contenido de la web guarda las fotos como URL dentro del JSON, no como FK:
+        # se busca la URL en el texto del documento. Borrar una foto que sale en la web
+        # la dejaría rota sin que nadie se enterase hasta verla.
+        if self.file:
+            # Sin `file.url`: codifica espacios y acentos (%20…) y el JSON los guarda tal cual.
+            url = f"/{settings.MEDIA_URL.strip('/')}/{self.file.name}"
+            usages += [
+                {"type": "content", "label": key}
+                for key in Document.objects.annotate(texto=Cast("data", TextField()))
+                .filter(texto__contains=url)
+                .values_list("key", flat=True)
+            ]
+        return usages

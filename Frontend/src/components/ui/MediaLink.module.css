@@ -10,7 +10,6 @@
   display: block;
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  background: var(--color-crema);
 }
 
 /* Solo, a todo el ancho de la fila: 3/4 la estiraría a una vertical
@@ -18,6 +17,14 @@
    dos tarjetas 3/4 puestas lado a lado. */
 .ancho {
   aspect-ratio: 3 / 2;
+}
+
+/* Dos tarjetas lado a lado, pero más rectangulares que el 3/4 de
+   siempre (más ancho, menos alto) — usado por submenús cuyas fotos
+   piden ese encuadre en vez del vertical habitual (Sobre Fely, ver
+   SUBMENU_STRUCTURE.elMundoDeFely.cardsVariante en Navbar.jsx). */
+.horizontal {
+  aspect-ratio: 4 / 3;
 }
 
 .image {
@@ -54,7 +61,6 @@
   padding: var(--spacing-2);
   text-align: center;
   font-size: var(--text-label);
-  text-transform: uppercase;
   letter-spacing: var(--tracking-label);
   font-weight: 500;
   color: #fff;

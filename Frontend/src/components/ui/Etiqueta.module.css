@@ -5,7 +5,6 @@
 .etiqueta {
   font-family: var(--font-base);
   font-size: var(--text-caption);
-  text-transform: uppercase;
 }
 
 .tinta    { color: var(--color-tinta); }

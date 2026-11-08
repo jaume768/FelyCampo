@@ -1,0 +1,57 @@
+/* ============================================================
+   TEXTO LEGAL — Fely Campo (ver TextoLegal.jsx). La portada (título y
+   fecha) la pinta HeroPagina; aquí solo el texto.
+   Una sola columna de lectura (--max-texto), texto en tinta a tamaño
+   de lectura, subtítulos con aire por encima para poder escanear.
+   ============================================================ */
+
+/* Texto debajo de la portada (HeroPagina). Márgenes laterales propios,
+   los mismos que .layout de MapaPuntosVenta.module.css. */
+.pagina {
+  padding: var(--spacing-8) var(--spacing-7) var(--spacing-10);
+}
+
+/* Columna centrada en el ancho de la página (a petición); el texto
+   dentro sigue alineado a la izquierda para que se lea bien. */
+.cuerpo {
+  max-width: var(--max-texto);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  font-size: var(--text-small);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+  overflow-wrap: anywhere; /* emails y URLs largas no desbordan en mobile */
+}
+
+.h2 {
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--spacing-5);
+}
+
+.h3 {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--spacing-3);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding-left: var(--spacing-5);
+  list-style: disc;
+}
+
+.enlace {
+  color: inherit;
+  text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+  .pagina {
+    padding-inline: var(--spacing-5);
+  }
+}

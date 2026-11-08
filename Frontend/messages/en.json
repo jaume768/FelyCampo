@@ -1,10 +1,13 @@
 {
   "nav": {
     "links": {
-      "tienda": "Shop",
+      "tienda": "Prêt-à-porter",
       "atelier": "Atelier",
+      "colecciones": "Collections",
       "elMundoDeFely": "About Fely",
-      "visitanos": "Visit Us"
+      "puntosDeVenta": "Where to Find Fely Campo",
+      "puntosDeVentaCorto": "Where to Find Us",
+      "pedirCita": "Book an Appointment"
     },
     "submenus": {
       "tienda": {
@@ -12,29 +15,32 @@
         "tops": "Tops & Shirts",
         "coats": "Coats & Jackets",
         "faldas": "Skirts",
-        "vestidos": "Dresses",
-        "zapatos": "Shoes",
-        "accesorios": "Accessories"
+        "pantalones": "Trousers",
+        "vestidos": "Dresses"
       },
       "atelier": {
         "novias": "Bridal",
         "fiesta": "Evening Wear",
         "vosotras": "For You",
-        "noviasSubmenu": "Bridal Collection",
-        "fiestaSubmenu": "Evening Wear Collection"
+        "salamanca": "Atelier Salamanca",
+        "madrid": "Atelier Madrid",
+        "oviedo": "Atelier Oviedo",
+        "nuestroAtelier": "Our Atelier"
+      },
+      "colecciones": {
+        "fiesta": "Evening Wear Collection",
+        "novias": "Bridal Collection",
+        "pretaporter": "Prêt-à-porter",
+        "runway": "Runway"
       },
       "elMundoDeFely": {
-        "blog": "Blog",
-        "historia": "Story",
-        "runway": "Runway",
-        "talleres": "Our Workshops"
+        "historia": "Our Story",
+        "podcast": "Blog & Podcast",
+        "talleres": "Our workshops"
       },
-      "visitanos": {
-        "salamanca": "Salamanca",
-        "madrid": "Madrid",
-        "oviedo": "Oviedo",
-        "puntosDeVenta": "Store Locations",
-        "reservarCita": "Book an Appointment"
+      "puntosDeVenta": {
+        "propios": "Our Stores",
+        "externos": "Selected Boutiques"
       }
     },
     "actions": {
@@ -45,7 +51,13 @@
     "aria": {
       "abrirMenu": "Open menu",
       "cerrarMenu": "Close menu",
-      "carrito": "Cart"
+      "carrito": "Cart",
+      "volverMenu": "Back"
+    },
+    "movil": {
+      "menu": "Menu",
+      "verTodo": "View all",
+      "paso": "Step {actual} of {total}"
     }
   },
   "breadcrumb": {
@@ -55,24 +67,24 @@
     "anadirWishlist": "Add to Wishlist",
     "fichaCaption": "Product page",
     "anadirCesta": "Add",
+    "avisame": "Notify me when available",
     "avisoTalla": "Please select a size before adding to cart.",
     "talla": "Size",
     "contactar": "Contact us",
     "avisoColor": "Please select a color before contacting us.",
     "runwayLook": "Runway look",
     "composicion": "Composition",
-    "composicionTexto": "100% seasonal materials, selected by our design team. Hand or dry-clean wash only, do not tumble dry.",
+    "composicionTexto": "100% seasonal materials, selected by our design team.",
     "origenDisenado": "Designed in: Salamanca, Spain",
-    "origenFabricado": "Made in: Salamanca, Spain",
-    "origenTintura": "Dyeing and printing: Italy",
-    "origenTejido": "Fabric origin: India",
+    "origenFabricado": "Made in: <talleres>our workshops</talleres> in Salamanca, Spain",
+    "etiquetaDisenado": "Designed in",
+    "etiquetaFabricado": "Made in",
+    "sku": "Ref.",
     "categorias": "Categories",
-    "porEncargoTitulo": "Made-to-Order Product (PRE-ORDER)",
-    "porEncargoTexto": "This garment is made to order specifically for each order and customer, so returns are not accepted once the order has been confirmed. For this reason, you can contact us for more information and to place your order through our information button.",
     "envios": "Shipping and returns",
     "enviosSubtitulo": "Shipping",
     "devolucionesSubtitulo": "Returns",
-    "devolucionesTexto": "You can contact us at <email>info@felycampo.com</email> or at <telefono>+34 683 703 644</telefono> within 14 days of receiving your order to arrange a return or exchange. We'll guide you through the process. Return shipping costs are borne by the customer, except where the item is faulty or incorrect. Visit our <atencion>customer service</atencion> page.",
+    "devolucionesTexto": "You can contact us at <email>info@felycampo.com</email> or at <telefono>+34 659 00 62 57</telefono> within 14 days of receiving your order to arrange a return or exchange. We'll guide you through the process. Return shipping costs are borne by the customer, except where the item is faulty or incorrect. Visit our <atencion>customer service</atencion> page.",
     "entregaEstimada": "Estimated delivery: 2 weeks",
     "noEncontrado": "We couldn't find this product.",
     "seguirExplorandoTienda": "Keep exploring the collection",
@@ -87,30 +99,44 @@
     "videoActivarSonido": "Turn sound on",
     "videoSilenciar": "Mute",
     "videoReproducir": "Play video",
-    "videoPausar": "Pause video",
-    "sinStock": "This size is sold out.",
-    "combinacionNoDisponible": "That colour and size combination is not available.",
-    "errorAnadir": "We could not add it to your bag.",
-    "anadiendo": "Adding…"
+    "videoPausar": "Pause video"
   },
   "visitenos": {
-    "eyebrow": "Visit Us",
+    "eyebrow": "Visit",
     "titulo": "Our Ateliers",
-    "intro": "Our ateliers and showroom — always by appointment, so we can give you our full attention.",
     "pedirCita": "Book an appointment",
-    "verMapa": "View map",
+    "conoceMas": "Learn more.",
     "whatsapp": "WhatsApp",
+    "telf": "Tel",
+    "movil": "Mobile",
     "showroomNota": "By-appointment showroom"
   },
-  "atencionCliente": {
-    "titulo": "Customer Service",
-    "emailLabel": "Email",
-    "telefonoLabel": "Phone",
-    "horarioLabel": "Hours",
-    "horario": "Mon - Fri: 8:00 AM - 4:00 PM",
-    "clickCollectLabel": "Click & Collect",
-    "clickCollect": "In-store pickup available.",
-    "direccionLabel": "Store"
+  "puntosVenta": {
+    "eyebrow": "Where to find us",
+    "direcciones": "Directions",
+    "buscarCpPlaceholder": "Postal code",
+    "buscarCpBoton": "Search",
+    "buscarCpError": "Enter a valid Spanish postal code (5 digits)."
+  },
+  "talleres": {
+    "eyebrow": "Our process",
+    "titulo": "Our Workshops",
+    "intro": "Where hands tell stories\n\nEvery Fely Campo piece is born close by. In our atelier and two small workshops in the sierra, skilled hands transform each fabric with time, precision and sensitivity. Behind those hands are women, craft and territory.",
+    "filtroTodo": "View all"
+  },
+  "blog": {
+    "volver": "Back to blog",
+    "leerArticulo": "Read article",
+    "escucharEpisodio": "Listen to episode",
+    "episodio": "Episode",
+    "con": "With",
+    "shopHere": "Shop here",
+    "filtroTodo": "View all",
+    "filtroBlog": "Blog",
+    "filtroPodcast": "Podcast"
+  },
+  "whatsappFlotante": {
+    "label": "Message us on WhatsApp"
   },
   "carrito": {
     "titulo": "Cart",
@@ -129,16 +155,7 @@
     "total": "Total",
     "iniciarPedido": "Checkout",
     "infoEnvioSubrayado": "Shipping",
-    "infoEnvioResto": "& returns",
-    "cargando": "Loading your bag…",
-    "errorCargar": "We could not load your bag.",
-    "reintentar": "Try again",
-    "avisoCarritoViejo": "Your previous bag has been cleared: we changed how it is stored. Sorry for the inconvenience.",
-    "cerrarAviso": "Dismiss",
-    "problemasStock": "Some items are no longer available. Please review your bag before continuing.",
-    "iva": "VAT included",
-    "lineaSinStock": "This item is out of stock.",
-    "quedanPocas": "{cantidad} left."
+    "infoEnvioResto": "& returns"
   },
   "wishlist": {
     "titulo": "Wishlist",
@@ -191,9 +208,7 @@
   },
   "solicitudAtelier": {
     "titulo": "Request information",
-    "subtitulo": "Tell us your size and how to reach you, we'll get back to you with all the details.",
-    "talla": "Size",
-    "avisoTalla": "Please select a size.",
+    "subtitulo": "Tell us how to reach you and we'll get back to you with all the details.",
     "nombre": "Name",
     "nombrePlaceholder": "Jane Smith",
     "email": "Email",
@@ -202,15 +217,52 @@
     "telefonoPlaceholder": "+34 600 000 000",
     "comentario": "Comment (optional)",
     "comentarioPlaceholder": "Tell us any additional details…",
-    "avisoDatos": "Please fill in your name and email to continue.",
+    "avisoDatos": "Please fill in your name and email and accept the privacy policy to continue.",
+    "enviando": "Sending…",
+    "errorEnvio": "We couldn't send your enquiry. Please try again or email us at {email}.",
     "enviar": "Send request",
     "confirmacionTitulo": "Request sent!",
-    "confirmacionTexto": "Thank you for your interest. Our team will get in touch with you as soon as possible.",
+    "confirmacionTexto": "Thank you for your interest in Fely Campo. We've emailed you the details of your enquiry and our team will be in touch shortly with all the details.",
+    "cerrar": "Close"
+  },
+  "pedirCitaAtelier": {
     "cerrar": "Close",
+    "titulo": "Book your appointment",
+    "subtitulo": "Fill in the form and we will get in touch with you.",
+    "nombreCompleto": "Full name",
+    "nombreCompletoPlaceholder": "Jane Smith",
+    "email": "Contact email",
+    "emailPlaceholder": "jane@example.com",
+    "telefono": "Contact phone",
+    "telefonoPlaceholder": "+1 555 000 0000",
+    "fechaEvento": "*Event date",
+    "atelier": "Atelier",
+    "atelierElige": "*Choose an atelier",
+    "anioAnterior": "Previous year",
+    "anioSiguiente": "Next year",
+    "dia": "Day",
+    "mes": "Month",
+    "anio": "Year",
+    "codigoPostal": "Postal code",
+    "codigoPostalPlaceholder": "10001",
+    "ciudad": "City",
+    "ciudadPlaceholder": "New York",
+    "mensaje": "Tell us what you're looking for and we'll help you",
+    "aceptoLegal": "I accept the <privacidad>privacy policy</privacidad> and the <terminos>terms and conditions</terminos>.",
+    "avisoDatos": "Fill in the required fields and accept the privacy policy to continue.",
+    "enviar": "Send request",
+    "confirmacionTitulo": "Request sent!",
+    "confirmacionTexto": "Thanks for your interest. Our team will get in touch with you as soon as possible to confirm the day and time of your appointment.",
+    "tipo": "Your appointment is for",
+    "tipoNovia": "Bride",
+    "tipoInvitada": "Guest",
     "enviando": "Sending…",
-    "errorEnvio": "We could not send your enquiry.",
-    "errorRed": "We could not connect. Please try again.",
-    "errorDemasiadas": "You have sent too many enquiries. Please try again later."
+    "errorEnvio": "We couldn't send your request. Please try again or email us at {email}.",
+    "confirmacionNoviaTitulo": "Your bridal appointment has been requested!",
+    "confirmacionNoviaTexto": "Thank you for trusting Fely Campo with your wedding dress. We've emailed you the details of your request and the atelier team will be in touch to confirm the day and time.",
+    "confirmacionInvitadaTitulo": "Your guest appointment has been requested!",
+    "confirmacionInvitadaTexto": "Thank you for your interest in Fely Campo. We've emailed you the details of your request and the atelier team will be in touch to confirm the day and time.",
+    "volverInicio": "Back to home"
   },
   "escribirResena": {
     "titulo": "Write your review",
@@ -230,10 +282,12 @@
     "tabDatos": "My details",
     "pedidosTitulo": "My orders",
     "pedidoNumero": "Order {numero}",
+    "pedidoTotal": "Total {total}",
     "escribirResena": "Write a review",
     "resenaEnviada": "Review submitted",
     "resenasTitulo": "My reviews",
     "resenasVacio": "You haven't written any reviews yet.",
+    "resenasPendientesTitulo": "Products to review",
     "datosTitulo": "My details",
     "datosSubtitulo": "This is how we see you — you can update it anytime.",
     "guardarCambios": "Save changes"
@@ -250,24 +304,23 @@
     "fechaNacimiento": "Date of birth",
     "email": "Email",
     "emailPlaceholder": "jane@example.com",
+    "telefono": "Phone",
+    "telefonoPlaceholder": "+34 659 00 62 57",
     "password": "Password",
     "enviarLogin": "Log in",
     "enviarRegistro": "Create account",
     "google": "Continue with Google",
     "preguntaRegistro": "New to Fely Campo?",
     "preguntaLogin": "Already have an account?",
-    "cerrar": "Close",
-    "enviando": "Signing in…",
-    "campoObligatorio": "This field is required.",
-    "errorRed": "We could not connect. Please try again.",
-    "demasiadosIntentos": "Too many attempts. Please try again later.",
-    "googleNoDisponible": "Signing in with Google is not available yet.",
-    "cerrarSesion": "Sign out",
-    "hola": "Hi, {nombre}",
-    "correoSinVerificar": "We have emailed you to confirm your address. You can keep shopping meanwhile."
+    "cerrar": "Close"
   },
-  "heroCarousel": {
-    "cta": "Discover more"
+  "heroPagina": {
+    "atelierNovias": "Made-to-measure bridal gowns, crafted in our atelier.",
+    "atelierFiesta": "Made-to-measure evening and guest dresses.",
+    "pretAPorter": "Everyday pieces, made with atelier care.",
+    "sobreFely": "A life among fabrics",
+    "runway": "Runway collection",
+    "atelierCiudad": "Visit us, always by appointment."
   },
   "collectionTitle": {
     "edicionMujer": {
@@ -293,6 +346,18 @@
       "cta": "View all"
     }
   },
+  "splitMediaCategorias": {
+    "item1": {
+      "label": "Dresses",
+      "titulo": "Dresses",
+      "cta": "View all"
+    },
+    "item2": {
+      "label": "Jackets",
+      "titulo": "Jackets",
+      "cta": "View all"
+    }
+  },
   "cuadriculaTabs": {
     "subtitulo": "Atelier",
     "titulo": "A look for every occasion",
@@ -300,17 +365,15 @@
     "reservarCita": "Book your appointment"
   },
   "vosotras": {
-    "descripcion": "Our clients, in their own words and their own photos, wearing Fely Campo in their special moments.",
-    "verGaleria": "View gallery"
-  },
-  "atelierCategoriaSeo": {
-    "titulo": "{categoria} · {seccion} · Atelier — Fely Campo",
-    "descripcion": "{categoria} style dresses in the {seccion} Atelier collection by Fely Campo. Personalized fitting with our designer."
+    "verGaleria": "View gallery",
+    "invitadas": "Guests",
+    "novias": "Bridal"
   },
   "catalogo": {
     "subtituloFelyCampo": "Fely Campo",
     "subtituloTienda": "Prêt-à-porter",
-    "tituloTienda": "Prêt-à-porter"
+    "tituloTienda": "Prêt-à-porter",
+    "tituloTops": "Tops & T-shirts"
   },
   "cuadriculaProductos": {
     "verMas": "See more",
@@ -324,11 +387,7 @@
     "vistaCuadricula": "Grid view",
     "vistaCompacta": "2-column view",
     "filtros": "Filters",
-    "cargandoMas": "Loading more products…",
-    "cargarMas": "Load more",
-    "sinResultadosTitulo": "No products to show",
-    "sinResultadosTexto": "Try removing a filter or go back to the full section.",
-    "limpiarFiltros": "Clear filters"
+    "cargandoMas": "Loading more products…"
   },
   "filtros": {
     "titulo": "Filters",
@@ -405,101 +464,53 @@
     }
   },
   "visitaAtelier": {
-    "titulo": "The Fely Campo Atelier",
-    "texto": "Discover made-to-measure couture at our atelier in Salamanca or Madrid. Personalised guidance, hand-picked fabrics, and the same care in every single piece.",
+    "titulo": "Of women, For women, by women",
+    "texto": "Fely Campo was born in Salamanca as a women's fashion house in 1997. Specialised in party and bridal collections, the house has become a benchmark in the industry, both at home and abroad, thanks to its commitment to quality and timeless design.",
     "enlace": "Book an appointment"
-  },
-  "compromiso": {
-    "texto": "Designed and made in Salamanca since 1997",
-    "subtitulo": "Craftsmanship, Femininity and Warmth"
   },
   "footer": {
     "newsletter": {
       "texto": "Sign up for first access to offers, limited collections and new arrivals.",
       "consentimiento": "By submitting your email, you agree to our <privacidad>Privacy Policy</privacidad>.",
+      "politicaEnlace": "Privacy Policy",
       "enviar": "Submit",
+      "suscribirse": "Subscribe",
+      "placeholder": "E-mail",
       "exito": "Thank you — you're subscribed!",
       "error": "Something went wrong. Please try again."
     }
   },
   "newsletterPopup": {
-    "titulo": "Join the Fely Campo universe",
-    "boton": "Sign Up",
+    "consentimiento": "You agree to receive marketing emails.",
+    "noGracias": "No, thanks",
     "cerrar": "Close"
   },
-  "clientsReview": {
-    "titulo": "In their own words",
-    "resenas": [
-      {
-        "texto": "I found the perfect dress for my sister's wedding. The service was exquisite from start to finish.",
-        "nombre": "Marta G."
+  "cookies": {
+    "titulo": "Cookies",
+    "texto": "We use our own and third-party cookies to make the site work correctly, measure its use and personalise your experience.",
+    "enlace": "Cookie policy",
+    "personalizar": "Customise",
+    "rechazar": "Reject all",
+    "aceptar": "Accept all",
+    "guardar": "Save preferences",
+    "categorias": {
+      "necesarias": {
+        "nombre": "Necessary",
+        "texto": "Essential for the site to work properly. These cannot be switched off."
       },
-      {
-        "texto": "Made-to-measure tailoring makes all the difference. You can feel it in every stitch.",
-        "nombre": "Elena R."
+      "analiticas": {
+        "nombre": "Analytics",
+        "texto": "Help us understand how the site is used so we can improve it."
       },
-      {
-        "texto": "Warm, honest advice — I've never felt so listened to in a store.",
-        "nombre": "Carmen L."
-      },
-      {
-        "texto": "Exceptional quality and a service that makes you feel unique.",
-        "nombre": "Beatriz S."
-      },
-      {
-        "texto": "I'd come back without hesitation. Fely Campo understands what a woman needs.",
-        "nombre": "Lucía M."
+      "marketing": {
+        "nombre": "Marketing",
+        "texto": "Used to show you relevant advertising on and off our site."
       }
-    ]
+    }
   },
-  "errores": {
-    "catalogoTitulo": "We could not load the catalogue",
-    "catalogoTexto": "This may be temporary. Please try again in a moment.",
-    "reintentar": "Try again",
-    "seccionVaciaTitulo": "Section in preparation",
-    "seccionVaciaTexto": "There are no published pieces in this section yet."
-  },
-  "avisoReposicion": {
-    "abrir": "Notify me when back in stock",
-    "abrirConTalla": "Notify me when size {talla} is back",
-    "etiqueta": "We will email you as soon as it is available.",
-    "placeholder": "you@email.com",
-    "enviar": "Notify me",
-    "enviando": "Sending…",
-    "confirmado": "Done. We will email you as soon as it is back in stock.",
-    "faltaEmail": "Please enter your email.",
-    "error": "We could not register the alert.",
-    "errorRed": "We could not connect. Please try again.",
-    "demasiados": "You have requested too many alerts. Please try again later."
-  },
-  "checkout": {
-    "titulo": "Checkout",
-    "contacto": "Contact",
-    "envio": "Shipping address",
-    "factura": "Invoice",
-    "email": "Email",
-    "telefono": "Phone",
-    "destinatario": "Full name",
-    "direccion": "Address",
-    "direccion2": "Flat, door (optional)",
-    "codigoPostal": "Postcode",
-    "ciudad": "City",
-    "provincia": "Province",
-    "soloPeninsula": "We currently ship to mainland Spain only.",
-    "quieroFactura": "I need an invoice",
-    "nombreFiscal": "Legal name",
-    "nif": "Tax ID",
-    "direccionFiscal": "Billing address",
-    "confirmarPedido": "Place order",
-    "procesando": "Processing…",
-    "obligatorio": "This field is required.",
-    "nifObligatorio": "A tax ID is required to issue an invoice.",
-    "carritoVacio": "Your bag is empty.",
-    "errorRed": "We could not connect. Please try again.",
-    "confirmadoTitulo": "Order placed",
-    "referencia": "Reference",
-    "confirmadoTexto": "We have sent the confirmation to {email}.",
-    "sinPasarela": "The payment gateway is not active yet: your order is registered and awaiting payment. We will contact you to complete it.",
-    "seguirComprando": "Continue shopping"
+  "notFound": {
+    "eyebrow": "Error 404",
+    "texto": "This page doesn't exist or has moved.",
+    "boton": "Back to home"
   }
 }

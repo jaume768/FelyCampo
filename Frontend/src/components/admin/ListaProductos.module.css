@@ -285,7 +285,7 @@ button.publicarBotonPublicada:disabled {
 }
 
 /* Mismo formato de badge que EstadoPedidoBadge.module.css .badge (fondo
-   -velo + texto -oscuro, ver regla de contraste en docs/adminpanel.md
+   -velo + texto -oscuro, ver regla de contraste en docs/ADMIN.md
    sección 2), posicionado como esquina sobre la imagen — código de
    temporada de una colección de Runway. AW en azul (frío/invierno), SS en
    naranja (cálido/verano) — mismo par de colores que ya usa
@@ -626,64 +626,4 @@ button.publicarBotonPublicada:disabled {
   display: block;
   font-size: var(--text-small);
   color: var(--color-tinta);
-}
-
-/* Estados del listado contra la API y paginación de servidor. */
-.estadoAviso {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px;
-  margin-bottom: 16px;
-  background: var(--color-rosa-velo, #fce4ee);
-  color: var(--color-rosa-oscuro, #c2185f);
-  font-size: 0.875rem;
-}
-
-.estadoAviso p {
-  margin: 0;
-}
-
-.estadoCargando,
-.estadoVacio {
-  padding: 32px 0;
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--color-gris-500, #757575);
-}
-
-.paginacion {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 24px 0;
-}
-
-.paginaBoton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--color-gris-200, #d9d9d9);
-  background: transparent;
-  color: var(--color-tinta, #202020);
-  cursor: pointer;
-}
-
-.paginaBoton:hover:not(:disabled) {
-  border-color: var(--color-rosa, #e92174);
-  color: var(--color-rosa, #e92174);
-}
-
-.paginaBoton:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.paginaTexto {
-  font-size: 0.8125rem;
-  color: var(--color-gris-500, #757575);
 }

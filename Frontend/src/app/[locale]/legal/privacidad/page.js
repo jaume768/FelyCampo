@@ -1,13 +1,22 @@
-/* Placeholder — pendiente de maquetar. Ruta: /legal/privacidad */
+/* ============================================================
+   Política de Privacidad — Fely Campo. Ruta: /legal/privacidad
+   Texto en español e inglés — ver ../textos/privacidad.js.
+   Maquetación común: ../TextoLegal.jsx.
+   ============================================================ */
 
-export default function Pagina() {
-  return (
-    <section className="seccion contenedor">
-      <p className="text-caption uppercase text-gris-500 mb-16">Fely Campo</p>
-      <h1>Política de privacidad</h1>
-      <p className="text-gris-500 mt-24 texto-legible">
-        Página pendiente de maquetar. La ruta ya existe y navega.
-      </p>
-    </section>
-  );
+import { metadataPagina } from '@/lib/seo';
+import TextoLegal from '../TextoLegal';
+import { PRIVACIDAD } from '../textos/privacidad';
+import { setRequestLocale } from 'next-intl/server';
+
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  return metadataPagina({ locale, ruta: '/legal/privacidad' });
+}
+
+export default async function Pagina({ params }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  return <TextoLegal texto={PRIVACIDAD} locale={locale} />;
 }

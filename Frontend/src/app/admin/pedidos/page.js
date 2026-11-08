@@ -1,90 +1,96 @@
 'use client';
 
 /* ============================================================
-   PEDIDOS — listado. DATOS REALES: /api/v1/admin/orders/.
-
-   UN SOLO ESTADO, ocho valores. Antes había dos filtros —«pago» y
-   «envío»— que no existen en el modelo: `Order.status` es uno solo.
-   Ese desdoblamiento dejaba fuera `refunded` y `partially_refunded`
-   (un pedido reembolsado no se podía ver) e inventaba un «pago
-   fallido» que el backend no tiene.
-
-   Búsqueda, filtro y paginación en SERVIDOR.
+   PEDIDOS — listado (spec sección 4). Solo Prêt-à-porter: Atelier
+   genera consultas/citas (sección 5), Archivo no genera transacciones.
    ============================================================ */
 
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { StickyNote, List, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react';
-
+import { StickyNote, List, LayoutGrid } from 'lucide-react';
 import {
-  PageHeader, TablaAdmin, GridPedidos, EstadoPedidoBadge, FiltroBar, FiltroSelector, TabsFiltro,
+  PageHeader, TablaAdmin, GridPedidos, EstadoBadge, EstadoPedidoBadge, FiltroBar, FiltroSelector, TabsFiltro,
 } from '@/components/admin';
+import { BotonFila } from '@/components/admin/ListadoAdmin';
 import { Input } from '@/components/ui';
-import {
-  listarPedidos, adaptarPedidoAdmin, filtrosPedidosAdmin, OPCIONES_ESTADO_PEDIDO,
-} from '@/lib/api/adminOrders';
-import { ApiError } from '@/lib/api/errors';
+import { pedidosMock, productosMock } from '@/components/admin/mockData';
+import { CONFIG_ESTADO_PEDIDO } from '@/components/admin/EstadoPedidoBadge';
 import styles from './page.module.css';
 
-const POR_PAGINA = 20;
+const OPCIONES_ESTADO_PEDIDO = [
+  { valor: 'Todos', etiqueta: 'Todos' },
+  ...Object.entries(CONFIG_ESTADO_PEDIDO).map(([valor, cfg]) => ({ valor, etiqueta: cfg.etiqueta, clase: cfg.clase })),
+];
 
-/** Fecha ISO → "Hace 3 horas" / "Hace 2 días". */
-function etiquetaRecibido(iso) {
-  if (!iso) return '—';
-  const horas = Math.floor((Date.now() - new Date(iso).getTime()) / 3_600_000);
-  if (horas < 1) return 'Hace menos de 1 hora';
-  if (horas < 24) return horas === 1 ? 'Hace 1 hora' : `Hace ${horas} horas`;
+function imagenesPedido(pedido) {
+  return (pedido.items || [])
+    .map((item) => productosMock.find((p) => p.nombre === item.producto)?.imagen)
+    .filter(Boolean);
+}
+
+function totalNumero(total) {
+  return Number(total.replace(/[^\d]/g, ''));
+}
+
+function calcularHoras(fecha) {
+  const inicio = new Date(`${fecha}T00:00:00`);
+  return Math.floor((Date.now() - inicio.getTime()) / (1000 * 60 * 60));
+}
+
+function etiquetaRecibido(fecha) {
+  const horas = calcularHoras(fecha);
+  if (horas < 24) return horas <= 1 ? 'Hace 1 hora' : `Hace ${horas} horas`;
   const dias = Math.floor(horas / 24);
   return dias === 1 ? 'Hace 1 día' : `Hace ${dias} días`;
+}
+
+// "No enviado a las 2 semanas" — mismo protocolo que esUrgente en
+// consultas-precio (fila destacada en rosa-velo vía resaltarFila).
+function esRetrasado(p) {
+  return calcularHoras(p.fecha) >= 24 * 14 && p.estadoEnvio === 'Procesando';
 }
 
 function PedidosContenido() {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState('');
-  const [filtroEstado, setFiltroEstado] = useState(searchParams.get('status') || 'Todos');
-  const [pagina, setPagina] = useState(1);
+  const [filtroPago, setFiltroPago] = useState('Todos');
+  const [filtroEnvio, setFiltroEnvio] = useState(searchParams.get('estadoEnvio') || 'Todos');
+  const [desde, setDesde] = useState('');
+  const [hasta, setHasta] = useState('');
+  const [orden, setOrden] = useState('reciente');
   const [vista, setVista] = useState('tabla');
 
-  const [pedidos, setPedidos] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
+  const filtrados = useMemo(() => pedidosMock
+    .filter((p) => {
+      if (filtroPago !== 'Todos' && p.estadoPago !== filtroPago) return false;
+      if (filtroEnvio !== 'Todos' && p.estadoEnvio !== filtroEnvio) return false;
+      if (desde && p.fecha < desde) return false;
+      if (hasta && p.fecha > hasta) return false;
+      if (query && !`${p.id} ${p.cliente}`.toLowerCase().includes(query.toLowerCase())) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (orden === 'reciente') return b.fecha.localeCompare(a.fecha);
+      if (orden === 'antiguo') return a.fecha.localeCompare(b.fecha);
+      if (orden === 'precioAsc') return totalNumero(a.total) - totalNumero(b.total);
+      return totalNumero(b.total) - totalNumero(a.total);
+    }),
+  [filtroPago, filtroEnvio, desde, hasta, query, orden]);
 
-  const cargar = useCallback(async () => {
-    setCargando(true);
-    setError(null);
-    try {
-      const pag = await listarPedidos(
-        filtrosPedidosAdmin({ busqueda: query, status: filtroEstado, pagina, porPagina: POR_PAGINA })
-      );
-      setPedidos((pag.results || []).map(adaptarPedidoAdmin));
-      setTotal(pag.count ?? 0);
-    } catch (fallo) {
-      if (!(fallo instanceof ApiError)) throw fallo;
-      setError(fallo);
-      setPedidos([]);
-      setTotal(0);
-    } finally {
-      setCargando(false);
-    }
-  }, [query, filtroEstado, pagina]);
+  const hayFiltros = filtroPago !== 'Todos' || desde !== '' || hasta !== '' || orden !== 'reciente' || query !== '';
 
-  useEffect(() => {
-    // Pequeño retardo al teclear para no lanzar una petición por tecla.
-    const t = setTimeout(cargar, query ? 300 : 0);
-    return () => clearTimeout(t);
-  }, [cargar, query]);
-
-  useEffect(() => {
-    setPagina(1);
-  }, [query, filtroEstado]);
-
-  const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
+  function limpiarFiltros() {
+    setQuery('');
+    setFiltroPago('Todos');
+    setDesde('');
+    setHasta('');
+    setOrden('reciente');
+  }
 
   return (
     <div>
-      <div className={styles.cabeceraFila}>
-        <div className={styles.vistaToggle}>
+      <PageHeader titulo="Pedidos" subtitulo={`${filtrados.length} pedidos`}>
+        <div className={styles.vistaToggle} role="group" aria-label="Cambiar vista">
           <button
             type="button"
             className={`${styles.vistaBoton} ${vista === 'tabla' ? styles.vistaBotonActiva : ''}`}
@@ -96,101 +102,101 @@ function PedidosContenido() {
           </button>
           <button
             type="button"
-            className={`${styles.vistaBoton} ${vista === 'rejilla' ? styles.vistaBotonActiva : ''}`}
-            aria-pressed={vista === 'rejilla'}
+            className={`${styles.vistaBoton} ${vista === 'grid' ? styles.vistaBotonActiva : ''}`}
+            aria-pressed={vista === 'grid'}
             aria-label="Vista de rejilla"
-            onClick={() => setVista('rejilla')}
+            onClick={() => setVista('grid')}
           >
             <LayoutGrid size={16} aria-hidden="true" />
           </button>
         </div>
-      </div>
+      </PageHeader>
 
-      <PageHeader
-        titulo="Pedidos"
-        subtitulo={cargando ? 'Cargando…' : `${total} pedido${total === 1 ? '' : 's'}`}
-      />
-
-      <FiltroBar>
-        <Input
-          etiqueta="Buscar"
-          placeholder="Referencia, correo o cliente"
-          valor={query}
-          onChange={(e) => setQuery(e.target.value)}
+      <FiltroBar onLimpiar={hayFiltros ? limpiarFiltros : undefined}>
+        <Input etiqueta="Buscar" placeholder="Pedido o cliente" valor={query} onChange={(e) => setQuery(e.target.value)} />
+        <FiltroSelector
+          etiqueta="Pago"
+          valor={filtroPago}
+          onChange={(e) => setFiltroPago(e.target.value)}
+          opciones={[{ valor: 'Todos', etiqueta: 'Todos' }, { valor: 'Pendiente', etiqueta: 'Pendiente' }, { valor: 'Pagado', etiqueta: 'Pagado' }, { valor: 'Fallido', etiqueta: 'Fallido' }]}
         />
         <FiltroSelector
-          etiqueta="Estado"
-          valor={filtroEstado}
-          onChange={(e) => setFiltroEstado(e.target.value)}
-          opciones={OPCIONES_ESTADO_PEDIDO}
+          etiqueta="Ordenar por"
+          valor={orden}
+          onChange={(e) => setOrden(e.target.value)}
+          opciones={[
+            { valor: 'reciente', etiqueta: 'Fecha: Más reciente' },
+            { valor: 'antiguo', etiqueta: 'Fecha: Más antiguo' },
+            { valor: 'precioAsc', etiqueta: 'Precio: Menor a mayor' },
+            { valor: 'precioDesc', etiqueta: 'Precio: Mayor a menor' },
+          ]}
         />
+        <Input etiqueta="Desde" tipo="date" valor={desde} onChange={(e) => setDesde(e.target.value)} />
+        <Input etiqueta="Hasta" tipo="date" valor={hasta} onChange={(e) => setHasta(e.target.value)} />
       </FiltroBar>
 
-      {/* Los ocho estados reales, incluidos los reembolsos, que antes no tenían sitio. */}
-      <TabsFiltro opciones={OPCIONES_ESTADO_PEDIDO} valor={filtroEstado} onChange={setFiltroEstado} />
-
-      {error && (
-        <div className={styles.aviso} role="alert">
-          {error.isNetworkError
-            ? 'No hemos podido conectar con el servidor.'
-            : error.status === 401 || error.status === 403
-              ? 'Tu sesión no tiene acceso al panel. Vuelve a entrar.'
-              : error.message}
-        </div>
-      )}
-
-      {!error && cargando && <p className={styles.estado} role="status">Cargando pedidos…</p>}
-
-      {!error && !cargando && pedidos.length === 0 && (
-        <p className={styles.estado}>No hay pedidos que coincidan con los filtros.</p>
-      )}
+      <TabsFiltro opciones={OPCIONES_ESTADO_PEDIDO} valor={filtroEnvio} onChange={setFiltroEnvio} />
 
       {vista === 'tabla' ? (
         <TablaAdmin
           columnas={[
-            { clave: 'referencia', etiqueta: 'Referencia', render: (p) => p.referencia },
-            { clave: 'cliente', etiqueta: 'Cliente', render: (p) => (
-              <span className={styles.clienteCelda}>
-                {p.cliente}
-                {p.esInvitado && <span className={styles.invitado}>invitado</span>}
-              </span>
-            ) },
-            { clave: 'recibido', etiqueta: 'Recibido', render: (p) => etiquetaRecibido(p.creadoEn) },
-            { clave: 'total', etiqueta: 'Total', render: (p) => p.totales.total },
-            { clave: 'estado', etiqueta: 'Estado', render: (p) => <EstadoPedidoBadge status={p.status} /> },
-            { clave: 'nota', etiqueta: '', render: (p) => (p.notaCliente ? <StickyNote size={14} aria-label="Con nota del cliente" /> : null) },
+            {
+              clave: 'id',
+              etiqueta: 'Pedido',
+              render: (p) => (
+                <span className={styles.idFila}>
+                  {p.id}
+                  {p.notasInternas && (
+                    <span className={styles.notaIcono} tabIndex={0} aria-label={`Nota interna: ${p.notasInternas}`}>
+                      <StickyNote size={14} aria-hidden="true" />
+                      <span className={styles.notaTooltip} role="tooltip">{p.notasInternas}</span>
+                    </span>
+                  )}
+                </span>
+              ),
+            },
+            {
+              clave: 'imagen',
+              etiqueta: '',
+              render: (p) => {
+                const imagenes = imagenesPedido(p);
+                return imagenes.length > 0 ? (
+                  <span className={styles.miniaturaFila}>
+                    <img src={imagenes[0]} alt="" className={styles.miniatura} />
+                    {imagenes.length > 1 && <span className={styles.miniaturaExtra}>{`+${imagenes.length - 1}`}</span>}
+                  </span>
+                ) : <span className={styles.miniatura} />;
+              },
+            },
+            { clave: 'cliente', etiqueta: 'Cliente' },
+            {
+              clave: 'recibido',
+              etiqueta: 'Recibido',
+              render: (p) => (
+                <div className={styles.fechaColumna}>
+                  <span className={esRetrasado(p) ? styles.recibidoRetrasado : undefined}>{etiquetaRecibido(p.fecha)}</span>
+                  <span className={styles.fechaSecundaria}>{p.fecha}</span>
+                </div>
+              ),
+            },
+            { clave: 'total', etiqueta: 'Total' },
+            { clave: 'estadoPago', etiqueta: 'Pago', render: (p) => <EstadoBadge estado={p.estadoPago} /> },
+            { clave: 'estadoEnvio', etiqueta: 'Estado', render: (p) => <EstadoPedidoBadge estado={p.estadoEnvio} /> },
           ]}
-          filas={pedidos}
+          filas={filtrados}
+          filaNueva={(p) => p.nuevo}
+          resaltarFila={esRetrasado}
+          resaltarFilaVerde={(p) => p.estadoEnvio === 'Entregado'}
+          porPagina={15}
           hrefFila={(p) => `/admin/pedidos/${p.id}`}
-          // El backend calcula el retraso; no se recalcula por fecha en el cliente.
-          resaltarFila={(p) => p.conRetraso}
+          renderAcciones={(p) => <BotonFila href={`/admin/pedidos/${p.id}`}>Ver</BotonFila>}
         />
       ) : (
-        <GridPedidos filas={pedidos} hrefFila={(p) => `/admin/pedidos/${p.id}`} />
-      )}
-
-      {paginas > 1 && (
-        <div className={styles.paginacion}>
-          <button
-            type="button"
-            className={styles.paginaBoton}
-            onClick={() => setPagina((n) => Math.max(1, n - 1))}
-            disabled={pagina <= 1 || cargando}
-            aria-label="Página anterior"
-          >
-            <ChevronLeft size={16} aria-hidden="true" />
-          </button>
-          <span className={styles.paginaTexto}>Página {pagina} de {paginas}</span>
-          <button
-            type="button"
-            className={styles.paginaBoton}
-            onClick={() => setPagina((n) => Math.min(paginas, n + 1))}
-            disabled={pagina >= paginas || cargando}
-            aria-label="Página siguiente"
-          >
-            <ChevronRight size={16} aria-hidden="true" />
-          </button>
-        </div>
+        <GridPedidos
+          filas={filtrados}
+          hrefFila={(p) => `/admin/pedidos/${p.id}`}
+          porPagina={12}
+        />
       )}
     </div>
   );

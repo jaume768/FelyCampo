@@ -10,14 +10,14 @@ export default {
       description: 'Array con todas las tallas disponibles a mostrar, ej. [36,38,40,42,44] (escala Fely Campo, 36 a 64).',
     },
     agotadas: {
-      description: 'Array con las tallas sin stock — se muestran tachadas y deshabilitadas.',
+      description: 'Array con las tallas de stock bajo — se muestran con menos opacidad, pero siguen siendo clicables.',
     },
     seleccionada: {
       control: 'text',
       description: 'Talla actualmente seleccionada (controla qué botón se marca como activo).',
     },
     onSelect: {
-      description: 'Evento que se dispara al elegir una talla no agotada.',
+      description: 'Evento que se dispara al elegir cualquier talla, agotada o no — quien use el componente decide qué hacer en cada caso.',
     },
     colapsarEnUnaFila: {
       description: 'Con más tallas de las que caben en una fila, colapsa a la primera + un chip "+" para desplegar el resto (por defecto true).',

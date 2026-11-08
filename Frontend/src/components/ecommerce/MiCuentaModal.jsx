@@ -24,21 +24,16 @@
    patrón que cualquier login/registro estándar. Cada apertura empieza
    en "login".
 
-   CONECTADO de verdad: POST /auth/login/ y /auth/register/, sesión por
-   COOKIE (aquí no se guarda ninguna credencial, ni en localStorage ni
-   en memoria). Al entrar se manda el X-Cart-Id del invitado para que el
-   backend FUSIONE su carrito con el del usuario.
-
-   Dos cambios obligados respecto al diseño de partida:
-     · El registro ahora pide CONTRASEÑA. El backend la exige, y sin
-       ella no hay alta posible.
-     · La FECHA DE NACIMIENTO se ha quitado: `accounts.User` no tiene
-       ese campo, así que pedirla era pedir un dato que se tiraba.
-   El nombre completo se parte en nombre + apellidos, que es como lo
-   guarda el modelo (`first_name` / `last_name`).
-
-   Verificación de correo: el registro dispara el correo con el enlace,
-   pero NO bloquea nada — se puede entrar y comprar sin confirmarlo.
+   PLACEHOLDER a propósito, a petición: solo diseño, sin lógica de
+   autenticación todavía (eso es trabajo del programador que conecte
+   esto a un backend real). Los campos son inputs sueltos sin estado
+   (ni value/onChange); los dos "submit" (formulario + Google) llevan
+   preventDefault y navegan directamente a /mi-cuenta/panel como
+   demostración de "inicio de sesión con éxito" — no comprueban
+   credenciales de verdad (la página del panel se quitó el 2026-11-07:
+   sin tienda online; /mi-cuenta/panel redirige a Prêt-à-porter).
+   Registro: nombre completo + fecha de nacimiento + email, nada más (a
+   petición) — sin contraseña aquí; login: email + contraseña.
    Uso:
      <MiCuentaModal />
    ============================================================ */
@@ -66,70 +61,19 @@ function IconoGoogle() {
 function MiCuentaModal() {
   const t = useTranslations('miCuenta');
   const locale = useLocale();
-  const { abierta, cerrar, iniciarSesion, registrarse } = useMiCuenta();
+  const { abierta, cerrar } = useMiCuenta();
   const cerrarRef = useRef(null);
   const [modo, setModo] = useState('login');
   const esLogin = modo === 'login';
   const tabIndexInteractivo = abierta ? 0 : -1;
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [nombreCompleto, setNombreCompleto] = useState('');
-  const [enviando, setEnviando] = useState(false);
-  // Errores del backend por campo, traducidos donde los conocemos.
-  const [errores, setErrores] = useState({});
-  const [errorGeneral, setErrorGeneral] = useState(null);
-
-  /** Traduce lo que sabemos nombrar; deja pasar el texto del backend si es más preciso. */
-  const traducirError = (clave) => {
-    if (clave === 'errorRed') return t('errorRed');
-    if (clave === 'demasiadosIntentos') return t('demasiadosIntentos');
-    return clave;
-  };
-
-  const alEnviar = async (evento) => {
+  // Placeholder de "éxito" — ver comentario de arriba: sin backend
+  // todavía, cualquier envío del formulario (o de Google) navega
+  // directamente al panel de clienta, igual que un login/registro real
+  // haría tras autenticar.
+  const alEnviarConExito = (evento) => {
     evento.preventDefault();
-    setErrores({});
-    setErrorGeneral(null);
-
-    if (!email.trim() || !password) {
-      setErrores({
-        ...(email.trim() ? {} : { email: [t('campoObligatorio')] }),
-        ...(password ? {} : { password: [t('campoObligatorio')] }),
-      });
-      return;
-    }
-
-    setEnviando(true);
-    // El nombre se parte por el primer espacio: el modelo guarda nombre y apellidos
-    // aparte, y pedirlos en un solo campo era la forma del diseño, no del dato.
-    const [nombre, ...resto] = nombreCompleto.trim().split(/\s+/);
-    const resultado = esLogin
-      ? await iniciarSesion(email.trim(), password)
-      : await registrarse({
-        email: email.trim(),
-        password,
-        nombre: nombre ?? '',
-        apellidos: resto.join(' '),
-      });
-    setEnviando(false);
-
-    if (resultado.ok) {
-      // Recarga completa a propósito: el sitio navega con <a> normales y así todo
-      // (Navbar, carrito) se repinta ya con la sesión iniciada.
-      window.location.href = `/${locale}/mi-cuenta/panel`;
-      return;
-    }
-
-    // Campo a campo cuando el backend lo detalla; si no, un mensaje general.
-    if (resultado.detalles && Object.keys(resultado.detalles).length) setErrores(resultado.detalles);
-    else setErrorGeneral(traducirError(resultado.mensaje));
-  };
-
-  const errorDe = (campo) => {
-    const valor = errores[campo];
-    if (!valor) return null;
-    return Array.isArray(valor) ? String(valor[0]) : String(valor);
+    window.location.href = `/${locale}/mi-cuenta/panel`;
   };
 
   // Foco en cerrar + sin scroll de la página detrás mientras está
@@ -174,80 +118,44 @@ function MiCuentaModal() {
 
       <div className={styles.layout}>
         <div className={styles.imagenPanel}>
-          <img src="/img/felycampo-lacoleccion-3.webp" alt="" className={styles.imagen} />
+          <img src="/img/atelier/fely-campo-atelier-login.webp" alt="" className={styles.imagen} loading="lazy" decoding="async" />
         </div>
 
         <div className={styles.formPanel}>
           <div className={styles.formContenedor}>
             <div className={styles.cabecera}>
-              <h1 className={styles.titulo}>{esLogin ? t('tituloLogin') : t('tituloRegistro')}</h1>
+              <h2 className={styles.titulo}>{esLogin ? t('tituloLogin') : t('tituloRegistro')}</h2>
               <p className={styles.subtitulo}>{esLogin ? t('subtituloLogin') : t('subtituloRegistro')}</p>
             </div>
 
-            <form className={styles.form} onSubmit={alEnviar}>
-              {/* El nombre solo se pide al registrarse. La fecha de nacimiento se quitó:
-                  `accounts.User` no la tiene, así que era un dato que se tiraba. */}
-              {!esLogin && (
-                <Input
-                  etiqueta={t('nombreCompleto')}
-                  tipo="text"
-                  nombre="nombreCompleto"
-                  placeholder={t('nombreCompletoPlaceholder')}
-                  valor={nombreCompleto}
-                  onChange={(e) => setNombreCompleto(e.target.value)}
-                  autoComplete="name"
-                  tabIndex={tabIndexInteractivo}
-                />
+            <form className={styles.form} onSubmit={alEnviarConExito}>
+              {esLogin ? (
+                <>
+                  <Input etiqueta={t('email')} tipo="email" nombre="email" placeholder={t('emailPlaceholder')} tabIndex={tabIndexInteractivo} />
+                  <Input etiqueta={t('password')} tipo="password" nombre="password" tabIndex={tabIndexInteractivo} />
+                </>
+              ) : (
+                <>
+                  <Input etiqueta={t('nombreCompleto')} tipo="text" nombre="nombreCompleto" placeholder={t('nombreCompletoPlaceholder')} tabIndex={tabIndexInteractivo} />
+                  <Input etiqueta={t('fechaNacimiento')} tipo="date" nombre="fechaNacimiento" tabIndex={tabIndexInteractivo} />
+                  <Input etiqueta={t('email')} tipo="email" nombre="email" placeholder={t('emailPlaceholder')} tabIndex={tabIndexInteractivo} />
+                </>
               )}
 
-              <Input
-                etiqueta={t('email')}
-                tipo="email"
-                nombre="email"
-                placeholder={t('emailPlaceholder')}
-                valor={email}
-                onChange={(e) => setEmail(e.target.value)}
-                error={errorDe('email')}
-                autoComplete="email"
-                tabIndex={tabIndexInteractivo}
-              />
-
-              {/* Obligatoria también al registrarse: el backend la exige. */}
-              <Input
-                etiqueta={t('password')}
-                tipo="password"
-                nombre="password"
-                valor={password}
-                onChange={(e) => setPassword(e.target.value)}
-                error={errorDe('password')}
-                autoComplete={esLogin ? 'current-password' : 'new-password'}
-                tabIndex={tabIndexInteractivo}
-              />
-
-              {errorGeneral && <p className={styles.error} role="alert">{errorGeneral}</p>}
-              {errorDe('non_field_errors') && (
-                <p className={styles.error} role="alert">{errorDe('non_field_errors')}</p>
-              )}
-
-              <Boton variante="solido" tamano="full" type="submit" desactivado={enviando} tabIndex={tabIndexInteractivo}>
-                {enviando ? t('enviando') : (esLogin ? t('enviarLogin') : t('enviarRegistro'))}
+              <Boton variante="solido" tamano="full" type="submit" tabIndex={tabIndexInteractivo}>
+                {esLogin ? t('enviarLogin') : t('enviarRegistro')}
               </Boton>
             </form>
 
-            {/* Entrar con Google NO está implementado: no hay OAuth en el backend. El
-                botón se deja visible pero inerte y explicado, en vez de fingir que
-                autentica y llevar al panel sin haber comprobado nada. */}
             <button
               type="button"
               className={styles.googleBtn}
-              disabled
-              title={t('googleNoDisponible')}
-              tabIndex={-1}
+              onClick={alEnviarConExito}
+              tabIndex={tabIndexInteractivo}
             >
               <IconoGoogle />
               {t('google')}
             </button>
-            <p className={styles.nota}>{t('googleNoDisponible')}</p>
 
             <p className={styles.cambiarModo}>
               {esLogin ? t('preguntaRegistro') : t('preguntaLogin')}{' '}

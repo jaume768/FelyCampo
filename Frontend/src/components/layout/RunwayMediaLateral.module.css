@@ -3,10 +3,24 @@
    ============================================================ */
 
 .medio {
+  position: relative;
   flex: 1;
   min-height: 0;
   width: 100%;
   overflow: hidden;
+}
+
+/* Degradado oscuro de arriba abajo, solo cuando el medio es el hero
+   de la página (dentro de [data-navbar-hero]): ahí el Navbar va
+   transparente y en claro (.header.transparent.light) encima de la
+   foto, y sin esto sus enlaces/logo no se leen si la imagen es clara.
+   Ya transparente al 35% del alto — no oscurece el resto de la foto. */
+[data-navbar-hero] .medio::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(0 0 0 / 0.3) 0%, rgb(0 0 0 / 0) 35%);
+  pointer-events: none;
 }
 
 .media {

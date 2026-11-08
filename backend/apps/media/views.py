@@ -7,6 +7,7 @@ from apps.core.exceptions import BusinessRuleError
 
 from .models import MediaAsset
 from .serializers import MediaAssetSerializer, MediaUploadSerializer
+from .variants import delete_variants
 
 
 class MediaAssetViewSet(AdminModelViewSet):
@@ -41,6 +42,7 @@ class MediaAssetViewSet(AdminModelViewSet):
             )
         # Borra los ficheros del storage antes de la fila: si el storage falla, mejor
         # dejar un archivo huérfano en disco que una fila sin archivo detrás.
+        delete_variants(instance.file.name)
         instance.file.delete(save=False)
         if instance.thumbnail:
             instance.thumbnail.delete(save=False)

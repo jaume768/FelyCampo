@@ -2,12 +2,19 @@
    LOOK DE PASARELA (placeholder) — Fely Campo
    ============================================================ */
 
+/* Ahora vive fuera de .info, en .debajoFicha justo encima de
+   ResenasClientes (ver tienda/[producto]/page.js) — alineado a la
+   derecha (align-items:flex-end, antes flex-start) en vez de pegado al
+   margen izquierdo del contenedor a todo el ancho. */
 .lookPasarela {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: var(--spacing-3);
-  margin-top: var(--spacing-10);
+  margin-top: var(--spacing-4);
+  margin-bottom: var(--spacing-10);
+  padding-top: var(--spacing-4);
+  padding-inline: var(--spacing-8);
 }
 
 /* Mismo tratamiento que .texto de Boton.module.css (mayúsculas,
@@ -17,15 +24,14 @@
   display: inline-block;
   color: var(--color-tinta);
   font-size: var(--text-label);
-  text-transform: uppercase;
   letter-spacing: var(--tracking-label);
 }
 
-/* Tamaño fijo: nunca más ancho que 200px ni con otra proporción que
+/* Tamaño fijo: nunca más ancho que 210px ni con otra proporción que
    3/4, sea cual sea la imagen real que acabe llegando aquí. */
 .marco {
-  width: 160px;
-  max-width: 160px;
+  width: 210px;
+  max-width: 210px;
   aspect-ratio: 3 / 4;
   overflow: hidden;
   background: var(--color-crema);
@@ -37,4 +43,22 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* Mobile: centrado (no a la derecha) y con fondo sólido propio —
+   mismo criterio que .info/.debajoFicha en page.module.css, que ya
+   llevan --color-fondo para taparse frente a la galería fija de
+   GaleriaProducto en mobile. */
+@media (max-width: 767px) {
+  .lookPasarela {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-4);
+    margin-bottom: var(--spacing-10);
+    padding-top: var(--spacing-10);
+    padding-inline: var(--spacing-8);
+    background: var(--color-fondo);
+  }
 }

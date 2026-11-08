@@ -6,9 +6,14 @@
 
 /* Sustituye a .tamanoDefault de Modal.module.css (520px): esta es la
    única variante de Modal que necesita ir más ancha, para que quepan
-   las dos columnas (foto + texto) sin apretarlas. */
+   las dos columnas (foto + texto) sin apretarlas — pero no tanto como
+   antes (720px): con solo título+botón de contenido, un panel tan
+   ancho dejaba un hueco enorme y vacío en la columna de texto (ver
+   .columnaTexto más abajo, antes con min-height 380 + space-between
+   "estirando" ese hueco en vez de dejar que el contenido marque el
+   alto real). */
 .panel {
-  max-width: 720px;
+  max-width: 700px;
 }
 
 /* Pasada a Modal como "classNameContenido" — sin padding, para que la
@@ -17,13 +22,17 @@
   padding: 0;
 }
 
+/* height fija en desktop (antes: alto natural del contenido, ver
+   comentario de .columnaTexto más abajo) — un popup compacto en vez de
+   a media pantalla. object-fit:cover en .imagen ya recorta la foto a
+   esta altura sin deformarla. */
 .contenido {
   display: flex;
-  min-height: 380px;
+  height: 330px;
 }
 
 .columnaImagen {
-  flex: 0 0 60%;
+  flex: 0 0 50%;
   align-self: stretch;
   background: var(--color-crema);
 }
@@ -35,56 +44,171 @@
   object-fit: cover;
 }
 
-/* Columna de texto: título arriba, subtexto+botón abajo — el hueco
-   grande del medio es simplemente "justify-content: space-between"
-   sobre la altura que marca .contenido (min-height), no un spacer fijo.
+/* Columna de texto: con .contenido a 330px fijos (ver arriba), título
+   arriba y formulario/consentimiento pegados abajo (margin-top:auto en
+   .filaNewsletterWrap) reparten el espacio sobrante — .columnaImagen
+   (align-self:stretch) sigue ajustándose a esta columna, no al revés.
    Único sitio con padding de las dos columnas — la imagen va a sangre. */
 .columnaTexto {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: var(--spacing-5);
-  padding: var(--spacing-4);
+  gap: var(--spacing-2);
+  padding: var(--spacing-5);
 }
 
 .titulo {
-  max-width: 22ch;
   font-size: var(--text-h4);
   font-weight: var(--font-weight-medium);
   line-height: var(--leading-tight);
-  text-transform: uppercase;
   letter-spacing: var(--tracking-label);
   color: var(--color-tinta);
 }
 
-.filaInferior {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+/* Bajo el título — texto normal (ni mayúsculas ni tracking de
+   .titulo), alineado a la izquierda igual que el resto de la columna
+   (title-case/uppercase es solo para .titulo, no aquí). */
+.subtitulo {
+  font-size: var(--text-caption);
+  line-height: var(--leading-tight);
+  color: var(--color-gris-600);
+  text-align: left;
 }
 
-.boton {
+/* margin-block: auto (arriba Y abajo, no solo margin-top) en vez de
+   justify-content:space-between en .columnaTexto — el bloque de
+   newsletter queda centrado en el espacio sobrante bajo título+
+   subtítulo, no pegado al fondo, sin necesitar una altura mínima
+   artificial para que el efecto funcione. */
+.filaNewsletterWrap {
+  margin-block: auto;
+  padding-top: auto;
+}
+
+/* Mismo input+botón+consentimiento que Footer.module.css
+   (.filaNewsletter/.formNewsletter/.input/.botonEnviar/.estado/
+   .consentimiento), pero en columna (no en fila como en el footer):
+   el formulario y el botón "Enviar" apilados, cada uno a todo el
+   ancho de la columna (align-items:stretch, valor por defecto de
+   flex-direction:column, así que .formNewsletter/.botonEnviar no
+   necesitan su propio width:100%). */
+.filaNewsletter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.formNewsletter {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--color-gris-500);
+  padding: var(--spacing-2);
+}
+
+.formNewsletter:focus-within {
+  border-bottom-color: var(--color-tinta);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  padding: 4px 4px;
+  font-family: var(--font-base);
+  font-size: var(--text-small);
+}
+
+.input::placeholder {
+  color: var(--color-gris-500);
+}
+
+/* .boton.s (Boton.module.css) pone padding:0px 28px, sin padding
+   vertical — de ahí el botón "fino". Selector duplicado
+   (.botonEnviar.botonEnviar) para ganarle especificidad a esa regla de
+   dos clases sin depender del orden de carga entre los dos módulos
+   CSS (mismo truco que .atelierPedirCita en atelier/page.module.css). */
+.botonEnviar.botonEnviar {
   flex-shrink: 0;
+  padding-block: var(--spacing-2);
+}
+
+.estado {
+  font-size: var(--text-caption);
+  margin-top: var(--spacing-3);
+}
+.estadoExito { color: var(--color-verde); }
+.estadoError { color: var(--color-rojo); }
+
+/* Bloque propio para "No, gracias", separado de .filaNewsletterWrap
+   (que centra formulario+consentimiento en el hueco bajo el título) y
+   empujado al fondo de .columnaTexto con margin-top:auto, igual que
+   .filaNewsletterWrap se centra con margin-block:auto. */
+.pie {
+  margin-top: auto;
+}
+
+.consentimiento {
+  font-size: var(--text-caption);
+  color: var(--color-gris-600);
+  line-height: var(--leading-base);
+  text-align: center;
+}
+
+/* "No, gracias" — mismo onCerrar que la X del Modal (ver
+   NewsletterModal.jsx), una segunda salida junto al formulario en vez
+   de solo el icono de la esquina. Texto discreto, no un Boton: no
+   compite en peso visual con "Enviar". */
+.noGracias {
+  width: 100%;
+  margin-top: var(--spacing-1);
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-base);
+  font-size: var(--text-label);
+  color: var(--color-gris-500);
+  text-decoration: underline;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.25s var(--ease-marca);
+  letter-spacing: var(--tracking-label);
+}
+.noGracias:hover {
+  color: var(--color-tinta);
 }
 
 @media (max-width: 767px) {
+  /* height:330px es del layout de dos columnas en escritorio — en
+     mobile las columnas se apilan (columnaImagen ya fija su propia
+     altura de 200px más abajo) y el texto necesita su alto natural
+     debajo, así que se anula aquí. */
   .contenido {
     flex-direction: column;
-    min-height: 0;
+    height: auto;
   }
 
   .columnaImagen {
     flex: none;
-    height: 220px;
+    height: 200px;
   }
 
-  .titulo {
-    max-width: none;
+  .columnaTexto {
+    padding: var(--spacing-5);
   }
 
-  .boton {
-    width: 100%;
+  /* X de cerrar (botón .cerrar de ui/Modal.jsx, primer hijo del panel):
+     en mobile, encima de la foto no se veía — a petición, fuera del
+     panel, justo encima de su esquina derecha, en claro sobre el velo
+     oscuro. Cabe en el padding superior de .contenedor (32px en mobile,
+     ver Modal.module.css). */
+  .panel > button:first-child {
+    top: auto;
+    bottom: 100%;
+    right: 0;
+    height: var(--spacing-6);
+    color: var(--color-crema); /* mismo claro que el texto sobre el hero */
   }
 }

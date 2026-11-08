@@ -46,6 +46,18 @@
   overflow: hidden;
 }
 
+/* Velo oscuro muy suave, siempre (a petición): separa la foto (fondo
+   blanco) del fondo blanco de la página. Encima de las dos imágenes
+   (base y hover) y sin capturar clics. Mismo valor en la galería de la
+   ficha (GaleriaProducto.module.css, .imagenBoton::after). */
+.recorte::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+}
+
 .imagen {
   position: absolute;
   inset: 0;
@@ -97,6 +109,15 @@
   font-size: var(--text-small);
   font-weight: var(--font-weight-medium);
   color: var(--color-tinta);
+}
+
+/* Segunda línea opcional bajo .nombre (prop "subtitulo" en
+   TarjetaProducto.jsx) — más pequeña y más suave, para que se lea como
+   dato secundario (ej. la colección de un look de Fiesta). */
+.subtitulo {
+  font-size: var(--text-caption);
+  color: var(--color-tinta);
+  opacity: 0.7;
 }
 
 .precios {

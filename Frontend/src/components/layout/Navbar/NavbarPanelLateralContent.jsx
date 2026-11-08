@@ -14,8 +14,11 @@ import styles from './NavbarPanelLateralContent.module.css';
  * en Navbar.jsx). Específico del Navbar (sabe de locales, traducciones
  * y la forma de SUBMENU_STRUCTURE) — a diferencia de MediaLink y
  * PanelLateral, que son genéricos y viven en ui/.
+ * "onItemHover" (opcional): avisa al Navbar del enlace con el ratón (o
+ * el foco) encima, para cambiar la imagen de la derecha a la suya
+ * ("image" de cada item, ver SUBMENU_STRUCTURE).
  */
-function NavbarPanelLateralContent({ submenuKey, submenu }) {
+function NavbarPanelLateralContent({ submenuKey, submenu, onItemHover }) {
   const t = useTranslations('nav');
   const locale = useLocale();
   const pathname = usePathname();
@@ -38,8 +41,13 @@ function NavbarPanelLateralContent({ submenuKey, submenu }) {
         ].filter(Boolean).join(' ');
 
         return (
-          <li key={link.href}>
-            <a href={withLocale(link.href)} className={clase}>
+          <li key={link.href} className={link.separador ? styles.itemSeparador : undefined}>
+            <a
+              href={withLocale(link.href)}
+              className={clase}
+              onMouseEnter={() => onItemHover?.(link)}
+              onFocus={() => onItemHover?.(link)}
+            >
               {t(`submenus.${submenuKey}.${link.labelKey || link.key}`)}
             </a>
           </li>

@@ -1,0 +1,41 @@
+/* ============================================================
+   ESTADO BADGE — ver EstadoBadge.jsx. Mismo aspecto que el estado de
+   los listados (ListadoAdmin.module.css .estado) y que EstadoPedidoBadge.
+   ============================================================ */
+
+.badge {
+  display: inline-block;
+  min-width: 76px;
+  padding: 2px var(--spacing-2);
+  font-family: var(--font-base);
+  font-size: var(--text-nano);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.verde {
+  background: var(--color-verde-velo, #E6F4EA);
+  color: var(--color-verde-oscuro, #1E6B34);
+}
+
+.rosa {
+  background: var(--color-rosa-velo, rgb(232 160 180 / 18%));
+  color: var(--color-rosa-oscuro);
+}
+
+.amarillo {
+  background: var(--color-amarillo-velo);
+  color: var(--color-amarillo-oscuro);
+}
+
+.gris {
+  background: var(--color-gris-100);
+  color: var(--color-gris-600);
+}
+
+.tachado {
+  background: var(--color-gris-100);
+  color: var(--color-gris-500);
+  text-decoration: line-through;
+}

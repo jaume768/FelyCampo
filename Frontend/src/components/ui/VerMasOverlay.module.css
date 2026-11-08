@@ -27,7 +27,7 @@
 }
 
 /* Mismo lenguaje que <Boton variante="solido">: fondo tinta, icono
-   crema, hover a rosa — pero como botón compacto, no como pill de
+   crema, hover a gris oscuro (nunca rosa) — pero como botón compacto, no como pill de
    texto. */
 .boton {
   display: inline-flex;
@@ -39,7 +39,7 @@
   transition: background-color 0.25s var(--ease-marca);
 }
 .boton:hover {
-  background: var(--color-rosa);
+  background: var(--color-gris-700); /* nunca rosa al hover/clic */
 }
 
 .flecha {

@@ -1,0 +1,276 @@
+/* ============================================================
+   ARTÍCULO DE BLOG — Fely Campo
+   .hero/.textoDescripcion/.textoRow calcados 1:1 de
+   ../../app/[locale]/colecciones-fely-campo/[coleccion]/page.module.css
+   (misma ficha de colección de Runway) — .pagina, a diferencia de
+   antes, ya NO lleva padding-inline propio: el hero necesita ir a
+   sangre de lado a lado, así que el padding horizontal se queda en
+   .textoDescripcion/.cuerpo, cada uno el suyo.
+   .cuerpo no tiene max-width propio: cada bloque decide el suyo
+   (texto siempre a --max-texto/centrado, igual que RunwayDescripcion;
+   imágenes hasta --max-contenido, sin recortar — igual que
+   RunwayBackstage) para poder intercalar fotos anchas entre párrafos
+   sin romper la columna de lectura.
+   ============================================================ */
+
+.pagina {
+  padding-block: 0 var(--spacing-10);
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.textoDescripcion {
+  width: 100%;
+}
+
+/* Solo icono (flecha), sobre el hero — mismo patrón que .volver en
+   BlogPodcast.module.css: debajo de la Navbar transparente de esta
+   página (ver "esHeroBlog" en ../../app/[locale]/layout.js), crema
+   para leerse sobre cualquier foto. */
+.volver {
+  position: absolute;
+  top: calc(var(--nav-height) + var(--spacing-4));
+  left: var(--spacing-7);
+  z-index: 2;
+  display: flex;
+  color: var(--color-crema);
+  opacity: 0.85;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.volver:hover {
+  opacity: 1;
+}
+
+.textoRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-inline: var(--spacing-6);
+  padding-block: var(--spacing-6);
+}
+
+.tituloHero {
+  max-width: var(--max-texto);
+  font-size: var(--text-titulo);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+  color: var(--color-tinta);
+}
+
+.metaHero {
+  font-size: var(--text-detalle);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+  white-space: nowrap;
+}
+
+.cuerpo {
+  padding-inline: var(--spacing-7);
+  margin-top: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-7);
+}
+
+/* ---------- Sección de texto: un "titulo" y los "parrafo" que le
+   siguen, agrupados en un único <div> (ver agruparEnSecciones en
+   BlogArticulo.jsx) — el ancho/centrado vive aquí, no repetido en
+   .tituloSeccion/.parrafo por separado. */
+.seccion {
+  max-width: var(--max-texto);
+  margin-inline: auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+/* ---------- Bloque "parrafo" ---------- */
+.parrafo {
+  white-space: pre-wrap; /* respeta los saltos de línea y espacios escritos en el admin */
+  font-size: var(--text-texto); /* 13px, como el resto de textos largos (RunwayDescripcion, /sobre-fely) */
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+  text-align: justify;
+}
+
+/* ---------- Bloque "titulo" (subtítulo de sección) ---------- */
+.tituloSeccion {
+  font-size: var(--text-titulo);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+  color: var(--color-tinta);
+}
+
+/* ---------- Bloque "cita" (voz propia, serif — igual que
+   BlogCampana/--font-editorial) — sin borde, centrada, no a la
+   izquierda como los párrafos normales. */
+.cita {
+  max-width: var(--max-texto);
+  margin-inline: auto;
+  width: 100%;
+  text-align: center;
+}
+
+.cita p {
+  white-space: pre-wrap;
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: var(--text-titulo);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+}
+
+.citaAutor {
+  display: block;
+  margin-top: var(--spacing-2);
+  font-style: normal;
+  font-size: var(--text-texto);
+  color: var(--color-tinta);
+}
+
+/* ---------- Bloque "imagen" — foto suelta, contenida (nunca
+   recortada), tope de alto 90vh: fotos muy verticales no se comen la
+   pantalla entera. Sin fondo propio (background:none): si la foto no
+   llena el ancho por el tope de alto, se ve el fondo de la página. ---------- */
+.imagenBloque {
+  max-width: var(--max-contenido);
+  margin-inline: auto;
+  width: 100%;
+  background: none;
+  text-align: center;
+}
+
+.imagenBloque img {
+  display: inline-block;
+  max-width: 100%;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.imagenCaption {
+  margin-top: var(--spacing-2);
+  font-size: var(--text-detalle);
+  color: var(--color-gris-500);
+  text-align: center;
+}
+
+/* ---------- Bloque "galeria" — LA pieza "imágenes debajo del texto"
+   del patrón repetible (texto → galería → texto → galería...), 2/3/4
+   columnas (bloque.columnas, ver BlogArticulo.jsx) ---------- */
+.galeria {
+  max-width: var(--max-contenido);
+  margin-inline: auto;
+  width: 100%;
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.galeria2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.galeria3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.galeria4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.galeriaItem img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---------- Bloque "video" — maqueta visual, ver nota en
+   BlogArticulo.jsx (sin archivo de vídeo real que incrustar) ---------- */
+.video {
+  max-width: var(--max-contenido);
+  margin-inline: auto;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-3);
+  background: var(--color-gris-100);
+  color: var(--color-gris-400);
+}
+
+.videoCaption {
+  font-size: var(--text-detalle);
+  color: var(--color-gris-500);
+}
+
+@media (max-width: 767px) {
+  .pagina {
+    padding-block: 0 var(--spacing-9);
+  }
+
+  .hero {
+    height: auto;
+  }
+
+  .volver {
+    top: calc(var(--nav-height) + var(--spacing-2));
+    left: var(--spacing-4);
+  }
+
+  .textoRow {
+    flex-direction: column;
+    gap: var(--spacing-2);
+    padding-inline: var(--spacing-4);
+    padding-block: var(--spacing-4);
+  }
+
+  .tituloHero {
+    font-size: var(--text-titulo);
+  }
+
+  .cuerpo {
+    padding-inline: var(--spacing-5);
+    margin-top: var(--spacing-4);
+    gap: var(--spacing-6);
+  }
+
+  .parrafo {
+    font-size: var(--text-texto);
+    text-align: left;
+  }
+
+  .tituloSeccion {
+    font-size: var(--text-titulo);
+  }
+
+  .cita p {
+    font-size: var(--text-titulo);
+  }
+
+  /* 4 columnas pasa a 2, 2 y 3 pasan a 1 — a 4 en una sola columna
+     cada foto quedaría demasiado estrecha para que se lea bien. */
+  .galeria {
+    gap: var(--spacing-4);
+  }
+
+  .galeria2,
+  .galeria3 {
+    grid-template-columns: 1fr;
+  }
+
+  .galeria4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

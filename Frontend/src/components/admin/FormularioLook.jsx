@@ -14,7 +14,7 @@
    Colores / Tejidos y Composición / Productos vinculados, tratando el
    look como un mini-producto: Nombre/Descripción con SelectorIdioma
    (mismo límite conocido que FormularioProducto — solo se guarda `.es`,
-   ver docs/adminpanel.md sección 5), Colores/Telas del mismo look con
+   ver docs/ADMIN.md sección 5), Colores/Telas del mismo look con
    los mismos selectores de chip que un producto, cada uno en su propia
    sección (no combinados en un "Campos específicos" único) para que
    añadir un color/tela nuevo desde aquí sea fácil de encontrar (sin

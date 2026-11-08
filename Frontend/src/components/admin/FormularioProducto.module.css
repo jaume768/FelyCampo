@@ -656,26 +656,6 @@
   color: var(--color-fondo);
 }
 
-/* Bloque "Cuidados" — varias categorías (Lavado, Blanqueo...) apiladas,
-   cada una con su propia etiqueta pequeña y rejilla de instrucciones
-   (mismo .telaChip/.telasGrid, selección múltiple). */
-.cuidadosLista {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-}
-
-.cuidadoCategoria {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.cuidadoCategoriaTitulo {
-  font-size: var(--text-caption);
-  color: var(--color-gris-500);
-}
-
 .telaChipNombre {
   display: block;
   font-family: var(--font-base);

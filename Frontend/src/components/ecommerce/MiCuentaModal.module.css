@@ -94,7 +94,7 @@
   max-width: 400px;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-6);
+  gap: var(--spacing-4);
 }
 
 .cabecera {
@@ -132,9 +132,10 @@
   background: var(--color-fondo);
   color: var(--color-tinta);
   font-family: var(--font-base);
-  font-size: var(--text-small);
+  font-size: var(--text-label);
   cursor: pointer;
   transition: border-color 0.25s var(--ease-marca);
+  letter-spacing: var(--tracking-label);
 }
 
 .googleBtn:hover {
@@ -152,7 +153,7 @@
    al hover, sin desplazar el layout. */
 .cambiarModoBtn {
   font-family: var(--font-base);
-  font-size: var(--text-small);
+  font-size: var(--text-label);
   font-weight: var(--font-weight-medium);
   color: var(--color-tinta);
   background: none;
@@ -163,6 +164,7 @@
   text-decoration-color: transparent;
   text-underline-offset: var(--spacing-1);
   transition: text-decoration-color 0.25s var(--ease-marca);
+  letter-spacing: var(--tracking-label);
 }
 
 .cambiarModoBtn:hover {
@@ -186,22 +188,4 @@
   .formPanel {
     padding: var(--spacing-6) var(--spacing-4);
   }
-}
-
-.error {
-  margin: 0;
-  font-size: 0.8125rem;
-  color: var(--color-rosa-oscuro, #c2185f);
-}
-
-.nota {
-  margin: 8px 0 0;
-  font-size: 0.75rem;
-  text-align: center;
-  color: var(--color-gris-500, #757575);
-}
-
-.googleBtn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
 }

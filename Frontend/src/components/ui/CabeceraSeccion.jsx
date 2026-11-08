@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import styles from './CabeceraSeccion.module.css';
 import collectionTitleStyles from './CollectionTitle.module.css';
+import useEnVista from '@/hooks/useEnVista';
 
 /**
  * Cabecera de sección: grupo título (subtítulo pequeño opcional +
@@ -46,24 +47,45 @@ import collectionTitleStyles from './CollectionTitle.module.css';
  *
  * "margenSuperiorAmplio" (opcional, false por defecto): margin-top
  * var(--spacing-6) en vez del var(--spacing-4) normal de .cabecera —
- * la pasa /atelier/vosotras/page.js, único consumidor (sin
- * ProductHero encima que ya aporte separación propia, a diferencia de
- * Novias/Fiesta).
+ * la pasa GaleriaVosotras.jsx (única consumidora, para /atelier/vosotras,
+ * reenviada desde su page.js) sin ProductHero encima que ya aporte
+ * separación propia, a diferencia de Novias/Fiesta.
+ *
+ * "className" (opcional): clases extra en el contenedor raíz, además de
+ * .cabecera/.cabeceraProductos/.cabeceraInicio — para un ajuste puntual
+ * de una página concreta sin tocar el CSS compartido (ver
+ * .cabeceraColumna en visita-fely-campo/page.module.css).
+ *
+ * "title" (opcional): igual que "description" para el título — texto ya
+ * resuelto (lib/cabeceras.js, editable en el admin) en vez de "titleKey".
+ *
+ * "description" (opcional): texto YA resuelto para el idioma actual,
+ * en vez de una clave de traducción — para contenido largo/propio de
+ * cada página que vive en un archivo de datos JS, no en
+ * messages/{locale}.json (ej. el primer párrafo de cada ficha en
+ * src/datos/ateliers.js). Tiene prioridad sobre "descriptionKey"
+ * si se pasan los dos (no debería darse en la práctica).
  *
  * Uso:
  *   <CabeceraSeccion titleKey="cuadriculaProductos.novedades">
  *     <Boton variante="flecha" href="/coleccion">Ver colección</Boton>
  *   </CabeceraSeccion>
  */
-function CabeceraSeccion({ subtitleKey, titleKey, descriptionKey, breadcrumbItems, children, before, alinear = 'end', enCuadricula = false, margenSuperiorAmplio = false }) {
+function CabeceraSeccion({ subtitleKey, titleKey, title, descriptionKey, description, breadcrumbItems, children, before, alinear = 'end', enCuadricula = false, margenSuperiorAmplio = false, className }) {
   const t = useTranslations();
+  // Solo el texto (título/subtítulo/descripción) aparece con scroll —
+  // ver .al-scroll/.en-vista en global.css — no toda la cabecera
+  // (incluidos "before"/"children", ej. el botón Filtros de
+  // CuadriculaProductos, que deben estar listos para usarse ya).
+  const [ref, enVista] = useEnVista();
 
   const claseCabecera = enCuadricula ? styles.cabeceraProductos : styles.cabecera;
+  const textoDescripcion = description || (descriptionKey && t(descriptionKey));
 
   return (
-    <div className={`${claseCabecera} ${alinear === 'start' ? styles.cabeceraInicio : ''} ${margenSuperiorAmplio ? styles.margenSuperiorAmplio : ''}`}>
+    <div className={`${claseCabecera} ${alinear === 'start' ? styles.cabeceraInicio : ''} ${margenSuperiorAmplio ? styles.margenSuperiorAmplio : ''} ${className || ''}`}>
       {before}
-      <div className={styles.tituloGrupo}>
+      <div ref={ref} className={`${styles.tituloGrupo} al-scroll ${enVista ? 'en-vista' : ''}`}>
         {breadcrumbItems ? (
           <nav aria-label={t('breadcrumb.ariaLabel')} className={styles.subtitle}>
             <ol className={styles.migaLista}>
@@ -75,10 +97,10 @@ function CabeceraSeccion({ subtitleKey, titleKey, descriptionKey, breadcrumbItem
             </ol>
           </nav>
         ) : (
-          subtitleKey && <h2 className={styles.subtitle}>{t(subtitleKey)}</h2>
+          subtitleKey && <p className={styles.subtitle}>{t(subtitleKey)}</p>
         )}
-        <p className={collectionTitleStyles.titulo}>{t(titleKey)}</p>
-        {descriptionKey && <p className={styles.descripcion}>{t(descriptionKey)}</p>}
+        <h2 className={collectionTitleStyles.titulo}>{title || t(titleKey)}</h2>
+        {textoDescripcion && <p className={styles.descripcion}>{textoDescripcion}</p>}
       </div>
       {children}
     </div>

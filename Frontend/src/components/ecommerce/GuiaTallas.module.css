@@ -14,7 +14,6 @@
   font-size: var(--text-h4);
   font-weight: var(--font-weight-medium);
   color: var(--color-tinta);
-  text-transform: uppercase;
 }
 
 .cerrar {
@@ -66,7 +65,6 @@
 .etiquetaSeccion {
   font-size: var(--text-caption);
   font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
   color: var(--color-gris-700);
 }
 
@@ -75,7 +73,6 @@
 .unidad {
   font-family: var(--font-base);
   font-size: var(--text-small);
-  text-transform: uppercase;
   letter-spacing: var(--tracking-label);
   color: var(--color-tinta);
 }
@@ -122,6 +119,10 @@
    GaleriaProducto/GaleriaProductoLightbox. */
 .tablaScroll {
   overflow-x: auto;
+  /* Solo el gesto horizontal es del carrusel: sin scroll vertical propio,
+     un deslizamiento vertical en mobile mueve la página. */
+  overflow-y: hidden;
+  touch-action: pan-x pan-y;
   scrollbar-width: none;
 }
 
@@ -190,15 +191,13 @@
 .subtitulo {
   font-size: var(--text-caption);
   font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
   color: var(--color-gris-700);
 }
 
 .ilustracion {
+  display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: contain;
-  background: var(--color-crema);
+  height: auto;
 }
 
 /* Sin numeración de <ol> nativa (list-style:none) — el número lo pinta

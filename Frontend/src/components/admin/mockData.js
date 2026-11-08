@@ -5,6 +5,10 @@
 // panel se vea coherente con la web, no con placeholders genéricos.
 
 import { TALLAS_DISPONIBLES } from '@/components/ecommerce/guiaTallasData';
+import { categoriasAdminFiesta, obtenerColeccionesFiesta } from '@/lib/catalogoFiesta';
+import { categoriasAdminNovias, obtenerColeccionesNovias } from '@/lib/catalogoNovias';
+import { categoriasAdminPretAPorter } from '@/lib/pretAPorter';
+import { categoriasAdminRunway } from '@/lib/runway';
 
 // ---------- PRODUCTOS ----------
 // tipo: 'pret-a-porter' | 'atelier' | 'archivo'
@@ -63,98 +67,9 @@ export const coleccionesMock = [
 // estos ids (colorIds/telaIds) en vez de escribir hex/nombre a mano cada
 // vez, así el mismo color/tela se ve igual en todas las fichas.
 
-// Familias de color (grupos) — el picker de FormularioProducto.jsx/
-// GestorColores.jsx/FormularioLook.jsx agrupa coloresMock bajo estas
-// cabeceras, y el desplegable de "añadir color nuevo" solo permite
-// encajarlo en una de estas familias existentes (no crea familias nuevas).
-// `muestras`: 1-2 ids de coloresMock elegidos a mano por familia (no los
-// primeros de la lista sin más) para que el par de cuadraditos junto al
-// nombre del grupo sea reconocible de un vistazo — p.ej. "reds" enseña
-// rojo pasión + burdeos, no dos tonos casi iguales.
-export const familiasColorMock = [
-  { id: 'neutrals', etiqueta: 'Neutros', muestras: ['black', 'optic-white'] },
-  { id: 'browns', etiqueta: 'Marrones', muestras: ['camel', 'chocolate'] },
-  { id: 'reds', etiqueta: 'Rojos y vinos', muestras: ['passion-red', 'bordeaux'] },
-  { id: 'pinks', etiqueta: 'Rosas y fucsias', muestras: ['fuchsia', 'baby-pink'] },
-  { id: 'oranges', etiqueta: 'Naranjas', muestras: ['orange', 'terracotta'] },
-  { id: 'yellows', etiqueta: 'Amarillos y dorados', muestras: ['mustard', 'pastel-yellow'] },
-  { id: 'greens', etiqueta: 'Verdes', muestras: ['emerald', 'olive-green'] },
-  { id: 'blues', etiqueta: 'Azules', muestras: ['navy', 'sky-blue'] },
-  { id: 'purples', etiqueta: 'Morados', muestras: ['violet', 'lilac-lavender'] },
-  { id: 'coolGreys', etiqueta: 'Grises fríos', muestras: ['silver', 'ice-grey'] },
-];
-
-// Cada color pertenece a una familia (`familia`, id de familiasColorMock)
-// y lleva nombre bilingüe — se usa `nombre.es` en el nombre de archivo de
-// imagen (ver nombreArchivoImagen en FormularioProducto.jsx) y ambos en el
-// chip del picker.
-export const coloresMock = [
-  // Neutros
-  { id: 'black', familia: 'neutrals', nombre: { es: 'Negro', en: 'Black' }, hex: '#111111' },
-  { id: 'optic-white', familia: 'neutrals', nombre: { es: 'Blanco óptico', en: 'Optic White' }, hex: '#FAFAF7' },
-  { id: 'ivory', familia: 'neutrals', nombre: { es: 'Marfil', en: 'Ivory' }, hex: '#F3EDE1' },
-  { id: 'ecru', familia: 'neutrals', nombre: { es: 'Crudo', en: 'Ecru' }, hex: '#EDE7DA' },
-  { id: 'pearl-grey', familia: 'neutrals', nombre: { es: 'Gris perla', en: 'Pearl Grey' }, hex: '#CFCCC6' },
-  { id: 'stone-grey', familia: 'neutrals', nombre: { es: 'Gris piedra', en: 'Stone Grey' }, hex: '#A8A29A' },
-  { id: 'taupe', familia: 'neutrals', nombre: { es: 'Topo', en: 'Taupe' }, hex: '#8E7F6E' },
-  { id: 'anthracite', familia: 'neutrals', nombre: { es: 'Antracita', en: 'Anthracite' }, hex: '#4A4A48' },
-  // Marrones
-  { id: 'sand', familia: 'browns', nombre: { es: 'Arena', en: 'Sand' }, hex: '#D8CBB4' },
-  { id: 'beige', familia: 'browns', nombre: { es: 'Beige', en: 'Beige' }, hex: '#D9C7A9' },
-  { id: 'nude', familia: 'browns', nombre: { es: 'Nude', en: 'Nude' }, hex: '#E3C4A8' },
-  { id: 'camel', familia: 'browns', nombre: { es: 'Camel', en: 'Camel' }, hex: '#C19A6B' },
-  { id: 'bronze', familia: 'browns', nombre: { es: 'Bronce', en: 'Bronze' }, hex: '#8C6A3F' },
-  { id: 'chocolate', familia: 'browns', nombre: { es: 'Chocolate', en: 'Chocolate' }, hex: '#4B3621' },
-  // Rojos y vinos
-  { id: 'coral', familia: 'reds', nombre: { es: 'Coral', en: 'Coral' }, hex: '#E0715A' },
-  { id: 'brick', familia: 'reds', nombre: { es: 'Teja', en: 'Brick' }, hex: '#A34A2A' },
-  { id: 'passion-red', familia: 'reds', nombre: { es: 'Rojo pasión', en: 'Passion Red' }, hex: '#B21F2D' },
-  { id: 'bordeaux', familia: 'reds', nombre: { es: 'Burdeos', en: 'Bordeaux' }, hex: '#6E1E2B' },
-  { id: 'wine', familia: 'reds', nombre: { es: 'Vino', en: 'Wine' }, hex: '#4A0E1E' },
-  // Rosas y fucsias
-  { id: 'baby-pink', familia: 'pinks', nombre: { es: 'Rosa baby', en: 'Baby Pink' }, hex: '#F7D6DE' },
-  { id: 'quartz-pink', familia: 'pinks', nombre: { es: 'Rosa cuarzo', en: 'Quartz Pink' }, hex: '#F0C4CC' },
-  { id: 'dusty-rose', familia: 'pinks', nombre: { es: 'Rosa palo', en: 'Dusty Rose' }, hex: '#D9B8B2' },
-  { id: 'powder-pink', familia: 'pinks', nombre: { es: 'Rosa empolvado', en: 'Powder Pink' }, hex: '#E7C6CC' },
-  { id: 'bubblegum-pink', familia: 'pinks', nombre: { es: 'Rosa chicle', en: 'Bubblegum Pink' }, hex: '#E8749A' },
-  { id: 'fuchsia', familia: 'pinks', nombre: { es: 'Fucsia', en: 'Fuchsia' }, hex: '#B03060' },
-  { id: 'plum', familia: 'pinks', nombre: { es: 'Ciruela', en: 'Plum' }, hex: '#5A2A4A' },
-  // Naranjas
-  { id: 'peach', familia: 'oranges', nombre: { es: 'Melocotón', en: 'Peach' }, hex: '#F6C8A8' },
-  { id: 'terracotta', familia: 'oranges', nombre: { es: 'Terracota', en: 'Terracotta' }, hex: '#B5623C' },
-  { id: 'orange', familia: 'oranges', nombre: { es: 'Naranja', en: 'Orange' }, hex: '#E0722F' },
-  { id: 'rust', familia: 'oranges', nombre: { es: 'Óxido', en: 'Rust' }, hex: '#9E4A24' },
-  // Amarillos y dorados
-  { id: 'pastel-yellow', familia: 'yellows', nombre: { es: 'Amarillo pastel', en: 'Pastel Yellow' }, hex: '#F3E6A8' },
-  { id: 'vanilla', familia: 'yellows', nombre: { es: 'Vainilla', en: 'Vanilla' }, hex: '#EFE3B0' },
-  { id: 'mustard', familia: 'yellows', nombre: { es: 'Mostaza', en: 'Mustard' }, hex: '#C99A2E' },
-  { id: 'gold-champagne', familia: 'yellows', nombre: { es: 'Oro / Champán', en: 'Gold / Champagne' }, hex: '#C6A664' },
-  // Verdes
-  { id: 'mint-green', familia: 'greens', nombre: { es: 'Verde menta', en: 'Mint Green' }, hex: '#C6E6D4' },
-  { id: 'pistachio-green', familia: 'greens', nombre: { es: 'Verde pistacho', en: 'Pistachio Green' }, hex: '#BCCB8E' },
-  { id: 'sage-green', familia: 'greens', nombre: { es: 'Verde salvia', en: 'Sage Green' }, hex: '#9DA88C' },
-  { id: 'khaki', familia: 'greens', nombre: { es: 'Caqui', en: 'Khaki' }, hex: '#7C7A53' },
-  { id: 'olive-green', familia: 'greens', nombre: { es: 'Verde oliva', en: 'Olive Green' }, hex: '#6B6A3A' },
-  { id: 'emerald', familia: 'greens', nombre: { es: 'Esmeralda', en: 'Emerald' }, hex: '#0F5C43' },
-  { id: 'petrol', familia: 'greens', nombre: { es: 'Petróleo', en: 'Petrol' }, hex: '#1E4D4A' },
-  { id: 'bottle-green', familia: 'greens', nombre: { es: 'Verde botella', en: 'Bottle Green' }, hex: '#14342B' },
-  // Azules
-  { id: 'baby-blue', familia: 'blues', nombre: { es: 'Azul baby', en: 'Baby Blue' }, hex: '#CFE3F2' },
-  { id: 'sky-blue', familia: 'blues', nombre: { es: 'Azul cielo', en: 'Sky Blue' }, hex: '#A9CFE8' },
-  { id: 'light-blue', familia: 'blues', nombre: { es: 'Azul celeste', en: 'Light Blue' }, hex: '#7FB3D8' },
-  { id: 'denim', familia: 'blues', nombre: { es: 'Denim', en: 'Denim' }, hex: '#4A6B8A' },
-  { id: 'klein-blue', familia: 'blues', nombre: { es: 'Azul klein', en: 'Klein Blue' }, hex: '#1B2A78' },
-  { id: 'navy', familia: 'blues', nombre: { es: 'Azul marino', en: 'Navy' }, hex: '#1F2A44' },
-  // Morados
-  { id: 'lilac-lavender', familia: 'purples', nombre: { es: 'Lila / Lavanda', en: 'Lilac / Lavender' }, hex: '#D6C8E8' },
-  { id: 'mauve', familia: 'purples', nombre: { es: 'Malva', en: 'Mauve' }, hex: '#8E7C93' },
-  { id: 'violet', familia: 'purples', nombre: { es: 'Violeta', en: 'Violet' }, hex: '#6A4B8C' },
-  { id: 'aubergine', familia: 'purples', nombre: { es: 'Berenjena', en: 'Aubergine' }, hex: '#3E2A44' },
-  // Grises fríos
-  { id: 'ice-grey', familia: 'coolGreys', nombre: { es: 'Gris hielo', en: 'Ice Grey' }, hex: '#E2E6EA' },
-  { id: 'blue-grey', familia: 'coolGreys', nombre: { es: 'Azul grisáceo', en: 'Blue Grey' }, hex: '#B9C4CC' },
-  { id: 'silver', familia: 'coolGreys', nombre: { es: 'Plata', en: 'Silver' }, hex: '#C4C7CC' },
-];
+// Paleta de colores: movida a src/lib/paletaColores.js (datos públicos,
+// ver su cabecera). Reexportada aquí para que el admin no cambie.
+export { familiasColorMock, coloresMock } from '@/lib/paletaColores';
 
 export const telasMock = [
   { id: 'tel1', nombre: 'Jacquard floral', composicion: '70% algodón, 30% poliéster' },
@@ -162,60 +77,6 @@ export const telasMock = [
   { id: 'tel3', nombre: 'Encaje francés', composicion: '60% algodón, 40% nylon' },
   { id: 'tel4', nombre: 'Gasa de seda', composicion: '100% seda' },
   { id: 'tel5', nombre: 'Popelín', composicion: '97% algodón, 3% elastano' },
-];
-
-// ---------- CUIDADOS (etiqueta de conservación) ----------
-// Lista maestra oficial (careInstructionsMaster) — 5 categorías estándar
-// de una etiqueta textil, cada instrucción con nombre bilingüe (mismo
-// criterio que coloresMock: `texto.es`/`texto.en`, no un string suelto).
-// `id` reutiliza el `code` de la lista maestra en vez de generar uno
-// nuevo, para poder cruzar contra la fuente original si hace falta.
-export const categoriasCuidadoMock = [
-  { id: 'washing', etiqueta: { es: 'Lavado', en: 'Washing' } },
-  { id: 'bleaching', etiqueta: { es: 'Blanqueo', en: 'Bleaching' } },
-  { id: 'drying', etiqueta: { es: 'Secado', en: 'Drying' } },
-  { id: 'ironing', etiqueta: { es: 'Planchado', en: 'Ironing' } },
-  { id: 'professionalCleaning', etiqueta: { es: 'Limpieza profesional', en: 'Professional cleaning' } },
-];
-
-export const cuidadosMock = [
-  // Lavado
-  { id: 'wash_95', categoria: 'washing', texto: { es: 'Lavar a máquina máx. 95 °C', en: 'Machine wash max. 95 °C' } },
-  { id: 'wash_60', categoria: 'washing', texto: { es: 'Lavar a máquina máx. 60 °C', en: 'Machine wash max. 60 °C' } },
-  { id: 'wash_60_mild', categoria: 'washing', texto: { es: 'Lavar a máquina máx. 60 °C, ciclo suave', en: 'Machine wash max. 60 °C, mild' } },
-  { id: 'wash_40', categoria: 'washing', texto: { es: 'Lavar a máquina máx. 40 °C', en: 'Machine wash max. 40 °C' } },
-  { id: 'wash_40_mild', categoria: 'washing', texto: { es: 'Lavar a máquina máx. 40 °C, ciclo suave', en: 'Machine wash max. 40 °C, mild' } },
-  { id: 'wash_40_verymild', categoria: 'washing', texto: { es: 'Lavar a máquina máx. 40 °C, muy suave', en: 'Machine wash max. 40 °C, very mild' } },
-  { id: 'wash_30', categoria: 'washing', texto: { es: 'Lavar a máquina máx. 30 °C', en: 'Machine wash max. 30 °C' } },
-  { id: 'wash_30_mild', categoria: 'washing', texto: { es: 'Lavar a máquina máx. 30 °C, ciclo suave', en: 'Machine wash max. 30 °C, mild' } },
-  { id: 'wash_hand', categoria: 'washing', texto: { es: 'Lavar a mano máx. 40 °C', en: 'Hand wash max. 40 °C' } },
-  { id: 'wash_no', categoria: 'washing', texto: { es: 'No lavar', en: 'Do not wash' } },
-  // Blanqueo
-  { id: 'bleach_any', categoria: 'bleaching', texto: { es: 'Se puede usar lejía', en: 'Bleach allowed' } },
-  { id: 'bleach_oxygen', categoria: 'bleaching', texto: { es: 'Solo blanqueo con oxígeno / sin cloro', en: 'Oxygen/non-chlorine bleach only' } },
-  { id: 'bleach_no', categoria: 'bleaching', texto: { es: 'No usar lejía', en: 'Do not bleach' } },
-  // Secado
-  { id: 'tumble_normal', categoria: 'drying', texto: { es: 'Secar en secadora, temperatura normal', en: 'Tumble dry, normal' } },
-  { id: 'tumble_low', categoria: 'drying', texto: { es: 'Secar en secadora, temperatura baja', en: 'Tumble dry, low heat' } },
-  { id: 'tumble_no', categoria: 'drying', texto: { es: 'No usar secadora', en: 'Do not tumble dry' } },
-  { id: 'dry_line', categoria: 'drying', texto: { es: 'Secar tendido', en: 'Line dry' } },
-  { id: 'dry_flat', categoria: 'drying', texto: { es: 'Secar en horizontal', en: 'Dry flat' } },
-  { id: 'dry_drip', categoria: 'drying', texto: { es: 'Secar sin escurrir', en: 'Drip dry' } },
-  { id: 'dry_shade', categoria: 'drying', texto: { es: 'Secar a la sombra', en: 'Dry in shade' } },
-  // Planchado
-  { id: 'iron_high', categoria: 'ironing', texto: { es: 'Planchar máx. 200 °C (alta)', en: 'Iron max. 200 °C (high)' } },
-  { id: 'iron_medium', categoria: 'ironing', texto: { es: 'Planchar máx. 150 °C (media)', en: 'Iron max. 150 °C (medium)' } },
-  { id: 'iron_low', categoria: 'ironing', texto: { es: 'Planchar máx. 110 °C (baja)', en: 'Iron max. 110 °C (low)' } },
-  { id: 'iron_no_steam', categoria: 'ironing', texto: { es: 'Planchar sin vapor', en: 'Iron without steam' } },
-  { id: 'iron_no', categoria: 'ironing', texto: { es: 'No planchar', en: 'Do not iron' } },
-  // Limpieza profesional
-  { id: 'dryclean_p', categoria: 'professionalCleaning', texto: { es: 'Limpieza en seco con percloroetileno', en: 'Dry clean, perchloroethylene' } },
-  { id: 'dryclean_p_mild', categoria: 'professionalCleaning', texto: { es: 'Limpieza en seco (perclo), proceso suave', en: 'Dry clean, PCE, mild process' } },
-  { id: 'dryclean_f', categoria: 'professionalCleaning', texto: { es: 'Limpieza en seco con hidrocarburos', en: 'Dry clean, hydrocarbons only' } },
-  { id: 'dryclean_f_mild', categoria: 'professionalCleaning', texto: { es: 'Limpieza en seco (hidrocarburos), suave', en: 'Dry clean, hydrocarbons, mild' } },
-  { id: 'dryclean_no', categoria: 'professionalCleaning', texto: { es: 'No limpiar en seco', en: 'Do not dry clean' } },
-  { id: 'wetclean_w', categoria: 'professionalCleaning', texto: { es: 'Limpieza profesional en húmedo', en: 'Professional wet clean' } },
-  { id: 'wetclean_no', categoria: 'professionalCleaning', texto: { es: 'No usar limpieza en húmedo', en: 'Do not wet clean' } },
 ];
 
 export const productosMock = [
@@ -266,7 +127,7 @@ export const productosMock = [
     nombre: 'Vestido Elena',
     descripcionCorta: 'Vestido de novia a medida, encaje francés y cola desmontable.',
     imagen: '/img/novias-sección-FelyCampo2.jpg',
-    imagenes: ['/img/novias-sección-FelyCampo2.jpg', '/img/novias-sección-FelyCampo3.jpg'],
+    imagenes: ['/img/novias-sección-FelyCampo2.jpg', '/img/fely-campo-web-novias-seccion-3.webp'],
     precio: 'Desde 2.400 €',
     colorIds: ['ivory'],
     telaIds: ['tel3'],
@@ -316,7 +177,7 @@ export const productosMock = [
   {
     id: 'p7',
     tipo: 'pret-a-porter',
-    categoriaId: 'cat1',
+    categoriaId: 'cat8',
     nombre: 'Abrigo Nieve',
     descripcionCorta: 'Abrigo oversize en paño de lana, colección Otoño-Invierno 2027.',
     imagen: '/img/abrigos-2026.jpg',
@@ -426,8 +287,8 @@ export const productosMock = [
     categoriaId: 'cat3',
     nombre: 'Vestido Alba',
     descripcionCorta: 'Vestido de novia a medida, en preparación para el lanzamiento.',
-    imagen: '/img/novias-sección-FelyCampo3.jpg',
-    imagenes: ['/img/novias-sección-FelyCampo3.jpg'],
+    imagen: '/img/fely-campo-web-novias-seccion-3.webp',
+    imagenes: ['/img/fely-campo-web-novias-seccion-3.webp'],
     precio: 'Desde 2.100 €',
     colorIds: ['ivory'],
     telaIds: ['tel4'],
@@ -500,6 +361,107 @@ export const productosMock = [
     coleccion: 'fw26',
     estado: 'Programado',
     sku: 'FC-ARC-N26',
+  },
+  // p19-p23: cat7 (Tops y Camisas), cat8 (Chaquetas y Abrigos) y cat36
+  // (Pantalones) no tenían ningún producto todavía — cuadrícula vacía en
+  // /admin/productos/pret-a-porter para esas 3 secciones. Fotos/nombre/
+  // precio/color tomados tal cual de tiendaProductos.js (catálogo real de
+  // /pret-a-porter), así el panel enseña de dónde sale cada pieza.
+  {
+    id: 'p19',
+    tipo: 'pret-a-porter',
+    categoriaId: 'cat7',
+    nombre: 'Top Ubud',
+    descripcionCorta: 'Top Ubud de cuerpo pellizcado color rojo y negro.',
+    imagen: '/img/ecommerce/tops-y-camisas/top-ubud-felycampo-front.jpg',
+    imagenes: ['/img/ecommerce/tops-y-camisas/top-ubud-felycampo-front.jpg'],
+    precio: '350 €',
+    tallas: [
+      { talla: 42, stock: 4 },
+    ],
+    colorIds: ['black'],
+    telaIds: ['tel3'],
+    estado: 'Activo',
+    coleccion: 'ss26',
+    sku: 'MBO2723',
+  },
+  {
+    id: 'p20',
+    tipo: 'pret-a-porter',
+    categoriaId: 'cat7',
+    nombre: 'Top Encaje París',
+    descripcionCorta: 'Top Encaje París de encaje en diversos colores.',
+    imagen: '/img/ecommerce/tops-y-camisas/top-encaje-rosa-front.jpg',
+    imagenes: ['/img/ecommerce/tops-y-camisas/top-encaje-rosa-front.jpg', '/img/ecommerce/tops-y-camisas/top-encaje-rosa-back.jpg'],
+    precio: '350 €',
+    tallas: [
+      { talla: 42, stock: 6 },
+    ],
+    colorIds: ['fuchsia', 'bordeaux', 'black'],
+    telaIds: ['tel3'],
+    estado: 'Activo',
+    coleccion: 'ss26',
+    sku: 'MBO2746',
+  },
+  {
+    id: 'p21',
+    tipo: 'pret-a-porter',
+    categoriaId: 'cat8',
+    nombre: 'Chaqueta Samarcanda',
+    descripcionCorta: 'Chaqueta Samarcanda a cuadros marrón y negro.',
+    imagen: '/img/ecommerce/chaquetas-y-abrigos/MBO3739-chaquetacuadros-felycampo-front.jpg',
+    imagenes: ['/img/ecommerce/chaquetas-y-abrigos/MBO3739-chaquetacuadros-felycampo-front.jpg', '/img/ecommerce/chaquetas-y-abrigos/MBO3739-chaquetacuadros-felycampo-back.jpg'],
+    precio: '600 €',
+    tallas: [
+      { talla: 38, stock: 2 },
+    ],
+    colorIds: ['chocolate'],
+    telaIds: ['tel5'],
+    estado: 'Activo',
+    coleccion: 'FW27',
+    sku: 'MBO3739',
+  },
+  {
+    id: 'p22',
+    tipo: 'pret-a-porter',
+    categoriaId: 'cat8',
+    nombre: 'Abrigo Copenhague',
+    descripcionCorta: 'Abrigo Copenhague de lana color rosa palo.',
+    imagen: '/img/ecommerce/chaquetas-y-abrigos/abrigo-lana-felycampo-front.jpg',
+    imagenes: [
+      '/img/ecommerce/chaquetas-y-abrigos/abrigo-lana-felycampo-front.jpg',
+      '/img/ecommerce/chaquetas-y-abrigos/abrigo-lana-felycampo-back.jpg',
+      '/img/ecommerce/chaquetas-y-abrigos/fely-campo-pret-a-porter-chaquetas-y-abrigos-abrigo-lana-model.webp',
+    ],
+    precio: '600 €',
+    tallas: [
+      { talla: 38, stock: 3 },
+    ],
+    colorIds: ['dusty-rose'],
+    telaIds: ['tel5'],
+    estado: 'Borrador',
+    coleccion: 'FW27',
+    sku: 'FC-CHA-COP',
+  },
+  {
+    id: 'p23',
+    tipo: 'pret-a-porter',
+    categoriaId: 'cat36',
+    nombre: 'Pantalón Goree',
+    descripcionCorta: 'Pantalón Goree a rayas color antracita.',
+    imagen: '/img/ecommerce/pantalones/MBO2724-pantalon-raya-front.jpg',
+    imagenes: ['/img/ecommerce/pantalones/MBO2724-pantalon-raya-front.jpg', '/img/ecommerce/pantalones/MBO2724-pantalon-raya-back.jpg'],
+    precio: '450 €',
+    tallas: [
+      { talla: 38, stock: 3 },
+      { talla: 40, stock: 2 },
+      { talla: 42, stock: 0 },
+    ],
+    colorIds: ['anthracite'],
+    telaIds: ['tel5'],
+    estado: 'Activo',
+    coleccion: 'ss26',
+    sku: 'MBO2724',
   },
 ];
 
@@ -653,107 +615,116 @@ export const consultasMock = [
   },
 ];
 
-// ---------- CONSULTAS DE PRECIO (Atelier — "Precio a consultar") ----------
-// Atelier no lleva precio visible en la ficha pública: en su lugar hay un
-// botón "Precio a consultar" que deja estos datos de contacto. `clienteId`
-// solo se rellena cuando quien pregunta ya es cliente registrado — así la
-// misma consulta aparece también en su ficha (/admin/clientes/[id]). Las
-// demás son visitantes sin cuenta que igualmente dejaron sus datos.
+// ---------- CITAS (formulario real de /visita-fely-campo/cita) ----------
+// Mismos campos que envía ese formulario a /api/cita (ver route.js):
+// fecha de la boda, nombre, email,
+// teléfono, código postal, ciudad, mensaje, idioma y la casilla de
+// privacidad/términos (aceptaLegal, obligatoria). "recibida" es cuándo
+// llegó; "estado" y "notas" son solo del admin. De EJEMPLO: hoy la API
+// solo envía emails, no guarda nada — cuando haya base de datos, estas
+// filas saldrán de ahí.
+export const ESTADOS_CITA = ['Pendiente', 'Contactada', 'Cita confirmada', 'Cerrada'];
+
+export const citasMock = [
+  // Misma forma que lo que envía el formulario de cita de la web
+  // (/visita-fely-campo/cita → /api/cita): nombre completo, email,
+  // teléfono, atelier elegido ("ubicacion"), fecha del evento (mes y año,
+  // "2027-06"), mensaje, idioma y la casilla de privacidad. "estado" lo
+  // pone el equipo.
+  {
+    id: 'cita-3',
+    recibida: '2026-11-05T11:15',
+    nombre: 'Carmen Ruiz Alonso',
+    email: 'carmen.ruiz@example.com',
+    telefono: '+34 611 223 344',
+    ubicacion: 'oviedo',
+    fechaEvento: '2027-09',
+    mensaje: 'Soy madrina en septiembre y busco un vestido largo en tonos verdes.',
+    locale: 'es',
+    aceptaLegal: true,
+    estado: 'Pendiente',
+  },
+  {
+    id: 'cita-2',
+    recibida: '2026-10-26T18:42',
+    nombre: 'Lucía Hernández Prieto',
+    email: 'lucia.hernandez@example.com',
+    telefono: '+34 600 112 233',
+    ubicacion: 'salamanca',
+    fechaEvento: '2027-06',
+    mensaje: 'Me caso en junio y me gustaría ver vestidos de novia de corte sencillo, con algo de espalda.',
+    locale: 'es',
+    aceptaLegal: true,
+    estado: 'Contactada',
+  },
+  {
+    id: 'cita-1',
+    recibida: '2026-10-20T09:30',
+    nombre: 'Emma Wilson',
+    email: 'emma.wilson@example.com',
+    telefono: '+44 7700 900123',
+    ubicacion: 'madrid',
+    fechaEvento: '2027-07',
+    mensaje: 'I will be in Madrid in November and would love to try on bridal dresses.',
+    locale: 'en',
+    aceptaLegal: true,
+    estado: 'Cita confirmada',
+  },
+];
+
+// ---------- CONSULTAS DE VESTIDOS ("Contacta con nosotros" → modal "Solicita información") ----------
+// Mismos campos que envía ModalSolicitudAtelier.jsx a /api/consulta-vestido:
+// tipo (novias|fiesta, sacado de la URL de la ficha), vestido (producto),
+// su foto (imagen), color elegido (+ colorHex), ruta de la ficha, nombre,
+// email, teléfono (opcional), comentario (mensaje, opcional), idioma
+// (locale) y la casilla de privacidad (aceptaLegal). "recibida" es cuándo
+// llegó; "estado" (los mismos que Citas, ESTADOS_CITA) y las notas son
+// solo del admin. De EJEMPLO: hoy la API solo envía emails, no guarda
+// nada — cuando haya base de datos, estas filas saldrán de ahí.
+// Antes "Consultas de precio" (botón "Precio a consultar" + clienteId de
+// clientes registrados, que el front no tiene) — sustituido a petición.
 
 export const consultasPrecioMock = [
   {
-    id: 'cp1',
-    producto: 'Vestido Elena',
-    color: 'Marfil',
-    fecha: '2026-08-05',
-    nombre: 'Marta Ibáñez',
-    email: 'marta.ibanez@example.com',
-    telefono: '+34 611 222 333',
-    clienteId: 'cl1',
+    id: 'cv-2',
+    recibida: '2026-10-26T12:15',
+    tipo: 'fiesta',
+    producto: 'Look 6 26_Opaline',
+    imagen: '/img/collections/fiesta/primavera-verano-26/fely-campo-coleccion-fiesta-primavera-verano-26-2526-45.webp',
+    color: 'Verde agua',
+    colorHex: '#9FC9C1',
+    ruta: '/es/atelier/fiesta/look-6-26-opaline',
+    nombre: 'Carmen Ortega',
+    email: 'carmen.ortega@example.com',
+    telefono: '+34 611 445 566',
+    mensaje: 'Soy madrina en mayo y me encanta este vestido. ¿Se puede hacer en un tono más oscuro?',
+    locale: 'es',
+    aceptaLegal: true,
     estado: 'Pendiente',
-    mensaje: 'Me gustaría saber el precio para talla M en color crema.',
   },
   {
-    id: 'cp2',
-    producto: 'Vestido Celeste',
-    color: 'Azul marino',
-    fecha: '2026-08-06',
-    nombre: 'Alicia Ferrer',
-    email: 'alicia.ferrer@example.com',
-    telefono: '+34 622 333 444',
-    clienteId: null,
-    estado: 'Pendiente',
-    mensaje: '¿Podríais confirmarme disponibilidad y precio para septiembre?',
-    notasInternas: 'Enviado presupuesto por email, pendiente de respuesta.',
-  },
-  {
-    id: 'cp3',
-    producto: 'Vestido Alba',
-    color: 'Rosa empolvado',
-    fecha: '2026-08-02',
-    nombre: 'Beatriz Soler',
-    email: 'beatriz.soler@example.com',
-    telefono: '+34 633 444 555',
-    clienteId: 'cl6',
-    estado: 'Contactado',
-    mensaje: '',
-  },
-  {
-    id: 'cp4',
-    producto: 'Vestido Perla',
-    color: null,
-    fecha: '2026-07-28',
-    nombre: 'Noelia Ruiz',
-    email: 'noelia.ruiz@example.com',
-    telefono: '+34 644 555 666',
-    clienteId: null,
-    estado: 'Contactado',
-    mensaje: 'Interesada en la colección de novias 2026.',
-  },
-  {
-    id: 'cp5',
-    producto: 'Vestido Luna',
-    color: 'Burdeos',
-    fecha: '2026-08-09',
-    nombre: 'Carmen Vidal',
-    email: 'carmen.vidal@example.com',
-    telefono: '+34 655 666 777',
-    clienteId: 'cl7',
-    estado: 'Pendiente',
-    mensaje: '',
-  },
-  {
-    id: 'cp6',
-    producto: 'Vestido Nube',
-    color: null,
-    fecha: '2026-08-11',
-    nombre: 'Cristina Ferrer',
-    email: 'cristina.ferrer@example.com',
-    telefono: '+34 666 777 888',
-    clienteId: null,
-    estado: 'Pendiente',
-    mensaje: '¿Este modelo se puede confeccionar en manga larga?',
-    nuevo: true, // placeholder de diseño — ver AdminSidebar "nuevos: 2"; sin lógica real de "visto" detrás
-  },
-  {
-    id: 'cp7',
-    producto: 'Vestido Alba',
-    color: null,
-    fecha: '2026-08-12',
-    nombre: 'Irene Vázquez',
-    email: 'irene.vazquez@example.com',
-    telefono: '+34 677 888 999',
-    clienteId: null,
-    estado: 'Pendiente',
-    mensaje: '¿Podríais decirme el precio y los plazos de entrega para este vestido?',
-    nuevo: true,
+    id: 'cv-1',
+    recibida: '2026-10-21T19:40',
+    tipo: 'novias',
+    producto: 'Look 2 - Bride 27',
+    imagen: '/img/collections/novia/bride-27/fely-campo-coleccion-novia-bride-27-look-2.webp',
+    color: '',
+    colorHex: '',
+    ruta: '/en/atelier/novias/look-2-bride-27',
+    nombre: 'Sophie Clarke',
+    email: 'sophie.clarke@example.com',
+    telefono: '',
+    mensaje: 'I am getting married in Spain next September. Could you tell me more about this dress and the fitting process?',
+    locale: 'en',
+    aceptaLegal: true,
+    estado: 'Contactada',
   },
 ];
 
 // ---------- RESEÑAS ----------
 // `productoId` (FK real a productosMock) sustituye a la antigua
 // `productoRelacionado` (nombre en texto libre) — misma relación frágil
-// que ya se corrigió en otros sitios del panel (ver docs/adminpanel.md
+// que ya se corrigió en otros sitios del panel (ver docs/ADMIN.md
 // sección 7 punto 4). Con producto vinculado, la ficha/tabla puede
 // enseñar SKU + foto del producto, no solo el nombre.
 // `clienteId` (FK real a clientesMock) — todas las reseñas vienen de una
@@ -775,7 +746,7 @@ export const resenasMock = [
     valoracion: 5,
     fecha: '2026-07-10',
     estado: 'Publicada',
-    foto: '/img/Clientes/ClientReview- (1).jpg',
+    foto: '/img/Clientes/fely-campo-invitadas-reales-clientreview-1.webp',
     productoId: 'p1',
   },
   {
@@ -786,7 +757,7 @@ export const resenasMock = [
     valoracion: 5,
     fecha: '2026-06-28',
     estado: 'Publicada',
-    foto: '/img/Clientes/vestido-2clienta.JPG',
+    foto: '/img/Clientes/fely-campo-invitadas-reales-vestido-2clienta.webp',
     productoId: 'p3',
   },
   {
@@ -850,125 +821,24 @@ export function codigoTemporada(temporada) {
   return `${estacion === 'Otoño-Invierno' ? 'AW' : 'SS'}${anioFinal}`;
 }
 
-// Looks de "La Colección" (cat11, FW27) — únicamente imágenes, el resto
-// de datos de cada look (nombre real, descripción, colores, telas) los
-// completa el admin a mano desde FormularioLook. 34 fotos en
-// public/img/collections/runway/FW27-lacoleccion (FelyCampo_01..34.webp),
-// una por look, en orden.
-const looksLaColeccion = Array.from({ length: 34 }, (_, i) => ({
-  nombre: `Look ${i + 1}`,
-  imagenes: [`/img/collections/runway/FW27-lacoleccion/FelyCampo_${String(i + 1).padStart(2, '0')}.webp`],
-}));
+// (Los looks de ejemplo de Runway y Novias que había aquí ya no hacen
+// falta: el menú sale de los datos reales, ver categoriasMock.)
 
 export const categoriasMock = {
-  'pret-a-porter': [
-    { id: 'cat7', nombre: 'Tops y Camisas', visible: true, orden: 1 },
-    { id: 'cat8', nombre: 'Chaquetas y Abrigos', visible: true, orden: 2 },
-    { id: 'cat2', nombre: 'Faldas', visible: true, orden: 3 },
-    { id: 'cat1', nombre: 'Vestidos', visible: true, orden: 4 },
-    { id: 'cat9', nombre: 'Zapatos', visible: true, orden: 5 },
-    { id: 'cat10', nombre: 'Accesorios', visible: true, orden: 6 },
-  ],
+  // Las 5 categorías reales (lib/pretAPorter.js), igual que PretAPorter.jsx.
+  'pret-a-porter': categoriasAdminPretAPorter(),
   atelier: [
     { id: 'cat3', nombre: 'Novias', visible: true, orden: 1 },
     { id: 'cat4', nombre: 'Fiesta', visible: true, orden: 2 },
   ],
-  // Cada colección de pasarela es una "categoría" fija de Runway (no
-  // añadible/reordenable desde /admin/categorias, igual que antes) —
-  // sustituye al antiguo par genérico Runway/Colecciones. `temporada` es
-  // solo para mostrar (p.ej. tarjeta/subtítulo), no participa en filtros.
-  // `nombre` en mayúscula-minúscula (no todo mayúsculas) — mismo criterio
-  // de capitalización que el resto de nombres del mock. `numeroLooks: 12`
-  // en las 25 colecciones de archivo (Runway/Novia/Fiesta) para que todas
-  // tengan la misma estructura de rejilla de looks que una creada a mano
-  // desde el modal — sin `looks` (ninguna tiene fotos/nombres/descripción
-  // guardados todavía, todos los huecos empiezan vacíos "Añadir imágenes").
-  archivo: [
-    {
-      id: 'cat11', nombre: 'La Colección', temporada: 'Otoño-Invierno 26/27', visible: true, orden: 1, fija: true, numeroLooks: 34, looks: looksLaColeccion,
-    },
-    {
-      id: 'cat12', nombre: 'Dreaming', temporada: 'Primavera-Verano 26', visible: true, orden: 2, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat13', nombre: 'Self World', temporada: 'Otoño-Invierno 25/26', visible: true, orden: 3, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat14', nombre: 'Lei Zu', temporada: 'Primavera-Verano 25', visible: true, orden: 4, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat15', nombre: 'The Way Here', temporada: 'Otoño-Invierno 24/25', visible: true, orden: 5, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat16', nombre: 'Zigurat', temporada: 'Primavera-Verano 24', visible: true, orden: 6, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat17', nombre: 'Tempore', temporada: 'Otoño-Invierno 23/24', visible: true, orden: 7, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat18', nombre: 'Nagare', temporada: 'Primavera-Verano 23', visible: true, orden: 8, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat19', nombre: 'Diafonía', temporada: 'Otoño-Invierno 22/23', visible: true, orden: 9, fija: true, numeroLooks: 12,
-    },
-  ],
-  // Archivo de colecciones de Novia — mismo criterio que `archivo` (fija,
-  // sin reordenar/añadir desde la UI, numeroLooks: 12), pero sin
-  // `temporada`: estos nombres no siguen el patrón limpio "Estación Año"
-  // de Runway, así que no llevan badge AW/SS.
-  novia: [
-    {
-      id: 'cat20', nombre: 'Bride 27', visible: true, orden: 1, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat21', nombre: 'ME', visible: true, orden: 2, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat22', nombre: 'Bambú Novia', visible: true, orden: 3, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat23', nombre: 'Savia Novia', visible: true, orden: 4, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat24', nombre: 'Inside', visible: true, orden: 5, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat25', nombre: 'Introspección', visible: true, orden: 6, fija: true, numeroLooks: 12,
-    },
-  ],
-  // Archivo de colecciones de Fiesta — mismo criterio que `novia`.
-  fiesta: [
-    {
-      id: 'cat26', nombre: 'Primavera Verano 2026', visible: true, orden: 1, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat27', nombre: 'Primavera Verano 2025', visible: true, orden: 2, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat28', nombre: 'Prêt-à-porter', visible: true, orden: 3, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat29', nombre: 'En Madrid', visible: true, orden: 4, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat30', nombre: 'A Walk', visible: true, orden: 5, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat31', nombre: 'Bambú', visible: true, orden: 6, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat32', nombre: 'Savia', visible: true, orden: 7, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat33', nombre: 'Miscelanea', visible: true, orden: 8, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat34', nombre: 'Essentielle', visible: true, orden: 9, fija: true, numeroLooks: 12,
-    },
-    {
-      id: 'cat35', nombre: 'Furisode', visible: true, orden: 10, fija: true, numeroLooks: 12,
-    },
-  ],
+  // Colecciones de pasarela reales (lib/runway.js), igual que Runway.jsx.
+  archivo: categoriasAdminRunway(),
+  // Colecciones de Novias reales (lib/catalogoNovias.js), igual que AtelierNovias.jsx.
+  novia: categoriasAdminNovias(obtenerColeccionesNovias()),
+  // Colecciones de Fiesta: las reales, de src/datos/atelierFiesta.js (las
+  // mismas que enseña /atelier/fiesta). AtelierFiesta.jsx las mantiene al
+  // día mientras se editan en /admin/colecciones/fiesta.
+  fiesta: categoriasAdminFiesta(obtenerColeccionesFiesta()),
 };
 
 // ---------- STOCK ----------
@@ -1008,12 +878,7 @@ export function filasStock() {
 }
 
 // ---------- BLOG ----------
-
-export const blogMock = [
-  { id: 'b1', titulo: 'Detrás de la colección FW27', fecha: '2026-07-20', estado: 'Publicado', categoria: 'Colecciones', imagen: '/img/FW27-HERO.webp' },
-  { id: 'b2', titulo: 'El proceso de un vestido de novia a medida', fecha: '2026-07-05', estado: 'Publicado', categoria: 'Atelier', imagen: '/img/novias-sección-FelyCampo.jpg' },
-  { id: 'b3', titulo: 'Cuidado de tejidos delicados', fecha: '2026-08-01', estado: 'Borrador', categoria: 'Consejos', imagen: '' },
-];
+// Ya no hay datos de ejemplo: /admin/blog usa los reales (lib/blog.js).
 
 
 // ---------- CLIENTES ----------
@@ -1307,13 +1172,13 @@ export const disenoMock = [
     // selector de idioma único para toda la página en vez de uno por bloque.
     slides: [
       {
-        id: 's1', src: '/img/FW27-Hero3.mp4', tipo: 'video', titulo: { es: 'Prêt-à-porter', en: 'Ready-to-wear' }, ctaTexto: { es: 'Explorar', en: 'Explore' }, destino: '/tienda',
+        id: 's1', src: '/img/landing/FW27-Hero3.mp4', tipo: 'video', titulo: { es: 'Prêt-à-porter', en: 'Ready-to-wear' }, ctaTexto: { es: 'Explorar', en: 'Explore' }, destino: '/pret-a-porter',
       },
       {
-        id: 's2', src: '/img/HERO-2.jpg', tipo: 'imagen', titulo: { es: 'Prêt-à-porter', en: 'Ready-to-wear' }, ctaTexto: { es: 'Explorar', en: 'Explore' }, destino: '/tienda',
+        id: 's2', src: '/img/hero-portada-felycampo-landing.jpg', tipo: 'imagen', titulo: { es: 'Prêt-à-porter', en: 'Ready-to-wear' }, ctaTexto: { es: 'Explorar', en: 'Explore' }, destino: '/pret-a-porter',
       },
       {
-        id: 's3', src: '/img/novias-sección-FelyCampo3.jpg', tipo: 'imagen', titulo: { es: 'Bride 27', en: 'Bride 27' }, ctaTexto: { es: 'Ver colección', en: 'View collection' }, destino: '/atelier/novias',
+        id: 's3', src: '/img/fely-campo-web-novias-seccion-3.webp', tipo: 'imagen', titulo: { es: 'Bride 27', en: 'Bride 27' }, ctaTexto: { es: 'Ver colección', en: 'View collection' }, destino: '/atelier/novias',
       },
     ],
   },
@@ -1383,25 +1248,27 @@ export const disenoMock = [
 // Páginas internas disponibles para los desplegables "destino" de Diseño
 // (DisenoEditor.jsx "Destino del CTA") — cada valor es una ruta REAL de
 // src/app/[locale]/ (aunque su contenido siga "pendiente de maquetar",
-// la ruta ya existe y navega, ver comentarios de cada page.js). Las 6
+// la ruta ya existe y navega, ver comentarios de cada page.js). Las 5
 // categorías de Prêt-à-porter son las mismas que categoriasMock['pret-a-porter']
 // (sección 5); las 9 colecciones de Archivo son categoriasMock.archivo
 // (sus slugs son categoriasMock.archivo[].nombre en minúsculas/con
 // guiones — /archivo/colecciones/[coleccion] es una plantilla genérica
 // que acepta cualquier slug, así que estos 9 ya navegan de verdad).
 export const paginasInternas = [
-  { valor: '/tienda', etiqueta: 'Prêt-à-porter' },
-  { valor: '/tienda/tops-y-camisetas', etiqueta: 'Prêt-à-porter — Tops y Camisas' },
-  { valor: '/tienda/chaquetas-y-abrigos', etiqueta: 'Prêt-à-porter — Chaquetas y Abrigos' },
-  { valor: '/tienda/faldas', etiqueta: 'Prêt-à-porter — Faldas' },
-  { valor: '/tienda/vestidos', etiqueta: 'Prêt-à-porter — Vestidos' },
-  { valor: '/tienda/zapatos', etiqueta: 'Prêt-à-porter — Zapatos' },
-  { valor: '/tienda/accesorios', etiqueta: 'Prêt-à-porter — Accesorios' },
+  { valor: '/pret-a-porter', etiqueta: 'Prêt-à-porter' },
+  { valor: '/pret-a-porter/tops-y-camisetas', etiqueta: 'Prêt-à-porter — Tops y Camisas' },
+  { valor: '/pret-a-porter/chaquetas-y-abrigos', etiqueta: 'Prêt-à-porter — Chaquetas y Abrigos' },
+  { valor: '/pret-a-porter/faldas', etiqueta: 'Prêt-à-porter — Faldas' },
+  { valor: '/pret-a-porter/pantalones', etiqueta: 'Prêt-à-porter — Pantalones' },
+  { valor: '/pret-a-porter/vestidos', etiqueta: 'Prêt-à-porter — Vestidos' },
   { valor: '/atelier', etiqueta: 'Atelier' },
   { valor: '/atelier/novias', etiqueta: 'Atelier — Novias' },
   { valor: '/atelier/fiesta', etiqueta: 'Atelier — Fiesta' },
+  { valor: '/atelier-fiesta/madrid', etiqueta: 'Atelier Fiesta — Madrid' },
+  { valor: '/atelier-fiesta/oviedo', etiqueta: 'Atelier Fiesta — Oviedo' },
+  { valor: '/atelier-fiesta/salamanca', etiqueta: 'Atelier Fiesta — Salamanca' },
   { valor: '/archivo', etiqueta: 'Archivo' },
-  { valor: '/archivo/runway', etiqueta: 'Archivo — Runway' },
+  { valor: '/colecciones-fely-campo', etiqueta: 'Archivo — Runway' },
   { valor: '/archivo/colecciones', etiqueta: 'Archivo — Colecciones' },
   { valor: '/archivo/colecciones/la-coleccion', etiqueta: 'Archivo — La Colección' },
   { valor: '/archivo/colecciones/dreaming', etiqueta: 'Archivo — Dreaming' },
@@ -1414,14 +1281,11 @@ export const paginasInternas = [
   { valor: '/archivo/colecciones/diafonia', etiqueta: 'Archivo — Diafonía' },
   { valor: '/visita-fely-campo', etiqueta: 'Visítanos' },
   { valor: '/visita-fely-campo/cita', etiqueta: 'Visítanos — Cita' },
-  { valor: '/visita-fely-campo/madrid', etiqueta: 'Visítanos — Madrid' },
-  { valor: '/visita-fely-campo/oviedo', etiqueta: 'Visítanos — Oviedo' },
-  { valor: '/visita-fely-campo/salamanca', etiqueta: 'Visítanos — Salamanca' },
 ];
 
 // Banco de vídeos ya subidos, mismo criterio que bancoImagenes.
 export const bancoVideos = [
-  '/img/FW27-Hero3.mp4',
+  '/img/landing/FW27-Hero3.mp4',
   '/img/artesany.mp4',
   '/img/artesany-2.mp4',
   '/img/ecommerce/27FW/27fw-video.mp4',
@@ -1435,7 +1299,7 @@ export const bancoImagenes = [
   '/img/artesany.jpg',
   '/img/novias-sección-FelyCampo.jpg',
   '/img/novias-sección-FelyCampo2.jpg',
-  '/img/novias-sección-FelyCampo3.jpg',
+  '/img/fely-campo-web-novias-seccion-3.webp',
   '/img/novias-sección-FelyCampo4.jpg',
   '/img/invitadas-sección-FelyCampo.jpg',
   '/img/invitadas-sección-FelyCampo2.jpg',

@@ -12,6 +12,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale,
+    // Sin zona horaria, next-intl avisa en cada render del servidor
+    // (ENVIRONMENT_FALLBACK, salía en el build) y las fechas podrían
+    // formatearse distinto en el servidor y en el navegador.
+    timeZone: 'Europe/Madrid',
     messages: (await import(`../messages/${locale}.json`)).default,
   };
 });

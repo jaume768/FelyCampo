@@ -115,9 +115,7 @@ function GuiaTallas({ abierto, onCerrar }) {
 
       <section className={styles.seccionMedir}>
         <h3 className={styles.subtitulo}>{t('comoMedir')}</h3>
-        {/* Placeholder — a sustituir por la ilustración real del cuerpo
-            con cada medida señalada. */}
-        <img src="/img/guia-tallas/como-medir.svg" alt="" className={styles.ilustracion} />
+        <img src="/img/ecommerce/fely-campo-guia-tallas-medidas-cuerpo.webp" alt="" className={styles.ilustracion} />
         <ol className={styles.listaMedir}>
           {CLAVES_MEDIDAS.map((clave, indice) => (
             <li key={clave} className={styles.itemMedir}>

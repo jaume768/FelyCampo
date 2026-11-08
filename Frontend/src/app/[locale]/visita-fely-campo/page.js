@@ -1,97 +1,58 @@
 /* ============================================================
    VISÍTENOS — Fely Campo. Ruta: /visita-fely-campo (namespace de
    traducciones "visitenos", sin cambiar — solo la URL es distinta).
-   Listado de los 4 ateliers/showroom (ver ubicaciones.js) — Server
-   Component, contenido 100% estático por locale (nombre/dirección
-   compartidos, horario/descripción bilingües en el propio dato).
-   Botón "Pedir cita" en pestaña nueva porque enlaza a la reserva
-   propia de cada sede (?ubicacion=id en /visita-fely-campo/cita,
-   todavía sin maquetar) — mismo criterio que un enlace externo de
-   verdad (ver .flecha del Maps de atencion-cliente/page.js), aquí
-   interno pero pensado como salida de la página actual, no
-   navegación dentro de ella. "Ver mapa"/"WhatsApp" van con href="#"
-   a propósito — enlaces reales pendientes (Maps/WhatsApp por sede).
-
-   ProductHero + CabeceraSeccion (enCuadricula + alinear="start"):
-   misma cabecera que Tienda/Atelier (ver tienda/page.js), no una
-   propia — así el Navbar hace el mismo tránsito transparente→sólido
-   sobre la foto (data-navbar-hero, ver ProductHero.jsx y "isHome ||
-   tieneProductHero..." en layout.js, que necesita
-   "/visita-fely-campo" en RUTAS_CON_PRODUCT_HERO para activarlo en
-   esta ruta).
+   Server Component: ProductHero (misma cabecera visual que
+   Tienda/Atelier/Puntos de venta — por eso esta ruta está en
+   RUTAS_CON_PRODUCT_HERO en layout.js, así el Navbar nace
+   transparente/claro igual que ahí) + ListadoUbicaciones.jsx (Client
+   Component — cabecera + chips de ciudad + listado filtrado, ver ese
+   archivo y src/datos/ateliers.js) + MapaPuntosVenta al final.
    ============================================================ */
 
-import { getTranslations } from 'next-intl/server';
-import { ProductHero } from '@/components/layout';
-import { CabeceraSeccion } from '@/components/ui';
-import { UBICACIONES } from './ubicaciones';
+import { MapaPuntosVenta } from '@/components/layout';
+import { CabeceraPagina, HeroCabecera } from '@/components/layout/CabeceraPagina';
+import { obtenerCabecera } from '@/lib/cabeceras';
+import ListadoUbicaciones from './ListadoUbicaciones';
 import styles from './page.module.css';
+import { metadataPagina } from '@/lib/seo';
+import { setRequestLocale } from 'next-intl/server';
+
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  return metadataPagina({ locale, ruta: '/visita-fely-campo' });
+}
 
 export default async function Pagina({ params }) {
   const { locale } = await params;
-  const t = await getTranslations('visitenos');
+  setRequestLocale(locale);
 
   return (
-    <section className="seccion">
-      <ProductHero imagen="/img/punto-venta.webp" />
+    <>
+      {/* Cabecera e introducción: lib/cabeceras.js (editables en el admin,
+          Página Visítanos, con vista previa). */}
+      <CabeceraPagina id="visitanos" publicado={obtenerCabecera('visitanos')}>
+      <section className="seccion">
+        <HeroCabecera producto className={styles.heroEncuadre} />
+      </section>
 
-      <div className="contenedor">
-        <CabeceraSeccion
-          subtitleKey="visitenos.eyebrow"
-          titleKey="visitenos.titulo"
-          descriptionKey="visitenos.intro"
-          alinear="start"
-          enCuadricula
-        />
+      {/* .seccionUbicaciones (ver page.module.css): en mobile el hero de
+          arriba es position:fixed (ProductHero.module.css) — esta es la
+          sección que le sigue en el flujo, necesita fondo opaco +
+          posicionada + z-index por encima para taparlo al hacer scroll
+          (mismo mecanismo que .seccionGrid en Tienda). */}
+      <section className={`seccion ${styles.seccionUbicaciones}`}>
+        <div className="contenedor">
+          <ListadoUbicaciones locale={locale} />
+        </div>
+      </section>
 
-        <ul className={styles.lista}>
-          {UBICACIONES.map((ubicacion) => (
-            <li key={ubicacion.id}>
-              <article className={styles.tarjeta}>
-                <img src={ubicacion.imagen} alt="" className={styles.imagen} />
-
-                <div className={styles.fila}>
-                  <div className={styles.info}>
-                    <address className={styles.direccion}>
-                      <span className={styles.nombre}>{ubicacion.nombre}</span>
-                      {'\n'}
-                      {ubicacion.direccion.join('\n')}
-                      {'\n'}
-                      {ubicacion.telefonos.map((telefono) => `Tel. ${telefono}`).join('\n')}
-                      {'\n'}
-                      {`WhatsApp ${ubicacion.whatsapp}`}
-                    </address>
-
-                    <p className={styles.horario}>
-                      {ubicacion.horario ? ubicacion.horario[locale] : t('showroomNota')}
-                    </p>
-
-                    <p className={styles.descripcion}>{ubicacion.descripcion[locale]}</p>
-                  </div>
-
-                  <div className={styles.acciones}>
-                    <a
-                      href={`/${locale}/visita-fely-campo/cita?ubicacion=${ubicacion.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.accionBtn}
-                    >
-                      {t('pedirCita')}
-                    </a>
-                    {/* href="#" — a la espera de los enlaces reales (Maps/WhatsApp por sede). */}
-                    <a href="#" target="_blank" rel="noopener noreferrer" className={styles.accionBtnContorno}>
-                      {t('verMapa')}
-                    </a>
-                    <a href="#" target="_blank" rel="noopener noreferrer" className={styles.accionBtnContorno}>
-                      {t('whatsapp')}
-                    </a>
-                  </div>
-                </div>
-              </article>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
+      <section className="seccion" id="mapa-puntos-venta">
+        <div className="contenedor">
+          <MapaPuntosVenta />
+        </div>
+      </section>
+      </CabeceraPagina>
+    </>
   );
 }

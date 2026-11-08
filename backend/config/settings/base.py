@@ -182,6 +182,9 @@ REST_FRAMEWORK = {
         # Panel admin: personal identificado (IsStaff), no tráfico anónimo — cupo propio
         # y más generoso que "user", para no chocar con el límite del sitio público.
         "admin": env("THROTTLE_ADMIN", default="300/min"),
+        # Lectura del contenido de la web (apps.content): la hace el servidor de Next,
+        # siempre desde la misma IP, y un arranque en frío pide muchos documentos a la vez.
+        "content": env("THROTTLE_CONTENT", default="1200/min"),
     },
 }
 
@@ -241,6 +244,13 @@ FRONTEND_BASE_URL = env("FRONTEND_BASE_URL", default="http://localhost:3000")
 # (`backend`) que usa el frontend al pedir el catálogo desde su Server Component (ver
 # apps/core/media_urls.py). Mismo valor que NEXT_PUBLIC_API_URL del frontend en dev.
 BACKEND_PUBLIC_URL = env("BACKEND_PUBLIC_URL", default="http://localhost:8001")
+
+# Aviso al frontend cuando se publica contenido (apps/content/revalidation.py): Django
+# llama a `<FRONTEND_INTERNAL_URL>/api/revalidar` con este secreto y Next invalida la
+# caché de ese documento. Red interna (en Docker `http://frontend:3000`), no el dominio
+# público. Vacías = sin aviso: lo publicado tarda en verse lo que dure la caché de Next.
+FRONTEND_INTERNAL_URL = env("FRONTEND_INTERNAL_URL", default="")
+REVALIDATE_SECRET = env("REVALIDATE_SECRET", default="")
 
 # Validez de los enlaces de restablecimiento y verificación: 24 horas.
 PASSWORD_RESET_TIMEOUT = env.int("PASSWORD_RESET_TIMEOUT", default=60 * 60 * 24)

@@ -5,10 +5,17 @@
    definidos en src/styles/global.css (var(--...)).
    ============================================================ */
 
+/* Tipografía única para TODOS los botones de la web (con caja, con
+   borde, subrayados, pestañas…): misma familia, tamaño y tracking.
+   Ni los tamaños (.s/.m/.l/.full) ni las variantes la cambian — solo
+   cambian el padding/ancho. .texto y .flecha no llevan .boton, por eso
+   repiten familia y tamaño — pero sin el tracking: los botones
+   subrayados van sin letter-spacing (a petición). */
 .boton {
   display: inline-block;
   text-align: center;
   font-family: var(--font-base);
+  font-size: var(--text-cta);
   letter-spacing: var(--tracking-label);
   border: none;
   cursor: pointer;
@@ -36,12 +43,11 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
-  padding: 0px 28px;
-  font-size: var(--text-small);
+  padding: var(--spacing-2) 28px;
 }
-.m    { padding: var(--spacing-3) var(--spacing-6); font-size: var(--text-label); }
-.l    { padding: 16px 36px; font-size: var(--text-body); }
-.full { width: 100%; padding: var(--spacing-4); font-size: var(--text-small); }
+.m    { padding: var(--spacing-3) var(--spacing-6); }
+.l    { padding: 16px 36px; }
+.full { width: 100%; padding: var(--spacing-4); }
 
 /* Variante avisa: tamaño fijo, no se combina con .s/.m/.l/.full */
 .avisa {
@@ -51,7 +57,6 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-2);
-  font-size: var(--text-caption);
   white-space: nowrap;
   background: none;
   border: 1px solid var(--color-tinta);
@@ -69,21 +74,18 @@
   background: var(--color-tinta);
   color: var(--color-fondo);
   border-radius: var(--radius-botones);
-  text-transform: uppercase;
-  letter-spacing: 0.02rem;
 }
 .solido:hover { background: var(--color-tinta); }
 
 .contorno {
   background: transparent;
-  color: var(--color-gris-700);
+  color: var(--color-tinta);
   border: 1px solid var(--color-tinta);
   border-radius: var(--radius-botones);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-1);
-  text-transform: uppercase;
 }
 
 .contorno:hover {
@@ -124,9 +126,9 @@
   border: none;
   padding: 0;
   color: var(--color-tinta);
-  font-size: var(--text-label);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-label);
+  font-family: var(--font-base);
+  font-size: var(--text-cta);
+  /* Sin letter-spacing en los botones subrayados (a petición). */
   cursor: pointer;
   border-bottom: var(--border-regular) solid var(--color-tinta);
   padding-bottom: 2px;
@@ -137,9 +139,9 @@
   padding-bottom: 1.5px;
 }
 
-/* Modificador: texto en mayúsculas (ej. enlaces legales) */
+/* Modificador histórico de mayúsculas: ya sin efecto, nada va en
+   mayúsculas salvo los títulos de hero (a petición). */
 .textoMayusculas {
-  text-transform: uppercase;
 }
 
 /* Modificador: mismo enlace que .texto pero en --color-crema — para
@@ -151,7 +153,7 @@
   border-bottom-color: var(--color-crema);
 }
 
-/* Variante flecha: nuevo diseño de CTA — texto subrayado en mayúsculas
+/* Variante flecha: nuevo diseño de CTA — texto subrayado (sin mayúsculas)
    con flecha al final (la añade Boton.jsx), no una "caja" como
    solido/contorno/rosa. Candidato a sustituirlas en el resto del
    sistema; de momento conviven. */
@@ -159,9 +161,9 @@
   display: inline-block;
   background: none;
   padding: var(--spacing-2) 0 0 0;
-  font-size: var(--text-small);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-label);
+  font-family: var(--font-base);
+  font-size: var(--text-cta);
+  /* Sin letter-spacing, igual que .texto (a petición). */
   color: var(--color-tinta);
   border: none;
   border-bottom: 1px solid var(--color-tinta);

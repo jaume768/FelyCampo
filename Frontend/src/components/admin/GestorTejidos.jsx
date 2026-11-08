@@ -3,133 +3,100 @@
 /* ============================================================
    TEJIDOS Y COMPOSICIÓN — Fely Campo (admin)
    Biblioteca de telas reutilizable desde el formulario de producto.
+   Antes vivía como pestaña "Telas" dentro de GestorMateriales.jsx —
+   ver GestorColores.jsx para el resto del porqué de la separación.
 
-   DATOS REALES: /api/v1/admin/fabrics/.
-
-   La foto va en DOS pasos, no uno: `Fabric.image` es una FK a
-   `MediaAsset`, así que primero se sube el archivo a la biblioteca de
-   medios (POST /admin/media/, multipart) y luego se crea la tela
-   referenciando el id devuelto.
-
-   Ya NO se comprime en el navegador: el servidor normaliza al recibir
-   (2560px máx., WebP, miniatura y EXIF limpio — apps/media/processing).
-   El canvas del navegador reescalaba, pero no limpiaba metadatos ni
-   garantizaba un peso razonable.
-
-   Borrar una tela en uso lo impide el backend: se enseña su motivo.
+   Mismo lenguaje visual que la sección "Tejidos y Composición" de
+   FormularioProducto.jsx/FormularioLook.jsx (rejilla de chips con foto +
+   fila de alta con imagen/nombre/composición), foto de tela incluida —
+   antes esta página no dejaba subir una, así que dos telas sin nombre
+   memorable eran indistinguibles a simple vista.
    ============================================================ */
 
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Plus, Upload, X } from 'lucide-react';
-
 import { PageHeader, useToast } from '@/components/admin';
 import { Boton, Input } from '@/components/ui';
-import { tejidos as apiTejidos } from '@/lib/api/adminCatalog';
-import { subirMedia, motivoDeRechazo } from '@/lib/api/adminMedia';
-import { ApiError } from '@/lib/api/errors';
-import { useRecursoAdmin } from './useRecursoAdmin';
+import { telasMock } from '@/components/admin/mockData';
 import styles from './GestorTejidos.module.css';
 
-function adaptarTejido(t) {
-  return {
-    id: t.id,
-    nombre: t.name,
-    nombreEn: t.name_en || '',
-    composicion: t.composition || '',
-    // `image_detail` cuando el serializer lo anida; si no, solo el id.
-    imagen: t.image_detail?.thumbnail || t.image_detail?.file || null,
-    imagenId: t.image || null,
-  };
+// Miniatura de tela: recorte cuadrado centrado a 150×150 — mismo criterio
+// que FormularioProducto.jsx/FormularioLook.jsx (duplicado a mano, no se
+// puede importar una función de otro componente 'use client' sin
+// exportarla a propósito).
+const TELA_IMAGEN_LADO = 150;
+
+function comprimirImagenTela(archivo) {
+  return new Promise((resolve, reject) => {
+    const lector = new FileReader();
+    lector.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const lado = Math.min(img.width, img.height);
+        const offsetX = (img.width - lado) / 2;
+        const offsetY = (img.height - lado) / 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = TELA_IMAGEN_LADO;
+        canvas.height = TELA_IMAGEN_LADO;
+        canvas.getContext('2d').drawImage(img, offsetX, offsetY, lado, lado, 0, 0, TELA_IMAGEN_LADO, TELA_IMAGEN_LADO);
+        canvas.toBlob(
+          (blob) => (blob ? resolve(blob) : reject(new Error('No se pudo procesar la imagen de la tela'))),
+          'image/jpeg',
+          0.85
+        );
+      };
+      img.onerror = reject;
+      img.src = lector.result;
+    };
+    lector.onerror = reject;
+    lector.readAsDataURL(archivo);
+  });
 }
 
 function GestorTejidos() {
   const { mostrarToast } = useToast();
-  const adaptar = useCallback(adaptarTejido, []);
-  const { filas: telas, cargando, error, guardando, crear, borrar } = useRecursoAdmin(apiTejidos, adaptar);
+  const [telas, setTelas] = useState(telasMock);
 
-  const [nombre, setNombre] = useState('');
-  const [composicion, setComposicion] = useState('');
-  // Archivo elegido + su vista previa local. No se sube hasta guardar la tela: subir
-  // primero dejaría archivos huérfanos en la biblioteca si el alta se cancela.
-  const [archivo, setArchivo] = useState(null);
-  const [vistaPrevia, setVistaPrevia] = useState('');
-  const [subiendo, setSubiendo] = useState(false);
-  const inputRef = useRef(null);
+  const [nombreTelaNueva, setNombreTelaNueva] = useState('');
+  const [composicionTelaNueva, setComposicionTelaNueva] = useState('');
+  const [imagenTelaNueva, setImagenTelaNueva] = useState('');
+  const [subiendoImagenTela, setSubiendoImagenTela] = useState(false);
+  const inputImagenTelaRef = useRef(null);
 
-  function elegirArchivo(nuevo) {
-    if (!nuevo) return;
-    // Se comprueba ANTES de subir para no gastar una subida en algo que el backend va a
-    // rechazar igual.
-    const motivo = motivoDeRechazo(nuevo);
-    if (motivo) {
-      mostrarToast(motivo);
-      return;
-    }
-    setArchivo(nuevo);
-    setVistaPrevia(URL.createObjectURL(nuevo));
-  }
-
-  async function anadirTela() {
-    if (!nombre.trim() || subiendo || guardando) return;
-    setSubiendo(true);
-
+  async function agregarImagenTela(archivo) {
+    if (!archivo) return;
+    setSubiendoImagenTela(true);
+    let blobFinal;
     try {
-      let imagenId = null;
-      if (archivo) {
-        // Paso 1: subir a la biblioteca de medios.
-        const asset = await subirMedia(archivo, nombre.trim());
-        imagenId = asset.id;
-      }
-
-      // Paso 2: crear la tela referenciando el asset.
-      const resultado = await crear({
-        name: nombre.trim(),
-        composition: composicion.trim(),
-        ...(imagenId && { image: imagenId }),
-      });
-
-      if (!resultado.ok) {
-        mostrarToast(`No se ha creado: ${resultado.mensaje}`);
-        return;
-      }
-
-      setNombre('');
-      setComposicion('');
-      setArchivo(null);
-      setVistaPrevia('');
-      mostrarToast('Tela añadida');
-    } catch (fallo) {
-      if (!(fallo instanceof ApiError)) throw fallo;
-      // La subida es lo que puede fallar aparte (peso, formato, red).
-      mostrarToast(`No se ha podido subir la foto: ${fallo.firstDetail ?? fallo.message}`);
-    } finally {
-      setSubiendo(false);
+      blobFinal = await comprimirImagenTela(archivo);
+    } catch {
+      blobFinal = archivo;
     }
+    setImagenTelaNueva(URL.createObjectURL(blobFinal));
+    setSubiendoImagenTela(false);
   }
 
-  async function quitarTela(tela) {
-    const resultado = await borrar(tela.id);
-    mostrarToast(resultado.ok ? 'Tela eliminada' : `No se puede borrar: ${resultado.mensaje}`);
+  function anadirTela() {
+    if (!nombreTelaNueva.trim()) return;
+    setTelas((actual) => [...actual, {
+      id: `tel${Date.now()}`,
+      nombre: nombreTelaNueva.trim(),
+      composicion: composicionTelaNueva.trim(),
+      imagen: imagenTelaNueva || undefined,
+    }]);
+    setNombreTelaNueva('');
+    setComposicionTelaNueva('');
+    setImagenTelaNueva('');
+    mostrarToast('Tela añadida (demo)');
   }
 
-  const ocupado = subiendo || guardando;
+  function quitarTela(id) {
+    setTelas((actual) => actual.filter((t) => t.id !== id));
+  }
 
   return (
     <div>
-      <PageHeader
-        titulo="Tejidos y Composición"
-        subtitulo={cargando ? 'Cargando…' : `${telas.length} tela${telas.length === 1 ? '' : 's'} reutilizables al crear o editar un producto`}
-      />
-
-      {error && (
-        <p className={styles.aviso} role="alert">
-          {error.isNetworkError ? 'No hemos podido conectar con el servidor.' : error.message}
-        </p>
-      )}
-
-      {!error && !cargando && telas.length === 0 && (
-        <p className={styles.aviso}>Todavía no hay telas. Añade la primera abajo.</p>
-      )}
+      <PageHeader titulo="Tejidos y Composición" subtitulo="Telas reutilizables al crear o editar un producto" />
 
       <div className={styles.telasGrid}>
         {telas.map((tela) => (
@@ -139,13 +106,7 @@ function GestorTejidos() {
               <span className={styles.telaChipNombre}>{tela.nombre}</span>
               <span className={styles.telaChipComposicion}>{tela.composicion || '—'}</span>
             </span>
-            <button
-              type="button"
-              className={styles.chipQuitar}
-              aria-label={`Quitar ${tela.nombre}`}
-              onClick={() => quitarTela(tela)}
-              disabled={ocupado}
-            >
+            <button type="button" className={styles.chipQuitar} aria-label={`Quitar ${tela.nombre}`} onClick={() => quitarTela(tela.id)}>
               <X size={12} />
             </button>
           </div>
@@ -158,31 +119,31 @@ function GestorTejidos() {
           <button
             type="button"
             className={`${styles.inputColor} ${styles.inputImagenTela}`}
-            onClick={() => inputRef.current?.click()}
+            onClick={() => inputImagenTelaRef.current?.click()}
             aria-label="Subir foto de la tela"
           >
-            {vistaPrevia ? (
-              <img src={vistaPrevia} alt="" className={styles.inputImagenTelaPreview} />
+            {imagenTelaNueva ? (
+              <img src={imagenTelaNueva} alt="" className={styles.inputImagenTelaPreview} />
             ) : (
               <Upload size={16} strokeWidth={1} aria-hidden="true" />
             )}
           </button>
           <input
-            ref={inputRef}
+            ref={inputImagenTelaRef}
             type="file"
             accept="image/*"
             className={styles.inputArchivo}
             onChange={(e) => {
-              elegirArchivo(e.target.files?.[0]);
+              agregarImagenTela(e.target.files?.[0]);
               e.target.value = '';
             }}
           />
         </div>
-        <Input etiqueta="Nombre *" valor={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tafetán" />
-        <Input etiqueta="Composición" valor={composicion} onChange={(e) => setComposicion(e.target.value)} placeholder="70% algodón, 30% poliéster" />
-        <Boton variante="contorno" tamano="s" onClick={anadirTela} desactivado={ocupado || !nombre.trim()}>
+        <Input etiqueta="Nombre" valor={nombreTelaNueva} onChange={(e) => setNombreTelaNueva(e.target.value)} placeholder="Tafetán" />
+        <Input etiqueta="Composición" valor={composicionTelaNueva} onChange={(e) => setComposicionTelaNueva(e.target.value)} placeholder="70% algodón, 30% poliéster" />
+        <Boton variante="contorno" tamano="s" onClick={anadirTela} desactivado={subiendoImagenTela}>
           <Plus size={14} />
-          {subiendo ? 'Subiendo…' : 'Añadir tela'}
+          {subiendoImagenTela ? 'Optimizando…' : 'Añadir tela'}
         </Boton>
       </div>
     </div>

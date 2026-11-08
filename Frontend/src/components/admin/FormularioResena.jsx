@@ -8,7 +8,7 @@
    FormularioProducto.jsx.
    El producto reseñado ya no es un <select> de nombre en texto libre
    (misma relación frágil que ya se corrigió en otros sitios del panel,
-   ver docs/adminpanel.md sección 7 punto 4) — ahora es un vínculo real
+   ver docs/ADMIN.md sección 7 punto 4) — ahora es un vínculo real
    por id, con buscador propio, mismo lenguaje visual que "Vincular a
    Runway / Novia / Fiesta" (FormularioProducto.jsx) / "Productos
    vinculados" (FormularioLook.jsx): search + lista de resultados con

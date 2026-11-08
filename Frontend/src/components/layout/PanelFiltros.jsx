@@ -59,6 +59,7 @@ import { useTranslations } from 'next-intl';
 import { X, SlidersHorizontal, Trash2 } from 'lucide-react';
 import { PanelLateral, Boton, Acordeon, FilaAcordeon } from '../ui';
 import { GRUPOS_ESTILO_SILUETA } from './estiloSiluetaGrupos';
+import { sinNumeroColeccion } from '@/lib/nombreColeccion';
 import styles from './PanelFiltros.module.css';
 
 const ORDENES = ['recomendados', 'precioAsc', 'precioDesc'];
@@ -182,7 +183,7 @@ function PanelFiltros({
                     aria-pressed={coleccionSeleccionada === nombre}
                     onClick={() => onSeleccionarColeccion(nombre)}
                   >
-                    {nombre}
+                    {sinNumeroColeccion(nombre)}
                   </button>
                 ))}
               </div>

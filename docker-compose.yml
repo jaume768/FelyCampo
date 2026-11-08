@@ -31,6 +31,11 @@ services:
       target: dev
     command: /app/scripts/entrypoint-dev.sh
     env_file: ./backend/.env
+    environment:
+      # Aviso al frontend al publicar contenido (apps/content/revalidation.py). El
+      # secreto se define UNA vez (aquí, desde el .env de la raíz) para los dos servicios.
+      FRONTEND_INTERNAL_URL: http://frontend:3000
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-dev-revalidar-cambiame}
     volumes:
       - ./backend:/app
     ports:
@@ -66,6 +71,13 @@ services:
       # Sin esto, el hot-reload de Next puede no detectar cambios en el bind mount
       # dentro de contenedores en Windows/OneDrive (inotify no ve todos los eventos).
       WATCHPACK_POLLING: "true"
+      # Lo comprueba src/app/api/revalidar/route.js; el mismo valor que recibe el backend.
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-dev-revalidar-cambiame}
+      # Pantalla «la nueva web estará disponible el…» y acceso del equipo
+      # (src/lib/sesionEquipo.js). Se leen al arrancar: basta reiniciar.
+      PRELANZAMIENTO: ${PRELANZAMIENTO:-true}
+      PRELANZAMIENTO_FECHA: ${PRELANZAMIENTO_FECHA:-2026-11-15}
+      SESION_EQUIPO_SECRET: ${SESION_EQUIPO_SECRET:-dev-sesion-equipo-cambiame}
     volumes:
       - ./frontend:/app
       - /app/node_modules

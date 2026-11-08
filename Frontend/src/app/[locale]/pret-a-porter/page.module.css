@@ -1,0 +1,104 @@
+/* ============================================================
+   PRÊT-À-PORTER — Fely Campo. Ruta: /pret-a-porter
+   Hero + título, mismo patrón que atelier/novias/page.module.css /
+   atelier/fiesta/page.module.css (ver ahí el detalle completo) — .hero
+   a 80vh con RunwayMediaLateral + .textoDescripcion/.textoRow con dos
+   textos a tamaño h1 en fila. Aquí "nombre"/"temporada" son "Fely
+   Campo"/"Prêt-à-porter" (catalogo.subtituloFelyCampo/tituloTienda en
+   page.js), el mismo par que ya usa CuadriculaProductos como
+   subtítulo/título antes de la cuadrícula.
+   ============================================================ */
+
+.hero {
+  width: 100%;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hero con CarruselInfinito (looks recortados sobre el fondo claro de
+   la página, no una foto a sangre): padding-top del alto del Navbar,
+   que flota encima (transparente) — si no, las cabezas de los looks
+   quedarían tapadas por el logo/los enlaces. box-sizing: el padding
+   sale de los 80vh, no se suma. */
+.heroCarrusel {
+  box-sizing: border-box;
+  padding-top: var(--nav-height-desktop);
+  /* Aire bajo el carrusel (a petición): los looks terminan antes del
+     borde inferior del hero. */
+  padding-bottom: var(--spacing-8);
+}
+
+/* Sin velo (a petición, solo aquí): el título ya no va encima del
+   carrusel (ver CabeceraSeccion en page.js), así que se anulan los dos
+   degradados de HeroPagina.module.css — el superior del Navbar
+   (::before, .fondoPropio) y el inferior (::after). Clase doble para
+   ganar en especificidad sin depender del orden de los CSS. */
+.heroCarrusel.heroCarrusel::before,
+.heroCarrusel.heroCarrusel::after {
+  content: none;
+}
+
+.textoDescripcion {
+  width: 100%;
+}
+
+.textoRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-inline: var(--spacing-6);
+  padding-block: var(--spacing-6);
+}
+
+.nombre,
+.temporada {
+  font-size: var(--text-h1);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+}
+
+@media (max-width: 767px) {
+  .hero {
+    height: auto;
+  }
+
+  /* "auto" de arriba dejaría el carrusel sin alto (sus imágenes miden
+     por alto) — aquí va uno explícito, como los 60vh de
+     RunwayMediaLateral en mobile. */
+  .heroCarrusel {
+    padding-top: var(--nav-height);
+  }
+
+  /* Centrado en mobile (a petición): align-items en columna centra los
+     dos textos en horizontal; text-align por si alguno salta de línea. */
+  .textoRow {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-2);
+    padding-inline: var(--spacing-4);
+    padding-block: var(--spacing-4);
+  }
+
+  .nombre,
+  .temporada {
+    font-size: var(--text-h2);
+  }
+}
+
+/* Cabecera bajo el hero (CabeceraSeccion en page.js) y el texto que
+   la sigue: solo aquí, menos aire entre los dos (a petición) — sin el
+   min-height ni el margin-bottom de .cabeceraInicio, y la mitad de
+   padding superior en RunwayDescripcion (.descripcion, --spacing-8).
+   Clases repetidas para ganar en especificidad a CabeceraSeccion.module.css
+   (.cabeceraProductos.cabeceraInicio) sin depender del orden de los CSS. */
+.cabecera.cabecera.cabecera {
+  min-height: 0;
+  margin-bottom: 0;
+}
+
+.textoDescripcion > :first-child {
+  padding-top: var(--spacing-4);
+}

@@ -14,19 +14,6 @@ const dirname =
 export default defineConfig({
   test: {
     projects: [
-      // Tests unitarios de la capa de API y los adapters: JS puro, sin DOM ni navegador.
-      // Proyecto aparte porque el de Storybook levanta Playwright, que aquí sobra.
-      {
-        extends: true,
-        // El alias "@/" lo resuelve Next por jsconfig.json; fuera de Next hay que
-        // declararlo (el proyecto de Storybook lo hereda de @storybook/nextjs-vite).
-        resolve: { alias: { '@': path.join(dirname, 'src') } },
-        test: {
-          name: 'unit',
-          environment: 'node',
-          include: ['src/**/__tests__/**/*.test.js', 'src/**/__tests__/**/*.test.jsx'],
-        },
-      },
       {
         extends: true,
         plugins: [

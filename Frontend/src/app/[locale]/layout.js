@@ -6,41 +6,62 @@
    ============================================================ */
 
 import { notFound } from 'next/navigation';
-import { headers } from 'next/headers';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import '@/styles/global.css';
-import { Navbar, Footer, NewsletterModalGlobal } from '@/components/layout';
+import { clasesFuentes } from '@/styles/fuentes';
+import { Footer, CookieConsent, BotonWhatsapp, Analitica } from '@/components/layout';
+import MarcoRuta from '@/components/layout/MarcoRuta';
+// Server Components (usan next-intl/server): importados directamente, no
+// desde el barrel de layout, que también cargan Client Components.
+import AteliersCita from '@/components/layout/AteliersCita';
+import PedirCita from '@/components/layout/PedirCita';
+import { SITE_URL, SITIO_INDEXABLE } from '@/lib/seo';
 import { CarritoProvider } from '@/context/CarritoContext';
 import { MiCuentaProvider } from '@/context/MiCuentaContext';
 import { locales } from '@/i18n';
 
-// Páginas con su propio ProductHero (ver
-// src/components/layout/ProductHero.jsx) — nacen con el Navbar
-// transparente igual que home, pero con el logo a tamaño normal (ver
-// "crecerLogo" más abajo). No se importa desde Navbar.jsx: es un
-// Client Component, y solo sus componentes (no valores sueltos)
-// cruzan de forma fiable la frontera a un Server Component como este
-// layout — mantener en sync con SUBMENU_STRUCTURE.tienda.items de
-// Navbar.jsx si cambian las categorías de Tienda.
-const RUTAS_CON_PRODUCT_HERO = [
-  '/tienda',
-  '/tienda/tops-y-camisetas',
-  '/tienda/chaquetas-y-abrigos',
-  '/tienda/faldas',
-  '/tienda/vestidos',
-  '/tienda/zapatos',
-  '/tienda/accesorios',
-  '/atelier/novias',
-  '/atelier/fiesta',
-  '/visita-fely-campo',
-];
+// Qué cambia del marco según la página (Navbar transparente, bandas de
+// cita, newsletter de la home): en components/layout/MarcoRuta.jsx, con
+// usePathname. NO leas headers() aquí: haría dinámicas todas las páginas.
 
+// Valores por defecto de SEO para todo el sitio — cada página pone los
+// suyos (title, description, canonical, hreflang) con metadataPagina()
+// de src/lib/seo.js. Aquí solo: dominio base (para que las URLs
+// relativas de Open Graph salgan absolutas), plantilla de título para
+// las pocas páginas que no lo fijan, y el noindex GLOBAL mientras
+// SITIO_INDEXABLE no sea "true" (entorno de pruebas) — gana a cualquier
+// "index" de una página concreta porque esas nunca lo declaran en
+// positivo, solo el noindex de las privadas.
 export const metadata = {
-  title: 'Fely Campo · Moda de fiesta y novia',
-  description: 'Firma de moda femenina fundada en Salamanca en 1997. Colecciones de fiesta y novia, prêt-à-porter y costura a medida.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Fely Campo | Vestidos de novia y fiesta a medida',
+    template: '%s | Fely Campo',
+  },
+  description: 'Firma de moda femenina nacida en Salamanca. Vestidos de novia y fiesta a medida en Salamanca, Madrid y Oviedo, y prêt-à-porter online.',
+  // Indexable: max-image-preview:large (como la web anterior, auditoría
+  // SEO M3) para que Google pueda usar las fotos grandes en resultados y
+  // Discover. Las páginas privadas (indexar:false en metadataPagina)
+  // declaran su propio "robots" y reemplazan entero este.
+  robots: SITIO_INDEXABLE
+    ? { index: true, follow: true, 'max-image-preview': 'large', googleBot: { index: true, follow: true, 'max-image-preview': 'large' } }
+    : { index: false, follow: false },
+  // Verificación del dominio en Meta Business (la misma que la web
+  // anterior en WordPress): sin ella se pierde la verificación de
+  // felycampo.com para el Pixel y los anuncios.
+  other: {
+    'facebook-domain-verification': '52ua5uh83t9xk46o8js2214qt0aczn',
+  },
+  // Favicon: F negra sobre blanco por defecto; en modo oscuro del
+  // navegador/sistema, la versión invertida (F blanca sobre negro). PNG,
+  // no WebP: Safari no admite favicons WebP.
   icons: {
-    icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23E92174'/%3E%3C/svg%3E",
+    icon: [
+      { url: '/img/logo/FelyCampo-logo-favicon-blanco.png', type: 'image/png', sizes: '512x512' },
+      { url: '/img/logo/FelyCampo-logo-favicon.png', type: 'image/png', sizes: '512x512', media: '(prefers-color-scheme: dark)' },
+    ],
+    apple: '/img/logo/FelyCampo-logo-favicon-blanco.png',
   },
 };
 
@@ -50,47 +71,34 @@ export function generateStaticParams() {
 
 export default async function RootLayout({ children, params }) {
   const { locale } = await params;
-
   if (!locales.includes(locale)) notFound();
+  // Sin esto next-intl lee el idioma de las cabeceras y la página deja de
+  // poder ser estática. Va en este layout y en cada página.
+  setRequestLocale(locale);
 
   const messages = await getMessages();
 
-  // Home transparente (con el logo creciendo), páginas de listado de
-  // producto (Tienda + categorías, Atelier/novias y /fiesta) también
-  // transparentes pero con el logo a tamaño normal — llevan su propio
-  // ProductHero debajo (ver layout.js más abajo/Navbar.jsx) — el
-  // resto de páginas con el Navbar blanco de siempre. El pathname no
-  // llega como prop al layout compartido — lo inyecta middleware.js
-  // vía header (x-pathname) para no tener que renderizar <Navbar />
-  // a mano en cada una de las páginas.
-  const pathname = (await headers()).get('x-pathname') ?? '';
-  const rutaSinLocale = pathname.replace(new RegExp(`^/${locale}`), '') || '/';
-  const isHome = rutaSinLocale === '/';
-  const tieneProductHero = RUTAS_CON_PRODUCT_HERO.includes(rutaSinLocale);
-  // Ficha de colección de Runway (/archivo/runway/[coleccion], ruta
-  // dinámica — no puede vivir en RUTAS_CON_PRODUCT_HERO, que solo hace
-  // match exacto): mismo Navbar transparente que Tienda/Atelier, con su
-  // propio hero marcado data-navbar-hero (ver [coleccion]/page.js).
-  const esFichaRunway = rutaSinLocale.startsWith('/archivo/runway/');
-  // Igual que "esFichaRunway": páginas de categoría de Atelier
-  // (/atelier/{novias,fiesta}/categoria/[categoria], ruta dinámica —
-  // ver ese page.js) llevan el mismo ProductHero que ../page.js, así
-  // que necesitan el mismo Navbar transparente.
-  const esCategoriaAtelier = /^\/atelier\/(novias|fiesta)\/categoria\//.test(rutaSinLocale);
-
   return (
-    <html lang={locale}>
-      {/* La fuente Inter se carga vía @import en global.css (mismo criterio
-          que styleguide.html) — si más adelante se prefiere optimizarla con
-          next/font/google, este es el sitio donde se sustituiría. */}
+    <html lang={locale} className={clasesFuentes}>
       <body>
-        <NextIntlClientProvider messages={messages}>
+        <Analitica />
+        {/* timeZone también aquí: los componentes de cliente que formatean
+            fechas avisaban de ENVIRONMENT_FALLBACK al prerenderizar. */}
+        <NextIntlClientProvider messages={messages} timeZone="Europe/Madrid">
           <CarritoProvider>
             <MiCuentaProvider>
-              <Navbar transparent={isHome || tieneProductHero || esFichaRunway || esCategoriaAtelier} crecerLogo={isHome} />
-              <main>{children}</main>
+              <MarcoRuta
+                locale={locale}
+                ateliersCita={<AteliersCita />}
+                ateliersCitaSeparado={<AteliersCita separado />}
+                pedirCita={<PedirCita />}
+                pedirCitaSeparado={<PedirCita separado />}
+              >
+                {children}
+              </MarcoRuta>
               <Footer />
-              {isHome && <NewsletterModalGlobal />}
+              <BotonWhatsapp />
+              <CookieConsent />
             </MiCuentaProvider>
           </CarritoProvider>
         </NextIntlClientProvider>

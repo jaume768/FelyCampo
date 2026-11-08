@@ -1,26 +1,18 @@
 'use client';
 
-import ListaProductos from '@/components/admin/ListaProductos';
+/* /admin/colecciones/novia — colecciones y looks de Atelier Novias con
+   los mismos datos que enseñan sus fichas y páginas de categoría (ver
+   components/admin/AdminAtelierNovias.jsx y docs/ADMIN.md).
+   Antes usaba ListaProductos (vista genérica con datos de ejemplo). */
 
-// cat20 Bride 27 / cat21 ME / cat22 Bambú Novia / cat23 Savia Novia /
-// cat24 Inside / cat25 Introspección — ids fijados en mockData.js
-// categoriasMock.novia, portadas en public/img/collections/novia.
-const IMAGENES_CATEGORIA = {
-  cat20: '/img/collections/novia/Bride27-cover.webp',
-  cat21: '/img/collections/novia/ME-cover.webp',
-  cat22: '/img/collections/novia/Bambu-cover.webp',
-  cat23: '/img/collections/novia/Savia-cover.webp',
-  cat24: '/img/collections/novia/Inside-cover.webp',
-  cat25: '/img/collections/novia/Introspeccion-cover.webp',
-};
+import { Suspense } from 'react';
+import AdminAtelierNovias from '@/components/admin/AdminAtelierNovias';
 
 export default function ProductosNoviaPage() {
+  // Suspense: la pantalla lee la URL (useSearchParams).
   return (
-    <ListaProductos
-      tipoFijo="novia"
-      titulo="Novia"
-      agruparPorCategoria
-      imagenesCategoria={IMAGENES_CATEGORIA}
-    />
+    <Suspense fallback={null}>
+      <AdminAtelierNovias />
+    </Suspense>
   );
 }

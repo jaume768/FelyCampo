@@ -1,0 +1,128 @@
+/* ============================================================
+   ATELIER (índice: Novias + Fiesta) — Fely Campo. Ruta: /atelier
+   ProductHero + CabeceraSeccion (mismo header que Tienda/Atelier
+   Novias/Fiesta, ver page.js) + RunwayDescripcion (texto editorial) +
+   dos BloqueSeccion en zigzag (Novias/Fiesta, "invertido" en el
+   segundo, cada uno con su propio CTA) + "Conoce nuestros ateliers"
+   (tarjeta por sede: foto + ciudad + dirección + "Cómo llegar" a
+   Google Maps, ver page.js) + CarruselClientas al final (mismo
+   componente que la home). Esquinas rectas (sin radio), igual que el
+   resto del sitio.
+   ============================================================ */
+
+/* Override puntual del RunwayDescripcion de esta página (className,
+   ver RunwayDescripcion.jsx) — en desktop, 60% de ancho y centrado en
+   vez del 70%/justificado por defecto. Selector duplicado
+   (.descripcionTexto.descripcionTexto) para ganarle especificidad a
+   .texto de RunwayDescripcion.module.css sin depender del orden de
+   carga entre los dos módulos CSS. Mobile no se toca: la propia
+   media query de RunwayDescripcion.module.css ya deja ancho 100%. */
+@media (min-width: 768px) {
+  .descripcionTexto.descripcionTexto {
+    max-width: 60%;
+    text-align: center;
+  }
+}
+
+.ateliersSeccion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: var(--spacing-8);
+}
+
+/* Pasada a CabeceraSeccion como "className" (ver page.js) — pone en
+   columna su .cabeceraProductos.cabeceraInicio (fila en el resto del
+   sitio, ver CabeceraSeccion.module.css) solo aquí, mismo criterio que
+   .cabeceraColumna en visita-fely-campo/page.module.css. !important a
+   propósito: una sola clase no le gana en especificidad a ese
+   selector compuesto de dos. */
+.cabeceraColumna {
+  flex-direction: column !important;
+}
+
+/* Inspirada en Tarjeta de tienda (styleguide.html #tarjeta-tienda /
+   TarjetaTienda.module.css): imagen sin radio + ciudad/dirección/
+   enlace alineados a la izquierda debajo, no centrados como antes —
+   aquí sin título de sección encima (a diferencia de esa referencia,
+   que sí lleva "Tarjeta de tienda"). Imagen horizontal (16/9, ver
+   .atelierMarco), no 3/4 vertical como TarjetaTienda. 3 columnas
+   fijas (no auto-fill: aquí siempre son 3 sedes) con un gap mucho más
+   denso que el de .grid en blog/page.module.css (var(--spacing-10),
+   pensado para tarjetas grandes) — aquí las tarjetas son más
+   pequeñas, spacing-5 les basta. */
+.ateliersGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-5);
+  padding-inline: var(--spacing-6);
+}
+
+.atelierItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.atelierEnlaceImagen {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.atelierMarco {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-crema);
+}
+
+.atelierImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s var(--ease-marca);
+}
+
+.atelierEnlaceImagen:hover .atelierImagen {
+  transform: scale(1.03);
+}
+
+.atelierCiudad {
+  display: block;
+  font-size: var(--text-body-lg);
+  color: var(--color-tinta);
+  margin-top: var(--spacing-3);
+}
+
+/* La propia dirección ES el enlace a Google Maps (antes era un
+   "Cómo llegar" aparte) — mismo criterio que .direccion en
+   visita-fely-campo/page.module.css: enlace externo con target=_blank,
+   así que se escribe a mano en vez de con <Boton variante="texto">
+   (que no reenvía target); subrayado siempre visible, no solo al
+   hover, porque comparte tamaño/color con el resto de la tarjeta y es
+   la única pista de que es un enlace. Subrayado deliberadamente
+   discreto (gris claro, trazo fino) para no competir con el propio
+   texto de la dirección (--color-tinta). */
+.atelierDireccion {
+  display: block;
+  width: fit-content;
+  font-size: var(--text-label);
+  color: var(--color-tinta);
+  line-height: 1.8;
+  white-space: pre-line;
+  text-decoration: underline;
+  text-decoration-color: var(--color-gris-300);
+  text-decoration-thickness: 1px;
+  text-underline-offset: var(--spacing-1);
+}
+
+@media (max-width: 767px) {
+  .ateliersGrid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin-inline: auto;
+  }
+}

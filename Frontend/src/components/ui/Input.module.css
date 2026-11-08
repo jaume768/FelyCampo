@@ -11,6 +11,17 @@
   margin-bottom: var(--spacing-1);
 }
 
+/* Solo para lectores de pantalla (ver "etiquetaOculta" en Input.jsx). */
+.etiquetaOculta {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .input {
   width: 100%;
   border: 1px solid var(--color-gris-300);
@@ -25,15 +36,3 @@
 }
 .input::placeholder { color: var(--color-gris-400); }
 .input:focus { border-color: var(--color-tinta); }
-
-/* Estado de error del campo. Rosa oscuro para que el texto sobre blanco tenga
-   contraste legible (docs/design.md). Sin radio. */
-.inputError {
-  border-color: var(--color-rosa-oscuro, #c2185f);
-}
-
-.error {
-  margin-top: 4px;
-  font-size: 0.75rem;
-  color: var(--color-rosa-oscuro, #c2185f);
-}

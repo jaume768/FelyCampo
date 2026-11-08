@@ -1,0 +1,123 @@
+/* AteliersCita — tres columnas (Salamanca, Madrid, Oviedo) antes del footer.
+   Se pinta desde [locale]/layout.js donde hay intención de visitar un atelier (ver conAteliersCitaEn). */
+
+/* Tres tarjetas (foto + pie) a sangre: sin gap entre columnas ni
+   margen lateral, las fotos se tocan entre sí y con los bordes de la
+   pantalla (también en el carrusel de mobile). Escritorio: la sección
+   mide 80vh (min-height) y las tarjetas la llenan entera; la
+   separación arriba y abajo es margen (no padding), así no le resta
+   alto a la sección. */
+.ateliersCita {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  min-height: 80vh;
+  margin-block: var(--spacing-8);
+}
+
+/* Cada columna: la foto arriba, llenando todo el alto que queda, y
+   debajo el título con el CTA debajo, en columna.
+   Alto fijo (no height:100%, que en una fila de grid de alto automático
+   no tiene contra qué resolverse): los mismos 80vh de la sección. */
+.atelierCita {
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  overflow: hidden;
+}
+
+.atelierCitaImagen {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* A ras de los bordes de la foto (sin padding lateral). En columna,
+   centrado: título arriba y CTA debajo. */
+.atelierCitaContenido {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding-top: var(--spacing-4);
+  text-align: center;
+}
+
+/* Título de bloque (ver --text-bloque-* en global.css), sin mayúsculas. */
+.atelierCitaTitulo {
+  font-size: var(--text-bloque-titulo);
+  font-weight: 400;
+  line-height: var(--leading-bloque);
+  letter-spacing: var(--tracking-bloque);
+  text-transform: none;
+  color: var(--color-tinta);
+}
+
+/* Escritorio: "Atelier Salamanca & Showroom" en una sola línea — el
+   <br> (.saltoMovil, ver AteliersCita.jsx) solo parte el título en
+   mobile, y nowrap evita que el navegador lo parta por su cuenta. */
+@media (min-width: 768px) {
+  .atelierCitaTitulo {
+    white-space: nowrap;
+  }
+  .saltoMovil {
+    display: none;
+  }
+}
+
+/* Boton "texto" (13px, ver --text-cta) en --color-tinta, sin
+   mayúsculas. Doble clase para ganar a .texto de Boton.module.css sin
+   depender del orden de carga de los módulos. */
+.atelierCita .atelierCitaCta {
+  flex-shrink: 0;
+  text-transform: none;
+}
+
+/* Mobile: carrusel horizontal a 80vh. Cada atelier ocupa 80vw para
+   que asome el siguiente e invite a deslizar; scroll-snap encaja cada
+   tarjeta al soltar, respetando el margen lateral (scroll-padding).
+   Sin barra de scroll visible. */
+@media (max-width: 767px) {
+  .ateliersCita {
+    display: flex;
+    overflow-x: auto;
+    /* Solo el gesto horizontal es del carrusel: sin scroll vertical propio,
+       un deslizamiento vertical en mobile mueve la página. */
+    overflow-y: hidden;
+    touch-action: pan-x pan-y;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Hueco blanco entre ateliers (a petición): marca dónde acaba cada
+       uno e invita a deslizar en horizontal. */
+    gap: var(--spacing-2);
+    min-height: 0;
+    margin-block: 0;
+    padding-block: var(--spacing-6);
+  }
+  .ateliersCita::-webkit-scrollbar {
+    display: none;
+  }
+  .atelierCita {
+    flex: 0 0 80vw;
+    height: 80vh;
+    scroll-snap-align: start;
+  }
+}
+
+/* "separado" (ver AteliersCita.jsx — en /atelier): más aire en blanco
+   encima, para separar las columnas de las fotos del bloque anterior.
+   Va después de la regla de mobile (margin-block: 0) para ganarle con
+   la misma especificidad. */
+.separado {
+  margin-top: var(--spacing-10);
+}
+
+@media (max-width: 767px) {
+  .separado {
+    margin-top: var(--spacing-8);
+  }
+}

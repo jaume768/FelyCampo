@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 import { Boton, Input, CollectionTitle } from '../ui';
 import {
-  HeroCarousel, MediaBanner, SplitMedia, CuadriculaProductos, BloqueSeccion, SectionClientsReview,
+  HeroCarousel, MediaBanner, SplitMedia, CuadriculaProductos, BloqueSeccion,
 } from '../layout';
 import {
   PageHeader, PickerDrawer, SelectorIdioma, FormSeccion, ModalOverlay, useToast,
@@ -79,7 +79,7 @@ const TIPOS_PRODUCTO_DESTACADOS = tiposProducto.filter((t) => ['pret-a-porter', 
 // entrada de nivel superior sin " — " (p.ej. "Prêt-à-porter" a secas)
 // pasa a "Todo el catálogo".
 const GRUPOS_DESTINO = [
-  { grupo: 'Prêt-à-porter', prefijo: '/tienda' },
+  { grupo: 'Prêt-à-porter', prefijo: '/pret-a-porter' },
   { grupo: 'Atelier', prefijo: '/atelier' },
   { grupo: 'Archivo', prefijo: '/archivo' },
   { grupo: 'Visítanos', prefijo: '/visita-fely-campo' },
@@ -154,8 +154,8 @@ function vistaPreviaDe(bloque, idioma) {
       return (
         <BloqueSeccion imagen={bloque.imagen} titulo={bloque.titulo} texto={bloque.texto} enlace={bloque.enlaceTexto} href="#" />
       );
-    case 'reviews':
-      return <SectionClientsReview />;
+    // 'reviews': las reseñas de ejemplo (SectionClientsReview) se borraron
+    // el 2026-11-07; el bloque ya no pinta nada.
     default:
       return null;
   }

@@ -22,8 +22,11 @@ import { Plus } from 'lucide-react';
 import styles from './SelectorTalla.module.css';
 
 /**
- * Selector de talla de producto. Las tallas en el array
- * 'agotadas' se muestran tachadas y deshabilitadas.
+ * Selector de talla de producto. Las tallas en el array 'agotadas' se
+ * muestran con opacidad reducida pero siguen siendo clicables — quien
+ * use este componente decide qué pasa al elegir una (ver
+ * FichaProductoAcciones.jsx: abre el flujo de "Avísame cuando esté
+ * disponible" en vez de dejar añadir directamente al carrito).
  * "colapsarEnUnaFila" (true por defecto): con más tallas de las que
  * caben en el ancho disponible, solo enseña la primera fila (la última
  * de sus tallas se sustituye por un chip "+" que despliega el resto).
@@ -82,7 +85,7 @@ function SelectorTalla({ tallas = [], agotadas = [], seleccionada, onSelect, tab
         const clase = [
           styles.talla,
           agotada && styles.agotada,
-          activa && !agotada && styles.activa,
+          activa && styles.activa,
         ].filter(Boolean).join(' ');
         const oculto = colapsable && !tallasVisibles.includes(t);
 
@@ -91,7 +94,6 @@ function SelectorTalla({ tallas = [], agotadas = [], seleccionada, onSelect, tab
             key={t}
             type="button"
             data-talla-medible=""
-            disabled={agotada}
             onClick={() => onSelect(t)}
             className={clase}
             tabIndex={tabIndex}

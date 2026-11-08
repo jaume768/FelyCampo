@@ -15,9 +15,11 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import styles from './BotonVolver.module.css';
 
-function BotonVolver({ href, children = 'Volver' }) {
+// "enBarra": sin el margen de abajo, para ir dentro de la barra fija del
+// editor (EditorPagina.jsx), a la izquierda del título.
+function BotonVolver({ href, children = 'Volver', enBarra = false }) {
   return (
-    <Link href={href} className={styles.boton}>
+    <Link href={href} className={`${styles.boton} ${enBarra ? styles.enBarra : ''}`}>
       <ArrowLeft size={14} aria-hidden="true" />
       {children}
     </Link>

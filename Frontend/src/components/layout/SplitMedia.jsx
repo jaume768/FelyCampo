@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl';
 import useEnVista from '@/hooks/useEnVista';
 import { Boton, ImageTitle } from '../ui';
 import styles from './SplitMedia.module.css';
+import { atributosImagen } from '@/lib/imagenes';
+import VideoDiferido from '@/components/ui/VideoDiferido';
 
 /**
  * Dos piezas editoriales lado a lado (imagen o vídeo), cada una con
@@ -22,11 +24,15 @@ import styles from './SplitMedia.module.css';
  * <div>, no un <a>: la imagen deja de ser clicable por sí sola, solo
  * el CTA (enlace real) navega. Evita anidar <a> dentro de <a>.
  * variante="landing": sin gap entre piezas (ver .grid.landing) y sin
- * etiqueta — solo un <h1> en mayúsculas alineado a la izquierda + CTA.
+ * etiqueta — fila inferior con el <h2> a la izquierda (no <h1>: hay varias piezas por página y el H1 lo pone cada página) y el CTA (siempre
+ * visible) en la esquina derecha, sobre un degradado de abajo arriba.
  * Como "etiqueta": toda la pieza es un único <a> clicable (href en la
  * pieza, no en el CTA — Boton sin href renderiza un <span>, solo
  * visual). tituloKey y ctaKey son opcionales: un item sin ninguno de
  * los dos queda como imagen pura, sin overlay de texto ni link.
+ * centrado (solo con "landing", ej. /atelier): título y CTA en columna,
+ * centrados en alto y ancho sobre la foto, con un velo uniforme en vez
+ * del degradado inferior.
  */
 /**
  * Una pieza del grid, como componente aparte: cada una necesita su
@@ -38,15 +44,20 @@ function Pieza({ item, esImageTitle, esLanding, esClicableComoImagen, t }) {
   const Contenedor = esClicableComoImagen ? 'a' : 'div';
   const claseContenido = esLanding ? styles.contenidoLanding : styles.contenido;
 
+  // landing: texto directo (titulo/cta, desde /admin/landing) o, si no
+  // lo hay, la clave de traducción (tituloKey/ctaKey).
+  const tituloLanding = item.titulo ?? (item.tituloKey ? t(item.tituloKey) : '');
+  const ctaLanding = item.cta ?? (item.ctaKey ? t(item.ctaKey) : '');
+
   return (
     <Contenedor {...(esClicableComoImagen ? { href: item.href } : {})} className={styles.pieza}>
       {item.tipo === 'video' ? (
-        <video src={item.src} className={styles.media} autoPlay muted loop playsInline />
+        <VideoDiferido src={item.src} className={styles.media} />
       ) : (
-        <img src={item.src} alt="" className={styles.media} />
+        <img {...atributosImagen(item.src, { sizes: '(max-width: 768px) 100vw, 50vw' })} alt="" className={styles.media} />
       )}
 
-      {esLanding && !item.tituloKey && !item.ctaKey ? null : (
+      {esLanding && !tituloLanding && !ctaLanding ? null : (
         <div
           ref={esImageTitle ? undefined : ref}
           className={`${claseContenido} ${!esImageTitle && enVista ? styles.enVista : ''}`}
@@ -60,9 +71,9 @@ function Pieza({ item, esImageTitle, esLanding, esClicableComoImagen, t }) {
             />
           ) : esLanding ? (
             <>
-              {item.tituloKey && <h1 className={styles.tituloLanding}>{t(item.tituloKey)}</h1>}
-              {item.ctaKey && (
-                <Boton variante="texto" className={styles.cta}>{t(item.ctaKey)}</Boton>
+              {tituloLanding && <h2 className={styles.tituloLanding}>{tituloLanding}</h2>}
+              {ctaLanding && (
+                <Boton variante="texto" className={styles.cta}>{ctaLanding}</Boton>
               )}
             </>
           ) : (
@@ -77,14 +88,14 @@ function Pieza({ item, esImageTitle, esLanding, esClicableComoImagen, t }) {
   );
 }
 
-function SplitMedia({ items, variante = 'etiqueta' }) {
+function SplitMedia({ items, variante = 'etiqueta', centrado = false }) {
   const t = useTranslations();
   const esImageTitle = variante === 'imageTitle';
   const esLanding = variante === 'landing';
   const esClicableComoImagen = !esImageTitle;
 
   return (
-    <div className={`${styles.grid} ${esLanding ? styles.landing : ''}`}>
+    <div className={`${styles.grid} ${esLanding ? styles.landing : ''} ${esLanding && centrado ? styles.centrado : ''}`}>
       {items.map((item, index) => (
         <Pieza
           key={index}

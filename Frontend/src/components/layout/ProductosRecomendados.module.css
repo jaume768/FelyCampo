@@ -18,7 +18,12 @@
   display: flex;
   gap: 0.04rem;
   overflow-x: auto;
+  /* Solo el gesto horizontal es del carrusel: sin scroll vertical propio,
+     un deslizamiento vertical en mobile mueve la página. */
+  overflow-y: hidden;
+  touch-action: pan-x pan-y;
   scrollbar-width: none;
+  margin-top: 6rem; /* a petición: aire sobre el carrusel */
 }
 
 .pista::-webkit-scrollbar {

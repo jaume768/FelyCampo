@@ -1,23 +1,11 @@
-'use client';
+/* /admin/productos/atelier — ya no existe (quitada del menú a petición,
+   2026-11-06): enseñaba vestidos de ejemplo que no están en la web. Los
+   vestidos reales de Atelier son los looks de Fiesta y Novias, que se
+   editan en /admin/colecciones/fiesta y /admin/colecciones/novia. Quien
+   llegue con la dirección antigua va a Colección Fiesta. */
 
-import ListaProductos from '@/components/admin/ListaProductos';
-
-// cat3 Novias / cat4 Fiesta — ids fijados en mockData.js
-// categoriasMock.atelier. Reutiliza las mismas fotos de sección que ya usan
-// Vestido Elena/Vestido Celeste en productosMock, no hay carpeta
-// /categorias dedicada para Atelier.
-const IMAGENES_CATEGORIA = {
-  cat3: '/img/novias-sección-FelyCampo.jpg',
-  cat4: '/img/invitadas-sección-FelyCampo.jpg',
-};
+import { redirect } from 'next/navigation';
 
 export default function ProductosAtelierPage() {
-  return (
-    <ListaProductos
-      tipoFijo="atelier"
-      titulo="Atelier"
-      agruparPorCategoria
-      imagenesCategoria={IMAGENES_CATEGORIA}
-    />
-  );
+  redirect('/admin/colecciones/fiesta');
 }

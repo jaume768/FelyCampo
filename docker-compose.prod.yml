@@ -44,6 +44,12 @@ services:
       target: prod
     restart: unless-stopped
     env_file: ./backend/.env.prod
+    environment:
+      # Aviso al frontend al publicar contenido (apps/content/revalidation.py), por la
+      # red interna. El secreto vive SOLO en el .env de la raíz y llega a los dos
+      # servicios desde aquí: así no pueden quedar desincronizados.
+      FRONTEND_INTERNAL_URL: http://frontend:3000
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:?REVALIDATE_SECRET es obligatoria}
     volumes:
       # Los archivos subidos tienen que sobrevivir a los despliegues: la imagen se
       # reconstruye, el volumen no. Caddy lo monta en solo lectura para servirlos.
@@ -69,11 +75,31 @@ services:
         # Se incrusta en el bundle del navegador DURANTE EL BUILD, no se lee al arrancar:
         # si cambia el dominio hay que reconstruir la imagen, no basta reiniciarla.
         NEXT_PUBLIC_API_URL: ${PUBLIC_URL:?PUBLIC_URL es obligatoria (p. ej. https://websjfs.com)}
+        # Canonical, hreflang, sitemap y Open Graph (src/lib/seo.js). Siempre el dominio
+        # definitivo, también desde un servidor de pruebas.
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL:-https://felycampo.com}
+        NEXT_PUBLIC_GTM_ID: ${GTM_ID:-}
+        NEXT_PUBLIC_META_PIXEL_ID: ${META_PIXEL_ID:-}
+        # next.config.mjs lo lee en el build para las cabeceras X-Robots-Tag.
+        SITIO_INDEXABLE: ${SITIO_INDEXABLE:-false}
     restart: unless-stopped
+    # Correo de los formularios (Resend) y demás variables solo de servidor.
+    env_file: ./Frontend/.env.prod
     environment:
       # Solo servidor: los Server Components hablan con el backend por la red interna,
       # donde "localhost" sería el propio contenedor del frontend.
       API_INTERNAL_URL: http://backend:8000
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:?REVALIDATE_SECRET es obligatoria}
+      # Anuncio de la nueva web para el público y acceso del equipo
+      # (src/lib/sesionEquipo.js). Se leen al ARRANCAR, no en el build: para
+      # abrir la web, PRELANZAMIENTO=false en .env y
+      # `docker compose -f docker-compose.prod.yml up -d frontend`.
+      PRELANZAMIENTO: ${PRELANZAMIENTO:-true}
+      PRELANZAMIENTO_FECHA: ${PRELANZAMIENTO_FECHA:-2026-11-15}
+      SESION_EQUIPO_SECRET: ${SESION_EQUIPO_SECRET:?SESION_EQUIPO_SECRET es obligatoria}
+      # src/lib/seo.js la lee al renderizar (meta robots, robots.txt): tiene que valer lo
+      # mismo que en el build.
+      SITIO_INDEXABLE: ${SITIO_INDEXABLE:-false}
       PORT: 3000
       HOSTNAME: "0.0.0.0"
     depends_on:

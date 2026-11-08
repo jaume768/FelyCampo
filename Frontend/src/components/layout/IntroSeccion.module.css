@@ -1,0 +1,83 @@
+/* ============================================================
+   INTRO DE SECCIÓN — Fely Campo (ver IntroSeccion.jsx)
+   Mínimo 60vh, centrado en vertical y alineado a la izquierda dentro
+   del ancho máximo del sitio (--max-sitio, centrado). 32px arriba y
+   abajo (--spacing-6, a petición) y el margen lateral del header a
+   los lados. Título (19px, --text-destacado), texto (13px) a 60vw en
+   escritorio — a todo el ancho en mobile/tablet — y los filtros debajo.
+   ============================================================ */
+
+.intro {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--max-sitio);
+  min-height: 60vh;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding-block: var(--spacing-6);
+  padding-inline: var(--padding-lateral-nav);
+  text-align: left;
+}
+
+/* Título → texto: 24px. */
+.titulo {
+  margin-bottom: var(--spacing-5);
+  font-size: var(--text-destacado);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-tinta);
+}
+
+.texto {
+  width: 60vw;
+  max-width: 100%; /* en pantallas muy anchas, nunca más que .intro (--max-sitio) */
+  font-size: var(--text-texto);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+  text-wrap: pretty;
+}
+
+/* Texto → filtros: 64px; entre filtros: 24px. */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: var(--spacing-5);
+  margin-top: var(--spacing-8);
+}
+
+/* Botón con la forma de Boton "texto", todos al mismo color y
+   opacidad: solo el filtro activo lleva el subrayado; los demás lo
+   tienen transparente (también al hover), así el trazo no hace
+   "saltar" el texto al cambiar de filtro. Doble clase para ganar a
+   .texto de Boton.module.css sin depender del orden de carga. */
+.filtros .filtro {
+  /* 13px (--text-cta, como el resto de CTAs subrayados), a petición:
+     a 12px se veían demasiado pequeños y 15px era demasiado. */
+  font-size: var(--text-cta);
+  border-bottom-color: transparent;
+  transition:
+    border-bottom-color 0.25s var(--ease-marca),
+    border-bottom-width 0.25s var(--ease-marca),
+    padding-bottom 0.25s var(--ease-marca);
+}
+
+.filtros .filtroActivo {
+  border-bottom-color: currentColor;
+}
+
+@media (max-width: 1023px) {
+  .texto {
+    width: 100%;
+  }
+}
+
+/* Mobile: sin el mínimo de 60vh — la intro mide lo que su contenido
+   más el padding, sin hueco vacío arriba y abajo. */
+@media (max-width: 767px) {
+  .intro {
+    min-height: 0;
+  }
+}

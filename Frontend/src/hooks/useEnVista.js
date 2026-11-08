@@ -11,8 +11,15 @@ import { useEffect, useRef, useState } from 'react';
  * no deben repetirse al subir/bajar por la página.
  * Sin IntersectionObserver (SSR, navegadores muy viejos): true desde
  * el principio, para no dejar el contenido oculto por error.
+ *
+ * Dispara en cuanto el borde superior del elemento asoma un 5% por
+ * abajo de la pantalla (umbral 0, margen -5%), sea cual sea su alto.
+ * Antes pedía un 20% del propio elemento visible (umbral 0.2): en
+ * bloques altos (80–120vh) eso era mucho scroll con el bloque aún
+ * invisible, y uno de más de ~4,5 pantallas no llegaba nunca al 20% y
+ * se quedaba oculto para siempre.
  */
-function useEnVista({ margen = '0px 0px -10% 0px', umbral = 0.2 } = {}) {
+function useEnVista({ margen = '0px 0px -5% 0px', umbral = 0 } = {}) {
   const ref = useRef(null);
   const [enVista, setEnVista] = useState(false);
 

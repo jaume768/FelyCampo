@@ -102,10 +102,12 @@
   background: var(--color-gris-100);
   border: none;
   border-radius: 0;
-  font-size: var(--text-small);
+  font-size: var(--text-label);
   color: var(--color-tinta);
   cursor: pointer;
   transition: opacity 0.25s var(--ease-marca);
+  font-family: var(--font-base);
+  letter-spacing: var(--tracking-label);
 }
 .quitar:hover { opacity: 0.6; }
 

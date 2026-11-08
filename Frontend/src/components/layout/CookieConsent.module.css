@@ -1,0 +1,203 @@
+/* ============================================================
+   AVISO DE COOKIES — Fely Campo
+   Barra fija al pie de la ventana, no un Modal a pantalla completa
+   (ver CookieConsent.jsx) — borde superior fino en vez de sombra,
+   mismo criterio de "línea, no elevación" que el resto del sistema
+   (sin box-shadow en ningún componente). Esquinas rectas, igual que
+   el resto del sitio.
+   z-index:60 — por encima del Navbar (z-index:50, ver
+   BlogCampana.module.css) pero por debajo de Modal.module.css (99/100):
+   un Modal que se abra mientras el aviso está visible debe tapar el
+   aviso, no al revés.
+   ============================================================ */
+
+/* Velo negro al 40% a pantalla completa detrás del aviso (z-index 59,
+   justo por debajo de .banner): centra la atención en él y, al cubrir
+   toda la página, bloquea los clics hasta elegir (CookieConsent.jsx
+   bloquea además el scroll). Fundido propio, sin la subida de
+   .entrada-suave/.salida-suave de global.css. */
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 59;
+  background: rgb(0 0 0 / 0.4);
+  animation: veloEntrada 0.5s var(--ease-marca) both;
+}
+
+.veloSaliendo {
+  animation: veloSalida 0.35s var(--ease-marca) both;
+}
+
+@keyframes veloEntrada {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes veloSalida {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .velo,
+  .veloSaliendo {
+    animation: none;
+  }
+}
+
+/* max-height + overflow-y:auto — con "Personalizar" abierto (3
+   categorías + descripciones + botón) en un móvil bajo, el aviso
+   podría llegar a ocupar más alto que la propia ventana; así, en vez
+   de desbordar por arriba o tapar toda la pantalla, scrollea por su
+   cuenta sin dejar de ser "una barra", no un modal a pantalla
+   completa. */
+.banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--color-fondo);
+  padding: var(--spacing-5) var(--spacing-6);
+}
+
+.contenido {
+  max-width: var(--max-sitio);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.texto {
+  flex: 1;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.titulo {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+}
+
+.parrafo {
+  font-size: var(--text-small);
+  line-height: var(--leading-base);
+  color: var(--color-gris-600);
+  max-width: 640px;
+}
+
+.enlace {
+  color: var(--color-gris-600);
+  text-decoration: underline;
+  text-decoration-color: var(--color-gris-600);
+  text-underline-offset: var(--spacing-1);
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  gap: var(--spacing-3);
+}
+
+.enlacePersonalizar {
+  white-space: nowrap;
+  margin-right: var(--spacing-2);
+}
+
+/* ---------- Panel "Personalizar" ---------- */
+.preferencias {
+  max-width: 480px;
+  margin-inline: auto;
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--spacing-3);
+}
+
+.categoria {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  cursor: pointer;
+}
+
+.checkbox {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: var(--color-tinta);
+}
+
+.categoriaTextos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.categoriaNombre {
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tinta);
+}
+
+.categoriaTexto {
+  font-size: var(--text-caption);
+  line-height: var(--leading-base);
+  color: var(--color-gris-500);
+}
+
+.botonGuardar {
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .banner {
+    padding: var(--spacing-4);
+  }
+
+  .contenido {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .texto {
+    min-width: 0;
+  }
+
+  .acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .enlacePersonalizar {
+    align-self: center;
+  }
+
+  /* Más gap entre categorías que en escritorio — con el dedo (no el
+     ratón) hace falta más margen entre checkboxes para no marcar el
+     de al lado por error. categoriaTexto un paso más pequeño
+     (--text-micro) para que la fila quepa en un móvil estrecho sin
+     forzar el ancho. */
+  .preferencias {
+    gap: var(--spacing-4);
+  }
+
+  .categoriaTexto {
+    font-size: var(--text-micro);
+  }
+}

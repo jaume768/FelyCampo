@@ -25,7 +25,6 @@
   font-size: var(--text-h4);
   font-weight: var(--font-weight-medium);
   color: var(--color-tinta);
-  text-transform: uppercase;
 }
 
 .cerrar {
@@ -80,12 +79,4 @@
   flex-direction: row;
   gap: var(--spacing-3);
   padding-top: var(--spacing-4);
-}
-
-.total {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 0 12px;
-  font-size: 0.9375rem;
-  color: var(--color-tinta, #202020);
 }

@@ -1,207 +1,180 @@
 'use client';
 
 /* ============================================================
-   STOCK — Fely Campo (admin). DATOS REALES: /api/v1/admin/stock/.
-
-   Una fila por VARIANTE (producto × color × talla), que es donde vive
-   el stock de verdad. Tres cifras que conviene no confundir:
-     físico      unidades en almacén
-     reservado   comprometidas por checkouts en curso
-     disponible  = físico − reservado, lo que se puede vender
-
-   «Disponible» es la cifra principal porque es la que decide si una
-   talla sale agotada en la tienda.
-
-   Ya NO es solo lectura: se puede ajustar, y **todo ajuste exige
-   motivo** — el backend lo audita creando un `StockMovement`. No hay
-   forma de mover stock sin dejar rastro, y es a propósito.
+   STOCK — Fely Campo (admin)
+   Stock general por producto+talla, sin desglose por ubicación (ese
+   antiguo dataset de 7 filas cubriendo 2 productos se quitó — ver
+   mockData.js `filasStock()`). Solo lectura por ahora, igual que antes:
+   el número real se edita en "Tallas y Stock" de cada producto
+   (FormularioProducto.jsx), aquí solo se hojea/filtra.
+   'use client': TablaAdmin recibe columnas con funciones render, que
+   no pueden cruzar el límite servidor→cliente.
    ============================================================ */
 
-import { useCallback, useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-import { PageHeader, TablaAdmin, FiltroBar, FiltroSelector, useToast } from '@/components/admin';
-import { Boton, Input } from '@/components/ui';
+import { useMemo, useState } from 'react';
 import {
-  listarVariantes, adaptarVarianteStock, nivelStock,
-  listarUbicaciones, adaptarUbicacion,
-} from '@/lib/api/adminStock';
-import { ApiError } from '@/lib/api/errors';
-import DetalleStockModal from '@/components/admin/DetalleStockModal';
+  PageHeader, TablaAdmin, FiltroBar, FiltroSelector, TabsFiltro, useCategorias,
+} from '@/components/admin';
+import { Input } from '@/components/ui';
+import { filasStock, nivelStock, tallasEstandar, coleccionesMock } from '@/components/admin/mockData';
 import styles from './page.module.css';
 
-const POR_PAGINA = 20;
+// "Stock ok" no decía nada — "Disponible" empareja mejor con "Agotado"
+// (el mismo par que ya usa el resto del sitio) y dice lo que de verdad
+// importa: hay unidades para vender.
+const ETIQUETA_NIVEL = {
+  ok: 'Disponible',
+  bajo: 'Stock bajo',
+  agotado: 'Agotado',
+};
 
-const ETIQUETA_NIVEL = { ok: 'Disponible', bajo: 'Stock bajo', agotado: 'Agotado' };
-const CLASE_NIVEL = { ok: 'nivelOk', bajo: 'nivelBajo', agotado: 'nivelAgotado' };
+const CLASE_NIVEL = {
+  ok: 'nivelOk',
+  bajo: 'nivelBajo',
+  agotado: 'nivelAgotado',
+};
 
-const OPCIONES_DISPONIBILIDAD = [
+const OPCIONES_NIVEL = [
   { valor: 'Todos', etiqueta: 'Todos' },
-  { valor: 'true', etiqueta: 'Con stock' },
-  { valor: 'false', etiqueta: 'Sin stock' },
+  { valor: 'ok', etiqueta: 'Disponible' },
+  { valor: 'bajo', etiqueta: 'Stock bajo' },
+  { valor: 'agotado', etiqueta: 'Agotado' },
+];
+
+const OPCIONES_ORDEN = [
+  { valor: 'stockAsc', etiqueta: 'Stock: Menor a mayor' },
+  { valor: 'stockDesc', etiqueta: 'Stock: Mayor a menor' },
+  { valor: 'nombre', etiqueta: 'Nombre: A-Z' },
 ];
 
 export default function StockPage() {
-  const { mostrarToast } = useToast();
+  const { categorias } = useCategorias();
+  const filas = useMemo(() => filasStock(), []);
+
+  // Solo Prêt-à-porter tiene tallas/stock (ver CAMPOS_TIPO en
+  // FormularioProducto.jsx), así que el filtro de Categoría solo necesita
+  // ofrecer las categorías de ese tipo — vía CategoriasProvider (no el
+  // import estático) para que una categoría renombrada/creada desde
+  // /admin/categorias se refleje aquí sin recargar.
+  const opcionesCategoria = useMemo(() => [
+    { valor: 'Todas', etiqueta: 'Todas' },
+    ...(categorias['pret-a-porter'] || []).filter((c) => c.visible).map((c) => ({ valor: c.id, etiqueta: c.nombre })),
+  ], [categorias]);
 
   const [query, setQuery] = useState('');
-  const [filtroStock, setFiltroStock] = useState('Todos');
-  const [pagina, setPagina] = useState(1);
+  const [filtroCategoria, setFiltroCategoria] = useState('Todas');
+  const [filtroColeccion, setFiltroColeccion] = useState('Todas');
+  const [filtroTalla, setFiltroTalla] = useState('Todas');
+  const [filtroNivel, setFiltroNivel] = useState('Todos');
+  const [orden, setOrden] = useState('stockAsc');
 
-  const [filas, setFilas] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
-  const [ubicaciones, setUbicaciones] = useState([]);
-  const [varianteAbierta, setVarianteAbierta] = useState(null);
+  const totalReferencias = filas.length;
+  const totalBajo = filas.filter((f) => nivelStock(f.stock) === 'bajo').length;
+  const totalAgotado = filas.filter((f) => nivelStock(f.stock) === 'agotado').length;
 
-  const cargar = useCallback(async () => {
-    setCargando(true);
-    setError(null);
-    try {
-      const params = { page: pagina, page_size: POR_PAGINA };
-      if (query) params.search = query;
-      if (filtroStock !== 'Todos') params.in_stock = filtroStock;
+  const filtradas = useMemo(() => {
+    let resultado = filas.filter((f) => {
+      if (filtroCategoria !== 'Todas' && f.categoriaId !== filtroCategoria) return false;
+      if (filtroColeccion !== 'Todas' && f.coleccion !== filtroColeccion) return false;
+      if (filtroTalla !== 'Todas' && f.talla !== filtroTalla) return false;
+      if (filtroNivel !== 'Todos' && nivelStock(f.stock) !== filtroNivel) return false;
+      if (query && !`${f.nombre} ${f.sku}`.toLowerCase().includes(query.toLowerCase())) return false;
+      return true;
+    });
+    resultado = [...resultado].sort((a, b) => {
+      if (orden === 'stockAsc') return a.stock - b.stock;
+      if (orden === 'stockDesc') return b.stock - a.stock;
+      return a.nombre.localeCompare(b.nombre);
+    });
+    return resultado;
+  }, [filas, query, filtroCategoria, filtroColeccion, filtroTalla, filtroNivel, orden]);
 
-      const pag = await listarVariantes(params);
-      setFilas((pag.results || []).map(adaptarVarianteStock));
-      setTotal(pag.count ?? 0);
-    } catch (fallo) {
-      if (!(fallo instanceof ApiError)) throw fallo;
-      setError(fallo);
-      setFilas([]);
-      setTotal(0);
-    } finally {
-      setCargando(false);
-    }
-  }, [query, filtroStock, pagina]);
+  const hayFiltros = query !== '' || filtroCategoria !== 'Todas' || filtroColeccion !== 'Todas'
+    || filtroTalla !== 'Todas' || filtroNivel !== 'Todos' || orden !== 'stockAsc';
 
-  useEffect(() => {
-    const t = setTimeout(cargar, query ? 300 : 0);
-    return () => clearTimeout(t);
-  }, [cargar, query]);
-
-  useEffect(() => {
-    setPagina(1);
-  }, [query, filtroStock]);
-
-  // Ubicaciones: hacen falta para poder ajustar (el backend exige a cuál).
-  useEffect(() => {
-    listarUbicaciones()
-      .then((pag) => setUbicaciones((pag.results || pag || []).map(adaptarUbicacion)))
-      .catch(() => setUbicaciones([]));
-  }, []);
-
-  const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
+  function limpiarFiltros() {
+    setQuery('');
+    setFiltroCategoria('Todas');
+    setFiltroColeccion('Todas');
+    setFiltroTalla('Todas');
+    setFiltroNivel('Todos');
+    setOrden('stockAsc');
+  }
 
   return (
     <div>
-      <PageHeader
-        titulo="Stock"
-        subtitulo={cargando ? 'Cargando…' : `${total} variante${total === 1 ? '' : 's'}`}
-      />
+      <PageHeader titulo="Stock" subtitulo="Stock general por producto y talla" />
 
-      <FiltroBar>
-        <Input
-          etiqueta="Buscar"
-          placeholder="Producto o SKU"
-          valor={query}
-          onChange={(e) => setQuery(e.target.value)}
+      <div className={styles.kpis}>
+        <button type="button" className={styles.kpiTarjeta} onClick={() => setFiltroNivel('Todos')}>
+          <p className={styles.kpiValor}>{totalReferencias}</p>
+          <p className={styles.kpiEtiqueta}>Referencias</p>
+        </button>
+        <button type="button" className={`${styles.kpiTarjeta} ${styles.kpiBajo}`} onClick={() => setFiltroNivel('bajo')}>
+          <p className={styles.kpiValor}>{totalBajo}</p>
+          <p className={styles.kpiEtiqueta}>Stock bajo</p>
+        </button>
+        <button type="button" className={`${styles.kpiTarjeta} ${styles.kpiAgotado}`} onClick={() => setFiltroNivel('agotado')}>
+          <p className={styles.kpiValor}>{totalAgotado}</p>
+          <p className={styles.kpiEtiqueta}>Agotadas</p>
+        </button>
+      </div>
+
+      <FiltroBar onLimpiar={hayFiltros ? limpiarFiltros : undefined}>
+        <Input etiqueta="Buscar" placeholder="Nombre o SKU" valor={query} onChange={(e) => setQuery(e.target.value)} />
+        <FiltroSelector
+          etiqueta="Categoría"
+          valor={filtroCategoria}
+          onChange={(e) => setFiltroCategoria(e.target.value)}
+          opciones={opcionesCategoria}
+          activo={filtroCategoria !== 'Todas'}
         />
         <FiltroSelector
-          etiqueta="Disponibilidad"
-          valor={filtroStock}
-          onChange={(e) => setFiltroStock(e.target.value)}
-          opciones={OPCIONES_DISPONIBILIDAD}
+          etiqueta="Colección"
+          valor={filtroColeccion}
+          onChange={(e) => setFiltroColeccion(e.target.value)}
+          opciones={[{ valor: 'Todas', etiqueta: 'Todas' }, ...coleccionesMock]}
+          activo={filtroColeccion !== 'Todas'}
+        />
+        <FiltroSelector
+          etiqueta="Talla"
+          valor={filtroTalla}
+          onChange={(e) => setFiltroTalla(e.target.value)}
+          opciones={[{ valor: 'Todas', etiqueta: 'Todas' }, ...tallasEstandar.map((t) => ({ valor: t, etiqueta: t }))]}
+          compacta
+          activo={filtroTalla !== 'Todas'}
+        />
+        <FiltroSelector
+          etiqueta="Ordenar por"
+          valor={orden}
+          onChange={(e) => setOrden(e.target.value)}
+          opciones={OPCIONES_ORDEN}
+          activo={orden !== 'stockAsc'}
         />
       </FiltroBar>
 
-      {/* Con una sola ubicación creada el desglose queda inerte: se avisa en vez de
-          enseñar una columna que siempre dice lo mismo. */}
-      {ubicaciones.length === 1 && (
-        <p className={styles.avisoUbicaciones}>
-          Solo hay una ubicación («{ubicaciones[0].nombre}»), así que el desglose por
-          ubicación coincide con el total. Crea más ubicaciones si repartís el almacén.
-        </p>
-      )}
-
-      {error && (
-        <div className={styles.aviso} role="alert">
-          {error.isNetworkError
-            ? 'No hemos podido conectar con el servidor.'
-            : error.status === 401 || error.status === 403
-              ? 'Tu sesión no tiene acceso al panel. Vuelve a entrar.'
-              : error.message}
-        </div>
-      )}
-
-      {!error && cargando && <p className={styles.estado} role="status">Cargando stock…</p>}
-
-      {!error && !cargando && filas.length === 0 && (
-        <p className={styles.estado}>No hay variantes que coincidan con los filtros.</p>
-      )}
+      <TabsFiltro opciones={OPCIONES_NIVEL} valor={filtroNivel} onChange={setFiltroNivel} />
 
       <TablaAdmin
         columnas={[
-          { clave: 'producto', etiqueta: 'Producto', render: (f) => f.producto },
-          { clave: 'sku', etiqueta: 'SKU', render: (f) => f.sku },
-          { clave: 'color', etiqueta: 'Color', render: (f) => f.color },
-          { clave: 'talla', etiqueta: 'Talla', render: (f) => f.talla },
-          { clave: 'fisico', etiqueta: 'Físico', render: (f) => f.fisico },
-          // Comprometido por checkouts en curso: no es vendible aunque esté en almacén.
-          { clave: 'reservado', etiqueta: 'Reservado', render: (f) => f.reservado },
+          { clave: 'imagen', etiqueta: '', render: (f) => (f.imagen ? <img src={f.imagen} alt="" className={styles.miniatura} /> : <span className={styles.miniatura} />) },
+          { clave: 'nombre', etiqueta: 'Producto' },
+          { clave: 'sku', etiqueta: 'SKU', render: (f) => f.sku || '—' },
+          { clave: 'talla', etiqueta: 'Talla' },
+          { clave: 'stock', etiqueta: 'Stock' },
           {
-            clave: 'disponible',
-            etiqueta: 'Disponible',
+            clave: 'nivel',
+            etiqueta: 'Nivel',
             render: (f) => {
-              const nivel = nivelStock(f.disponible);
-              return (
-                <span className={`${styles.nivel} ${styles[CLASE_NIVEL[nivel]]}`}>
-                  {f.disponible} · {ETIQUETA_NIVEL[nivel]}
-                </span>
-              );
+              const nivel = nivelStock(f.stock);
+              return <span className={`${styles.nivel} ${styles[CLASE_NIVEL[nivel]]}`}>{ETIQUETA_NIVEL[nivel]}</span>;
             },
           },
         ]}
-        filas={filas}
-        onClickFila={(f) => setVarianteAbierta(f)}
-        renderAcciones={(f) => (
-          <Boton variante="texto" onClick={() => setVarianteAbierta(f)}>Ajustar</Boton>
-        )}
-      />
-
-      {paginas > 1 && (
-        <div className={styles.paginacion}>
-          <button
-            type="button"
-            className={styles.paginaBoton}
-            onClick={() => setPagina((n) => Math.max(1, n - 1))}
-            disabled={pagina <= 1 || cargando}
-            aria-label="Página anterior"
-          >
-            <ChevronLeft size={16} aria-hidden="true" />
-          </button>
-          <span className={styles.paginaTexto}>Página {pagina} de {paginas}</span>
-          <button
-            type="button"
-            className={styles.paginaBoton}
-            onClick={() => setPagina((n) => Math.min(paginas, n + 1))}
-            disabled={pagina >= paginas || cargando}
-            aria-label="Página siguiente"
-          >
-            <ChevronRight size={16} aria-hidden="true" />
-          </button>
-        </div>
-      )}
-
-      <DetalleStockModal
-        variante={varianteAbierta}
-        ubicaciones={ubicaciones}
-        onCerrar={() => setVarianteAbierta(null)}
-        onGuardado={() => {
-          cargar();
-          mostrarToast('Stock actualizado');
-        }}
+        filas={filtradas}
+        claveFila={(f) => f.id}
+        hrefFila={(f) => `/admin/productos/${f.productoId}`}
+        porPagina={20}
       />
     </div>
   );

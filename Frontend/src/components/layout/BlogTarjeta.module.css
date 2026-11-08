@@ -1,0 +1,54 @@
+/* ============================================================
+   TARJETA DE BLOG — Fely Campo
+   Calco de RunwayTarjeta.module.css (.marco a 16/9, .etiqueta
+   centrada debajo, mismo color único en .etiqueta heredado por sus
+   hijos) — único añadido: .extracto, un fragmento del post
+   (entrada.resumen en blog.js) entre .nombre y .temporada.
+   ============================================================ */
+
+.tarjeta {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.marco {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.etiqueta {
+  margin-top: var(--spacing-3);
+  padding-inline: var(--spacing-2);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-1);
+  color: var(--color-tinta);
+}
+
+.nombre {
+  font-size: var(--text-titulo);
+  line-height: var(--leading-tight);
+}
+
+/* Fragmento del post — cuerpo normal, a la izquierda, sin tope de
+   ancho propio (el ancho lo da .grid > a en page.module.css, capado a
+   550px). */
+.extracto {
+  font-size: var(--text-texto);
+  line-height: var(--leading-base);
+  text-align: left;
+}
+
+.temporada {
+  font-size: var(--text-detalle);
+  line-height: var(--leading-base);
+}

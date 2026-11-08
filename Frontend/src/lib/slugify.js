@@ -1,8 +1,8 @@
 // slugify.js
 //
 // Convierte el nombre de un producto (o cualquier texto) en el slug
-// que usan las URLs del sitio — /tienda/[producto] en particular
-// (ver src/app/[locale]/tienda/[producto]/page.js): "Vestido Aurora"
+// que usan las URLs del sitio — /pret-a-porter/[producto] en particular
+// (ver src/app/[locale]/pret-a-porter/[producto]/page.js): "Vestido Aurora"
 // -> "vestido-aurora". Vive en src/lib porque lo usan tanto
 // TarjetaProducto (para construir el href) como la propia página de
 // ficha (para encontrar el producto a partir de params.producto) —

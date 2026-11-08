@@ -15,4 +15,3 @@ export { default as GaleriaProducto } from './GaleriaProducto';
 export { default as GaleriaProductoLightbox } from './GaleriaProductoLightbox';
 export { default as GuiaTallas } from './GuiaTallas';
 export { default as LookPasarela } from './LookPasarela';
-export { default as AvisoReposicion } from './AvisoReposicion';

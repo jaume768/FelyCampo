@@ -15,7 +15,6 @@
   font-size: var(--text-h4);
   font-weight: var(--font-weight-medium);
   color: var(--color-tinta);
-  text-transform: uppercase;
 }
 
 .cerrar {
@@ -53,7 +52,6 @@
 .subtitulo {
   font-size: var(--text-caption);
   font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
   color: var(--color-gris-700);
 }
 

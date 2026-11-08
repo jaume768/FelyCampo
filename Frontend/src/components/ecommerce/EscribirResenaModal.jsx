@@ -24,6 +24,7 @@ import { Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Modal, Boton } from '../ui';
 import styles from './EscribirResenaModal.module.css';
+import { atributosImagen } from '@/lib/imagenes';
 
 function EscribirResenaModal({ abierto, onCerrar, producto, onEnviado }) {
   const t = useTranslations('escribirResena');
@@ -73,7 +74,7 @@ function EscribirResenaModal({ abierto, onCerrar, producto, onEnviado }) {
 
           {producto && (
             <div className={styles.resumen}>
-              {producto.imagen && <img src={producto.imagen} alt="" className={styles.resumenImagen} />}
+              {producto.imagen && <img {...atributosImagen(producto.imagen, { sizes: '100vw' })} alt="" className={styles.resumenImagen} />}
               <p className={styles.resumenNombre}>{producto.nombre}</p>
             </div>
           )}

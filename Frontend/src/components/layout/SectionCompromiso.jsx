@@ -4,6 +4,8 @@
 
 import useEnVista from '@/hooks/useEnVista';
 import styles from './SectionCompromiso.module.css';
+import { atributosImagen } from '@/lib/imagenes';
+import VideoDiferido from '@/components/ui/VideoDiferido';
 
 /**
  * Declaración de marca a pantalla completa: una imagen (o vídeo) de
@@ -23,9 +25,9 @@ function SectionCompromiso({ imagen, tipo = 'imagen', texto, subtitulo }) {
   return (
     <section className={styles.seccion}>
       {tipo === 'video' ? (
-        <video src={imagen} className={styles.media} autoPlay muted loop playsInline />
+        <VideoDiferido src={imagen} className={styles.media} />
       ) : (
-        <img src={imagen} alt="" className={styles.media} />
+        <img {...atributosImagen(imagen, { sizes: '(max-width: 768px) 100vw, 50vw' })} alt="" className={styles.media} />
       )}
 
       <div ref={ref} className={`${styles.contenido} ${enVista ? styles.enVista : ''}`}>

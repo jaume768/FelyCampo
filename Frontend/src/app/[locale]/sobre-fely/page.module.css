@@ -1,0 +1,250 @@
+/* ============================================================
+   SOBRE FELY — Fely Campo. Ruta: /sobre-fely
+   "Una vida entre telas" (ver page.js y sobreFely.js). Capítulos sobre
+   el grid de 24 columnas de Descubre a Fely (landing), foto y texto
+   alternando de lado; título corto en mayúsculas, párrafos en
+   --font-base. Sin números, sin cursiva, sin titulares grandes (a
+   petición). Pies de imagen en minúscula.
+   ============================================================ */
+
+/* Hero en mobile: la foto es apaisada y Fely está en el tercio
+   derecho — el recorte vertical centrado por defecto enseñaba sobre
+   todo la pared azul y la dejaba cortada en el borde derecho. 80% en
+   horizontal lleva el encuadre a la derecha, centrado en su cara. */
+@media (max-width: 767px) {
+  .heroEncuadre img {
+    object-position: 80% center;
+  }
+}
+
+/* Fondo opaco: tapa el hero fijado en mobile (fijarEnMobile, ver
+   HeroPagina.jsx) al subir por encima de él. */
+.contenido {
+  background: var(--color-fondo);
+}
+
+/* ---------- Capítulo ----------
+   Grid de 24 columnas (ver --grid-columnas-24 en global.css), mismo
+   esquema que Descubre a Fely en la landing: foto principal en las
+   columnas 1–12 y la columna de texto (.lado) en las 15–24, dos
+   columnas de separación; .invertido (capítulos pares, ver page.js) lo
+   refleja — texto 1–10, foto 13–24. Fotos extra (.pareja, galería
+   incluida) en filas de dos a todo el ancho, una por mitad. */
+.capitulos {
+  padding-top: var(--spacing-9);
+  padding-inline: var(--padding-lateral-nav);
+}
+
+.capitulo {
+  display: grid;
+  grid-template-columns: var(--grid-columnas-24);
+  column-gap: var(--grid-gap);
+  /* Más aire (a petición, más editorial): 120px entre la foto
+     principal y las filas de fotos, 200px entre capítulos. */
+  row-gap: var(--spacing-10);
+  align-items: center;
+  margin-bottom: var(--spacing-11);
+}
+
+.principal {
+  grid-column: 1 / 13;
+  grid-row: 1;
+}
+
+/* Texto y, si el capítulo trae una sola foto extra, esa foto debajo
+   (.extraTexto) — juntos, centrados en vertical frente a la principal. */
+.lado {
+  grid-column: 15 / 25;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+/* Foto extra única, debajo del texto y a su mismo ancho. */
+.extraTexto {
+  min-width: 0;
+}
+
+.invertido .principal {
+  grid-column: 13 / 25;
+}
+
+.invertido .lado {
+  grid-column: 1 / 11;
+}
+
+/* Filas de dos fotos, cada una a su proporción natural y alineadas
+   arriba (pueden quedar de alto distinto). Mismo hueco horizontal que
+   el grid, así cada foto ocupa exactamente una mitad (12 columnas). */
+.pareja {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--grid-gap);
+  row-gap: var(--spacing-5);
+  align-items: start;
+}
+
+/* Escalonado editorial (solo escritorio): en cada fila de dos, la
+   segunda foto empieza 120px más abajo que la primera. nth-of-type
+   cuenta solo los <figure>. */
+@media (min-width: 1024px) {
+  .pareja > .figura:nth-of-type(even) {
+    margin-top: var(--spacing-10);
+  }
+
+  /* Si sobra una (número impar de fotos), va sola en su fila, centrada y
+     del mismo ancho que las demás, en vez de dejar un hueco a su lado. */
+  .pareja > .figura:last-of-type:nth-of-type(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc((100% - var(--grid-gap)) / 2);
+  }
+}
+
+/* ---------- Texto (igual que .seccionTexto de AtelierDetalle) ---------- */
+.texto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+.titulo {
+  margin: 0;
+  font-size: var(--text-destacado); /* 19px, a petición. Peso medium: semibold quedaba demasiado pesado */
+  font-weight: var(--font-weight-medium);
+  letter-spacing: normal;
+  color: var(--color-tinta);
+}
+
+/* Subtítulo ("13 años. Un camino inesperado.") pegado al texto largo,
+   no al título: 12px más de aire con el título (36px en total con el
+   gap de 24px de .texto) y 12px menos con el primer párrafo (12px). */
+.subtitulo {
+  margin: var(--spacing-3) 0 calc(-1 * var(--spacing-3));
+  font-size: var(--text-body);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+}
+
+.parrafo {
+  margin: 0;
+  white-space: pre-wrap; /* respeta los saltos de línea y espacios escritos en el admin */
+  font-size: var(--text-body);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+}
+
+/* ---------- Imágenes ----------
+   Todas a su proporción natural, sin recorte (a petición). */
+.figura {
+  margin: 0;
+}
+
+.marco {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-details);
+  border-radius: var(--radius-imagenes);
+}
+
+.imagen {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.pie {
+  margin-top: var(--spacing-1);
+  font-size: var(--text-caption);
+  line-height: 1.5;
+  color: var(--color-tinta);
+}
+
+/* ---------- Cierre ---------- */
+.cierre {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+  max-width: var(--max-texto);
+  margin-inline: auto;
+  padding: var(--spacing-8) var(--spacing-4) var(--spacing-9);
+  text-align: center;
+}
+
+.cierreTitulo {
+  margin: 0;
+  text-wrap: balance; /* en mobile parte en dos líneas parejas, no una larga + una corta */
+  font-size: var(--text-destacado); /* 19px, a petición. Peso medium: semibold quedaba demasiado pesado */
+  font-weight: var(--font-weight-medium);
+  letter-spacing: normal;
+  color: var(--color-tinta);
+}
+
+.cierreParrafo {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: var(--text-body);
+  line-height: var(--leading-base);
+  color: var(--color-tinta);
+}
+
+/* ---------- Enlace externo (documental VHS) ----------
+   Una única tarjeta grande (TarjetaEnlaceExterno). Esa tarjeta llena
+   el 100% de su celda, así que aquí hace falta darle una altura real —
+   aspect-ratio en vez de un alto fijo, para que escale bien. */
+.enlacesExternos {
+  max-width: 70%;
+  margin-inline: auto;
+  padding-block: 0 var(--spacing-8);
+}
+
+.enlaceExternoDestacado {
+  aspect-ratio: 16 / 9;
+}
+
+/* ---------- Mobile / tablet ----------
+   Apilado: texto arriba, luego la foto principal y las extra, una por
+   fila a todo el ancho. .lado pasa a display:contents para que su
+   texto y su foto extra se ordenen como hijos directos del capítulo. */
+@media (max-width: 1023px) {
+  .capitulos {
+    padding: var(--spacing-7) var(--spacing-4) 0;
+  }
+
+  .capitulo {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-6);
+    margin-bottom: var(--spacing-9);
+  }
+
+  .lado {
+    display: contents;
+  }
+
+  .texto {
+    order: -2;
+    padding-inline: 0;
+  }
+
+  .principal {
+    order: -1;
+  }
+
+  .pareja {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--spacing-6);
+  }
+
+  .cierre {
+    padding: var(--spacing-6) var(--spacing-4) var(--spacing-8);
+  }
+
+  .enlacesExternos {
+    max-width: none;
+    padding: 0 var(--spacing-4) var(--spacing-8);
+  }
+}

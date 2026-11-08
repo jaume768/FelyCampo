@@ -3,135 +3,364 @@
    Esquinas rectas en todo, radio 0 en todas partes (--radius-botones).
    ============================================================ */
 
+/* Hero: foto vertical del atelier de Madrid (arco + percha) en una caja
+   apaisada — encuadre centrado en los vestidos en vez de arriba (ahí
+   solo quedaría la pared sobre el arco). */
+.heroEncuadre img {
+  object-position: center 60%;
+}
+
+/* Mobile: por delante del ProductHero fijo que va justo antes (ver
+   ProductHero.module.css) — fondo opaco + posicionada + z-index por
+   encima, mismo mecanismo exacto que .seccion.seccionGrid en
+   CuadriculaProductos.module.css, así lo va tapando a medida que se
+   hace scroll en vez de dejarlo asomar por los lados/debajo. */
+@media (max-width: 767px) {
+  .seccionUbicaciones {
+    position: relative;
+    z-index: 1;
+    background: var(--color-fondo);
+  }
+}
+
+/* Pasada a CabeceraSeccion como "className" — pone en columna su
+   .cabeceraProductos.cabeceraInicio (fila en el resto del sitio, ver
+   CabeceraSeccion.module.css) solo en esta página. !important a
+   propósito: una sola clase no le gana en especificidad a ese
+   selector compuesto de dos. */
+.cabeceraColumna {
+  flex-direction: column !important;
+}
+
+/* Intro bajo "Nuestros Ateliers" en tinta, como el resto de textos de
+   la página (CabeceraSeccion la trae en gris de serie). */
+.cabeceraColumna p {
+  color: var(--color-tinta);
+}
+
 /* "page-padding" del enunciado = mismo gutter horizontal que usa el
    resto del sitio para separar bloques de sección (ver --spacing-7 en
-   Footer.module.css .grid), aquí en vertical entre ubicaciones.
-   Mayúsculas en todo el listado, con el mismo tracking que el resto
-   del sistema usa para bloques en mayúsculas (ver Boton .solido). */
+   Footer.module.css .grid), aquí en vertical entre ubicaciones. Sin
+   tracking en el listado: los textos van sin letter-spacing. */
 .lista {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-7);
+  gap: var(--spacing-10);
+  margin-top: var(--spacing-8);
   padding-bottom: var(--spacing-10);
+  /* Gutter lateral en la lista, no en los hijos de .tarjeta (que van
+     sin padding lateral): foto y texto alinean con este mismo borde. */
+  padding-inline: var(--spacing-6);
   list-style: none;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-label);
 }
 
-.imagen {
+/* Grid de 24 columnas (ver --grid-columnas-24 en global.css): texto
+   (.fila) en las columnas 1–10 y foto (.galeria) en las 13–24, dos
+   columnas de separación, sin cambiar el orden del DOM (en mobile se
+   apila con el texto arriba, ver media query más abajo). La fila del
+   grid toma el alto de la foto (aspect-ratio 2.5/3) y .fila se estira
+   a ese mismo alto (así su space-evenly reparte datos y botón a lo
+   alto de la foto); align-content:center centra el conjunto en
+   vertical en los 80vh de la tarjeta. */
+.tarjeta {
+  min-height: 80vh;
+  display: grid;
+  grid-template-columns: var(--grid-columnas-24);
+  align-content: center;
+  column-gap: var(--grid-gap);
+}
+
+/* Escritorio: mismo margen lateral que el header. */
+@media (min-width: 1024px) {
+  .lista {
+    padding-inline: var(--padding-lateral-nav);
+  }
+}
+
+/* Mini-galería de la sede (CarruselFotos, ui/ — cross-fade al hover,
+   ver FOTOS_POR_CIUDAD/fotosDe en ListadoUbicaciones.jsx). .galeria
+   solo reparte el ancho (sin padding — el hueco con el texto es el
+   gap de .tarjeta); .marco es quien de verdad aloja el
+   carrusel — position:relative + overflow:hidden, lo que CarruselFotos
+   pide de su contenedor (ver "Uso" en CarruselFotos.jsx). Aquí no hace falta
+   aspect-ratio aparte en .marco, el aspect-ratio de .galeria (ver
+   abajo) ya le da tamaño. */
+/* Ancho = el de sus 12 columnas, alto por aspect-ratio. */
+.galeria {
+  grid-column: 13 / 25;
+  grid-row: 1;
+  width: 100%;
+  aspect-ratio: 2.5 / 3;
+  min-width: 0;
+}
+
+.marco {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+/* Tira móvil (ver media query de abajo) — CarruselFotos (cross-fade al
+   HOVER) no tiene sentido en táctil puro: en vez de eso, en mobile/
+   tablet se enseña esta tira de las mismas fotos a pantalla completa
+   con scroll-snap horizontal nativo (el propio gesto de swipe basta,
+   sin JS — a diferencia de .imagenes/.marco de atelier-fiesta, que sí
+   necesita CarruselImagenes.jsx para el wheel del ratón en escritorio;
+   aquí no hay modo escritorio que soportar). Los dos bloques (.marco y
+   .galeriaMovil) conviven en el DOM siempre; la media query de abajo
+   decide cuál se ve — con display:none desde el primer render, el
+   navegador ni siquiera llega a pedir las imágenes del que no toca. */
+.galeriaMovil {
+  display: none;
+}
+
+.fotoMovil {
   display: block;
   width: 100%;
-  aspect-ratio: 21 / 9;
+  height: 100%;
   object-fit: cover;
-  background: var(--color-crema);
 }
 
+/* Columna: el bloque de datos + botón "Pedir cita" (.bloque) centrado
+   en vertical en el alto de la foto. */
 .fila {
+  grid-column: 1 / 11;
+  grid-row: 1;
+  min-width: 0;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--spacing-6);
-  padding: var(--spacing-4);
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Datos de la sede y botón juntos, --spacing-8 entre ellos. */
+.bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  min-width: 0;
 }
 
 .info {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: var(--spacing-2);
   min-width: 0;
+  max-width: 350px;
   text-transform: none;
 }
 
-/* <address> es itálica por defecto en el navegador — se anula a
-   propósito (ver enunciado). white-space:pre-line respeta los "\n" del
-   propio dato (nombre/dirección/teléfonos) sin recurrir a <br/> sueltos. */
-.direccion {
-  font-style: normal;
-  white-space: pre-line;
-  font-size: var(--text-small);
-  line-height: var(--leading-base);
+/* Nombre, dirección y teléfono ya no comparten un único <address> —
+   cada uno es su propio hijo directo de .info (mismo gap que separa
+   .horario/.descripcion), en vez de líneas sueltas dentro del mismo
+   bloque. Mismo tamaño/color/interlineado en los seis (WhatsApp
+   incluido, ver .whatsapp más abajo). */
+.nombre,
+.direccion,
+.telefono,
+.whatsapp,
+.horario,
+.descripcion {
+  font-size: var(--text-bloque-texto);
+  font-weight: 400;
+  line-height: var(--leading-bloque);
+  /* Textos de descripción sin tracking — solo el título (.nombre) lo
+     conserva. */
+  letter-spacing: 0;
+  text-wrap: pretty;
   color: var(--color-tinta);
 }
 
-/* Única línea en mayúsculas del bloque — el resto de .direccion (y
-   .horario/.descripcion) ya no lo son, ver .info arriba. */
+/* Título del bloque (ver --text-bloque-* en global.css). */
 .nombre {
-  text-transform: uppercase;
+  font-size: var(--text-bloque-titulo);
+  letter-spacing: var(--tracking-bloque);
 }
 
-.horario,
-.descripcion {
-  font-size: var(--text-small);
-  color: var(--color-gris-500);
+/* <address> es itálica por defecto en el navegador — se anula a
+   propósito, y aquí ya no lleva el texto directamente (envuelve el
+   <a> de .direccion, ver ListadoUbicaciones.jsx). */
+.direccionWrap {
+  font-style: normal;
 }
 
+/* Dirección enlazada a Google Maps — subrayado siempre visible (no
+   solo al hover/focus, a diferencia de .submenuLink de Navbar o .tab
+   de mi-cuenta/panel/page.module.css): es la única pista visual de que
+   el texto es un enlace, ya que comparte color/tamaño con el resto de
+   .info a su alrededor. white-space:pre-line respeta los "\n" del
+   propio dato (dos líneas). Mismo criterio en .whatsapp más abajo. */
+.direccion {
+  display: block;
+  font-style: normal;
+  text-decoration: underline;
+  text-decoration-color: var(--color-tinta);
+  text-underline-offset: var(--spacing-1);
+  white-space: pre-line;
+}
+
+.telefono {
+  white-space: pre-line;
+}
+
+/* Línea de WhatsApp — antes era la última línea de texto plano dentro
+   de .telefono (ver "lineaContacto" en ListadoUbicaciones.jsx, ya sin
+   WhatsApp), ahora es su propio enlace (wa.me) con el mismo subrayado
+   siempre visible que .direccion — mismo criterio de "es un enlace,
+   dilo siempre" en vez de descubrirlo solo al pasar el ratón. */
+.whatsapp {
+  display: block;
+  text-decoration: underline;
+  text-decoration-color: var(--color-tinta);
+  text-underline-offset: var(--spacing-1);
+}
+
+/* Nombre de la sede (sin mayúsculas, como el resto del bloque — ver
+   .info arriba). */
+.nombre {
+  /* Separa el nombre de la sede de la dirección de debajo. */
+  padding-bottom: var(--spacing-3);
+}
+
+/* "Conoce más." — al final de .descripcion, en la misma línea (ver
+   ListadoUbicaciones.jsx: va dentro del mismo <p>, no en un bloque
+   aparte), enlaza a la ficha de esa sede en /atelier-fiesta. Mismo
+   subrayado siempre visible que .direccion/.whatsapp — inline, no
+   display:block como esos dos, porque continúa el párrafo en vez de
+   empezar uno nuevo. */
+.conoceMas {
+  text-decoration: underline;
+  text-decoration-color: var(--color-tinta);
+  text-underline-offset: var(--spacing-1);
+  white-space: nowrap;
+}
+
+/* Orden natural del DOM (después de .info): con .fila en fila y
+   justify-content:space-between, se queda arriba a la derecha —
+   .info a la izquierda, el botón a la derecha, los dos arrancando
+   arriba (align-self:flex-start, no al fondo de la tarjeta). */
 .acciones {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-self: stretch;
   gap: var(--spacing-2);
   flex-shrink: 0;
 }
 
-/* Mismo aspecto que Boton variante="solido" tamano="m" (ver
-   Boton.module.css) — replicado a mano porque este es un <a> con
-   target/rel propios, que Boton.jsx no reenvía todavía. */
+/* Contorno, como "Suscribirse" del footer (Footer.module.css): fondo
+   del sitio, borde y texto en tinta, a todo el ancho de .fila; al
+   hover solo se engrosa el borde (sin relleno negro). Replicado a mano
+   porque este es un <a> con target/rel propios, que Boton.jsx no
+   reenvía todavía. */
 .accionBtn {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   padding: var(--spacing-3) var(--spacing-6);
-  background: var(--color-tinta);
-  border: none;
+  background: var(--color-fondo);
+  border: 1px solid var(--color-tinta);
+  text-align: center;
   border-radius: var(--radius-botones);
   font-family: var(--font-base);
-  font-size: var(--text-label);
-  color: var(--color-fondo);
-  text-transform: uppercase;
-  letter-spacing: 0.02rem;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color 0.25s var(--ease-marca);
-}
-
-/* "Ver mapa"/"WhatsApp" — mismo tamaño/tipografía que .accionBtn,
-   contorno gris en vez de relleno negro (acción secundaria). */
-.accionBtnContorno {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-3) var(--spacing-6);
-  background: transparent;
-  border: 1px solid var(--color-gris-300);
-  border-radius: var(--radius-botones);
-  font-family: var(--font-base);
-  font-size: var(--text-label);
+  font-size: var(--text-cta);
   color: var(--color-tinta);
-  text-transform: uppercase;
-  letter-spacing: 0.02rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: none;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  transition: border-color 0.25s var(--ease-marca);
+  transition: box-shadow 0.25s var(--ease-marca);
 }
 
-.accionBtnContorno:hover {
-  border-color: var(--color-tinta);
+.accionBtn:hover,
+.accionBtn:focus-visible {
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  box-shadow: inset 0 0 0 1px var(--color-tinta);
 }
 
-@media (max-width: 767px) {
-  .fila {
+/* Mobile y tablet vertical (hasta 1023px, ver convención de
+   breakpoints en ProductosRecomendados.module.css — tablet horizontal
+   ya cae en el bucle de escritorio de arriba, min-width 1024). Aquí
+   .tarjeta ya no fuerza una altura (min-height/max-height de la
+   versión escritorio no aplican): se ajusta al contenido, .galeria
+   mantiene su 2.5/3 a todo el ancho y .fila gana padding vertical (el
+   lateral lo sigue poniendo .lista). */
+@media (max-width: 1023px) {
+  .tarjeta {
+    display: flex;
     flex-direction: column;
+    min-height: 0;
   }
 
+  .galeria {
+    width: 100%;
+  }
+
+  /* Cross-fade de escritorio oculto; en su lugar, la tira con swipe de
+     abajo (ver comentario en .galeriaMovil arriba). */
+  .marco {
+    display: none;
+  }
+
+  .galeriaMovil {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    /* Solo el gesto horizontal es del carrusel: sin scroll vertical propio,
+       un deslizamiento vertical en mobile mueve la página. */
+    overflow-y: hidden;
+    touch-action: pan-x pan-y;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .galeriaMovil::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fotoMovil {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+  }
+
+  /* Apilado: texto arriba y foto debajo (order, sin cambiar el DOM). */
+  .fila {
+    order: -1;
+    width: 100%;
+    flex-direction: column;
+    /* stretch (no flex-start): .bloque a todo el ancho, botón incluido. */
+    align-items: stretch;
+    /* Solo vertical — el lateral lo pone .lista. */
+    padding-block: var(--spacing-4);
+  }
+
+  .info {
+    max-width: none;
+  }
+
+  /* align-self:flex-start de escritorio no pinta nada apilado en
+     columna — se estira a todo el ancho, botón al final/abajo, como
+     antes de este cambio. */
   .acciones {
     flex-direction: column;
+    align-self: stretch;
     width: 100%;
   }
 
-  .accionBtn,
-  .accionBtnContorno {
+  .accionBtn {
     width: 100%;
   }
+}
+
+/* Teléfonos como enlace tel: (auditoría SEO M10): mismo aspecto que el
+   texto plano de antes, sin color ni subrayado de enlace. */
+.tel {
+  color: inherit;
+  text-decoration: none;
 }

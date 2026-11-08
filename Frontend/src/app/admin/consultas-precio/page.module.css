@@ -1,20 +1,29 @@
-.nombreFila {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-}
-
-.etiquetaCliente {
-  display: inline-block;
-  padding: 1px var(--spacing-2);
-  border: var(--border-thin) solid var(--color-tinta);
-  font-size: var(--text-nano);
-  color: var(--color-tinta);
-}
-
-.telefono {
+/* Recibida (fecha / hora · antigüedad) en dos líneas y textos
+   secundarios en gris pequeño: mismo esquema que Citas
+   (consultas/page.module.css). */
+.recibida {
+  display: flex;
+  flex-direction: column;
   font-size: var(--text-caption);
+  white-space: nowrap;
+}
+
+.secundario {
   color: var(--color-gris-500);
+  font-size: var(--text-micro);
+}
+
+.colorFila {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.colorPunto {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border: var(--border-thin) solid var(--color-gris-300);
 }
 
 .recibidaUrgente {
@@ -37,17 +46,6 @@
   height: 50px;
   object-fit: cover;
   background: var(--color-gris-100);
-}
-
-.fechaColumna {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.fechaSecundaria {
-  font-size: var(--text-caption);
-  color: var(--color-gris-500);
 }
 
 .vistaToggle {

@@ -6,7 +6,7 @@
    este producto, cuándo y en qué color. Reconstruye ese historial
    recorriendo `pedidosMock` y quedándose con los `items` que coinciden
    con el nombre del producto (misma relación por nombre, no por id,
-   que el resto del panel — ver docs/adminpanel.md).
+   que el resto del panel — ver docs/ADMIN.md).
    Los productos de Atelier (Novias/Fiesta) no generan pedidos —
    generan Consultas de precio en su lugar (spec sección 5) — así que
    para esos el historial siempre estará vacío; se explica en vez de

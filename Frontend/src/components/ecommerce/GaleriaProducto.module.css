@@ -2,9 +2,11 @@
    GALERÍA DE PRODUCTO — Fely Campo
    ============================================================ */
 
+/* El Navbar de la ficha es el sólido de siempre (sticky, reserva su
+   propio hueco en el flujo): la galería empieza debajo de él. */
 .galeria {
   position: relative;
-  height: calc(110vh - var(--nav-height));
+  height: 110vh;
 }
 
 /* Sin scroll-snap: el scroll manual (rueda o arrastre) queda libre y
@@ -17,12 +19,26 @@
 .pista {
   display: flex;
   overflow-x: auto;
+  /* Solo el gesto horizontal es del carrusel: sin scroll vertical propio,
+     un deslizamiento vertical en mobile mueve la página. */
+  overflow-y: hidden;
+  touch-action: pan-x pan-y;
   scrollbar-width: none;
   height: 100%;
 }
 
 .pista::-webkit-scrollbar {
   display: none;
+}
+
+/* Con una única foto no hay nada que "hojear" — se alinea al borde
+   derecho de la pista en vez de quedarse pegada al izquierdo
+   (comportamiento por defecto de flex, justify-content:flex-start).
+   Solo se aplica con una imagen (ver GaleriaProducto.jsx): con varias,
+   el contenido excede el ancho de la pista y una alineación que no sea
+   flex-start puede dejar contenido fuera de alcance del scroll. */
+.pistaUnica {
+  justify-content: flex-end;
 }
 
 /* Ancho al contenido (fit-content): cada botón mide lo que mida su
@@ -32,6 +48,7 @@
    cada foto. El "peek" de la siguiente ya no es una fracción fija: es
    lo que sobre del ancho de la pista tras la imagen actual. */
 .imagenBoton {
+  position: relative; /* para el velo de ::after, ver más abajo */
   flex: 0 0 fit-content;
   width: fit-content;
   height: 100%;
@@ -44,6 +61,19 @@
      URI, así que son sus valores actuales (#202020/#FFFFFF) copiados a
      mano. */
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='38'%3E%3Crect width='38' height='38' fill='%23FFFFFF'/%3E%3Cpath d='M19 9.5v19M9.5 19h19' stroke='%23202020' stroke-width='1.5'/%3E%3C/svg%3E") 19 19, zoom-in;
+}
+
+/* Velo oscuro muy suave sobre cada foto, siempre (a petición) — mismo
+   valor que .recorte::after de TarjetaProducto.module.css: separa la
+   foto (fondo blanco) del fondo de la página. Ocupa justo el botón,
+   que mide lo mismo que la imagen (width: fit-content). */
+.imagenBoton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-imagenes);
+  background: rgba(0, 0, 0, 0.04);
+  pointer-events: none;
 }
 
 .imagen {
@@ -95,40 +125,79 @@
 }
 
 @media (max-width: 767px) {
-  /* La imagen se queda fija justo debajo del navbar (sticky de
-     siempre, ver Navbar.module.css — ya no se hace position:absolute
-     ni desaparece con el scroll) en vez de desplazarse con la página.
-     .galeria (arriba) pasa a reservar exactamente ese hueco restante
-     (100vh - nav-height, no 110vh: ya no hace falta el "de más" que
-     compensaba el navbar flotando encima) — mismo criterio que
-     .envoltorio de ProductHero.module.css, así el flujo no colapsa
-     nada. El resto del contenido de la ficha (.info y todo lo que
-     viene después — reseñas, recomendados, "sigue explorando", ver
-     page.module.css/FichaProductoAtelier.module.css) la va tapando
-     según se hace scroll (position:relative + z-index por encima).
-     Las flechas pasan también a fijas, centradas en ese mismo hueco,
-     para que no se "despeguen" de la pista al primer scroll. */
+  /* La imagen se queda pegada justo debajo del Navbar (sticky,
+     top:--nav-height) mientras .info se desliza por encima. Sticky y
+     no fixed: fixed la sacaba del
+     flujo para TODA la página, así que asomaba detrás de cualquier
+     cosa sin fondo propio (huecos de .contenedor, AteliersCita,
+     PedirCita...). Sticky la limita a .ficha (display:block en mobile,
+     ver page.module.css/FichaProductoAtelier.module.css — en un grid
+     el límite sería su propia celda y no se pegaría nunca): al acabar
+     .info, la foto sale con el scroll. Sin z-index: .info (z-index:10,
+     después en el DOM) ya le gana, y así .galeria no crea contexto de
+     apilamiento propio. Alto por aspect-ratio (2:3, misma proporción
+     recomendada para las fotos de producto — ver docs/design.md) en
+     vez de 100vh: a pantalla completa, un aspect-ratio de pantalla más
+     estrecho que el de la foto (habitual en móvil) obligaba a
+     object-fit:cover a recortar los lados. Las flechas siguen
+     absolutas dentro de .galeria (top:50% de la base). */
   .galeria {
-    height: calc(100vh - var(--nav-height));
-  }
-
-  .pista {
-    position: fixed;
+    position: sticky;
     top: var(--nav-height);
-    left: 0;
-    width: 100%;
-    height: calc(100vh - var(--nav-height));
-    z-index: 0;
+    aspect-ratio: 2 / 3;
+    height: auto;
   }
 
   .flecha {
-    position: fixed;
-    top: calc(var(--nav-height) + (100vh - var(--nav-height)) / 2);
     width: 32px;
     height: 32px;
   }
 
   .imagen {
     object-fit: cover;
+  }
+}
+
+/* Escritorio: en vez de la banda horizontal, las fotos van apiladas en
+   columna dentro de .pista, que tiene su propio scroll vertical. Con
+   el ratón encima de la galería, la rueda pasa de una foto a otra y la
+   página no se mueve hasta llegar a la última: es el encadenamiento de
+   scroll nativo del navegador (overscroll-behavior:auto), sin JS — al
+   tocar el final, el siguiente giro ya mueve la página. Empieza justo
+   DEBAJO del Navbar (margin-top = su alto) y mide el resto de la
+   pantalla, así ninguna foto queda tapada por él. Cada foto ocupa
+   todo el ancho de la columna a su proporción natural (height:auto),
+   sin recortes — si es más alta que el hueco, el resto se ve al hacer
+   scroll. Sin flechas: la rueda hace su trabajo. Mobile se queda como
+   estaba (banda horizontal fija, ver la media query de arriba). */
+@media (min-width: 768px) {
+  .galeria {
+    height: calc(100vh - var(--nav-height-desktop));
+  }
+
+  .pista {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
+  }
+
+  .pistaUnica {
+    justify-content: flex-start;
+  }
+
+  .imagenBoton {
+    flex: none;
+    width: 100%;
+    height: auto;
+  }
+
+  .imagen {
+    width: 100%;
+    height: auto;
+  }
+
+  .flecha {
+    display: none;
   }
 }

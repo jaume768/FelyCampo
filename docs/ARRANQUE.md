@@ -74,7 +74,36 @@ docker compose exec backend python manage.py seed_demo
 
 `seed_demo` crea catálogo de ejemplo, tallas agotadas, rebajas y el superusuario
 **`admin@felycampo.test` / `admin12345`**. Solo funciona con `DEBUG=True`. Es idempotente:
-al repetirlo dice `Productos nuevos: 0`.
+al repetirlo dice `Productos nuevos: 0`. (El catálogo es de la tienda, aparcada; lo que
+interesa ahora es el superusuario.)
+
+### Contenido de la web y sus fotos
+
+La web lee su contenido de `apps.content` y sus fotos del almacén de medios. Detalle en
+[`CONTENIDO.md`](CONTENIDO.md).
+
+```bash
+docker compose exec backend python manage.py cargar_contenido
+
+# Las fotos no van en git: se traen del repo de Miriam (≈430 MB, una sola vez).
+git clone https://github.com/mreinab/felycampo.git ../felycampo-miriam
+git -C ../felycampo-miriam checkout e556a76
+docker compose run --rm -v "$PWD/../felycampo-miriam/public:/origen:ro"   backend python manage.py importar_medios_web --origen /origen
+```
+
+Sin el segundo paso la web carga, pero sin las fotos del contenido (404 en `/media/web/…`).
+`importar_medios_web` genera además las versiones de 480/960/1600 px de cada foto; para
+las que ya estaban, `python manage.py generar_variantes` (unos minutos).
+
+### Entrar en la web y en el panel
+
+Con `PRELANZAMIENTO=true` (lo que trae `.env.example`), http://localhost:3000 enseña el
+anuncio de la nueva web. El equipo entra en **http://localhost:3000/acceso** con una
+cuenta de staff y a partir de ahí ve la web y el panel (`/admin`). Para ver la web
+abierta, `PRELANZAMIENTO=false` en `.env` y `docker compose up -d frontend`.
+
+**El frontend no recarga solo en Docker sobre Windows** (Turbopack no ve los cambios del
+bind mount, tampoco con sondeo): después de cambiar código, `docker compose restart frontend`.
 
 ## 4. Tests
 

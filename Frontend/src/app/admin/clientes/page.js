@@ -1,240 +1,121 @@
 'use client';
 
 /* ============================================================
-   CLIENTES — DATOS REALES: /api/v1/admin/customers/.
-
-   UNA COSA IMPORTANTE, Y NO ES UN DETALLE: **comprar no crea cliente.**
-   El checkout acepta pedidos sin cuenta (basta el correo), y esos
-   pedidos guardan `Order.email` con `Order.user = NULL`. Así que quien
-   compró sin registrarse NO es un usuario y no aparece en el listado de
-   clientes registrados.
-
-   Enseñar solo los registrados daría a entender que son todos los
-   compradores. Por eso hay dos pestañas: «registrados» y «sin cuenta»,
-   y el recuento de cada una a la vista. El hueco se ve, no se disimula.
-
-   Lo único editable es bloquear una cuenta: un cliente nace
-   registrándose, y borrarlo rompería el histórico de pedidos.
+   CLIENTES — placeholder de ejemplo. Datos 100% estáticos
+   (clientesMock), sin API/BBDD detrás.
    ============================================================ */
 
-import { useCallback, useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { PageHeader, TablaAdmin, EstadoPedidoBadge, FiltroBar, FiltroSelector } from '@/components/admin';
+import { BotonFila } from '@/components/admin/ListadoAdmin';
+import { Input } from '@/components/ui';
+import { clientesMock, pedidosMock } from '@/components/admin/mockData';
+import { CONFIG_ESTADO_PEDIDO } from '@/components/admin/EstadoPedidoBadge';
 
-import { PageHeader, TablaAdmin, FiltroBar, useToast } from '@/components/admin';
-import { Boton, Input } from '@/components/ui';
-import {
-  listarClientes, listarInvitados, bloquearCliente, adaptarCliente, adaptarInvitado,
-} from '@/lib/api/adminOrders';
-import { ApiError } from '@/lib/api/errors';
-import styles from './page.module.css';
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-const POR_PAGINA = 20;
+const OPCIONES_ORDEN = [
+  { valor: 'ninguno', etiqueta: 'Sin ordenar' },
+  { valor: 'clienteMasReciente', etiqueta: 'Cliente desde: Más reciente' },
+  { valor: 'clienteMasAntiguo', etiqueta: 'Cliente desde: Más antiguo' },
+  { valor: 'gastado', etiqueta: 'Gasto: Mayor a menor' },
+  { valor: 'pedidos', etiqueta: 'Pedidos: Mayor a menor' },
+];
 
-function fechaCorta(iso) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('es-ES', { dateStyle: 'medium' });
+const OPCIONES_ULTIMO_PEDIDO = [
+  { valor: 'Todos', etiqueta: 'Todos' },
+  ...Object.entries(CONFIG_ESTADO_PEDIDO).map(([valor, cfg]) => ({ valor, etiqueta: cfg.etiqueta })),
+  { valor: 'Sin pedidos', etiqueta: 'Sin pedidos' },
+];
+
+function formatCumpleanos(cumpleanos) {
+  if (!cumpleanos) return '—';
+  const [mes, dia] = cumpleanos.split('-').map(Number);
+  return `${dia} de ${MESES[mes - 1]}`;
+}
+
+function gastoNumero(gastoTotal) {
+  return Number(gastoTotal.replace(/[^\d]/g, ''));
+}
+
+function ultimoPedido(cliente) {
+  const pedidos = pedidosMock.filter((p) => p.cliente === cliente.nombre);
+  if (!pedidos.length) return null;
+  return [...pedidos].sort((a, b) => b.fecha.localeCompare(a.fecha))[0];
 }
 
 export default function ClientesPage() {
-  const { mostrarToast } = useToast();
-
-  const [pestana, setPestana] = useState('registrados');
   const [query, setQuery] = useState('');
-  const [pagina, setPagina] = useState(1);
+  const [filtroUltimoPedido, setFiltroUltimoPedido] = useState('Todos');
+  const [orden, setOrden] = useState('ninguno');
 
-  const [clientes, setClientes] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [invitados, setInvitados] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
-  const [guardando, setGuardando] = useState(false);
+  const filtrados = useMemo(() => {
+    const lista = clientesMock.filter((c) => {
+      if (filtroUltimoPedido !== 'Todos') {
+        const pedido = ultimoPedido(c);
+        if (filtroUltimoPedido === 'Sin pedidos') {
+          if (pedido) return false;
+        } else if (pedido?.estadoEnvio !== filtroUltimoPedido) return false;
+      }
+      if (query && !c.nombre.toLowerCase().includes(query.toLowerCase())) return false;
+      return true;
+    });
+    if (orden === 'clienteMasReciente') return [...lista].sort((a, b) => b.fechaAlta.localeCompare(a.fechaAlta));
+    if (orden === 'clienteMasAntiguo') return [...lista].sort((a, b) => a.fechaAlta.localeCompare(b.fechaAlta));
+    if (orden === 'gastado') return [...lista].sort((a, b) => gastoNumero(b.gastoTotal) - gastoNumero(a.gastoTotal));
+    if (orden === 'pedidos') return [...lista].sort((a, b) => b.pedidos - a.pedidos);
+    return lista;
+  }, [filtroUltimoPedido, query, orden]);
 
-  const cargar = useCallback(async () => {
-    setCargando(true);
-    setError(null);
-    try {
-      const params = { page: pagina, page_size: POR_PAGINA };
-      if (query) params.search = query;
-      const pag = await listarClientes(params);
-      setClientes((pag.results || []).map(adaptarCliente));
-      setTotal(pag.count ?? 0);
-    } catch (fallo) {
-      if (!(fallo instanceof ApiError)) throw fallo;
-      setError(fallo);
-      setClientes([]);
-      setTotal(0);
-    } finally {
-      setCargando(false);
-    }
-  }, [query, pagina]);
+  const hayFiltros = filtroUltimoPedido !== 'Todos' || orden !== 'ninguno' || query !== '';
 
-  useEffect(() => {
-    const t = setTimeout(cargar, query ? 300 : 0);
-    return () => clearTimeout(t);
-  }, [cargar, query]);
-
-  useEffect(() => {
-    setPagina(1);
-  }, [query]);
-
-  // Los invitados no paginan ni se filtran en servidor: son una agregación, y el volumen
-  // es el de correos distintos que han comprado sin cuenta.
-  useEffect(() => {
-    listarInvitados()
-      .then((filas) => setInvitados((filas || []).map(adaptarInvitado)))
-      .catch(() => setInvitados([]));
-  }, []);
-
-  async function alternarBloqueo(cliente) {
-    setGuardando(true);
-    try {
-      await bloquearCliente(cliente.id, !cliente.activo);
-      await cargar();
-      mostrarToast(cliente.activo ? 'Cuenta bloqueada' : 'Cuenta reactivada');
-    } catch (fallo) {
-      if (!(fallo instanceof ApiError)) throw fallo;
-      mostrarToast(`No se ha podido cambiar: ${fallo.firstDetail ?? fallo.message}`);
-    } finally {
-      setGuardando(false);
-    }
+  function limpiarFiltros() {
+    setQuery('');
+    setFiltroUltimoPedido('Todos');
+    setOrden('ninguno');
   }
-
-  const esRegistrados = pestana === 'registrados';
-  const filasInvitados = query
-    ? invitados.filter((i) => i.email.toLowerCase().includes(query.toLowerCase()))
-    : invitados;
-  const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
-
-  const columnasComunes = [
-    { clave: 'email', etiqueta: 'Correo', render: (c) => c.email },
-    { clave: 'pedidos', etiqueta: 'Pedidos', render: (c) => c.pedidos },
-    { clave: 'pagados', etiqueta: 'Pagados', render: (c) => c.pedidosPagados },
-    { clave: 'gasto', etiqueta: 'Gasto', render: (c) => c.gasto },
-    { clave: 'ultimo', etiqueta: 'Último pedido', render: (c) => fechaCorta(c.ultimoPedido) },
-  ];
 
   return (
     <div>
-      <PageHeader
-        titulo="Clientes"
-        subtitulo={cargando ? 'Cargando…' : `${total} registrado${total === 1 ? '' : 's'} · ${invitados.length} han comprado sin cuenta`}
-      />
+      <PageHeader titulo="Clientes" subtitulo={`${filtrados.length} registros`} />
 
-      <p className={styles.explicacion}>
-        Comprar <strong>no</strong> crea una cuenta: el checkout admite pedidos de invitado,
-        que guardan solo el correo. Quien compró sin registrarse aparece en «Sin cuenta»,
-        no aquí.
-      </p>
-
-      <div className={styles.pestanas}>
-        <button
-          type="button"
-          className={`${styles.pestana} ${esRegistrados ? styles.pestanaActiva : ''}`}
-          aria-pressed={esRegistrados}
-          onClick={() => setPestana('registrados')}
-        >
-          Registrados ({total})
-        </button>
-        <button
-          type="button"
-          className={`${styles.pestana} ${!esRegistrados ? styles.pestanaActiva : ''}`}
-          aria-pressed={!esRegistrados}
-          onClick={() => setPestana('invitados')}
-        >
-          Sin cuenta ({invitados.length})
-        </button>
-      </div>
-
-      <FiltroBar>
-        <Input
-          etiqueta="Buscar"
-          placeholder="Correo o nombre"
-          valor={query}
-          onChange={(e) => setQuery(e.target.value)}
+      <FiltroBar onLimpiar={hayFiltros ? limpiarFiltros : undefined}>
+        <Input etiqueta="Buscar" placeholder="Nombre del cliente" valor={query} onChange={(e) => setQuery(e.target.value)} />
+        <FiltroSelector
+          etiqueta="Último pedido"
+          valor={filtroUltimoPedido}
+          onChange={(e) => setFiltroUltimoPedido(e.target.value)}
+          opciones={OPCIONES_ULTIMO_PEDIDO}
+        />
+        <FiltroSelector
+          etiqueta="Ordenar por"
+          valor={orden}
+          onChange={(e) => setOrden(e.target.value)}
+          opciones={OPCIONES_ORDEN}
         />
       </FiltroBar>
 
-      {error && (
-        <div className={styles.aviso} role="alert">
-          {error.isNetworkError
-            ? 'No hemos podido conectar con el servidor.'
-            : error.status === 401 || error.status === 403
-              ? 'Tu sesión no tiene acceso al panel. Vuelve a entrar.'
-              : error.message}
-        </div>
-      )}
-
-      {esRegistrados ? (
-        <>
-          {!error && cargando && <p className={styles.estado} role="status">Cargando clientes…</p>}
-          {!error && !cargando && clientes.length === 0 && (
-            <p className={styles.estado}>
-              Todavía no hay clientes registrados
-              {invitados.length > 0 && `, pero ${invitados.length} persona${invitados.length === 1 ? ' ha' : 's han'} comprado sin cuenta`}.
-            </p>
-          )}
-
-          <TablaAdmin
-            columnas={[
-              { clave: 'nombre', etiqueta: 'Nombre', render: (c) => c.nombre },
-              ...columnasComunes,
-              { clave: 'alta', etiqueta: 'Alta', render: (c) => fechaCorta(c.alta) },
-              {
-                clave: 'estado',
-                etiqueta: 'Estado',
-                render: (c) => (
-                  <span className={styles.marcas}>
-                    {!c.activo && <span className={styles.bloqueada}>bloqueada</span>}
-                    {/* Informativo: hoy NO impide entrar ni comprar. */}
-                    {!c.emailVerificado && <span className={styles.sinVerificar}>correo sin verificar</span>}
-                  </span>
-                ),
-              },
-            ]}
-            filas={clientes}
-            renderAcciones={(c) => (
-              <Boton variante="texto" onClick={() => alternarBloqueo(c)} desactivado={guardando}>
-                {c.activo ? 'Bloquear' : 'Reactivar'}
-              </Boton>
-            )}
-          />
-
-          {paginas > 1 && (
-            <div className={styles.paginacion}>
-              <button
-                type="button"
-                className={styles.paginaBoton}
-                onClick={() => setPagina((n) => Math.max(1, n - 1))}
-                disabled={pagina <= 1 || cargando}
-                aria-label="Página anterior"
-              >
-                <ChevronLeft size={16} aria-hidden="true" />
-              </button>
-              <span className={styles.paginaTexto}>Página {pagina} de {paginas}</span>
-              <button
-                type="button"
-                className={styles.paginaBoton}
-                onClick={() => setPagina((n) => Math.min(paginas, n + 1))}
-                disabled={pagina >= paginas || cargando}
-                aria-label="Página siguiente"
-              >
-                <ChevronRight size={16} aria-hidden="true" />
-              </button>
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          <p className={styles.estado}>
-            Pedidos hechos sin cuenta, agrupados por correo. No son usuarios: no tienen
-            perfil, ni contraseña, ni se les puede bloquear.
-          </p>
-          {filasInvitados.length === 0 && (
-            <p className={styles.estado}>Nadie ha comprado todavía sin cuenta.</p>
-          )}
-          <TablaAdmin columnas={columnasComunes} filas={filasInvitados} />
-        </>
-      )}
+      <TablaAdmin
+        columnas={[
+          { clave: 'nombre', etiqueta: 'Nombre' },
+          { clave: 'email', etiqueta: 'Email' },
+          { clave: 'cumpleanos', etiqueta: 'Cumpleaños', render: (c) => formatCumpleanos(c.cumpleanos) },
+          { clave: 'pedidos', etiqueta: 'Pedidos' },
+          { clave: 'gastoTotal', etiqueta: 'Gasto total' },
+          { clave: 'fechaAlta', etiqueta: 'Cliente desde' },
+          {
+            clave: 'ultimoPedido',
+            etiqueta: 'Último pedido',
+            render: (c) => {
+              const pedido = ultimoPedido(c);
+              return pedido ? <EstadoPedidoBadge estado={pedido.estadoEnvio} /> : '—';
+            },
+          },
+        ]}
+        filas={filtrados}
+        hrefFila={(c) => `/admin/clientes/${c.id}`}
+        renderAcciones={(c) => <BotonFila href={`/admin/clientes/${c.id}`}>Ver</BotonFila>}
+      />
     </div>
   );
 }

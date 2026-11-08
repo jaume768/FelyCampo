@@ -1,50 +1,58 @@
 'use client';
 
 /* ============================================================
-   CONSULTAS DE PRECIO — listado. Atelier no lleva precio visible en
-   la ficha pública: en su lugar hay un botón "Precio a consultar"
-   que deja estos datos de contacto. Mismo patrón que /admin/consultas
-   (spec sección 5), pero separado porque el origen es otro (el botón
-   de precio, no el formulario de cita/consulta general) y porque no
-   todo el que pregunta es cliente registrado.
+   CONSULTAS DE VESTIDOS — listado. Lo que llega del modal "Solicita
+   información" (botón "Contacta con nosotros" de las fichas de Novias y
+   Fiesta, ModalSolicitudAtelier.jsx → /api/consulta-vestido), con los
+   mismos campos que envía (ver consultasPrecioMock en mockData.js), de
+   la más reciente a la más antigua. Mismo esquema que Citas
+   (/admin/consultas): "Recibida" en dos líneas (en rosa si lleva 4+ días
+   pendiente), bajo el nombre el teléfono o, si no lo dejó, el email,
+   bandera del idioma, los mismos estados (ESTADOS_CITA) y filtros por
+   Novias/Fiesta, estado e idioma + búsqueda. Vista de tabla o rejilla.
+   Antes "Consultas de precio" / "Solicitudes de atelier", con clientes
+   registrados (la web no tiene cuentas) — sustituido a petición.
+   Datos de EJEMPLO hasta que /api/consulta-vestido guarde las consultas.
    ============================================================ */
 
 import { useMemo, useState } from 'react';
 import { List, LayoutGrid } from 'lucide-react';
 import {
-  PageHeader, TablaAdmin, GridConsultasPrecio, EstadoContactoBadge, OrigenProductoBadge, FiltroBar, FiltroSelector, TabsFiltro,
+  PageHeader, TablaAdmin, GridConsultasPrecio, EstadoBadge, OrigenProductoBadge, FiltroBar, FiltroSelector, TabsFiltro,
 } from '@/components/admin';
-import { Boton, Input } from '@/components/ui';
-import { consultasPrecioMock, productosMock } from '@/components/admin/mockData';
-import { CONFIG_ESTADO_CONTACTO, calcularEstadoContacto } from '@/components/admin/EstadoContactoBadge';
-import { CONFIG_ORIGEN_PRODUCTO, calcularOrigenProducto } from '@/components/admin/OrigenProductoBadge';
+import { BotonFila } from '@/components/admin/ListadoAdmin';
+import { Input } from '@/components/ui';
+import { consultasPrecioMock, ESTADOS_CITA } from '@/components/admin/mockData';
+import { CONFIG_ORIGEN_PRODUCTO } from '@/components/admin/OrigenProductoBadge';
+import { fechaCorta, IDIOMAS_CITA } from '../consultas/citasFormato';
+import BanderaIdioma from '../consultas/BanderaIdioma';
 import styles from './page.module.css';
 
-const OPCIONES_CONTACTO = [
-  { valor: 'Todos', etiqueta: 'Todos' },
-  ...Object.entries(CONFIG_ESTADO_CONTACTO).map(([valor, cfg]) => ({ valor, etiqueta: cfg.etiqueta, clase: cfg.clase })),
+const TODOS = 'Todos';
+
+const OPCIONES_ESTADO = [
+  { valor: TODOS, etiqueta: 'Todas' },
+  ...ESTADOS_CITA.map((estado) => ({ valor: estado, etiqueta: estado })),
 ];
 
 // Colores del <option> — mismos tokens que OrigenProductoBadge.module.css.
-const ESTILO_PROYECTO = {
+const ESTILO_TIPO = {
   novias: { backgroundColor: 'var(--color-azul-velo)', color: 'var(--color-azul-oscuro)' },
   fiesta: { backgroundColor: 'var(--color-naranja-velo)', color: 'var(--color-naranja-oscuro)' },
 };
 
-const OPCIONES_PROYECTO = [
-  { valor: 'Todos', etiqueta: 'Todos' },
-  ...Object.entries(CONFIG_ORIGEN_PRODUCTO).map(([valor, cfg]) => ({ valor, etiqueta: cfg.etiqueta, estilo: ESTILO_PROYECTO[valor] })),
+const OPCIONES_TIPO = [
+  { valor: TODOS, etiqueta: 'Todos' },
+  ...Object.entries(CONFIG_ORIGEN_PRODUCTO).map(([valor, cfg]) => ({ valor, etiqueta: cfg.etiqueta, estilo: ESTILO_TIPO[valor] })),
 ];
 
 const OPCIONES_ORDEN = [
-  { valor: 'clienteRegistrado', etiqueta: 'Cliente: Registrado' },
-  { valor: 'clienteNoRegistrado', etiqueta: 'Cliente: No registrado' },
-  { valor: 'fechaReciente', etiqueta: 'Fecha: Más reciente' },
-  { valor: 'fechaAntiguo', etiqueta: 'Fecha: Más antiguo' },
+  { valor: 'reciente', etiqueta: 'Más reciente' },
+  { valor: 'antigua', etiqueta: 'Más antigua' },
 ];
 
-function calcularDias(fecha) {
-  const inicio = new Date(`${fecha}T00:00:00`);
+function calcularDias(recibida) {
+  const inicio = new Date(`${recibida.slice(0, 10)}T00:00:00`);
   return Math.floor((Date.now() - inicio.getTime()) / (1000 * 60 * 60 * 24));
 }
 
@@ -55,43 +63,46 @@ function etiquetaDias(dias) {
 }
 
 function esUrgente(c) {
-  return calcularDias(c.fecha) >= 4 && calcularEstadoContacto(c.estado) === 'pendiente';
+  return calcularDias(c.recibida) >= 4 && c.estado === 'Pendiente';
 }
 
-function imagenProducto(nombre) {
-  return productosMock.find((p) => p.nombre === nombre)?.imagen || '';
-}
-
-export default function ConsultasPrecioPage() {
+export default function ConsultasVestidosPage() {
   const [query, setQuery] = useState('');
-  const [filtroContacto, setFiltroContacto] = useState('Todos');
-  const [orden, setOrden] = useState('fechaReciente');
-  const [filtroProyecto, setFiltroProyecto] = useState('Todos');
+  const [filtroEstado, setFiltroEstado] = useState(TODOS);
+  const [filtroTipo, setFiltroTipo] = useState(TODOS);
+  const [filtroIdioma, setFiltroIdioma] = useState(TODOS);
+  const [orden, setOrden] = useState('reciente');
   const [vista, setVista] = useState('tabla');
 
-  const filtradas = useMemo(() => consultasPrecioMock
-    .filter((c) => {
-      if (filtroContacto !== 'Todos' && calcularEstadoContacto(c.estado) !== filtroContacto) return false;
-      if (orden === 'clienteRegistrado' && !c.clienteId) return false;
-      if (orden === 'clienteNoRegistrado' && c.clienteId) return false;
-      if (filtroProyecto !== 'Todos' && calcularOrigenProducto(c.producto) !== filtroProyecto) return false;
-      if (query && !`${c.nombre} ${c.producto}`.toLowerCase().includes(query.toLowerCase())) return false;
-      return true;
-    })
-    .sort((a, b) => (orden === 'fechaAntiguo' ? a.fecha.localeCompare(b.fecha) : b.fecha.localeCompare(a.fecha))),
-  [filtroContacto, orden, filtroProyecto, query]);
+  const filtradas = useMemo(() => {
+    const texto = query.trim().toLowerCase();
+    return consultasPrecioMock
+      .filter((c) => {
+        if (filtroEstado !== TODOS && c.estado !== filtroEstado) return false;
+        if (filtroTipo !== TODOS && c.tipo !== filtroTipo) return false;
+        if (filtroIdioma !== TODOS && c.locale !== filtroIdioma) return false;
+        if (texto && ![c.nombre, c.telefono, c.email, c.producto].some((campo) => campo?.toLowerCase().includes(texto))) return false;
+        return true;
+      })
+      .sort((a, b) => (orden === 'antigua' ? a.recibida.localeCompare(b.recibida) : b.recibida.localeCompare(a.recibida)));
+  }, [filtroEstado, filtroTipo, filtroIdioma, orden, query]);
 
-  const hayFiltros = orden !== 'fechaReciente' || filtroProyecto !== 'Todos' || query !== '';
+  const pendientes = consultasPrecioMock.filter((c) => c.estado === 'Pendiente').length;
+  const hayFiltros = orden !== 'reciente' || filtroTipo !== TODOS || filtroIdioma !== TODOS || query !== '';
 
   function limpiarFiltros() {
     setQuery('');
-    setOrden('fechaReciente');
-    setFiltroProyecto('Todos');
+    setOrden('reciente');
+    setFiltroTipo(TODOS);
+    setFiltroIdioma(TODOS);
   }
 
   return (
     <div>
-      <PageHeader titulo="Consultas de precio" subtitulo={`${filtradas.length} registros`}>
+      <PageHeader
+        titulo="Consultas de vestidos"
+        subtitulo={`${filtradas.length} consultas · ${pendientes} pendientes · «Contacta con nosotros» de las fichas de Novias y Fiesta`}
+      >
         <div className={styles.vistaToggle} role="group" aria-label="Cambiar vista">
           <button
             type="button"
@@ -115,86 +126,78 @@ export default function ConsultasPrecioPage() {
       </PageHeader>
 
       <FiltroBar onLimpiar={hayFiltros ? limpiarFiltros : undefined}>
-        <Input etiqueta="Buscar" placeholder="Nombre o producto" valor={query} onChange={(e) => setQuery(e.target.value)} />
+        <Input etiqueta="Buscar" placeholder="Nombre, teléfono, email o vestido" valor={query} onChange={(e) => setQuery(e.target.value)} />
+        <FiltroSelector etiqueta="Ordenar por" valor={orden} onChange={(e) => setOrden(e.target.value)} opciones={OPCIONES_ORDEN} />
+        <FiltroSelector etiqueta="Novias / Fiesta" valor={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} opciones={OPCIONES_TIPO} />
         <FiltroSelector
-          etiqueta="Ordenar por"
-          valor={orden}
-          onChange={(e) => setOrden(e.target.value)}
-          opciones={OPCIONES_ORDEN}
-        />
-        <FiltroSelector
-          etiqueta="Tipo de producto"
-          valor={filtroProyecto}
-          onChange={(e) => setFiltroProyecto(e.target.value)}
-          opciones={OPCIONES_PROYECTO}
+          etiqueta="Idioma"
+          valor={filtroIdioma}
+          onChange={(e) => setFiltroIdioma(e.target.value)}
+          opciones={[{ valor: TODOS, etiqueta: 'Todos' }, ...IDIOMAS_CITA]}
         />
       </FiltroBar>
 
-      <TabsFiltro opciones={OPCIONES_CONTACTO} valor={filtroContacto} onChange={setFiltroContacto} />
+      <TabsFiltro opciones={OPCIONES_ESTADO} valor={filtroEstado} onChange={setFiltroEstado} />
 
       {vista === 'tabla' ? (
         <TablaAdmin
           columnas={[
             {
+              clave: 'recibida',
+              etiqueta: 'Recibida',
+              render: (c) => {
+                const [fecha, hora] = c.recibida.split('T');
+                return (
+                  <div className={styles.recibida}>
+                    <span className={esUrgente(c) ? styles.recibidaUrgente : undefined}>{fechaCorta(fecha)}</span>
+                    <span className={styles.secundario}>{hora} · {etiquetaDias(calcularDias(c.recibida))}</span>
+                  </div>
+                );
+              },
+            },
+            {
               clave: 'nombre',
-              etiqueta: 'Nombre',
+              etiqueta: 'Clienta',
               render: (c) => (
-                <span className={styles.nombreFila}>
-                  {c.nombre}
-                  {c.clienteId && <span className={styles.etiquetaCliente}>Cliente</span>}
-                </span>
+                <div>
+                  <div>{c.nombre}</div>
+                  <div className={styles.secundario}>{c.telefono || c.email}</div>
+                </div>
               ),
             },
             {
               clave: 'producto',
-              etiqueta: 'Producto',
+              etiqueta: 'Vestido',
               render: (c) => (
                 <div className={styles.productoFila}>
-                  {imagenProducto(c.producto) ? (
-                    <img src={imagenProducto(c.producto)} alt="" className={styles.miniatura} />
-                  ) : <span className={styles.miniatura} />}
+                  {c.imagen ? <img src={c.imagen} alt="" className={styles.miniatura} /> : <span className={styles.miniatura} />}
                   <div>
-                    <div className={styles.origenFila}><OrigenProductoBadge producto={c.producto} /></div>
+                    <div className={styles.origenFila}><OrigenProductoBadge tipo={c.tipo} /></div>
                     <div>{c.producto}</div>
+                    {c.color && (
+                      <div className={`${styles.secundario} ${styles.colorFila}`}>
+                        {c.colorHex && <span className={styles.colorPunto} style={{ background: c.colorHex }} aria-hidden="true" />}
+                        {c.color}
+                      </div>
+                    )}
                   </div>
                 </div>
               ),
             },
-            {
-              clave: 'contacto',
-              etiqueta: 'Contacto',
-              render: (c) => (
-                <div>
-                  <div>{c.email}</div>
-                  <div className={styles.telefono}>{c.telefono}</div>
-                </div>
-              ),
-            },
-            {
-              clave: 'antiguedad',
-              etiqueta: 'Recibida',
-              render: (c) => (
-                <div className={styles.fechaColumna}>
-                  <span className={esUrgente(c) ? styles.recibidaUrgente : undefined}>{etiquetaDias(calcularDias(c.fecha))}</span>
-                  <span className={styles.fechaSecundaria}>{c.fecha}</span>
-                </div>
-              ),
-            },
-            { clave: 'estado', etiqueta: 'Estado', render: (c) => <EstadoContactoBadge estado={c.estado} /> },
+            { clave: 'locale', etiqueta: 'Idioma', render: (c) => <BanderaIdioma locale={c.locale} /> },
+            { clave: 'estado', etiqueta: 'Estado', render: (c) => <EstadoBadge estado={c.estado} /> },
           ]}
           filas={filtradas}
-          filaNueva={(c) => c.nuevo}
           resaltarFila={esUrgente}
-          resaltarFilaVerde={(c) => calcularEstadoContacto(c.estado) === 'contactado'}
           hrefFila={(c) => `/admin/consultas-precio/${c.id}`}
-          renderAcciones={(c) => <Boton variante="texto" href={`/admin/consultas-precio/${c.id}`}>Ver</Boton>}
+          renderAcciones={(c) => <BotonFila href={`/admin/consultas-precio/${c.id}`}>Ver</BotonFila>}
         />
       ) : (
         <GridConsultasPrecio
           filas={filtradas}
           hrefFila={(c) => `/admin/consultas-precio/${c.id}`}
           esUrgente={esUrgente}
-          etiquetaRecibida={(c) => etiquetaDias(calcularDias(c.fecha))}
+          etiquetaRecibida={(c) => etiquetaDias(calcularDias(c.recibida))}
           porPagina={12}
         />
       )}

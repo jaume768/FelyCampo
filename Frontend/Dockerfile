@@ -48,6 +48,16 @@ ENV NODE_ENV=production
 # variable de entorno del contenedor.
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SITE_URL=https://felycampo.com
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_GTM_ID=
+ENV NEXT_PUBLIC_GTM_ID=$NEXT_PUBLIC_GTM_ID
+ARG NEXT_PUBLIC_META_PIXEL_ID=
+ENV NEXT_PUBLIC_META_PIXEL_ID=$NEXT_PUBLIC_META_PIXEL_ID
+# No es NEXT_PUBLIC, pero next.config.mjs la lee al construir (cabeceras X-Robots-Tag):
+# "true" SOLO en felycampo.com. Cualquier otro valor = noindex en todo.
+ARG SITIO_INDEXABLE=false
+ENV SITIO_INDEXABLE=$SITIO_INDEXABLE
 
 COPY . .
 RUN npm run build

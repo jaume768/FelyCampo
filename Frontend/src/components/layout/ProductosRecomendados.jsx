@@ -3,9 +3,9 @@
 /* ============================================================
    PRODUCTOS RECOMENDADOS — Fely Campo
    Hasta 10 productos — SOLO para la ficha de producto
-   (tienda/[producto]/page.js), debajo de LookPasarela. No se usa en
-   ningún otro sitio (Tienda/Atelier/home siguen con CuadriculaProductos
-   tal cual estaban).
+   (pret-a-porter/[producto]/page.js), debajo de LookPasarela. No se usa
+   en ningún otro sitio (Prêt-à-porter/Atelier/home siguen con
+   CuadriculaProductos tal cual estaban).
 
    Carrusel de scroll horizontal libre solo por debajo de 768px (misma
    conversión de rueda vertical -> scroll horizontal que GaleriaProducto,
@@ -19,8 +19,8 @@
 
    "hrefBase"/"ocultarPrecio" (opcionales, se le pasan tal cual a
    TarjetaProducto): usados por FichaProductoAtelier.jsx (Novias/
-   Fiesta) para enlazar a su propia ficha en vez de a /tienda y no
-   enseñar precio — mismo criterio que en CuadriculaProductos.jsx.
+   Fiesta) para enlazar a su propia ficha en vez de a /pret-a-porter y
+   no enseñar precio — mismo criterio que en CuadriculaProductos.jsx.
    ============================================================ */
 
 import { useEffect, useRef } from 'react';

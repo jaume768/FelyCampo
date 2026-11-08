@@ -1,0 +1,56 @@
+/* Puntos de venta (ver AdminPuntosVenta.jsx): el listado, agrupado por
+   país, bajo la barra de buscar y filtrar. */
+
+.resultado {
+  margin: 0 0 var(--spacing-4);
+  color: var(--color-gris-500);
+  font-size: 0.875rem;
+}
+
+.grupo + .grupo {
+  margin-top: var(--spacing-7);
+}
+
+.grupoTitulo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: 0 0 var(--spacing-3);
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.grupoCuenta {
+  padding: 0 var(--spacing-2);
+  border-radius: 999px;
+  background: var(--color-gris-100, #f1f1f1);
+  color: var(--color-gris-500);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Un atelier propio: su dirección y su teléfono, de solo lectura. */
+.datosSede {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-4);
+  border: var(--border-thin) solid var(--color-gris-200);
+  background: var(--color-gris-100);
+}
+
+.datosSedeTexto {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.datosSedeEnlace {
+  align-self: flex-start;
+  color: inherit;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

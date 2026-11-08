@@ -7,7 +7,9 @@
   position: fixed;
   inset: 0;
   background: var(--color-tinta);
-  opacity: 0.6;
+  opacity: 0.75;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   z-index: 99;
   cursor: pointer;
 }

@@ -1,0 +1,173 @@
+/* ============================================================
+   FICHA DE PRODUCTO — Fely Campo
+   Dos columnas en escritorio: galería a la izquierda, info (nombre,
+   descripción, color, acordeón) a la derecha, pegada arriba mientras
+   la galería es más alta que ella. Apiladas en mobile. Sin precio ni
+   selector de talla (a petición explícita, ver FichaProductoAcciones.jsx).
+   ============================================================ */
+
+/* Navbar transparent+fixed en esta página (ver layout.js
+   "esFichaProducto") flota encima de GaleriaProducto (su Hero, ver
+   data-navbar-hero en GaleriaProducto.jsx) para el efecto de
+   transparencia sobre la imagen. Con z-index:auto de fábrica, un hijo
+   posicionado que aparezca DESPUÉS del header en el DOM (.galeria,
+   .info en mobile...) pintaría por encima suyo pese a su z-index:50
+   (mismo nivel de apilamiento, orden de DOM) — position:relative +
+   z-index explícito por debajo del header (50, ver Navbar.module.css)
+   crea aquí su propio contexto de apilamiento, así que nada de dentro
+   puede ganarle al header, tenga el z-index interno que tenga. */
+.debajoNavbar {
+  position: relative;
+  z-index: 1;
+}
+
+.ficha {
+  display: grid;
+  /* 1fr 1fr (antes 3fr 2fr): galería más estrecha, a petición. */
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-9);
+}
+
+@media (max-width: 767px) {
+  .ficha {
+    /* block y no grid de una columna: GaleriaProducto .galeria va
+       sticky en mobile, y dentro de un grid su límite sería su propia
+       celda (no se pegaría nunca) — en block el límite es .ficha. */
+    display: block;
+    /* Sin gap: el "peek" de .info sobre la galería (más abajo) lo
+       controla su propio margin-top negativo — un gap aquí competiría
+       con él. padding-bottom para compensar ESE MISMO margin-top
+       negativo (-60px, ver .info abajo): un margin negativo resta de
+       lo que el item aporta al alto de la fila del grid, así que sin
+       esto .ficha terminaba calculando su propio alto ~60px más corto
+       de lo que .info ocupa de verdad en pantalla — y .debajoFicha
+       (justo debajo de .ficha, ver page.js) empezaba a solaparse con
+       el borde inferior real de .info, quedando tapado por su
+       z-index más alto. */
+    gap: 0;
+    padding-bottom: 60px;
+  }
+}
+
+.info {
+  position: sticky;
+  top: var(--spacing-8);
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  padding-top: var(--spacing-11);
+  padding-bottom: var(--spacing-10);
+  padding-inline: 0 var(--spacing-8);
+  /* Sin esto, un item de grid no encoge por debajo del ancho mínimo
+     de su contenido (min-width:auto de fábrica) — con el cuadrado de
+     BotonGuardar (aspect-ratio 1) dentro de .fila, eso podía empujar
+     .info más ancho que su columna del grid (2fr). */
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .info {
+    /* relative (no static): así el z-index de abajo hace algo de
+       verdad — GaleriaProducto .pista se queda fija en mobile (ver
+       GaleriaProducto.module.css), .info necesita ganarle en el eje z
+       para taparla al hacer scroll, no solo asomar 40px por encima. */
+    position: relative;
+    margin-top: -60px;
+    margin-inline: var(--spacing-3);
+    padding: var(--spacing-6);
+    padding-inline: var(--spacing-2);
+    background: var(--color-fondo);
+    z-index: 10;
+  }
+
+  /* Fondo blanco de lado a lado bajo .info (a petición): .info lleva
+     margin-inline, y por esas franjas laterales se veía la foto fija
+     de la galería al hacer scroll. Empieza 60px por debajo de su borde
+     superior (lo que .info se monta sobre la foto con margin-top:-60px),
+     así la entrada "tarjeta sobre la foto" se mantiene igual. z-index
+     -1 dentro del contexto de .info (z-index:10): por debajo de su
+     contenido, por encima de la galería. */
+  .info::before {
+    content: '';
+    position: absolute;
+    top: 60px;
+    bottom: -60px; /* + el padding-bottom de .ficha, hasta .debajoFicha */
+    left: calc(-1 * var(--spacing-3));
+    right: calc(-1 * var(--spacing-3));
+    background: var(--color-fondo);
+    z-index: -1;
+  }
+
+  .punto {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Todo lo que va después de .ficha (reseñas, recomendados, "sigue
+     explorando") necesita el mismo tapado que .info arriba — .pista de
+     GaleriaProducto sigue fija (ver GaleriaProducto.module.css) durante
+     todo el alto que ocupe esta sección, no solo mientras dura .info. */
+  .debajoFicha {
+    position: relative;
+    z-index: 1;
+    background: var(--color-fondo);
+    /* Aire con .info encima: sin esto asomaba por debajo de su borde
+       inferior (a petición). */
+    /* padding (no margin): el hueco lleva el fondo blanco de la
+       sección en vez de ser transparente. */
+    padding-top: var(--spacing-10);
+  }
+}
+
+/* Envuelve .cabecera + FichaProductoAcciones + Acordeon (no
+   LookPasarela, que se queda fuera, debajo de todo esto) — mismo gap
+   que tenían como hijos directos de .info antes de este envoltorio
+   (--spacing-6), aquí en vez de heredarlo. min-height:40vh + centrado
+   vertical: independientemente de lo corto/largo que sea el contenido
+   (descripción, nº de colores/tallas, filas de acordeón), este bloque
+   ocupa al menos un 40% del alto de pantalla, centrado, en vez de
+   quedarse pegado arriba del todo. */
+.bloquePrincipal {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-6);
+  min-height: 40vh;
+}
+
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.nombre {
+  font-size: var(--text-h3);
+}
+
+/* Antes vivía en el acordeón "Detalles" (ver page.js) — ahora se
+   muestra siempre, justo debajo del nombre, sin plegar. Sin precio (a
+   petición explícita, ver FichaProductoAcciones.jsx): margin-top igual
+   que antes, ahora contando desde .cabecera directamente. */
+/* Composición propia del producto: respeta los saltos de línea del admin. */
+.textoComposicion {
+  white-space: pre-line;
+}
+
+.descripcion {
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--color-tinta);
+  margin-top: var(--spacing-4);
+}
+
+/* CTA debajo de ProductosRecomendados (ver page.js) — vuelve a la
+   página de categoría de la que vino la visita (Tienda/Atelier),
+   detectada por el header Referer del navegador. */
+.seguirExplorando {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-6);
+  margin-bottom: var(--spacing-10);
+}

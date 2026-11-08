@@ -1,0 +1,55 @@
+/* ============================================================
+   PÁGINA 404 — Fely Campo
+   Centrada en el alto disponible bajo la Navbar (calc(100vh -
+   var(--nav-height)), mismo cálculo que GaleriaProducto.module.css) —
+   sin scroll salvo que el contenido no quepa en pantallas muy bajas.
+   Esquinas rectas en el botón (Boton.module.css ya las deja a 0 en
+   todo el sitio), sin imagen ni radio en ningún elemento.
+   ============================================================ */
+
+.pagina {
+  min-height: calc(100vh - var(--nav-height));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-8) var(--spacing-6);
+  text-align: center;
+}
+
+.eyebrow {
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-gris-500);
+}
+
+/* Única nota "editorial" de la página — mismo font-family/itálica que
+   .cita en BlogArticulo.module.css (la voz propia de la marca),
+   aplicada aquí al número en vez de a una frase. */
+.numero {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: var(--text-h1);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  color: var(--color-tinta);
+}
+
+.texto {
+  max-width: var(--max-texto);
+  font-size: var(--text-body);
+  line-height: var(--leading-base);
+  color: var(--color-gris-600);
+  margin-bottom: var(--spacing-2);
+}
+
+@media (max-width: 767px) {
+  .pagina {
+    padding: var(--spacing-6) var(--spacing-4);
+  }
+
+  .numero {
+    font-size: var(--text-h2);
+  }
+}

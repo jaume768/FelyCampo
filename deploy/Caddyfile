@@ -31,7 +31,12 @@ www.{$DOMAIN} {
 	# Los sirve Caddy directamente desde el volumen, NO Django: con DEBUG=False Django
 	# no sirve media (el `static()` de config/urls.py solo se añade en desarrollo), así
 	# que sin esto las fotos del catálogo darían 404 en producción.
+	#
+	# Caché larga en el navegador: las fotos no se sobrescriben (una subida nueva es
+	# un archivo nuevo con otro nombre), así que 30 días es seguro. Sin esto, cada
+	# visita volvía a pedir cada foto.
 	handle_path /media/* {
+		header Cache-Control "public, max-age=2592000"
 		root * /srv/media
 		file_server
 	}
@@ -39,7 +44,11 @@ www.{$DOMAIN} {
 	# --- API y estáticos de Django ------------------------------------------------
 	# `/static/*` va al backend porque lo sirve whitenoise desde su middleware, con los
 	# nombres con hash del manifiesto.
-	@backend path /api/* /static/* /{$DJANGO_ADMIN_PATH}/*
+	#
+	# `/api/v1/*` y NO `/api/*`: el frontend también tiene rutas propias bajo /api
+	# (`/api/cita`, `/api/consulta-vestido`, `/api/revalidar`, `/api/newsletter`). Con
+	# `/api/*` se las tragaría Django y los formularios darían 404.
+	@backend path /api/v1/* /static/* /{$DJANGO_ADMIN_PATH}/*
 	handle @backend {
 		reverse_proxy backend:8000
 	}

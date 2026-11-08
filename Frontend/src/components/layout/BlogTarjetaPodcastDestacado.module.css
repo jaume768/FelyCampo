@@ -1,0 +1,104 @@
+/* ============================================================
+   TARJETA DESTACADA DE PODCAST — Fely Campo
+   .tarjeta llena el 100% de .celdaPodcast (ver ../../app/[locale]/
+   blog/page.module.css — fila 1, columna 2, fija, sin el tope de
+   550px del resto de tarjetas) — hereda el alto de esa fila (lo marca
+   la tarjeta de la columna 1). min-height es solo un suelo de
+   seguridad (por si esa fila saliera muy baja, o en mobile, donde
+   .celdaPodcast pasa a alto automático), no fija la altura real. La
+   foto va a sangre con position:absolute, cubriendo toda la celda, no
+   en flujo normal como en BlogTarjeta.
+   ============================================================ */
+
+.tarjeta {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  overflow: hidden;
+  color: var(--color-crema);
+}
+
+.imagen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Sin animación al hover a propósito — la foto/degradado se quedan
+   quietos, a diferencia de otras tarjetas del sitio (ej. BlogTarjeta).
+   Degradado oscuro solo en el tercio inferior — legibilidad del
+   título/botón sobre cualquier foto, sin oscurecer toda la imagen. */
+.degradado {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(16, 16, 16, 0.85) 0%, rgba(16, 16, 16, 0) 55%);
+}
+
+.contenido {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+/* Nombre de la serie ("Entre telas y palabras: El Podcast" — fijo en
+   BlogTarjetaPodcastDestacado.jsx), no el título de este episodio (ver
+   .meta, ahí sí cambia por episodio). */
+.titulo {
+  font-size: var(--text-titulo); /* 15px */
+  text-transform: none;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+  color: var(--color-crema);
+}
+
+.meta {
+  font-size: var(--text-texto); /* 13px */
+  text-transform: none;
+  color: var(--color-crema);
+  opacity: 0.8;
+}
+
+/* Sin radio ni fondo — borde sólido, igual que .play de
+   BlogPodcast.module.css — primer elemento de .contenido, encima del
+   texto en vez de debajo. */
+/* Icono "play" sin recuadro: el triángulo suelto, pequeño — lo usan
+   la tarjeta de podcast (BlogTarjetaPodcastDestacado) y el documental
+   VHS de /sobre-fely (TarjetaEnlaceExterno). */
+.botonSinBorde {
+  display: inline-flex;
+  color: var(--color-crema);
+  transition: transform 0.25s var(--ease-marca);
+}
+
+.tarjeta:hover .botonSinBorde {
+  transform: scale(1.1);
+}
+
+/* Icono con recuadro para TarjetaEnlaceExterno cuando no es el
+   triángulo de "play" (ver icono="revista" en ese componente) — mismo
+   círculo/borde, sin el padding-left óptico que ese triángulo necesita. */
+.botonAlt {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-regular) solid var(--color-crema);
+  color: var(--color-crema);
+  transition: transform 0.25s var(--ease-marca);
+}
+
+.tarjeta:hover .botonAlt {
+  transform: scale(1.06);
+}

@@ -1,3 +1,10 @@
+> # ⚠️ OBSOLETO desde el 2026-11-08 — es el contrato de la TIENDA ONLINE, aparcada
+>
+> **Sustituido por [`docs/CONTENIDO.md`](CONTENIDO.md).** Describe el frontend de la
+> tienda (`/tienda`, carrito, checkout) contra el catálogo y los pedidos del backend. El
+> frontend actual es la web de atelier de Miriam (commit `e556a76`), sin venta online, y
+> ninguna de sus rutas coincide con las de aquí. Se conserva por si vuelve la tienda.
+
 # Contrato frontend ↔ backend — estado real
 
 **Fecha del inventario: 2026-09-08.** Este documento sustituye a `backend/INTEGRACION.md`,

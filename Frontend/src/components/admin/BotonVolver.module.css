@@ -15,3 +15,9 @@
   background: var(--color-tinta);
   color: var(--color-fondo);
 }
+
+.enBarra {
+  flex-shrink: 0;
+  margin-bottom: 0;
+  white-space: nowrap;
+}

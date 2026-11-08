@@ -136,7 +136,8 @@ versión usaba una cápsula rellena de rosa; no existe ese tratamiento en Cecili
 Bahnsen y se ha quitado.
 
 ### Selector de talla
-Fila de tallas. Activa en tinta, agotadas tachadas y deshabilitadas. Radio 0.
+Fila de tallas. Activa en tinta, stock bajo con opacidad reducida (clicable: abre
+"Avísame cuando esté disponible"). Radio 0.
 
 ### Selector de cantidad
 Control − / n / + para carrito. Borde gris, radio 0.
@@ -169,7 +170,7 @@ bloque solo debería aparecer cuando el producto tiene un look de pasarela
 conectado desde el admin panel — si no hay conexión, no hay bloque. Como esa
 conexión todavía no existe (ni el campo en el modelo de producto, ni la
 pantalla de admin para crearla), se renderiza siempre con una imagen de
-ejemplo (`/img/collections/runway/fw27-lacoleccion/FelyCampo_01.webp`) para
+ejemplo (`/img/collections/runway/fw27-lacoleccion/fely-campo-pasarela-la-coleccion-look-01.webp`) para
 que el diseño del bloque pueda revisarse ya, en vez de quedar invisible hasta
 que exista el backend real.
 
@@ -347,7 +348,7 @@ a mano cada vez que se añada un token nuevo:
 | `--text-micro` … `--text-display` | (mismo nombre) | rem, con `html{font-size:87.5%}` |
 | `--border-thin` / `--border-regular` | (mismo nombre) | 0.75px / 1px |
 | `--screen-tablet` / `--screen-desktop` | (mismo nombre) | 768px / 1024px |
-| `--max-texto` / `--max-contenido` / `--max-sitio` | (mismo nombre) | 700 / 1440 / 1920px |
+| `--max-texto` / `--max-contenido` / `--max-sitio` | (mismo nombre) | 700 / 1440 / 2100px |
 
 ## ⚠️ Cambio importante — espaciado renombrado por PASO, no por valor
 

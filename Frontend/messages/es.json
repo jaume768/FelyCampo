@@ -1,10 +1,13 @@
 {
   "nav": {
     "links": {
-      "tienda": "Tienda",
+      "tienda": "Prêt-à-porter",
       "atelier": "Atelier",
+      "colecciones": "Colecciones",
       "elMundoDeFely": "Sobre Fely",
-      "visitanos": "Visítanos"
+      "puntosDeVenta": "Dónde encontrar Fely Campo",
+      "puntosDeVentaCorto": "Dónde encontrarnos",
+      "pedirCita": "Pedir cita"
     },
     "submenus": {
       "tienda": {
@@ -12,29 +15,32 @@
         "tops": "Tops y Camisas",
         "coats": "Chaquetas y Abrigos",
         "faldas": "Faldas",
-        "vestidos": "Vestidos",
-        "zapatos": "Zapatos",
-        "accesorios": "Accesorios"
+        "pantalones": "Pantalones",
+        "vestidos": "Vestidos"
       },
       "atelier": {
         "novias": "Novias",
         "fiesta": "Fiesta",
         "vosotras": "Vosotras",
-        "noviasSubmenu": "Colección Novias",
-        "fiestaSubmenu": "Colección Fiesta"
+        "salamanca": "Atelier Salamanca",
+        "madrid": "Atelier Madrid",
+        "oviedo": "Atelier Oviedo",
+        "nuestroAtelier": "Nuestro Atelier"
+      },
+      "colecciones": {
+        "fiesta": "Colección Fiesta",
+        "novias": "Colección Novias",
+        "pretaporter": "Prêt-à-porter",
+        "runway": "Runway"
       },
       "elMundoDeFely": {
-        "blog": "Blog",
         "historia": "Historia",
-        "runway": "Runway",
+        "podcast": "Blog & Podcast",
         "talleres": "Nuestros talleres"
       },
-      "visitanos": {
-        "salamanca": "Salamanca",
-        "madrid": "Madrid",
-        "oviedo": "Oviedo",
-        "puntosDeVenta": "Puntos de venta",
-        "reservarCita": "Reservar cita"
+      "puntosDeVenta": {
+        "propios": "Propios",
+        "externos": "Boutiques Selectas"
       }
     },
     "actions": {
@@ -45,7 +51,13 @@
     "aria": {
       "abrirMenu": "Abrir menú",
       "cerrarMenu": "Cerrar menú",
-      "carrito": "Carrito"
+      "carrito": "Carrito",
+      "volverMenu": "Volver"
+    },
+    "movil": {
+      "menu": "Menú",
+      "verTodo": "Ver todo",
+      "paso": "Paso {actual} de {total}"
     }
   },
   "breadcrumb": {
@@ -55,24 +67,24 @@
     "anadirWishlist": "Añadir a Wishlist",
     "fichaCaption": "Ficha de producto",
     "anadirCesta": "Añadir",
+    "avisame": "Avísame cuando esté disponible",
     "avisoTalla": "Selecciona una talla antes de añadir al carrito.",
     "talla": "Talla",
     "contactar": "Contacta con nosotros",
     "avisoColor": "Selecciona un color antes de contactar.",
     "runwayLook": "Runway look",
     "composicion": "Composición",
-    "composicionTexto": "100% materiales de temporada, seleccionados por nuestro equipo de diseño. Lavado a mano o en seco, no usar secadora.",
+    "composicionTexto": "100% materiales de temporada, seleccionados por nuestro equipo de diseño.",
     "origenDisenado": "Diseñado en: Salamanca, España",
-    "origenFabricado": "Fabricado en: Salamanca, España",
-    "origenTintura": "Tintura y estampación: Italia",
-    "origenTejido": "Origen tejido: India",
+    "origenFabricado": "Fabricado en: <talleres>nuestros talleres</talleres> de Salamanca, España",
+    "etiquetaDisenado": "Diseñado en",
+    "etiquetaFabricado": "Fabricado en",
+    "sku": "Ref.",
     "categorias": "Categorías",
-    "porEncargoTitulo": "Producto por Encargo (PRE-ORDER)",
-    "porEncargoTexto": "Esta prenda se realiza por encargo específicamente para cada pedido y cliente, por lo que no se admite realizar devolución una vez confirmado el pedido. Por ello puedes contactar con nosotros para más información y para hacer el pedido a través de nuestro botón de más información.",
     "envios": "Envíos y devoluciones",
     "enviosSubtitulo": "Envíos",
     "devolucionesSubtitulo": "Devoluciones",
-    "devolucionesTexto": "Puedes ponerte en contacto con nosotros en <email>info@felycampo.com</email> o en el <telefono>+34 683 703 644</telefono> dentro de los 14 días naturales siguientes a la recepción del pedido para gestionar una devolución o cambio. Te indicaremos los pasos a seguir. Los gastos de devolución corren a cargo del cliente, salvo en caso de prenda defectuosa o error en el pedido. Visita nuestra página de <atencion>atención al cliente</atencion>.",
+    "devolucionesTexto": "Puedes ponerte en contacto con nosotros en <email>info@felycampo.com</email> o en el <telefono>+34 659 00 62 57</telefono> dentro de los 14 días naturales siguientes a la recepción del pedido para gestionar una devolución o cambio. Te indicaremos los pasos a seguir. Los gastos de devolución corren a cargo del cliente, salvo en caso de prenda defectuosa o error en el pedido. Visita nuestra página de <atencion>atención al cliente</atencion>.",
     "entregaEstimada": "Entrega estimada: 2 semanas",
     "noEncontrado": "No hemos encontrado este producto.",
     "seguirExplorandoTienda": "Sigue explorando la colección",
@@ -87,30 +99,44 @@
     "videoActivarSonido": "Activar sonido",
     "videoSilenciar": "Silenciar",
     "videoReproducir": "Reproducir vídeo",
-    "videoPausar": "Pausar vídeo",
-    "sinStock": "Esta talla está agotada.",
-    "combinacionNoDisponible": "Esa combinación de color y talla no está disponible.",
-    "errorAnadir": "No hemos podido añadirlo a la cesta.",
-    "anadiendo": "Añadiendo…"
+    "videoPausar": "Pausar vídeo"
   },
   "visitenos": {
-    "eyebrow": "Visítanos",
+    "eyebrow": "Visita",
     "titulo": "Nuestros Ateliers",
-    "intro": "Nuestros ateliers y showroom, siempre con cita previa para atenderte con calma.",
     "pedirCita": "Pedir cita",
-    "verMapa": "Ver mapa",
+    "conoceMas": "Conoce más.",
     "whatsapp": "WhatsApp",
+    "telf": "Telf",
+    "movil": "Móvil",
     "showroomNota": "Showroom con cita previa"
   },
-  "atencionCliente": {
-    "titulo": "Atención al cliente",
-    "emailLabel": "Email",
-    "telefonoLabel": "Teléfono",
-    "horarioLabel": "Horario",
-    "horario": "Lun - Vie: 8:00 - 16:00",
-    "clickCollectLabel": "Click & Collect",
-    "clickCollect": "Recogida en tienda disponible.",
-    "direccionLabel": "Tienda"
+  "puntosVenta": {
+    "eyebrow": "Dónde encontrarnos",
+    "direcciones": "Cómo llegar",
+    "buscarCpPlaceholder": "Código postal",
+    "buscarCpBoton": "Buscar",
+    "buscarCpError": "Introduce un código postal español válido (5 dígitos)."
+  },
+  "talleres": {
+    "eyebrow": "Nuestro proceso",
+    "titulo": "Nuestros talleres",
+    "intro": "Donde las manos cuentan historias\n\nCada pieza Fely Campo nace cerca. En nuestro atelier y en dos pequeños talleres de la sierra, manos expertas transforman cada tejido con tiempo, precisión y sensibilidad. Detrás de esas manos hay mujeres, oficio y territorio.",
+    "filtroTodo": "Ver todo"
+  },
+  "blog": {
+    "volver": "Volver al blog",
+    "leerArticulo": "Leer artículo",
+    "escucharEpisodio": "Escuchar episodio",
+    "episodio": "Episodio",
+    "con": "Con",
+    "shopHere": "Comprar aquí",
+    "filtroTodo": "Ver todo",
+    "filtroBlog": "Blog",
+    "filtroPodcast": "Podcast"
+  },
+  "whatsappFlotante": {
+    "label": "Escríbenos por WhatsApp"
   },
   "carrito": {
     "titulo": "Carrito",
@@ -129,16 +155,7 @@
     "total": "Total",
     "iniciarPedido": "Tramitar pedido",
     "infoEnvioSubrayado": "Envíos",
-    "infoEnvioResto": "y devoluciones",
-    "cargando": "Cargando tu cesta…",
-    "errorCargar": "No hemos podido cargar tu cesta.",
-    "reintentar": "Reintentar",
-    "avisoCarritoViejo": "Tu cesta anterior se ha vaciado: hemos cambiado la forma de guardarla. Disculpa las molestias.",
-    "cerrarAviso": "Cerrar aviso",
-    "problemasStock": "Algún artículo ha perdido disponibilidad. Revisa tu cesta antes de continuar.",
-    "iva": "IVA incluido",
-    "lineaSinStock": "Ya no queda stock de este artículo.",
-    "quedanPocas": "Quedan {cantidad}."
+    "infoEnvioResto": "y devoluciones"
   },
   "wishlist": {
     "titulo": "Lista de deseos",
@@ -191,9 +208,7 @@
   },
   "solicitudAtelier": {
     "titulo": "Solicita información",
-    "subtitulo": "Cuéntanos qué talla necesitas y cómo podemos contactarte, te responderemos con toda la información.",
-    "talla": "Talla",
-    "avisoTalla": "Selecciona una talla.",
+    "subtitulo": "Cuéntanos cómo podemos contactarte y te responderemos con toda la información.",
     "nombre": "Nombre",
     "nombrePlaceholder": "María Martín",
     "email": "Email",
@@ -202,15 +217,52 @@
     "telefonoPlaceholder": "+34 600 000 000",
     "comentario": "Comentario (opcional)",
     "comentarioPlaceholder": "Cuéntanos cualquier detalle adicional…",
-    "avisoDatos": "Completa tu nombre y email para continuar.",
+    "avisoDatos": "Completa tu nombre y email y acepta la política de privacidad para continuar.",
+    "enviando": "Enviando…",
+    "errorEnvio": "No hemos podido enviar tu consulta. Inténtalo de nuevo o escríbenos a {email}.",
     "enviar": "Enviar solicitud",
     "confirmacionTitulo": "¡Solicitud enviada!",
-    "confirmacionTexto": "Gracias por tu interés. Nuestro equipo se pondrá en contacto contigo lo antes posible.",
+    "confirmacionTexto": "Gracias por tu interés en Fely Campo. Te hemos enviado un email con los datos de tu consulta y nuestro equipo te escribirá en breve con toda la información.",
+    "cerrar": "Cerrar"
+  },
+  "pedirCitaAtelier": {
     "cerrar": "Cerrar",
+    "titulo": "Pide tu cita",
+    "subtitulo": "Rellena el formulario y nos pondremos en contacto contigo.",
+    "nombreCompleto": "Nombre completo",
+    "nombreCompletoPlaceholder": "María Martín García",
+    "email": "Email de contacto",
+    "emailPlaceholder": "maria@ejemplo.com",
+    "telefono": "Teléfono de contacto",
+    "telefonoPlaceholder": "+34 600 000 000",
+    "fechaEvento": "*Fecha del evento",
+    "atelier": "Atelier",
+    "atelierElige": "*Elige el atelier",
+    "anioAnterior": "Año anterior",
+    "anioSiguiente": "Año siguiente",
+    "dia": "Día",
+    "mes": "Mes",
+    "anio": "Año",
+    "codigoPostal": "Código postal",
+    "codigoPostalPlaceholder": "37001",
+    "ciudad": "Ciudad",
+    "ciudadPlaceholder": "Salamanca",
+    "mensaje": "Cuéntanos lo que estás buscando y nosotros te ayudaremos",
+    "aceptoLegal": "Acepto la <privacidad>política de privacidad</privacidad> y los <terminos>términos y condiciones</terminos>.",
+    "avisoDatos": "Completa los campos obligatorios y acepta la política de privacidad para continuar.",
+    "enviar": "Enviar solicitud",
+    "confirmacionTitulo": "¡Solicitud enviada!",
+    "confirmacionTexto": "Gracias por tu interés. Nuestro equipo se pondrá en contacto contigo lo antes posible para concretar el día y la hora de tu cita.",
+    "tipo": "Tu cita es para",
+    "tipoNovia": "Novia",
+    "tipoInvitada": "Invitada",
     "enviando": "Enviando…",
-    "errorEnvio": "No hemos podido enviar tu consulta.",
-    "errorRed": "No hemos podido conectar. Inténtalo de nuevo.",
-    "errorDemasiadas": "Has enviado demasiadas consultas. Prueba de nuevo más tarde."
+    "errorEnvio": "No hemos podido enviar tu solicitud. Inténtalo de nuevo o escríbenos a {email}.",
+    "confirmacionNoviaTitulo": "¡Tu cita de novia está solicitada!",
+    "confirmacionNoviaTexto": "Gracias por confiar en Fely Campo para tu vestido de novia. Te hemos enviado un email con los datos de tu solicitud y el equipo del atelier te escribirá para confirmar el día y la hora.",
+    "confirmacionInvitadaTitulo": "¡Tu cita de invitada está solicitada!",
+    "confirmacionInvitadaTexto": "Gracias por tu interés en Fely Campo. Te hemos enviado un email con los datos de tu solicitud y el equipo del atelier te escribirá para confirmar el día y la hora.",
+    "volverInicio": "Volver al inicio"
   },
   "escribirResena": {
     "titulo": "Escribe tu reseña",
@@ -230,10 +282,12 @@
     "tabDatos": "Mis datos",
     "pedidosTitulo": "Mis pedidos",
     "pedidoNumero": "Pedido {numero}",
+    "pedidoTotal": "Total {total}",
     "escribirResena": "Escribir reseña",
     "resenaEnviada": "Reseña enviada",
     "resenasTitulo": "Mis reseñas",
     "resenasVacio": "Todavía no has escrito ninguna reseña.",
+    "resenasPendientesTitulo": "Productos por reseñar",
     "datosTitulo": "Mis datos",
     "datosSubtitulo": "Así es como te vemos nosotras — puedes actualizarlo cuando quieras.",
     "guardarCambios": "Guardar cambios"
@@ -250,30 +304,29 @@
     "fechaNacimiento": "Fecha de nacimiento",
     "email": "Email",
     "emailPlaceholder": "maria@ejemplo.com",
+    "telefono": "Teléfono",
+    "telefonoPlaceholder": "+34 659 00 62 57",
     "password": "Contraseña",
     "enviarLogin": "Iniciar sesión",
     "enviarRegistro": "Crear cuenta",
     "google": "Continuar con Google",
     "preguntaRegistro": "¿Eres nueva en Fely Campo?",
     "preguntaLogin": "¿Ya tienes cuenta?",
-    "cerrar": "Cerrar",
-    "enviando": "Entrando…",
-    "campoObligatorio": "Este campo es obligatorio.",
-    "errorRed": "No hemos podido conectar. Inténtalo de nuevo.",
-    "demasiadosIntentos": "Demasiados intentos. Prueba dentro de un rato.",
-    "googleNoDisponible": "Entrar con Google todavía no está disponible.",
-    "cerrarSesion": "Cerrar sesión",
-    "hola": "Hola, {nombre}",
-    "correoSinVerificar": "Te hemos enviado un correo para confirmar tu dirección. Puedes seguir comprando mientras tanto."
+    "cerrar": "Cerrar"
   },
-  "heroCarousel": {
-    "cta": "Ver más"
+  "heroPagina": {
+    "atelierNovias": "Vestidos de novia hechos a medida en nuestro atelier.",
+    "atelierFiesta": "Vestidos de fiesta e invitada, hechos a medida.",
+    "pretAPorter": "Prendas para el día a día, con el cuidado del atelier.",
+    "sobreFely": "Una vida entre telas",
+    "runway": "Colección de pasarela",
+    "atelierCiudad": "Visítanos siempre con cita previa."
   },
   "collectionTitle": {
     "edicionMujer": {
       "label": "Prêt-à-porter FW27",
       "title": "La Colección",
-      "description": "La historia de una mujer que diseña para otras mujeres, una atemporalidad que Fely Campo abre ahora, por primera vez, al Prêt-à-porter."
+      "description": "La historia de una mujer que diseña para otras mujeres. Una colección de prêt-à-porter de lujo donde el patronaje, los tejidos y el saber hacer del atelier se encuentran con una elegancia atemporal."
     }
   },
   "mediaBanner": {
@@ -284,33 +337,43 @@
   "splitMedia": {
     "item1": {
       "label": "Atelier Novia",
-      "titulo": "Atelier Novia",
+      "titulo": "Vestidos de Novia a Medida",
       "cta": "Ver todo"
     },
     "item2": {
       "label": "Atelier Fiesta",
-      "titulo": "Atelier Fiesta",
+      "titulo": "Vestidos de Fiesta a Medida",
+      "cta": "Ver todo"
+    }
+  },
+  "splitMediaCategorias": {
+    "item1": {
+      "label": "Vestidos",
+      "titulo": "Vestidos",
+      "cta": "Ver todo"
+    },
+    "item2": {
+      "label": "Chaquetas",
+      "titulo": "Chaquetas",
       "cta": "Ver todo"
     }
   },
   "cuadriculaTabs": {
     "subtitulo": "Atelier",
     "titulo": "Un look para cada ocasión",
-    "descripcion": "Reserva tu cita y vive un día único en el Atelier. Disfruta del asesoramiento personalizado de nuestra diseñadora.",
+    "descripcion": "Descubre nuestros vestidos de novia y de fiesta en el atelier. Reserva tu cita para recibir asesoramiento personalizado y encontrar la silueta, el tejido y los detalles que mejor encajan contigo.",
     "reservarCita": "Reserva tu cita"
   },
   "vosotras": {
-    "descripcion": "Nuestras clientas, con sus propias palabras y sus propias fotos, llevando Fely Campo en sus momentos especiales.",
-    "verGaleria": "Ver galería"
-  },
-  "atelierCategoriaSeo": {
-    "titulo": "{categoria} · {seccion} · Atelier — Fely Campo",
-    "descripcion": "Vestidos de estilo {categoria} en la colección {seccion} del Atelier de Fely Campo. Cita personalizada con nuestra diseñadora."
+    "verGaleria": "Ver galería",
+    "invitadas": "Invitadas",
+    "novias": "Novias"
   },
   "catalogo": {
     "subtituloFelyCampo": "Fely Campo",
     "subtituloTienda": "Prêt-à-porter",
-    "tituloTienda": "Prêt-à-porter"
+    "tituloTienda": "Prêt-à-porter",
+    "tituloTops": "Tops y Camisetas"
   },
   "cuadriculaProductos": {
     "verMas": "Ver más",
@@ -324,11 +387,7 @@
     "vistaCuadricula": "Vista en cuadrícula",
     "vistaCompacta": "Vista en 2 columnas",
     "filtros": "Filtros",
-    "cargandoMas": "Cargando más productos…",
-    "cargarMas": "Cargar más",
-    "sinResultadosTitulo": "No hay productos que mostrar",
-    "sinResultadosTexto": "Prueba a quitar algún filtro o vuelve a la sección completa.",
-    "limpiarFiltros": "Quitar filtros"
+    "cargandoMas": "Cargando más productos…"
   },
   "filtros": {
     "titulo": "Filtros",
@@ -405,101 +464,53 @@
     }
   },
   "visitaAtelier": {
-    "titulo": "Artesanía, Feminidad & Cercanía",
-    "texto": "Lo que quiero transmitir con mis vestidos es un sentimiento y una pasión por lo que es mi oficio y mi profesión: la moda…",
+    "titulo": "De mujeres, Para mujeres, Por las mujeres",
+    "texto": "Con más de cinco décadas de trayectoria, Fely Campo está profundamente ligada a la tierra charra, a su luz y a su oficio. Especializada en vestidos de novia, vestidos de fiesta y prêt-à-porter, la firma crea desde el patronaje, la elección de tejidos y el conocimiento de unas manos expertas: un saber hacer que se transmite y permanece.",
     "enlace": "Descubre más"
-  },
-  "compromiso": {
-    "texto": "Diseñado & Confeccionado en Salamanca desde 1997",
-    "subtitulo": "Artesanía, Feminidad & Cercanía"
   },
   "footer": {
     "newsletter": {
       "texto": "Suscríbete y sé la primera en conocer ofertas, colecciones limitadas y novedades.",
       "consentimiento": "Al enviar tu email, aceptas nuestra <privacidad>Política de privacidad</privacidad>.",
+      "politicaEnlace": "Política de privacidad",
       "enviar": "Enviar",
+      "suscribirse": "Suscribirse",
+      "placeholder": "E-mail",
       "exito": "¡Gracias! Ya estás suscrita.",
       "error": "Algo ha ido mal. Inténtalo de nuevo."
     }
   },
   "newsletterPopup": {
-    "titulo": "Únete al universo Fely Campo",
-    "boton": "Apúntate",
+    "consentimiento": "Aceptas recibir comunicaciones comerciales.",
+    "noGracias": "No, gracias",
     "cerrar": "Cerrar"
   },
-  "clientsReview": {
-    "titulo": "Ellas te lo cuentan",
-    "resenas": [
-      {
-        "texto": "Muchísimas gracias Fely....me hiciste disfrutar del día más importante...y me hiciste la mujer más feliz....cuando tenga fotos de la fotógrafa profesional te mando por si las quieres publicar...te pondré la reseña que te mereces....Muchísimas gracias por todo y una suerte haberte conocido 🥰🥰",
-        "nombre": "Marta G."
+  "cookies": {
+    "titulo": "Cookies",
+    "texto": "Usamos cookies propias y de terceros para el correcto funcionamiento del sitio, medir su uso y personalizar tu experiencia.",
+    "enlace": "Política de cookies",
+    "personalizar": "Personalizar",
+    "rechazar": "Rechazar todas",
+    "aceptar": "Aceptar todas",
+    "guardar": "Guardar preferencias",
+    "categorias": {
+      "necesarias": {
+        "nombre": "Necesarias",
+        "texto": "Imprescindibles para que el sitio funcione correctamente. No se pueden desactivar."
       },
-      {
-        "texto": "La costura a medida marca la diferencia. Se nota en cada puntada.",
-        "nombre": "Elena R."
+      "analiticas": {
+        "nombre": "Analíticas",
+        "texto": "Nos ayudan a entender cómo se usa el sitio para poder mejorarlo."
       },
-      {
-        "texto": "Un asesoramiento cercano y honesto, nunca me habían escuchado tanto en una tienda.",
-        "nombre": "Carmen L."
-      },
-      {
-        "texto": "Calidad excepcional y un servicio que te hace sentir única.",
-        "nombre": "Beatriz S."
-      },
-      {
-        "texto": "Volvería sin dudarlo. Fely Campo entiende lo que una mujer necesita.",
-        "nombre": "Lucía M."
+      "marketing": {
+        "nombre": "Marketing",
+        "texto": "Se usan para mostrarte publicidad relevante dentro y fuera de nuestro sitio."
       }
-    ]
+    }
   },
-  "errores": {
-    "catalogoTitulo": "No hemos podido cargar el catálogo",
-    "catalogoTexto": "Puede ser algo temporal. Vuelve a intentarlo en un momento.",
-    "reintentar": "Reintentar",
-    "seccionVaciaTitulo": "Sección en preparación",
-    "seccionVaciaTexto": "Todavía no hay piezas publicadas en esta sección."
-  },
-  "avisoReposicion": {
-    "abrir": "Avísame cuando vuelva a haber",
-    "abrirConTalla": "Avísame cuando vuelva la talla {talla}",
-    "etiqueta": "Te escribimos en cuanto esté disponible.",
-    "placeholder": "tu@correo.com",
-    "enviar": "Avisarme",
-    "enviando": "Enviando…",
-    "confirmado": "Listo. Te avisaremos por correo en cuanto vuelva a estar disponible.",
-    "faltaEmail": "Escribe tu correo.",
-    "error": "No hemos podido registrar el aviso.",
-    "errorRed": "No hemos podido conectar. Inténtalo de nuevo.",
-    "demasiados": "Has pedido demasiados avisos. Prueba de nuevo más tarde."
-  },
-  "checkout": {
-    "titulo": "Finalizar compra",
-    "contacto": "Contacto",
-    "envio": "Dirección de envío",
-    "factura": "Factura",
-    "email": "Correo electrónico",
-    "telefono": "Teléfono",
-    "destinatario": "Nombre y apellidos",
-    "direccion": "Dirección",
-    "direccion2": "Piso, puerta (opcional)",
-    "codigoPostal": "Código postal",
-    "ciudad": "Ciudad",
-    "provincia": "Provincia",
-    "soloPeninsula": "De momento solo enviamos a la Península.",
-    "quieroFactura": "Quiero factura",
-    "nombreFiscal": "Nombre o razón social",
-    "nif": "NIF / CIF",
-    "direccionFiscal": "Dirección fiscal",
-    "confirmarPedido": "Confirmar pedido",
-    "procesando": "Procesando…",
-    "obligatorio": "Este campo es obligatorio.",
-    "nifObligatorio": "El NIF/CIF es obligatorio para emitir factura.",
-    "carritoVacio": "Tu cesta está vacía.",
-    "errorRed": "No hemos podido conectar. Inténtalo de nuevo.",
-    "confirmadoTitulo": "Pedido registrado",
-    "referencia": "Referencia",
-    "confirmadoTexto": "Te hemos enviado la confirmación a {email}.",
-    "sinPasarela": "La pasarela de pago aún no está activa: tu pedido queda registrado y pendiente de pago. Nos pondremos en contacto contigo para completarlo.",
-    "seguirComprando": "Seguir comprando"
+  "notFound": {
+    "eyebrow": "Error 404",
+    "texto": "Esta página no existe o se ha movido de sitio.",
+    "boton": "Volver al inicio"
   }
 }

@@ -1,0 +1,220 @@
+/* ============================================================
+   EPISODIO DE PODCAST — Fely Campo
+   .pagina a sangre, min-height:100dvh (puede crecer con .notas) —
+   .imagen a sangre de fondo (position:absolute, inset:0), .degradado
+   solo de abajo hasta la mitad (no oscurece toda la foto) y .contenido
+   anclado al fondo, encima de los dos.
+   ============================================================ */
+
+.pagina {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+  color: var(--color-crema);
+}
+
+.imagen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* De abajo (0%) hasta la mitad (50%) — la mitad superior de la foto
+   queda intacta, sin degradado. */
+.degradado {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(16, 16, 16, 0.9) 0%, rgba(16, 16, 16, 0) 50%);
+}
+
+/* Solo icono (flecha), sin texto ni el trazo de Boton "texto" — mismo
+   criterio de offset que BlogCampana.module.css: debajo de la Navbar
+   transparente de esta página (ver "esPodcastBlog" en
+   ../../app/[locale]/layout.js), aunque aquí la Navbar es transparente
+   (no sólida) — igualmente evita que el enlace choque con el logo/menú. */
+.volver {
+  position: absolute;
+  top: calc(var(--nav-height) + var(--spacing-4));
+  left: var(--spacing-7);
+  z-index: 2;
+  display: flex;
+  color: var(--color-crema);
+  opacity: 0.85;
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.volver:hover {
+  opacity: 1;
+}
+
+.contenido {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--spacing-4);
+  padding: var(--spacing-9) var(--spacing-7) var(--spacing-9);
+  max-width: var(--max-contenido);
+  margin-inline: auto;
+}
+
+.datos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.titulo {
+  max-width: var(--max-texto);
+  font-size: var(--text-display);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+  color: var(--color-crema);
+}
+
+/* Mismo font-size que .etiqueta de Etiqueta.module.css (--text-caption). */
+.meta {
+  font-size: var(--text-caption);
+  color: var(--color-crema);
+  opacity: 0.85;
+}
+
+/* Ajuste puntual de <Etiqueta variante="tinta"> (Etiqueta.module.css
+   la deja en --text-caption/--color-tinta, pensada para fondo claro,
+   no para una foto oscura) — mismo font-size que .meta de arriba
+   (--text-body) y --color-rosa-velo (rosa claro, mismo tono que usa
+   el texto sobre fondo oscuro del panel admin, ver
+   AdminSidebar.module.css) en vez de tinta (ilegible aquí) o el rosa
+   base (no quedaba bien sobre la foto) — !important porque .etiqueta
+   y esta clase viven en módulos CSS distintos, incluso especificidad
+   (1 clase cada una): sin él, cuál gana depende del orden de los
+   archivos en el bundle, no fiable entre builds. */
+.episodio {
+  font-size: var(--text-body) !important;
+  color: var(--color-rosa-velo) !important;
+}
+
+.invitada {
+  font-size: var(--text-small);
+  color: var(--color-crema);
+  opacity: 0.7;
+}
+
+/* ---------- Reproductor de escritorio — discreto, última pieza de .contenido ----------
+   Sin panel/borde propio, mismo --color-crema atenuado que
+   .meta/.invitada — el título/la foto son el protagonismo, no el
+   reproductor. Oculto en mobile (ver media query abajo): ahí lo
+   sustituye .reproductorMobile. */
+.reproductor {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  opacity: 0.85;
+}
+
+.play {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-regular) solid var(--color-crema);
+  color: var(--color-crema);
+  padding-left: 2px; /* óptica: el triángulo de "play" centrado, no el bounding box */
+  transition: opacity 0.25s var(--ease-marca);
+}
+
+.reproductor:hover {
+  opacity: 1;
+}
+
+.pista {
+  flex: 1 1 0;
+  height: 2px;
+  background: rgba(245, 241, 238, 0.3);
+}
+
+.progreso {
+  width: 0%;
+  height: 100%;
+  background: var(--color-crema);
+}
+
+.duracion {
+  flex: 0 0 auto;
+  font-size: var(--text-caption);
+  color: var(--color-crema);
+}
+
+/* ---------- Reproductor de mobile — solo el botón de play ----------
+   Oculto por defecto (ver media query abajo, único sitio donde se
+   activa): sin pista ni duración (la duración ya vive en .meta), un
+   único círculo (--radius-full, referencia directa a Spotify)
+   centrado en .pagina entera, no dentro de .contenido. --color-tinta,
+   no rosa — el rosa se queda solo en <Etiqueta variante="rosa">. */
+.reproductorMobile {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  width: 72px;
+  height: 72px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  padding-left: 4px; /* óptica: el triángulo de "play" centrado, no el bounding box */
+}
+
+.notas {
+  max-width: var(--max-texto);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.notas p {
+  font-size: var(--text-small);
+  line-height: var(--leading-base);
+  color: var(--color-crema);
+  opacity: 0.9;
+}
+
+@media (max-width: 767px) {
+  /* Sin enlace de "volver" en mobile — ver nota en BlogPodcast.jsx. */
+  .volver {
+    display: none;
+  }
+
+  /* Reproductor de escritorio fuera, el de mobile dentro — ver nota
+     en BlogPodcast.jsx. */
+  .reproductor {
+    display: none;
+  }
+
+  .reproductorMobile {
+    display: flex;
+    width: 60px;
+    height: 60px;
+  }
+
+  .contenido {
+    padding: var(--spacing-8) var(--spacing-4) var(--spacing-7);
+    gap: var(--spacing-5);
+  }
+
+  .titulo {
+    font-size: var(--text-h1);
+  }
+}

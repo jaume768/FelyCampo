@@ -1,121 +1,64 @@
-.cabeceraSuperior {
+/* ============================================================
+   CONSULTA DE VESTIDO — detalle. El folio A4, la barra de acciones y
+   la impresión vienen de consultas/[id]/page.module.css (ficha de una
+   cita); aquí solo el bloque propio del vestido: foto, Novias/Fiesta,
+   nombre, color y enlace a su ficha.
+   ============================================================ */
+
+.vestido {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
   gap: var(--spacing-4);
+  align-items: flex-start;
 }
 
-.resumen {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-6);
-  margin-bottom: var(--spacing-7);
-  padding-bottom: var(--spacing-6);
-  border-bottom: var(--border-thin) solid var(--color-gris-200);
-}
-
-.resumenLabel {
-  font-size: var(--text-caption);
-  text-transform: uppercase;
-  color: var(--color-gris-500);
-  margin-bottom: var(--spacing-1);
-}
-
-.resumenValor {
-  font-size: var(--text-small);
-  color: var(--color-tinta);
-}
-
-.bloque {
-  margin-bottom: var(--spacing-7);
-}
-
-.bloqueTitulo {
-  font-size: var(--text-h4);
-  font-weight: var(--font-weight-medium);
-  margin-bottom: var(--spacing-4);
-}
-
-.mensaje {
-  font-size: var(--text-small);
-  font-style: italic;
-  line-height: var(--leading-base);
-  max-width: 600px;
-}
-
-.mensaje::before {
-  content: '"';
-}
-
-.mensaje::after {
-  content: '"';
-}
-
-.estadoSelector {
-  display: flex;
-  gap: var(--spacing-2);
-}
-
-.estadoBoton {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--spacing-2) var(--spacing-4);
-  background: none;
-  font-family: var(--font-base);
-  font-size: var(--text-label);
-  line-height: normal;
-  cursor: pointer;
-  transition: background-color 0.2s var(--ease-marca), color 0.2s var(--ease-marca);
-}
-
-/* Inactivo: sin relleno, borde del mismo color que el texto — mismos hex
-   que EstadoContactoBadge.module.css. Activo: relleno sólido. */
-.estadoBoton.pendiente { border: var(--border-regular) solid var(--color-amarillo); color: var(--color-amarillo); }
-.estadoBoton.contactado { border: var(--border-regular) solid var(--color-verde); color: var(--color-verde); }
-
-.estadoBotonActivo.pendiente { background: var(--color-amarillo); color: var(--color-fondo); }
-.estadoBotonActivo.contactado { background: var(--color-verde); color: var(--color-fondo); }
-
-.origenFila {
-  margin-bottom: var(--spacing-1);
-}
-
-.itemImagen {
-  width: 80px;
-  height: 120px;
+.vestidoImagen {
+  width: 90px;
+  aspect-ratio: 3 / 4.5;
   object-fit: cover;
+  flex-shrink: 0;
   background: var(--color-gris-100);
+  display: block;
 }
 
-.colorFila {
+.vestidoInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.vestidoNombre {
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--spacing-1);
+}
+
+.vestidoColor {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
+  font-size: var(--text-caption);
+  color: var(--color-gris-500);
 }
 
 .colorPunto {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: var(--border-thin) solid var(--color-gris-300);
+  width: 12px;
+  height: 12px;
   flex-shrink: 0;
+  border: var(--border-thin) solid var(--color-gris-300);
 }
 
-.etiquetaCampo {
-  display: block;
+.vestidoEnlace {
   font-size: var(--text-caption);
   color: var(--color-gris-500);
-  margin-bottom: var(--spacing-2);
+  overflow-wrap: anywhere;
 }
 
-.notas {
-  width: 100%;
-  max-width: 500px;
-  border: 1px solid var(--color-gris-300);
-  border-radius: var(--radius-inputs);
-  padding: var(--spacing-3);
-  font-family: var(--font-base);
-  font-size: var(--text-small);
-  min-height: 90px;
-  margin-bottom: var(--spacing-3);
+/* Al imprimir, la foto sale aunque el navegador quite fondos. */
+@media print {
+  .vestidoImagen {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }

@@ -1,3 +1,34 @@
+/* ---------- Tema del panel: oscuro (por defecto) o claro ----------
+   Solo cambia la barra de arriba y el menú lateral; el espacio de
+   trabajo es siempre blanco. Lo elige el botón sol/luna de la barra
+   (AdminTopbar.jsx), que pone data-admin-tema="claro" en <html> y lo
+   guarda en localStorage (ver el script de layout.js). */
+.admin {
+  --admin-barra-fondo: var(--color-negro);
+  --admin-menu-fondo: var(--color-tinta);
+  --admin-texto: var(--color-fondo);
+  --admin-texto-suave: var(--color-gris-300);
+  --admin-texto-tenue: var(--color-gris-500);
+  --admin-menu-texto: var(--color-gris-200);
+  --admin-menu-texto-suave: var(--color-gris-300);
+  --admin-linea: var(--color-gris-700);
+  --admin-hover: rgba(255, 255, 255, 0.06);
+  --admin-borde: transparent;
+}
+
+:global(html[data-admin-tema='claro']) .admin {
+  --admin-barra-fondo: var(--color-fondo);
+  --admin-menu-fondo: var(--color-details);
+  --admin-texto: var(--color-tinta);
+  --admin-texto-suave: var(--color-gris-600);
+  --admin-texto-tenue: var(--color-gris-400);
+  --admin-menu-texto: var(--color-gris-700);
+  --admin-menu-texto-suave: var(--color-gris-500);
+  --admin-linea: var(--color-gris-200);
+  --admin-hover: rgba(0, 0, 0, 0.04);
+  --admin-borde: var(--color-gris-200);
+}
+
 .shell {
   display: flex;
   flex-direction: column;
@@ -8,8 +39,11 @@
   display: flex;
   align-items: stretch;
   flex-shrink: 0;
-  background: var(--color-rosa-oscuro);
-  border-bottom: var(--border-thin) solid var(--color-fondo);
+  /* Barra de arriba: negra en el tema oscuro (antes rosa oscuro,
+     cambiado a petición), blanca en el claro. El menú lateral va un
+     punto más claro (ver AdminSidebar.module.css). */
+  background: var(--admin-barra-fondo);
+  border-bottom: var(--border-thin) solid var(--admin-borde);
 }
 
 .body {
@@ -19,12 +53,54 @@
   min-height: 0;
 }
 
+/* El área de trabajo ocupa siempre todo el ancho que deja el menú (sin
+   franja vacía a la derecha en pantallas grandes). Lo de dentro crece con
+   ella hasta un tope de 2400px, para que en monitores ultrapanorámicos
+   (3440px) las filas y los campos no queden absurdamente largos. */
 .contenido {
   flex: 1;
   padding: var(--spacing-6);
-  max-width: 1800px;
   width: 100%;
+  min-width: 0;
   overflow-y: auto;
   background: var(--color-fondo);
-  border-left: var(--border-thin) solid var(--color-gris-200);
+  border-left: var(--border-thin) solid var(--admin-borde);
+}
+
+.contenido > * {
+  max-width: 2400px;
+}
+
+/* Impresión (ej. "Imprimir" en la ficha de una cita): solo el contenido
+   de la página, sin la barra superior ni el menú lateral, y sin el
+   scroll interno del panel para que salgan todas las hojas. */
+@media print {
+  .topRow,
+  .body > :not(.contenido) {
+    display: none !important;
+  }
+
+  .shell {
+    display: block;
+    height: auto;
+  }
+
+  .body {
+    display: block;
+  }
+
+  .contenido {
+    padding: 0;
+    max-width: none;
+    overflow: visible;
+    border-left: none;
+  }
+}
+
+/* Sin letter-spacing en todo el panel (a petición), también en los
+   componentes compartidos con la web (Boton usa --tracking-label) y en
+   lo que se pinta fuera de .shell (modales, avisos). */
+.admin,
+.admin * {
+  letter-spacing: 0 !important;
 }

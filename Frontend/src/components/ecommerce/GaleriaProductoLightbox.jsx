@@ -13,13 +13,24 @@
    Navbar de verdad (viven
    en sitios distintos del árbol, sin forma de ocultar uno desde el
    otro sin acoplarlos).
+   Sin precio en ningún caso (a petición explícita — ver
+   FichaProductoAcciones.jsx): ni Prêt-à-porter ni Atelier enseñan ya
+   precio de catálogo, así que este panel nunca lo pinta.
    "esAtelier" (Atelier Novias/Fiesta, ver FichaProductoAtelier.jsx):
-   sin precio ni "añadir a la cesta" — el panel de compra rápida pasa a
-   ser el mismo CTA "Contacta con nosotros" que InfoAtelier.jsx, con su
-   propia instancia de ModalSolicitudAtelier (no comparte estado con la
-   de InfoAtelier, pero es el mismo modal/flujo). Sin selector de talla
-   aquí tampoco: en Atelier la talla se pide dentro del propio modal,
-   igual que desde InfoAtelier.
+   el CTA "Contacta con nosotros" abre ModalSolicitudAtelier (pide
+   talla dentro del propio modal, mismo flujo que InfoAtelier.jsx, sin
+   compartir estado con esa instancia). Ninguno de los dos casos
+   muestra ya BotonGuardar (wishlist). Sin "esAtelier" (Prêt-à-porter, único otro caso): el
+   mismo CTA abre también ModalSolicitudAtelier (antes
+   ModalContactoProducto; mismos datos en todas las fichas, a petición).
+   Portal a document.body (igual que Modal.jsx, mismo motivo): vive
+   dentro de GaleriaProducto, que cuelga de .debajoNavbar en
+   tienda/[producto]/page.js y FichaProductoAtelier.jsx
+   (position:relative + z-index:1, para que la página quede por debajo
+   del Navbar transparent+fixed) — sin portal, ese ancestro crea su
+   propio contexto de apilamiento y atrapa dentro el z-index:100 de
+   .lightbox, que entonces nunca podría ganarle a los z-index:50 del
+   Navbar por mucho que se suba ese número.
    Uso:
      <GaleriaProductoLightbox
        imagenes={['/a.jpg', '/b.jpg']} alt="Vestido Aurora"
@@ -29,12 +40,13 @@
    ============================================================ */
 
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocale, useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
-import { SelectorColor, SelectorTalla, Boton, BotonGuardar } from '../ui';
+import { SelectorColor, Boton } from '../ui';
 import ModalSolicitudAtelier from './ModalSolicitudAtelier';
-import { TALLAS_AGOTADAS_EJEMPLO } from './guiaTallasData';
 import styles from './GaleriaProductoLightbox.module.css';
+import { atributosImagen } from '@/lib/imagenes';
 
 function GaleriaProductoLightbox({
   imagenes = [],
@@ -44,7 +56,6 @@ function GaleriaProductoLightbox({
   onCambiarIndice,
   onCerrar,
   nombre,
-  precio,
   colores = [],
   tallas = [],
   esAtelier = false,
@@ -54,22 +65,23 @@ function GaleriaProductoLightbox({
   const pistaRef = useRef(null);
   const cerrarRef = useRef(null);
   const [color, setColor] = useState(colores[0]?.nombre ?? null);
-  const [talla, setTalla] = useState(null);
-  const [mostrarTallas, setMostrarTallas] = useState(false);
   const [avisoColor, setAvisoColor] = useState(false);
   const [modalAtelierAbierto, setModalAtelierAbierto] = useState(false);
+  const [modalContactoAbierto, setModalContactoAbierto] = useState(false);
+  // Portal a document.body (ver comentario de arriba) — solo existe en
+  // cliente, así que se espera a montar antes de renderizarlo (mismo
+  // patrón que Modal.jsx).
+  const [montado, setMontado] = useState(false);
+  useEffect(() => setMontado(true), []);
 
   // Cada apertura empieza de cero — sin esto, reabrir el lightbox en
-  // otro producto (o en el mismo tras elegir talla) heredaría la talla
-  // ya escogida y el selector de tallas seguiría desplegado.
+  // otro producto heredaría el aviso de color de la vez anterior.
   useEffect(() => {
     if (!abierta) return;
-    setTalla(null);
-    setMostrarTallas(false);
     setAvisoColor(false);
   }, [abierta]);
 
-  const alClicComprar = () => {
+  const alClicContactar = () => {
     if (esAtelier) {
       // Mismo criterio que InfoAtelier.alContactar: sin color elegido,
       // "Contacta con nosotros" no abre el modal, solo avisa.
@@ -80,13 +92,7 @@ function GaleriaProductoLightbox({
       setModalAtelierAbierto(true);
       return;
     }
-    if (!mostrarTallas) {
-      setMostrarTallas(true);
-      return;
-    }
-    // Sin backend real todavía (ver FichaProductoAcciones) — el botón
-    // solo llega aquí habiendo talla elegida, listo para conectar el
-    // "añadir a la cesta" de verdad más adelante.
+    setModalContactoAbierto(true);
   };
 
   // Al abrir: foco en el botón cerrar, sin scroll de la página detrás.
@@ -165,15 +171,15 @@ function GaleriaProductoLightbox({
     setTimeout(() => { ruedaEnCooldownRef.current = false; }, 500);
   };
 
-  if (imagenes.length === 0) return null;
+  if (imagenes.length === 0 || !montado) return null;
 
   const tabIndexInteractivo = abierta ? 0 : -1;
 
-  return (
+  return createPortal(
     <div className={`${styles.lightbox} ${abierta ? styles.abierta : ''}`} aria-hidden={!abierta}>
       <div className={styles.cabecera}>
         <a href={`/${locale}`} className={styles.logoLink} tabIndex={tabIndexInteractivo}>
-          <img src="/img/logo/logo-felycampo.png" alt="Fely Campo" className={styles.logo} />
+          <img src="/img/logo/fely-campo-logo.webp" alt="Fely Campo" className={styles.logo} />
         </a>
         <button
           ref={cerrarRef}
@@ -190,7 +196,7 @@ function GaleriaProductoLightbox({
       <div ref={pistaRef} className={styles.pista} onScroll={alScroll} onWheel={alRueda}>
         {imagenes.map((src) => (
           <div key={src} className={styles.item}>
-            <img src={src} alt={alt} className={styles.imagen} />
+            <img {...atributosImagen(src, { sizes: '(max-width: 768px) 100vw, 50vw' })} alt={alt} className={styles.imagen} />
           </div>
         ))}
       </div>
@@ -207,7 +213,7 @@ function GaleriaProductoLightbox({
               aria-current={indice === indiceActivo}
               tabIndex={tabIndexInteractivo}
             >
-              <img src={src} alt="" className={styles.miniaturaImagen} />
+              <img {...atributosImagen(src, { sizes: '96px' })} alt="" className={styles.miniaturaImagen} />
             </button>
           ))}
         </div>
@@ -215,11 +221,8 @@ function GaleriaProductoLightbox({
 
       {nombre && (
         <div className={styles.panelInfo}>
-          <BotonGuardar variante="compacto" tabIndex={tabIndexInteractivo} />
-
           <div className={styles.panelCabecera}>
             <p className={styles.panelNombre}>{nombre}</p>
-            {precio && <p className={styles.panelPrecio}>{precio}</p>}
           </div>
 
           {colores.length > 0 && (
@@ -232,29 +235,18 @@ function GaleriaProductoLightbox({
           )}
           {esAtelier && avisoColor && <p className={styles.avisoColor}>{t('avisoColor')}</p>}
 
-          {!esAtelier && mostrarTallas && tallas.length > 0 && (
-            <SelectorTalla
-              tallas={tallas}
-              agotadas={TALLAS_AGOTADAS_EJEMPLO}
-              seleccionada={talla}
-              onSelect={setTalla}
-              tabIndex={tabIndexInteractivo}
-            />
-          )}
-
           <Boton
             variante="solido"
             tamano="full"
-            onClick={alClicComprar}
-            desactivado={!esAtelier && mostrarTallas && tallas.length > 0 && !talla}
+            onClick={alClicContactar}
             tabIndex={tabIndexInteractivo}
           >
-            {esAtelier ? t('contactar') : t('anadirCesta')}
+            {t('contactar')}
           </Boton>
         </div>
       )}
 
-      {esAtelier && (
+      {esAtelier ? (
         <ModalSolicitudAtelier
           abierto={modalAtelierAbierto}
           onCerrar={() => setModalAtelierAbierto(false)}
@@ -264,8 +256,18 @@ function GaleriaProductoLightbox({
           colorHex={colores.find((candidato) => candidato.nombre === color)?.hex}
           tallas={tallas}
         />
+      ) : (
+        <ModalSolicitudAtelier
+          abierto={modalContactoAbierto}
+          onCerrar={() => setModalContactoAbierto(false)}
+          imagen={imagenes[0]}
+          producto={nombre}
+          color={color}
+          colorHex={colores.find((candidato) => candidato.nombre === color)?.hex}
+        />
       )}
-    </div>
+    </div>,
+    document.body,
   );
 }
 

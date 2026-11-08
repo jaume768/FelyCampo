@@ -22,7 +22,7 @@
    cuándo deja de estarlo (sessionStorage, marcar como visto...) es lógica
    que falta por implementar; aquí solo se pinta lo que la fila diga.
    `porPagina` es opcional: sin él, se pinta el array `filas` completo (así
-   se comportaba siempre esta tabla — ver docs/adminpanel.md, "no pagina").
+   se comportaba siempre esta tabla — ver docs/ADMIN.md, "no pagina").
    Con un número, corta `filas` en páginas de ese tamaño y añade el pie con
    Anterior/Siguiente. La página vuelve a 1 cuando cambia `filas` (nuevo
    filtro/búsqueda desde la página que la usa).

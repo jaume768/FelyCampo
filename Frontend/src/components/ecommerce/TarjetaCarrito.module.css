@@ -125,26 +125,3 @@
   border: var(--border-thin) solid var(--color-gris-300);
   flex-shrink: 0;
 }
-
-/* Talla: ahora se muestra, no se edita (cambiarla es otra variante). */
-.talla {
-  display: inline-flex;
-  align-items: center;
-  padding: 0 12px;
-  border: 1px solid var(--color-gris-200, #d9d9d9);
-  font-size: 0.8125rem;
-  color: var(--color-gris-700, #404040);
-}
-
-/* Error de esta línea concreta, no un aviso global. */
-.errorLinea {
-  margin: 8px 0 0;
-  font-size: 0.75rem;
-  color: var(--color-rosa-oscuro, #c2185f);
-}
-
-.avisoPocas {
-  margin: 8px 0 0;
-  font-size: 0.75rem;
-  color: var(--color-gris-500, #757575);
-}
