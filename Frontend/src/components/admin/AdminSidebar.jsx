@@ -14,7 +14,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCategorias } from './Categorias';
-import { codigoTemporada, citasMock, consultasPrecioMock } from '@/components/admin/mockData';
+import { codigoTemporada } from '@/components/admin/mockData';
+import { obtenerResumen } from '@/lib/solicitudesAdmin';
 import {
   Home,
   Newspaper,
@@ -60,12 +61,10 @@ const grupos = [
   {
     titulo: 'Contactos',
     items: [
-      {
-        href: '/admin/consultas', label: 'Citas', icono: CalendarDays, nuevos: citasMock.filter((c) => c.estado === 'Pendiente').length,
-      },
-      {
-        href: '/admin/consultas-precio', label: 'Consultas de vestidos', icono: MessageCircleQuestionMark, nuevos: consultasPrecioMock.filter((c) => c.estado === 'Pendiente').length,
-      },
+      // `contador`: campo de GET /api/v1/admin/resumen/ con las pendientes
+      // de verdad (ver useResumen más abajo). Sin pendientes no sale nada.
+      { href: '/admin/consultas', label: 'Citas', icono: CalendarDays, contador: 'citas_pendientes' },
+      { href: '/admin/consultas-precio', label: 'Consultas de vestidos', icono: MessageCircleQuestionMark, contador: 'consultas_pendientes' },
       { href: '/admin/newsletter', label: 'Newsletter', icono: Mail },
     ],
   },
@@ -175,6 +174,38 @@ function itemContieneRuta(item, pathname) {
   return Boolean(item.children?.some((c) => pathname === c.href));
 }
 
+// Cada cuánto se vuelven a pedir las pendientes con el panel abierto, para
+// que una cita que llega mientras alguien trabaja aparezca sin recargar.
+const REFRESCO_RESUMEN_MS = 60_000;
+
+// Pendientes de citas y consultas. Se piden al abrir el panel, al cambiar de
+// pantalla (p. ej. tras marcar una como contactada), al volver a la pestaña
+// y cada minuto. Si falla, se deja lo último que se supo (o nada).
+function useResumen(pathname) {
+  const [resumen, setResumen] = useState(null);
+
+  useEffect(() => {
+    let vivo = true;
+    const pedir = () => {
+      obtenerResumen()
+        .then((datos) => { if (vivo) setResumen(datos); })
+        .catch(() => {});
+    };
+    const alVolver = () => { if (document.visibilityState === 'visible') pedir(); };
+
+    pedir();
+    const intervalo = setInterval(pedir, REFRESCO_RESUMEN_MS);
+    document.addEventListener('visibilitychange', alVolver);
+    return () => {
+      vivo = false;
+      clearInterval(intervalo);
+      document.removeEventListener('visibilitychange', alVolver);
+    };
+  }, [pathname]);
+
+  return resumen;
+}
+
 export function AdminMarca() {
   return (
     // Sin el icono (logo) a la izquierda — quitado a petición: solo el
@@ -193,6 +224,7 @@ function AdminSidebar() {
   const searchParams = useSearchParams();
   const categoriaActiva = searchParams.get('categoria');
   const { categorias } = useCategorias();
+  const resumen = useResumen(pathname);
   const [subAbiertos, setSubAbiertos] = useState(() => {
     const itemActivo = itemsConSubmenu.find((item) => itemContieneRuta(item, pathname));
     return itemActivo ? { [itemActivo.href]: true } : {};
@@ -324,6 +356,7 @@ function AdminSidebar() {
     }
 
     const Icono = item.icono;
+    const nuevos = item.contador ? (resumen?.[item.contador] ?? 0) : (item.nuevos ?? 0);
     const activo = item.href === '/admin'
       ? pathname === '/admin'
       : (pathname === item.href || pathname.startsWith(`${item.href}/`));
@@ -332,7 +365,7 @@ function AdminSidebar() {
         <Link href={item.href} className={`${styles.item} ${activo ? styles.activo : ''}`}>
           <Icono className={styles.icono} aria-hidden="true" />
           <span className={styles.label}>{item.label}</span>
-          {item.nuevos > 0 && <span className={styles.contador}>{item.nuevos}</span>}
+          {nuevos > 0 && <span className={styles.contador}>{nuevos}</span>}
           {item.porHacer && <span className={styles.porHacer}>Por hacer</span>}
         </Link>
       </li>
