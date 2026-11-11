@@ -193,15 +193,18 @@ Publicarlos dejaría la base de datos accesible desde internet.
 
 ## Prelanzamiento y apertura (día 15)
 
-Con `PRELANZAMIENTO=true` en el `.env` (el valor por defecto), **todo el público ve, en
-cualquier URL, el anuncio «la nueva web estará disponible el PRELANZAMIENTO_FECHA»**,
+Con `PRELANZAMIENTO=true` en el `.env` (el valor por defecto) y hasta
+`PRELANZAMIENTO_FECHA` (`2026-11-15T12:00:00+01:00`), **todo el público ve, en cualquier
+URL, la pantalla «Muy pronto»** (cuenta atrás y newsletter),
 con un **503** + `Retry-After` + `noindex`: Google entiende que la web está cerrada
 temporalmente y vuelve, sin indexar el anuncio ni dar por buenas las redirecciones.
 
 El equipo entra en `https://<dominio>/acceso` con su cuenta de staff y ve la web y el
 panel como serán.
 
-Para **abrir la web**: `PRELANZAMIENTO=false` en el `.env` y
+**A esa hora la web se abre sola**, sin tocar nada: el proxy compara la hora en cada
+petición, y quien tenga la cuenta atrás abierta ve recargarse la página. Para **abrirla
+antes**: `PRELANZAMIENTO=false` en el `.env` y
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d frontend   # sin --build: se lee al arrancar

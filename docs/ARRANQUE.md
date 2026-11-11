@@ -97,8 +97,8 @@ las que ya estaban, `python manage.py generar_variantes` (unos minutos).
 
 ### Entrar en la web y en el panel
 
-Con `PRELANZAMIENTO=true` (lo que trae `.env.example`), http://localhost:3000 enseña el
-anuncio de la nueva web. El equipo entra en **http://localhost:3000/acceso** con una
+Con `PRELANZAMIENTO=true` (lo que trae `.env.example`) y hasta `PRELANZAMIENTO_FECHA`,
+http://localhost:3000 enseña la pantalla «Muy pronto». El equipo entra en **http://localhost:3000/acceso** con una
 cuenta de staff y a partir de ahí ve la web y el panel (`/admin`). Para ver la web
 abierta, `PRELANZAMIENTO=false` en `.env` y `docker compose up -d frontend`.
 

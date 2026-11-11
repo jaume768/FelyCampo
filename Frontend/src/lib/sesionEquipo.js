@@ -76,20 +76,26 @@ export async function verificarSesion(token) {
 }
 
 // ---------- Prelanzamiento ----------
-// PRELANZAMIENTO=true cierra la web pública: quien no sea del equipo ve la
-// pantalla «La nueva web estará disponible el…» (src/app/acceso/route.js)
-// con un 503. Se lee al arrancar el servidor, no en el build: para abrir la
-// web basta cambiar la variable y reiniciar el contenedor del frontend.
+// PRELANZAMIENTO=true cierra la web pública HASTA la fecha de lanzamiento:
+// quien no sea del equipo ve la pantalla «Muy pronto» con la cuenta atrás
+// (src/app/acceso/proximamente.js) y un 503. Al llegar la hora la web se
+// abre SOLA, sin reiniciar nada: se comprueba en cada petición.
+// PRELANZAMIENTO=false la abre ya, antes de la fecha (se lee al arrancar:
+// `up -d frontend`, sin --build).
 
-export function enPrelanzamiento() {
-  return process.env.PRELANZAMIENTO === 'true';
+const LANZAMIENTO_POR_DEFECTO = '2026-11-15T12:00:00+01:00';
+
+export function enPrelanzamiento(ahora = Date.now()) {
+  return process.env.PRELANZAMIENTO === 'true' && ahora < fechaLanzamiento().getTime();
 }
 
-// Fecha de apertura, AAAA-MM-DD (por defecto, el 15 de noviembre de 2026).
+// Momento de apertura. PRELANZAMIENTO_FECHA admite una fecha y hora ISO con
+// zona («2026-11-15T12:00:00+01:00») o solo el día («2026-11-15»), que
+// entonces abre a las 12:00 de Madrid (+01:00 en invierno).
 export function fechaLanzamiento() {
-  const valor = process.env.PRELANZAMIENTO_FECHA || '2026-11-15';
-  const fecha = new Date(`${valor}T00:00:00+01:00`);
-  return Number.isNaN(fecha.getTime()) ? new Date('2026-11-15T00:00:00+01:00') : fecha;
+  const valor = (process.env.PRELANZAMIENTO_FECHA || LANZAMIENTO_POR_DEFECTO).trim();
+  const fecha = new Date(/^\d{4}-\d{2}-\d{2}$/.test(valor) ? `${valor}T12:00:00+01:00` : valor);
+  return Number.isNaN(fecha.getTime()) ? new Date(LANZAMIENTO_POR_DEFECTO) : fecha;
 }
 
 // Solo rutas internas: nunca a otro dominio («//evil.com», «https://…»).

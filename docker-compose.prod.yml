@@ -90,12 +90,15 @@ services:
       # donde "localhost" sería el propio contenedor del frontend.
       API_INTERNAL_URL: http://backend:8000
       REVALIDATE_SECRET: ${REVALIDATE_SECRET:?REVALIDATE_SECRET es obligatoria}
-      # Anuncio de la nueva web para el público y acceso del equipo
-      # (src/lib/sesionEquipo.js). Se leen al ARRANCAR, no en el build: para
-      # abrir la web, PRELANZAMIENTO=false en .env y
-      # `docker compose -f docker-compose.prod.yml up -d frontend`.
+      # Pantalla «Muy pronto» para el público y acceso del equipo
+      # (src/lib/sesionEquipo.js). La web se abre SOLA al llegar
+      # PRELANZAMIENTO_FECHA. Para abrirla antes: PRELANZAMIENTO=false en .env
+      # y `docker compose -f docker-compose.prod.yml up -d frontend` (se lee al
+      # arrancar, no en el build).
       PRELANZAMIENTO: ${PRELANZAMIENTO:-true}
-      PRELANZAMIENTO_FECHA: ${PRELANZAMIENTO_FECHA:-2026-11-15}
+      PRELANZAMIENTO_FECHA: ${PRELANZAMIENTO_FECHA:-2026-11-15T12:00:00+01:00}
+      # Newsletter → Substack (src/app/api/newsletter/route.js). Vacía: no se reenvía.
+      SUBSTACK_URL: ${SUBSTACK_URL-https://felycampo.substack.com}
       SESION_EQUIPO_SECRET: ${SESION_EQUIPO_SECRET:?SESION_EQUIPO_SECRET es obligatoria}
       # src/lib/seo.js la lee al renderizar (meta robots, robots.txt): tiene que valer lo
       # mismo que en el build.

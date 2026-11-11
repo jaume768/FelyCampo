@@ -64,15 +64,19 @@ clientes; no es producción.
   Google, citas, consultas y newsletter. Comprobado de punta a punta en el navegador
   (`docs/CONTENIDO.md`, «Estado»).
 - **Login y prelanzamiento** hechos (abajo).
-- Pendiente: Substack, recompresión de vídeo y vista previa entre dispositivos.
+- **Newsletter → Substack**: `/api/newsletter` guarda y después reenvía a
+  `SUBSTACK_URL` (`https://felycampo.substack.com` en producción; vacía en desarrollo). El
+  endpoint de Substack no es oficial: si falla, queda en el log y en el panel.
+- Pendiente: recompresión de vídeo y vista previa entre dispositivos.
 - Siguen en el código, sin usar: el catálogo, los pedidos, el stock y Stripe del backend
   (para cuando vuelva la tienda), y el carrito, la wishlist y la cuenta del frontend
   (ocultos, ver `Frontend/docs/ADMIN.md` §6). **No los conectes.**
 
 ### Acceso del equipo y prelanzamiento
 
-- **`/acceso`** (`Frontend/src/app/acceso/route.js`) es a la vez el login del panel y el
-  anuncio «la nueva web estará disponible el…». HTML propio desde un Route Handler, no una
+- **`/acceso`** (`Frontend/src/app/acceso/route.js`) es a la vez el login del panel y la
+  pantalla **«Muy pronto»** del prelanzamiento (`acceso/proximamente.js`: cuenta atrás y
+  newsletter, imágenes en `public/proximamente/`). HTML propio desde un Route Handler, no una
   página de React, para poder responder 503.
 - **Quien autentica es Django.** El navegador inicia sesión en `/api/v1/auth/login/`,
   luego `/api/acceso` pregunta a `/api/v1/admin/me/` si la persona es staff y emite la
@@ -86,9 +90,10 @@ clientes; no es producción.
   sesión, el equipo vuelve a donde iba.
 - La cookie solo deja **ver**. Guardar sigue pasando por la sesión de Django e `IsStaff`.
   `SesionAdmin.jsx` comprueba al cargar el panel que esa sesión sigue viva.
-- **Abrir la web el día del lanzamiento:** `PRELANZAMIENTO=false` en el `.env` y
-  `docker compose -f docker-compose.prod.yml up -d frontend`. Se lee al arrancar: **no**
-  hace falta `--build`.
+- **La web se abre sola** al llegar `PRELANZAMIENTO_FECHA` (por defecto
+  `2026-11-15T12:00:00+01:00`): el proxy compara la hora en cada petición y la cuenta atrás
+  recarga la página al llegar a cero. Para abrirla antes: `PRELANZAMIENTO=false` en el
+  `.env` y `docker compose -f docker-compose.prod.yml up -d frontend` (sin `--build`).
 
 ### Rutas públicas (las de Miriam, definitivas)
 

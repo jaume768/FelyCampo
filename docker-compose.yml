@@ -76,7 +76,9 @@ services:
       # Pantalla «la nueva web estará disponible el…» y acceso del equipo
       # (src/lib/sesionEquipo.js). Se leen al arrancar: basta reiniciar.
       PRELANZAMIENTO: ${PRELANZAMIENTO:-true}
-      PRELANZAMIENTO_FECHA: ${PRELANZAMIENTO_FECHA:-2026-11-15}
+      PRELANZAMIENTO_FECHA: ${PRELANZAMIENTO_FECHA:-2026-11-15T12:00:00+01:00}
+      # Newsletter → Substack. Vacía en desarrollo: no se reenvía nada.
+      SUBSTACK_URL: ${SUBSTACK_URL:-}
       SESION_EQUIPO_SECRET: ${SESION_EQUIPO_SECRET:-dev-sesion-equipo-cambiame}
     volumes:
       - ./frontend:/app

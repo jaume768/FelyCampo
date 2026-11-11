@@ -151,7 +151,7 @@ Los dos son idempotentes. En el servidor se hace igual, con `-f docker-compose.p
 |---|---|---|---|
 | Pedir cita | `/api/cita` | `Cita` | Al equipo y a la clienta |
 | Contacta con nosotros (fichas) | `/api/consulta-vestido` | `ConsultaVestido` | Al equipo y a la clienta |
-| Newsletter (pie y ventana) | `/api/newsletter` | `Suscriptor` | — |
+| Newsletter (pie, ventana y «Muy pronto») | `/api/newsletter` | `Suscriptor` | — (se reenvía a Substack) |
 
 - **Next valida, guarda y después envía los emails.** Guarda llamando a Django por la red
   interna (`/api/v1/formularios/…`) con `REVALIDATE_SECRET`, que hace de secreto compartido
@@ -164,8 +164,11 @@ Los dos son idempotentes. En el servidor se hace igual, con `-f docker-compose.p
   Cerrada), la asignación (citas) y las notas internas. Cada cambio de estado queda en el
   historial con la fecha del servidor y quién lo hizo. Los datos de la clienta no se pueden
   modificar.
-- La newsletter guarda la lista propia (CSV desde el panel). **Substack queda pendiente**:
-  se conectará dentro de `/api/newsletter`, después de guardar (`Frontend/docs/ADMIN.md` §5).
+- La newsletter guarda la lista propia (CSV desde el panel) y **después reenvía cada email
+  a Substack** (`SUBSTACK_URL`, `POST /api/v1/free`, sin credenciales). Ese endpoint no es
+  oficial: si falla, se ve en el log (`[newsletter] Substack …`) y la suscripción sigue en
+  el panel para importarla con el CSV. Se suscribe desde el pie, la ventana de la home y la
+  pantalla «Muy pronto» del prelanzamiento (origen `proximamente`).
 
 ## Estado (2026-11-09)
 
@@ -182,7 +185,7 @@ Los dos son idempotentes. En el servidor se hace igual, con `-f docker-compose.p
 - **Backend:** 334 tests.
 
 **Pendiente:**
-1. **Substack** para la newsletter.
+1. ~~Substack~~ conectado (no oficial; ver arriba).
 2. **Vídeos:** se guardan tal cual (máx. 15 MB). Recomprimirlos en el servidor necesitaría
    ffmpeg en la imagen del backend.
 3. **Vista previa entre dispositivos:** el borrador de la vista previa sigue en el

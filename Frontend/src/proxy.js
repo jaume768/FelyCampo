@@ -96,6 +96,7 @@ export default async function middleware(request) {
   if (pathname === '/acceso') {
     const cabeceras = new Headers(request.headers);
     cabeceras.delete('x-fc-prelanzamiento');
+    cabeceras.delete('x-fc-idioma');
     return NextResponse.next({ request: { headers: cabeceras } });
   }
 
@@ -110,7 +111,8 @@ export default async function middleware(request) {
       login.searchParams.set('destino', pathname + request.nextUrl.search);
       return NextResponse.redirect(login, 307);
     }
-    // Prelanzamiento: el público ve el anuncio (503) en CUALQUIER URL,
+    // Prelanzamiento (hasta la fecha y hora de PRELANZAMIENTO_FECHA; luego
+    // la web se abre sola): el público ve «Muy pronto» (503) en CUALQUIER URL,
     // también en las antiguas de WordPress — antes de sus 301, para que
     // Google no dé por buenas las redirecciones a una web que aún no
     // enseña nada. La URL del navegador no cambia: tras iniciar sesión,
@@ -120,7 +122,14 @@ export default async function middleware(request) {
     if (!sesion) {
       const cabeceras = new Headers(request.headers);
       cabeceras.set('x-fc-prelanzamiento', '1');
-      return NextResponse.rewrite(new URL('/acceso', request.url), { request: { headers: cabeceras } });
+      // El idioma de la URL (/en/… → la pantalla en inglés).
+      const idioma = /^\/(es|en)(\/|$)/.exec(pathname)?.[1];
+      if (idioma) cabeceras.set('x-fc-idioma', idioma);
+      else cabeceras.delete('x-fc-idioma');
+      // Con su ?query: el «English / Español» de la pantalla es «?lang=…».
+      const anuncio = new URL('/acceso', request.url);
+      anuncio.search = request.nextUrl.search;
+      return NextResponse.rewrite(anuncio, { request: { headers: cabeceras } });
     }
   }
 

@@ -53,7 +53,7 @@ export default function NewsletterPage() {
           etiqueta="Origen"
           valor={filtroOrigen}
           onChange={(e) => setFiltroOrigen(e.target.value)}
-          opciones={[{ valor: 'Todos', etiqueta: 'Todos' }, { valor: 'Pie de página', etiqueta: 'Pie de página' }, { valor: 'Ventana de la home', etiqueta: 'Ventana de la home' }]}
+          opciones={[{ valor: 'Todos', etiqueta: 'Todos' }, { valor: 'Pie de página', etiqueta: 'Pie de página' }, { valor: 'Ventana de la home', etiqueta: 'Ventana de la home' }, { valor: 'Muy pronto (prelanzamiento)', etiqueta: 'Muy pronto (prelanzamiento)' }]}
         />
       </FiltroBar>
 

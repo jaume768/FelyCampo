@@ -16,7 +16,7 @@ const ETIQUETA_ESTADO = {
 };
 const CODIGO_ESTADO = Object.fromEntries(Object.entries(ETIQUETA_ESTADO).map(([c, e]) => [e, c]));
 
-const ORIGEN_NEWSLETTER = { pie: 'Pie de página', ventana: 'Ventana de la home' };
+const ORIGEN_NEWSLETTER = { pie: 'Pie de página', ventana: 'Ventana de la home', proximamente: 'Muy pronto (prelanzamiento)' };
 
 // "2026-11-05T11:15" en hora de Madrid (lo que esperan las pantallas).
 const FORMATO_MADRID = new Intl.DateTimeFormat('sv-SE', {
