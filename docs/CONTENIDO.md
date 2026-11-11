@@ -164,10 +164,12 @@ Los dos son idempotentes. En el servidor se hace igual, con `-f docker-compose.p
   Cerrada), la asignación (citas) y las notas internas. Cada cambio de estado queda en el
   historial con la fecha del servidor y quién lo hizo. Los datos de la clienta no se pueden
   modificar.
-- La newsletter guarda la lista propia (CSV desde el panel) y **después reenvía cada email
-  a Substack** (`SUBSTACK_URL`, `POST /api/v1/free`, sin credenciales). Ese endpoint no es
-  oficial: si falla, se ve en el log (`[newsletter] Substack …`) y la suscripción sigue en
-  el panel para importarla con el CSV. Se suscribe desde el pie, la ventana de la home y la
+- La newsletter guarda la lista propia (CSV desde el panel) y **el navegador de quien se
+  suscribe da de alta el email en Substack** (`SUBSTACK_URL`, `POST /api/v1/free?nojs=true`
+  como el formulario de Substack sin JavaScript; `lib/newsletter.js`). Desde el servidor
+  no se puede: Substack bloquea su IP con 403, también a un navegador automático
+  (2026-11-12). La respuesta de Substack no se puede leer, así que la lista del panel es la
+  que cuenta; si falta alguien en Substack, se importa con el CSV. Se suscribe desde el pie, la ventana de la home y la
   pantalla «Muy pronto» del prelanzamiento (origen `proximamente`).
 
 ## Estado (2026-11-09)

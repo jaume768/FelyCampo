@@ -6,7 +6,8 @@
 //
 // Diferencias con el original, que estaba hecho para Netlify:
 //   - la newsletter va a /api/newsletter (se guarda en el panel, origen
-//     «proximamente») en vez de a Netlify Forms;
+//     «proximamente») en vez de a Netlify Forms, y después este navegador
+//     da de alta el email en Substack;
 //   - la cuenta atrás cuenta con la hora del SERVIDOR (no con el reloj del
 //     móvil de la visitante) y al llegar a cero recarga: la web ya está
 //     abierta;
@@ -221,6 +222,21 @@ export function paginaProximamente({ idioma, restanteMs, textoEquipo, bloqueSesi
       const j = await r.json().catch(() => ({}));
       if (r.status === 429) throw new Error('ritmo');
       if (!r.ok || !j.ok) throw new Error();
+      // Alta en Substack desde este navegador (igual que lib/newsletter.js
+      // → enviarASubstack; desde el servidor Substack lo bloquea).
+      if (j.substack) {
+        try {
+          fetch(j.substack + '/api/v1/free?nojs=true', {
+            method: 'POST', mode: 'no-cors', credentials: 'omit', keepalive: true,
+            body: new URLSearchParams({
+              email: datos.get('email').trim().toLowerCase(),
+              first_url: location.href, first_referrer: document.referrer || '',
+              current_url: location.href, current_referrer: document.referrer || '',
+              referral_code: '', source: 'embed',
+            }),
+          }).catch(() => {});
+        } catch {}
+      }
       form.reset();
       form.classList.add('enviado');
       estado.textContent = T.gracias;

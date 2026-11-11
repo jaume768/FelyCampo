@@ -2,48 +2,21 @@
 // la pantalla «Muy pronto» del prelanzamiento (lib/newsletter.js,
 // app/acceso/proximamente.js).
 //
-// 1. Guarda el email en la base de datos (lista propia, /admin/newsletter,
-//    exportable en CSV). Es lo que decide si la respuesta es «gracias».
-// 2. Después, ya con la respuesta enviada (`after`), lo reenvía a Substack
-//    si SUBSTACK_URL está definida (https://felycampo.substack.com). Es el
-//    mismo endpoint que usa el formulario de suscripción de Substack: no
-//    lleva credenciales, pero NO es oficial y puede cambiar sin aviso. Si
-//    falla, solo queda en el log ([newsletter] Substack …): la suscripción
-//    sigue guardada y se puede importar a Substack con el CSV del panel.
+// Guarda el email en la base de datos (lista propia, /admin/newsletter,
+// exportable en CSV). Es lo que decide si la respuesta es «gracias».
+//
+// Substack: lo da de alta EL NAVEGADOR de quien se suscribe, no este
+// servidor. Substack bloquea con 403 todo lo que sale de la IP del servidor
+// (probado el 2026-11-12, también con un navegador automático), y no tiene
+// API oficial para añadir suscriptores. Por eso aquí solo se devuelve la
+// URL de la publicación (`substack`, de SUBSTACK_URL) y el navegador hace
+// el alta (lib/newsletter.js → enviarASubstack). Si eso fallara, la
+// suscripción sigue en el panel y se puede importar a Substack con el CSV.
 
-import { after } from 'next/server';
 import { EMAIL_VALIDO, texto } from '@/lib/emailFormularios';
 import { guardarEnBackend } from '@/lib/backendInterno';
 
 const ORIGENES = new Set(['pie', 'ventana', 'proximamente']);
-
-async function enviarASubstack(email) {
-  const base = (process.env.SUBSTACK_URL || '').trim().replace(/\/+$/, '');
-  if (!base) return;
-  const web = (process.env.NEXT_PUBLIC_SITE_URL || 'https://felycampo.com').replace(/\/+$/, '');
-  try {
-    const respuesta = await fetch(`${base}/api/v1/free`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        email,
-        first_url: web,
-        first_referrer: '',
-        current_url: web,
-        current_referrer: '',
-        referral_code: '',
-        source: 'embed',
-      }),
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!respuesta.ok) {
-      const detalle = (await respuesta.text().catch(() => '')).slice(0, 300);
-      console.error(`[newsletter] Substack respondió ${respuesta.status}: ${detalle}`);
-    }
-  } catch (error) {
-    console.error('[newsletter] Substack no responde:', error.message);
-  }
-}
 
 export async function POST(request) {
   let datos;
@@ -68,6 +41,6 @@ export async function POST(request) {
   if (guardado.status === 429) return Response.json({ ok: false, error: 'ritmo' }, { status: 429 });
   if (!guardado.ok) return Response.json({ ok: false, error: 'guardar' }, { status: 502 });
 
-  after(() => enviarASubstack(email));
-  return Response.json({ ok: true });
+  const substack = (process.env.SUBSTACK_URL || '').trim().replace(/\/+$/, '');
+  return Response.json({ ok: true, substack: /^https:\/\//.test(substack) ? substack : null });
 }

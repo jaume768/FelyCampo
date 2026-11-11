@@ -64,9 +64,12 @@ clientes; no es producción.
   Google, citas, consultas y newsletter. Comprobado de punta a punta en el navegador
   (`docs/CONTENIDO.md`, «Estado»).
 - **Login y prelanzamiento** hechos (abajo).
-- **Newsletter → Substack**: `/api/newsletter` guarda y después reenvía a
-  `SUBSTACK_URL` (`https://felycampo.substack.com` en producción; vacía en desarrollo). El
-  endpoint de Substack no es oficial: si falla, queda en el log y en el panel.
+- **Newsletter → Substack**: `/api/newsletter` guarda y devuelve `SUBSTACK_URL`
+  (`https://felycampo.substack.com` en producción; vacía en desarrollo); el **navegador**
+  de quien se suscribe da de alta el email en Substack (`lib/newsletter.js`). **Desde el
+  servidor no se puede**: Substack bloquea su IP con 403, también a un navegador
+  automático con sesión (probado el 2026-11-12). No se sabe si Substack acepta cada alta;
+  la lista del panel es la que cuenta (CSV para importar).
 - Pendiente: recompresión de vídeo y vista previa entre dispositivos.
 - Siguen en el código, sin usar: el catálogo, los pedidos, el stock y Stripe del backend
   (para cuando vuelva la tienda), y el carrito, la wishlist y la cuenta del frontend

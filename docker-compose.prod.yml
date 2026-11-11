@@ -97,7 +97,8 @@ services:
       # arrancar, no en el build).
       PRELANZAMIENTO: ${PRELANZAMIENTO:-true}
       PRELANZAMIENTO_FECHA: ${PRELANZAMIENTO_FECHA:-2026-11-15T12:00:00+01:00}
-      # Newsletter → Substack (src/app/api/newsletter/route.js). Vacía: no se reenvía.
+      # Newsletter → Substack: el navegador de quien se suscribe da el alta
+      # (src/lib/newsletter.js). Vacía: no se envía a Substack.
       SUBSTACK_URL: ${SUBSTACK_URL-https://felycampo.substack.com}
       SESION_EQUIPO_SECRET: ${SESION_EQUIPO_SECRET:?SESION_EQUIPO_SECRET es obligatoria}
       # src/lib/seo.js la lee al renderizar (meta robots, robots.txt): tiene que valer lo
