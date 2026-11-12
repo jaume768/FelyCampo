@@ -16,6 +16,8 @@ export function registrarConversionCita() {
 
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event: 'cita_enviada' });
+  // GA4 cargado con gtag.js (NEXT_PUBLIC_GOOGLE_TAG_IDS): mismo nombre de evento.
+  if (typeof window.gtag === 'function') window.gtag('event', 'cita_enviada');
 
   if (typeof window.fbq === 'function') {
     window.fbq('track', 'Schedule');

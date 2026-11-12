@@ -31,7 +31,8 @@
 | `NEXT_PUBLIC_SITE_URL` | `https://felycampo.com` | Canonical, sitemap y Open Graph (por defecto ya es esta). |
 | `SITIO_INDEXABLE` | `true` | **Imprescindible.** Solo en producción, nunca en las previews. |
 | `NEXT_PUBLIC_GTM_ID` | `GTM-T2MJKZHT` | El mismo contenedor que usa hoy la web de WordPress (comprobado en su HTML). |
-| `NEXT_PUBLIC_META_PIXEL_ID` | `1258085321257704` | **Corregido el 2026-11-12:** la web de WordPress NO lo tiene dentro de GTM; lo carga el plugin de Facebook para WordPress (con Conversions API, que se pierde). Revisado el contenedor GTM-T2MJKZHT: solo lleva GA4 `G-XCP746PKRV`. La web antigua carga además a mano GA4 `G-RGE8VR2FY5` y Google Ads `AW-11350885986`, que **no** están en GTM: hay que añadirlos al contenedor (o al código) para no perderlos. |
+| `NEXT_PUBLIC_META_PIXEL_ID` | `1258085321257704` | **Corregido el 2026-11-12:** la web de WordPress NO lo tiene dentro de GTM; lo carga el plugin de Facebook para WordPress (con Conversions API, que se pierde). Revisado el contenedor GTM-T2MJKZHT: solo lleva GA4 `G-XCP746PKRV`. La web antigua carga además a mano GA4 `G-RGE8VR2FY5` y Google Ads `AW-11350885986`, que **no** están en GTM: van en `NEXT_PUBLIC_GOOGLE_TAG_IDS` (`GOOGLE_TAG_IDS` en el `.env` del servidor), cargados con gtag.js y el mismo consentimiento. |
+| `NEXT_PUBLIC_GOOGLE_TAG_IDS` | `G-RGE8VR2FY5,AW-11350885986` | Ver la fila anterior. Si algún día se meten dentro de GTM, vaciarla o contarán doble. |
 | `CITA_EMAIL_EQUIPO` | `info@felycampo.com` | Quién recibe el aviso de cada cita y consulta. El envío (SMTP) se configura en `backend/.env.prod`. |
 | `SUBSTACK_URL` | `https://felycampo.substack.com` | Solo cuando se conecte la newsletter (`docs/ADMIN.md`, apartado 5). |
 

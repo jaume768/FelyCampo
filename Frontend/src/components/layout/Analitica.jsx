@@ -1,11 +1,18 @@
 // Analitica.jsx
 
 /* ============================================================
-   ANALÍTICA — Google Tag Manager + píxel de Meta, con consentimiento.
-   Vive en el layout raíz (src/app/[locale]/layout.js), en todas las
-   páginas. No pinta nada si no hay IDs configurados:
-     NEXT_PUBLIC_GTM_ID           ej. GTM-XXXXXXX
-     NEXT_PUBLIC_META_PIXEL_ID    ej. 123456789012345
+   ANALÍTICA — Google Tag Manager, etiquetas de Google sueltas y píxel
+   de Meta, con consentimiento. Vive en el layout raíz
+   (src/app/[locale]/layout.js), en todas las páginas. No pinta nada si
+   no hay IDs configurados:
+     NEXT_PUBLIC_GTM_ID             ej. GTM-XXXXXXX
+     NEXT_PUBLIC_GOOGLE_TAG_IDS     ej. G-XXXXXXXXXX,AW-123456789 (separados
+                                    por comas): GA4 y Google Ads que NO
+                                    están dentro del contenedor GTM. Se
+                                    cargan con gtag.js, igual que los ponía
+                                    la web de WordPress. No repetir aquí un
+                                    ID que ya esté en GTM: contaría doble.
+     NEXT_PUBLIC_META_PIXEL_ID      ej. 123456789012345
    (ver .env.example).
 
    Consentimiento (RGPD/AEPD) — enlazado con CookieConsent.jsx, que
@@ -28,6 +35,10 @@ import Script from 'next/script';
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+const GOOGLE_TAG_IDS = (process.env.NEXT_PUBLIC_GOOGLE_TAG_IDS || '')
+  .split(',')
+  .map((id) => id.trim())
+  .filter((id) => /^(G|AW)-[A-Z0-9]+$/.test(id));
 
 function scriptInicial() {
   return `
@@ -80,6 +91,14 @@ try {
   if (guardado) window.fcAplicarConsentimiento(JSON.parse(guardado));
 } catch (e) {}
 
+${GOOGLE_TAG_IDS.length ? `// Etiquetas de Google fuera de GTM (gtag.js). Comparten dataLayer y el
+// consentimiento de arriba. GA4 cuenta solo los cambios de página.
+(function(){var j=document.createElement('script');j.async=true;
+j.src='https://www.googletagmanager.com/gtag/js?id='+${JSON.stringify(GOOGLE_TAG_IDS[0] || '')};
+document.head.appendChild(j);})();
+gtag('js', new Date());
+${GOOGLE_TAG_IDS.map((id) => `gtag('config', ${JSON.stringify(id)});`).join(' ')}
+` : ''}
 ${GTM_ID ? `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -89,7 +108,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 }
 
 function Analitica() {
-  if (!GTM_ID && !META_PIXEL_ID) return null;
+  if (!GTM_ID && !META_PIXEL_ID && !GOOGLE_TAG_IDS.length) return null;
 
   return (
     <>

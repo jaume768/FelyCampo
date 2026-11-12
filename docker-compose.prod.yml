@@ -82,6 +82,8 @@ services:
         NEXT_PUBLIC_SITE_URL: ${SITE_URL:-https://felycampo.com}
         NEXT_PUBLIC_GTM_ID: ${GTM_ID:-}
         NEXT_PUBLIC_META_PIXEL_ID: ${META_PIXEL_ID:-}
+        # GA4 / Google Ads que no están dentro de GTM (gtag.js), separados por comas.
+        NEXT_PUBLIC_GOOGLE_TAG_IDS: ${GOOGLE_TAG_IDS:-}
         # next.config.mjs lo lee en el build para las cabeceras X-Robots-Tag.
         SITIO_INDEXABLE: ${SITIO_INDEXABLE:-false}
     restart: unless-stopped
