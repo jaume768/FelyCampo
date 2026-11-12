@@ -105,7 +105,7 @@
   --text-destacado: 19px; /* títulos destacados (banda PedirCita) */
   --text-titulo:   15px;  /* títulos */
   --text-texto:    13px;  /* descripciones y textos largos */
-  --text-nav:      14px;  /* enlaces y selector de idioma del Navbar */
+  --text-nav:      13px;  /* enlaces y selector de idioma del Navbar */
   --text-cta:      13px;  /* CTAs (Boton en todas sus variantes) */
   --text-boton:    12px;  /* etiquetas, filtros y pestañas */
   --text-detalle:  11px;  /* footer y detalles pequeños */

@@ -151,13 +151,13 @@
 /* Grupo de enlaces de escritorio */
 .navLinks {
   display: flex;
-  gap: var(--spacing-5);
+  gap: var(--spacing-3);
 }
 
 /* Wishlist + carrito — escritorio: texto completo */
 .navActions {
   display: flex;
-  gap: var(--spacing-5);
+  gap: var(--spacing-3);
 }
 
 /* Selector de idioma (English | Español) junto a Pedir cita. El
