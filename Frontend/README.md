@@ -19,7 +19,7 @@ Variables de entorno: plantilla en `.env.example`. En local, sin `SITIO_INDEXABL
 |---|---|
 | `src/app/[locale]/` | Las páginas de la web (`/es/…`, `/en/…`). |
 | `src/app/admin/` | El panel de administración. |
-| `src/app/api/` | Los formularios de cita y de consulta de vestidos (envían emails con Resend). |
+| `src/app/api/` | Los formularios de cita y de consulta de vestidos (los emails los envía el backend por SMTP). |
 | `src/datos/` | El contenido de la web (textos, fotos, colecciones…). **Sustituto provisional de la base de datos.** |
 | `src/lib/` | Las funciones que comparten la web y el admin (lectura, validación, SEO, datos para Google…). |
 | `src/components/` | `ui/` (sistema de diseño), `layout/` (piezas de la web), `ecommerce/` (fichas y formularios), `admin/` (el panel). |

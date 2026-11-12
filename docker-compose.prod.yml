@@ -83,7 +83,7 @@ services:
         # next.config.mjs lo lee en el build para las cabeceras X-Robots-Tag.
         SITIO_INDEXABLE: ${SITIO_INDEXABLE:-false}
     restart: unless-stopped
-    # Correo de los formularios (Resend) y demás variables solo de servidor.
+    # Destinatario de los formularios (CITA_EMAIL_EQUIPO) y demás variables solo de servidor.
     env_file: ./Frontend/.env.prod
     environment:
       # Solo servidor: los Server Components hablan con el backend por la red interna,

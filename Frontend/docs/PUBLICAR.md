@@ -32,7 +32,7 @@
 | `SITIO_INDEXABLE` | `true` | **Imprescindible.** Solo en producción, nunca en las previews. |
 | `NEXT_PUBLIC_GTM_ID` | `GTM-T2MJKZHT` | El mismo contenedor que usa hoy la web de WordPress (comprobado en su HTML). |
 | `NEXT_PUBLIC_META_PIXEL_ID` | **vacía** | La web actual no carga el Pixel directamente: va dentro del contenedor de Tag Manager. Si se rellena, la web nueva lo cargaría también y cada visita contaría dos veces. Dentro de GTM, la etiqueta del Pixel debe respetar el consentimiento. Si algún día se saca el Pixel de GTM, entonces sí se pone aquí. |
-| `RESEND_API_KEY`, `CITA_EMAIL_REMITENTE`, `CITA_EMAIL_EQUIPO` | las de Resend | Sin ellas, los formularios de cita y de consulta no envían los emails. |
+| `CITA_EMAIL_EQUIPO` | `info@felycampo.com` | Quién recibe el aviso de cada cita y consulta. El envío (SMTP) se configura en `backend/.env.prod`. |
 | `SUBSTACK_URL` | `https://felycampo.substack.com` | Solo cuando se conecte la newsletter (`docs/ADMIN.md`, apartado 5). |
 
 ## 3. Al publicar

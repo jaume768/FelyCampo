@@ -24,6 +24,20 @@ def _ruta_propia(valor: str) -> str:
     return valor if valor.startswith("/") and not valor.startswith("//") else ""
 
 
+# ---------- Email de los formularios (llamada interna del frontend) ----------
+
+
+class EnvioEmailSerializer(serializers.Serializer):
+    to = serializers.ListField(child=serializers.EmailField(), min_length=1, max_length=10)
+    subject = serializers.CharField(max_length=300)
+    html = serializers.CharField(max_length=100_000)
+    reply_to = serializers.EmailField(required=False, allow_blank=True)
+
+    def validate_subject(self, valor):
+        # Un salto de línea en el asunto permitiría inyectar cabeceras.
+        return " ".join(valor.split())
+
+
 # ---------- Alta (llamada interna del frontend) ----------
 
 

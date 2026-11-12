@@ -147,7 +147,7 @@ Los dos son idempotentes. En el servidor se hace igual, con `-f docker-compose.p
 
 ## Formularios
 
-| Formulario | Ruta de Next | Guarda en | Email (Resend) |
+| Formulario | Ruta de Next | Guarda en | Email (SMTP del backend) |
 |---|---|---|---|
 | Pedir cita | `/api/cita` | `Cita` | Al equipo y a la clienta |
 | Contacta con nosotros (fichas) | `/api/consulta-vestido` | `ConsultaVestido` | Al equipo y a la clienta |
@@ -155,7 +155,9 @@ Los dos son idempotentes. En el servidor se hace igual, con `-f docker-compose.p
 
 - **Next valida, guarda y después envía los emails.** Guarda llamando a Django por la red
   interna (`/api/v1/formularios/…`) con `REVALIDATE_SECRET`, que hace de secreto compartido
-  entre los dos servicios, y la IP de la visitante (`src/lib/backendInterno.js`).
+  entre los dos servicios, y la IP de la visitante (`src/lib/backendInterno.js`). Los emails
+  también los envía Django, por SMTP (`/api/v1/formularios/email/`, config `EMAIL_*` del
+  backend); Next solo compone asunto y HTML (`src/lib/emailFormularios.js`).
 - **El límite de ritmo es por visitante**: 10 envíos por hora en cita y consulta, 20 en
   newsletter. Si se supera, no se envía nada (429).
 - **Si falla el email al equipo pero la solicitud está guardada**, la clienta ve el

@@ -1,10 +1,15 @@
 import csv
+import logging
 
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
 from django.http import HttpResponse
+from django.utils.html import strip_tags
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -19,8 +24,11 @@ from .serializers import (
     AltaSuscriptorSerializer,
     CitaAdminSerializer,
     ConsultaAdminSerializer,
+    EnvioEmailSerializer,
     SuscriptorAdminSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------------------
 # Altas: llamadas internas del frontend (ver internal.py)
@@ -72,6 +80,47 @@ class AltaSuscriptorView(_AltaInterna):
             {"id": str(suscriptor.id), "nueva": creado},
             status=status.HTTP_201_CREATED if creado else status.HTTP_200_OK,
         )
+
+
+class EnvioFallido(APIException):
+    status_code = status.HTTP_502_BAD_GATEWAY
+    default_detail = "El servidor de correo no ha aceptado el envío."
+    default_code = "email_no_enviado"
+
+
+def _texto_plano(html: str) -> str:
+    """Versión de texto del email, para los clientes que no leen HTML."""
+    con_saltos = html.replace("<br>", "\n").replace("</p>", "</p>\n").replace("</tr>", "</tr>\n")
+    return strip_tags(con_saltos).strip()
+
+
+class EnvioEmailView(APIView):
+    """Envía un email de los formularios (aviso al equipo o confirmación a la clienta) por
+    el SMTP de Django (`EMAIL_*`). El frontend compone asunto y HTML; el remitente es
+    siempre `DEFAULT_FROM_EMAIL`, no lo elige quien llama. En desarrollo el backend de
+    correo es la consola: los emails salen en `docker compose logs backend`."""
+
+    permission_classes = [EsFrontendInterno]
+    authentication_classes = []
+
+    def post(self, request):
+        serializer = EnvioEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        datos = serializer.validated_data
+        mensaje = EmailMultiAlternatives(
+            subject=datos["subject"],
+            body=_texto_plano(datos["html"]),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=datos["to"],
+            reply_to=[datos["reply_to"]] if datos.get("reply_to") else None,
+        )
+        mensaje.attach_alternative(datos["html"], "text/html")
+        try:
+            mensaje.send(fail_silently=False)
+        except Exception as error:
+            logger.exception("No se pudo enviar el email «%s»", datos["subject"])
+            raise EnvioFallido() from error
+        return Response({"ok": True})
 
 
 # ---------------------------------------------------------------------------------------

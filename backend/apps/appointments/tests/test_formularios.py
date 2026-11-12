@@ -183,3 +183,54 @@ def test_resumen_y_csv(staff_client):
     assert resumen["suscriptores"] == 1
     assert csv["Content-Type"].startswith("text/csv")
     assert "a@b.es" in csv.content.decode("utf-8-sig")
+
+
+# --- Email de los formularios ----------------------------------------------------------
+
+EMAIL = {
+    "to": ["equipo@felycampo.test"],
+    "subject": "Nueva cita — Lucía",
+    "html": "<p>Hola</p><table><tr><td>Nombre</td><td>Lucía</td></tr></table>",
+    "reply_to": "lucia@example.com",
+}
+
+
+def test_email_sin_secreto_403(mailoutbox):
+    respuesta = APIClient().post("/api/v1/formularios/email/", EMAIL, format="json")
+    assert respuesta.status_code == 403
+    assert mailoutbox == []
+
+
+def test_email_sale_del_remitente_configurado_con_responder_a_la_clienta(mailoutbox, settings):
+    settings.DEFAULT_FROM_EMAIL = "Fely Campo <noresponder@felycampo.test>"
+    respuesta = frontend().post("/api/v1/formularios/email/", EMAIL, format="json")
+
+    assert respuesta.status_code == 200
+    (email,) = mailoutbox
+    assert email.from_email == "Fely Campo <noresponder@felycampo.test>"
+    assert (email.to, email.reply_to) == (["equipo@felycampo.test"], ["lucia@example.com"])
+    assert email.alternatives[0][0] == EMAIL["html"]
+    assert "Lucía" in email.body and "<" not in email.body
+
+
+def test_email_el_asunto_no_admite_saltos_de_linea(mailoutbox):
+    datos = {**EMAIL, "subject": "Hola\r\nBcc: otro@example.com"}
+    assert frontend().post("/api/v1/formularios/email/", datos, format="json").status_code == 200
+    assert mailoutbox[0].subject == "Hola Bcc: otro@example.com"
+
+
+def test_email_con_destinatario_invalido_400(mailoutbox):
+    datos = {**EMAIL, "to": ["no-es-un-email"]}
+    assert frontend().post("/api/v1/formularios/email/", datos, format="json").status_code == 400
+    assert mailoutbox == []
+
+
+def test_email_si_el_smtp_falla_502_con_el_error_uniforme(monkeypatch):
+    def falla(*args, **kwargs):
+        raise OSError("SMTP caído")
+
+    monkeypatch.setattr("django.core.mail.EmailMultiAlternatives.send", falla)
+    respuesta = frontend().post("/api/v1/formularios/email/", EMAIL, format="json")
+
+    assert respuesta.status_code == 502
+    assert respuesta.json()["error"]["code"] == "email_no_enviado"

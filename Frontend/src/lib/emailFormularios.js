@@ -1,18 +1,20 @@
 // emailFormularios.js
 //
 // Piezas comunes de las APIs que reciben formularios del front y avisan
-// por email vía Resend (API REST, sin dependencias): /api/cita y
-// /api/consulta-vestido. Solo servidor (lee variables de entorno).
+// por email: /api/cita y /api/consulta-vestido. Solo servidor.
 //
-// Variables de entorno (ver .env.example):
-//   RESEND_API_KEY          clave de Resend (dominio felycampo.com verificado allí)
-//   CITA_EMAIL_REMITENTE    remitente, ej. "Fely Campo <citas@felycampo.com>"
+// El envío lo hace Django por SMTP (POST interno a
+// /api/v1/formularios/email/, ver backend/apps/appointments/views.py): el
+// servidor SMTP, la cuenta y el remitente (DEFAULT_FROM_EMAIL) se
+// configuran en backend/.env.prod, no aquí. En desarrollo Django escribe
+// los emails en su consola (`docker compose logs backend`) y no envía nada.
+//
+// Variable de entorno de este lado (ver .env.example):
 //   CITA_EMAIL_EQUIPO       destinatario(s) de los avisos al equipo, separados
 //                           por comas (por defecto info@felycampo.com) — el
 //                           mismo para citas y consultas de vestidos.
-// Sin RESEND_API_KEY: en desarrollo (next dev) no se envía nada, los emails
-// se escriben en la consola del servidor y se da por bueno, para poder
-// probar el flujo completo; en producción las APIs responden 503.
+
+import { llamarBackendInterno } from '@/lib/backendInterno';
 
 export const EMAIL_POR_DEFECTO = 'info@felycampo.com';
 export const EMAIL_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,27 +38,11 @@ export function tabla(filas) {
     .join('')}</table>`;
 }
 
-// null si se puede enviar; si no, la Response 503 que debe devolver la API.
-export function faltaConfiguracion(origen) {
-  if (!process.env.RESEND_API_KEY && process.env.NODE_ENV === 'production') {
-    console.error(`[${origen}] Falta RESEND_API_KEY en producción.`);
-    return Response.json({ ok: false, error: 'no-configurado' }, { status: 503 });
-  }
-  return null;
-}
-
+// Lanza si el backend no ha podido enviarlo (quien llama decide qué hacer).
+// `email`: { to: [...], subject, html, reply_to? }.
 export async function enviarEmail(email, origen) {
-  const clave = process.env.RESEND_API_KEY;
-  if (!clave) {
-    console.info(`[${origen}] RESEND_API_KEY sin configurar — email NO enviado:\n`, JSON.stringify({ ...email, html: '(html omitido)' }, null, 2));
-    return;
-  }
-  const respuesta = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${clave}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: process.env.CITA_EMAIL_REMITENTE || `Fely Campo <${EMAIL_POR_DEFECTO}>`, ...email }),
-  });
+  const respuesta = await llamarBackendInterno('email', email);
   if (!respuesta.ok) {
-    throw new Error(`Resend ${respuesta.status}: ${await respuesta.text()}`);
+    throw new Error(`[${origen}] El backend no envió el email (${respuesta.status}): ${await respuesta.text()}`);
   }
 }

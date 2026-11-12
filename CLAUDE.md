@@ -13,7 +13,7 @@ más adelante. Para el lanzamiento hacen falta:
 - su panel `/admin`, para que **varias personas** editen textos, fotos y vídeos;
 - todo servido desde **un servidor con Docker y Caddy, en el dominio `felycampo.com`**, con
   el panel en `felycampo.com/admin` (mismo dominio, **sin** subdominio aparte);
-- los formularios llegan **por email (Resend) y además se guardan** para verlos en el
+- los formularios llegan **por email (SMTP, desde el backend) y además se guardan** para verlos en el
   panel;
 - la newsletter se guarda primero en el panel y más adelante se conecta a Substack.
 
@@ -52,7 +52,10 @@ clientes; no es producción.
   que se usa igual que `useState`. Sube las fotos y vídeos nuevos, manda la versión y
   avisa si hay conflicto.
 - **Formularios** (cita, consulta, newsletter): las rutas de `/api` de Next validan, guardan
-  en `apps.appointments` (`src/lib/backendInterno.js`) y envían los emails. Las bandejas
+  en `apps.appointments` (`src/lib/backendInterno.js`) y envían los emails **a través de
+  Django** (`/api/v1/formularios/email/`, SMTP de `EMAIL_*`; hoy Gmail
+  `noresponder.felycampo@gmail.com`). El Microsoft 365 de felycampo.com tiene SMTP AUTH
+  desactivado. Las bandejas
   del panel leen de ahí (`lib/solicitudesAdmin.js`, `components/admin/useBandeja.js`).
 - `src/proxy.js` lleva unas 800 redirecciones 301 de la web de WordPress. **No las toques**
   sin leer `Frontend/docs/PUBLICAR.md`.
@@ -163,7 +166,7 @@ las citas y consultas), `integrations`, y las de la tienda aparcada: `catalog`, 
 **Frontend** (`Frontend/`): Next.js 16 (App Router, Turbopack), JavaScript sin TypeScript,
 CSS Modules, `next-intl` (`es` / `en`), Leaflet (mapa de puntos de venta), Storybook +
 Vitest. Rutas de servidor propias: `/api/cita` y `/api/consulta-vestido` (emails con
-Resend) y `/api/revalidar`.
+SMTP, vía Django) y `/api/revalidar`.
 
 ## Arranque
 

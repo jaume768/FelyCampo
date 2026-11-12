@@ -1,6 +1,6 @@
 // POST /api/consulta-vestido — "Solicita información" (ModalSolicitudAtelier,
 // botón "Contacta con nosotros" de las fichas de /atelier/novias y
-// /atelier/fiesta). Valida los datos y envía dos emails vía Resend, igual
+// /atelier/fiesta). Valida los datos y envía dos emails por SMTP, igual
 // que /api/cita (ver lib/emailFormularios.js):
 //   1. Aviso al equipo, con el vestido, el color y los datos de la
 //      clienta, y "Responder" apuntando a ella.
@@ -9,7 +9,7 @@
 // falla solo la confirmación, se da por buena (ver final de POST).
 
 import {
-  EMAIL_VALIDO, destinatariosEquipo, enviarEmail, escapar, faltaConfiguracion, tabla, texto,
+  EMAIL_VALIDO, destinatariosEquipo, enviarEmail, escapar, tabla, texto,
 } from '@/lib/emailFormularios';
 import { guardarEnBackend } from '@/lib/backendInterno';
 
@@ -37,9 +37,6 @@ const TEXTOS_CLIENTA = {
 };
 
 export async function POST(request) {
-  const sinConfigurar = faltaConfiguracion(ORIGEN);
-  if (sinConfigurar) return sinConfigurar;
-
   let datos;
   try {
     datos = await request.json();

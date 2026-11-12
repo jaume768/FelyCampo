@@ -80,7 +80,8 @@ Y en **`backend/.env.prod`**:
 Las demás ya vienen con el valor correcto para websjfs.com.
 
 Y por último **`Frontend/.env.prod`** (`cp Frontend/.env.prod.example Frontend/.env.prod`),
-con la clave de Resend para los formularios de cita y de consulta.
+con `CITA_EMAIL_EQUIPO`: quién recibe el aviso de cada cita y consulta. Los emails los envía
+el backend por SMTP (ver «Los correos van al log» más abajo).
 
 En el `.env` de la raíz están además `REVALIDATE_SECRET` (obligatorio: con él el backend
 avisa al frontend de que hay algo publicado, y compose lo pasa a los dos), `SITE_URL`,
@@ -182,7 +183,17 @@ docker compose -f docker-compose.prod.yml logs backend | grep -A5 "Confirma tu c
 ```
 
 Para envíos reales: quita esa línea y rellena `EMAIL_HOST`, `EMAIL_HOST_USER`,
-`EMAIL_HOST_PASSWORD`.
+`EMAIL_HOST_PASSWORD` y `DEFAULT_FROM_EMAIL`, y reinicia el backend. Por ese mismo SMTP salen
+los emails de los formularios (Next llama a `/api/v1/formularios/email/`). Hoy es la cuenta
+de Gmail `noresponder.felycampo@gmail.com` (`smtp.gmail.com:587`), con **contraseña de
+aplicación**: Gmail rechaza la normal. El SMTP de Microsoft 365 de felycampo.com no sirve:
+la organización tiene SMTP AUTH desactivado.
+
+Para probarlo sin pasar por el formulario:
+
+```bash
+docker compose -f docker-compose.prod.yml exec backend python manage.py sendtestemail <correo>
+```
 
 **Sin Stripe no hay cobro.** `STRIPE_SECRET_KEY` vacía: el checkout crea el pedido, reserva
 el stock y devuelve `payment: null`; el pedido queda pendiente de pago. Es intencionado

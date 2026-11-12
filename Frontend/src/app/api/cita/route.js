@@ -1,18 +1,18 @@
 // POST /api/cita — solicitud de cita en atelier (formulario de
-// /visita-fely-campo/cita). Valida los datos y envía dos emails vía
-// Resend (API REST, sin dependencias):
+// /visita-fely-campo/cita). Valida los datos y envía dos emails por el
+// SMTP del backend (ver lib/emailFormularios.js):
 //   1. Confirmación a la clienta, en su idioma.
 //   2. Aviso al equipo (un único email, CITA_EMAIL_EQUIPO, para los tres
 //      ateliers — el atelier elegido va en el asunto y en la tabla), con
 //      "Responder" apuntando a la clienta.
 // Si falla el aviso al equipo, responde error y el formulario lo enseña
 // (no se registra la conversión) — ver el detalle al final de POST.
-// Envío, variables de entorno y modo sin clave: ver lib/emailFormularios.js
+// Envío y variables de entorno: ver lib/emailFormularios.js
 // (compartido con /api/consulta-vestido).
 
 import { ATELIERES_CITA, TIPOS_CITA } from '@/lib/citaAtelier';
 import {
-  EMAIL_VALIDO, destinatariosEquipo, enviarEmail, escapar, faltaConfiguracion, tabla, texto,
+  EMAIL_VALIDO, destinatariosEquipo, enviarEmail, escapar, tabla, texto,
 } from '@/lib/emailFormularios';
 import { guardarEnBackend } from '@/lib/backendInterno';
 
@@ -54,9 +54,6 @@ const TEXTOS_CLIENTA = {
 };
 
 export async function POST(request) {
-  const sinConfigurar = faltaConfiguracion(ORIGEN);
-  if (sinConfigurar) return sinConfigurar;
-
   let datos;
   try {
     datos = await request.json();

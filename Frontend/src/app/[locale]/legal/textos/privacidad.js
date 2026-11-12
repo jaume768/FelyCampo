@@ -3,7 +3,7 @@
 // base del texto de la web anterior:
 // - Formularios reales: cita (/visita-fely-campo/cita → api/cita) y
 //   "Solicita información" de las fichas (ModalSolicitudAtelier →
-//   api/consulta-vestido). Se envían por email con Resend al equipo y a la
+//   api/consulta-vestido). Se envían por email (Gmail, por SMTP) al equipo y a la
 //   clienta; no se guardan en ninguna base de datos de la web.
 // - Uso de esos datos: SOLO contestar y organizar la visita al atelier,
 //   sin publicidad (a petición: "con las clientas lo único que queremos es
@@ -72,14 +72,14 @@ export const PRIVACIDAD = {
       {
         lista: [
           'Alojamiento de la web: nuestro proveedor de hosting.',
-          'Envío de los emails de los formularios (aviso al equipo y confirmación a usted): Resend.',
+          'Envío de los emails de los formularios (aviso al equipo y confirmación a usted): Google (Gmail).',
           'Analítica y publicidad, solo si acepta esas cookies: Google (Google Ireland Limited) y Meta (Meta Platforms Ireland Limited).',
           'Newsletter: Substack, Inc.',
         ],
       },
 
       { h: 'Transferencias internacionales' },
-      'Algunos de estos proveedores (como Resend, Substack, Google y Meta, y en su caso el proveedor de hosting) tienen su sede o sus servidores en Estados Unidos, por lo que sus datos pueden tratarse fuera del Espacio Económico Europeo. Estas transferencias se realizan con las garantías previstas en el RGPD: empresas adheridas al Marco de Privacidad de Datos UE-EE. UU. o cláusulas contractuales tipo aprobadas por la Comisión Europea.',
+      'Algunos de estos proveedores (como Substack, Google y Meta, y en su caso el proveedor de hosting) tienen su sede o sus servidores en Estados Unidos, por lo que sus datos pueden tratarse fuera del Espacio Económico Europeo. Estas transferencias se realizan con las garantías previstas en el RGPD: empresas adheridas al Marco de Privacidad de Datos UE-EE. UU. o cláusulas contractuales tipo aprobadas por la Comisión Europea.',
 
       { h: '¿Cuáles son sus derechos?' },
       'Puede ejercer en cualquier momento sus derechos de:',
@@ -163,14 +163,14 @@ export const PRIVACIDAD = {
       {
         lista: [
           'Website hosting: our hosting provider.',
-          'Sending the form emails (notice to our team and confirmation to you): Resend.',
+          'Sending the form emails (notice to our team and confirmation to you): Google (Gmail).',
           'Analytics and advertising, only if you accept those cookies: Google (Google Ireland Limited) and Meta (Meta Platforms Ireland Limited).',
           'Newsletter: Substack, Inc.',
         ],
       },
 
       { h: 'International transfers' },
-      'Some of these providers (such as Resend, Substack, Google and Meta, and where applicable the hosting provider) are based in, or have servers in, the United States, so your data may be processed outside the European Economic Area. These transfers are made with the safeguards provided for in the GDPR: companies certified under the EU-U.S. Data Privacy Framework or standard contractual clauses approved by the European Commission.',
+      'Some of these providers (such as Substack, Google and Meta, and where applicable the hosting provider) are based in, or have servers in, the United States, so your data may be processed outside the European Economic Area. These transfers are made with the safeguards provided for in the GDPR: companies certified under the EU-U.S. Data Privacy Framework or standard contractual clauses approved by the European Commission.',
 
       { h: 'What are your rights?' },
       'You may exercise at any time your rights of:',
