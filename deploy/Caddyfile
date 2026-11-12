@@ -20,7 +20,12 @@
 
 # www → apex. El CNAME de www ya apunta aquí; sin esta redirección se serviría el sitio
 # en dos URLs distintas, que para buscadores es contenido duplicado.
-www.{$DOMAIN} {
+#
+# DOMINIOS_REDIRIGIDOS (separados por espacios, puede ir vacía): otros dominios que
+# apuntan a este servidor y redirigen con 301 al principal. Con felycampo.com como
+# DOMAIN, aquí va el dominio de pruebas (felycampo.websjfs.com): el panel y los enlaces
+# viejos siguen funcionando y Google no ve dos copias de la web.
+www.{$DOMAIN} {$DOMINIOS_REDIRIGIDOS} {
 	redir https://{$DOMAIN}{uri} permanent
 }
 

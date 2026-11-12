@@ -64,7 +64,6 @@ Rellena en **`.env`**:
 | Variable | Qué poner |
 |---|---|
 | `DOMAIN` | `websjfs.com` |
-| `PUBLIC_URL` | `https://websjfs.com` |
 | `ACME_EMAIL` | Un correo real; ahí llegan los avisos de caducidad del certificado |
 | `POSTGRES_PASSWORD` | `openssl rand -base64 32` |
 | `DJANGO_ADMIN_PATH` | Sin barras. Algo poco adivinable |
@@ -201,6 +200,28 @@ el stock y devuelve `payment: null`; el pedido queda pendiente de pago. Es inten
 
 **Postgres y Redis no publican puertos.** Solo se llegan por la red interna de Docker.
 Publicarlos dejaría la base de datos accesible desde internet.
+
+## Cambio de dominio (felycampo.com)
+
+La misma imagen sirve en cualquier dominio: el navegador llama a la API en el dominio desde
+el que se visita (`PUBLIC_API_URL` vacía), y `backend/.env.prod` acepta los dos
+(`DJANGO_ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`, `CSRF_TRUSTED_ORIGINS`). Lo único que
+cambia es Caddy, y eso lo hace **`deploy/activar-dominio.sh`** en cuanto el DNS apunta aquí:
+
+```bash
+# Se deja programado ANTES de cambiar el DNS; comprueba cada minuto y se borra solo.
+echo '* * * * * root /root/FelyCampo/deploy/activar-dominio.sh felycampo.com felycampo.websjfs.com >> /var/log/felycampo-dominio.log 2>&1' > /etc/cron.d/felycampo-dominio
+tail -f /var/log/felycampo-dominio.log
+```
+
+Cuando los DNS autoritativos (Lucushost) dan la IP del servidor, pone `DOMAIN=felycampo.com`
+y `DOMINIOS_REDIRIGIDOS="felycampo.websjfs.com www.felycampo.websjfs.com"` en `.env`,
+recrea Caddy (que saca el certificado) y comprueba `https://felycampo.com/robots.txt`. El
+dominio de pruebas pasa a redirigir con 301 a felycampo.com.
+
+En el DNS **solo se cambia el registro A** de `felycampo.com` (`www` es un CNAME y lo
+sigue). MX, SPF, `autodiscover` y el TXT de Google se quedan como están: de ellos dependen
+el correo de `info@` y la verificación de Search Console.
 
 ## Prelanzamiento y apertura (día 15)
 
