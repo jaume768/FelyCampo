@@ -13,7 +13,8 @@
 //     abierta;
 //   - sin @import de Google Fonts (Helvetica / Arial bastan y no hay
 //     peticiones a terceros);
-//   - español e inglés, y el acceso del equipo plegado abajo.
+//   - español e inglés (enlace junto a las redes) y el acceso del equipo
+//     plegado en el pie de la página.
 
 export const TEXTOS_PROXIMAMENTE = {
   es: {
@@ -80,12 +81,14 @@ const ESTILOS = `
   .newsletter.enviado .fila, .newsletter.enviado .consentimiento { display: none; }
   .newsletter.enviado .estado { font-size: 14px; }
 
-  .pie { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); font-size: 11px; letter-spacing: var(--tracking); opacity: 0.8; }
-  .pie a { color: inherit; text-decoration: none; }
-  .pie a:hover { text-decoration: underline; }
+  /* Redes e idioma, debajo de la newsletter. */
+  .redes { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 40px; font-size: 11px; letter-spacing: var(--tracking); opacity: 0.8; }
+  .redes a { color: inherit; text-decoration: none; }
+  .redes a:hover { text-decoration: underline; }
 
-  /* Acceso del equipo: discreto, plegado debajo de la newsletter. */
-  .equipo { width: 100%; margin-top: 40px; font-size: 11px; text-align: left; }
+  /* Acceso del equipo: discreto, plegado al pie de la página. */
+  .pie { display: flex; justify-content: center; padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); }
+  .equipo { width: 100%; max-width: 460px; font-size: 11px; text-align: left; }
   .equipo summary { cursor: pointer; list-style: none; text-align: center; opacity: .6; letter-spacing: var(--tracking); }
   .equipo summary::-webkit-details-marker { display: none; }
   .equipo[open] summary { opacity: .9; }
@@ -162,18 +165,20 @@ export function paginaProximamente({ idioma, restanteMs, textoEquipo, bloqueSesi
     <p class="estado" id="estado" role="status" aria-live="polite"></p>
   </form>
 
+  <nav class="redes">
+    <a href="https://www.instagram.com/felycampo/" target="_blank" rel="noopener">Instagram</a>
+    <span>·</span>
+    <a href="https://www.youtube.com/channel/UCQeHEIrbwpFjAYtoGfzRUaA" target="_blank" rel="noopener">YouTube</a>
+    <span>·</span>
+    <a href="?lang=${codigoOtro}" hreflang="${codigoOtro}" lang="${codigoOtro}">${otroIdioma}</a>
+  </nav>
+</main>
+
+<footer class="pie">
   <details class="equipo"${abrirEquipo ? ' open' : ''}>
     <summary>${textoEquipo}</summary>
     ${bloqueSesion}
   </details>
-</main>
-
-<footer class="pie">
-  <a href="https://www.instagram.com/felycampo/" target="_blank" rel="noopener">Instagram</a>
-  <span>·</span>
-  <a href="https://www.youtube.com/channel/UCQeHEIrbwpFjAYtoGfzRUaA" target="_blank" rel="noopener">YouTube</a>
-  <span>·</span>
-  <a href="?lang=${codigoOtro}" hreflang="${codigoOtro}" lang="${codigoOtro}">${otroIdioma}</a>
 </footer>
 
 <script>
